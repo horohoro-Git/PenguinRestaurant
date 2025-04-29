@@ -122,7 +122,6 @@
 //}
 
 
-using CryingSnow.FastFoodRush;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -130,8 +129,9 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.UI;
+#if HAS_DOTWEEN
 using DG.Tweening;
-using static UnityEngine.GraphicsBuffer;
+#endif
 using Unity.VisualScripting;
 using UnityEngine.SceneManagement;
 using UnityEngine.EventSystems;
@@ -587,7 +587,9 @@ public class InputManger : MonoBehaviour
     IEnumerator MoveCamera()
     {
         bool t = true;
+#if HAS_DOTWEEN
         cameraTrans.DOMove(tempCameraLoc, 0.5f).SetEase(Ease.InBack).OnComplete(() => { t = false; });
+#endif
         while (t)
         {
             yield return null;

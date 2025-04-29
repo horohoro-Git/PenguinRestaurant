@@ -1,4 +1,6 @@
+#if HAS_DOTWEEN
 using DG.Tweening;
+#endif
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;

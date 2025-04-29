@@ -8,19 +8,4 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/App.unity
     guid: be9f21bf2a832084db166a0d55954940
-  - enabled: 1
-    path: Assets/Scenes/InteractionScene.unity
-    guid: 3d1618bb54e3559418602aac43166650
-  - enabled: 1
-    path: Assets/LeeSeonHo/[LSH]Scenes/GatCharScene_Forest.unity
-    guid: 139618f3669985945901987afad448e3
-  - enabled: 1
-    path: Assets/LeeSeonHo/[LSH]Scenes/GatCharScene_Town.unity
-    guid: 53a65407e4fc68343acf4e5c302baf65
-  - enabled: 1
-    path: Assets/Scenes/RestaurantScene(BackUp).unity
-    guid: cd0a1f23f9fb8b646a286bc23a591961
-  - enabled: 1
-    path: Assets/Scenes/RestaurantScene.unity
-    guid: 98287db951a85e2449810d23dd4e1d04
   m_configObjects: {}

@@ -4,12 +4,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Text.RegularExpressions;
 using static SaveLoadManager;
-using DG.Tweening;
-using UnityEngine.UIElements;
-using UnityEngine.UI;
-using Unity.VisualScripting;
-using CryingSnow.FastFoodRush;
-using UnityEngine.Playables;
 using System;
 
 public class RestaurantManager : MonoBehaviour

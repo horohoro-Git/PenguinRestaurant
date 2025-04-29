@@ -1,4 +1,4 @@
-using SRF;
+//using SRF;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -225,7 +225,7 @@ public class AnimalManager : MonoBehaviour
         allAnimals[10].deactivateAnimals = new Queue<Animal>();
         for (int i = 0; i < 10; i++)
         {
-            Animal newAnimal = Instantiate(AssetLoader.loadedAssets["NewPenguin"], animalParent.transform).GetIComponent<Animal>();
+            Animal newAnimal = Instantiate(AssetLoader.loadedAssets["NewPenguin"], animalParent.transform).GetComponent<Animal>();
             newAnimal.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
             newAnimal.GetComponentInChildren<AnimatedAnimal>().animator.enabled = false;
             allAnimals[10].deactivateAnimals.Enqueue(newAnimal);
@@ -240,7 +240,7 @@ public class AnimalManager : MonoBehaviour
             allAnimals[data.Key].deactivateAnimals = new Queue<Animal>();
             for (int j = 0; j < 30; j++)
             {
-                Animal newAnimal = Instantiate(AssetLoader.loadedAssets[AssetLoader.itemAssetKeys[data.Key].Name] , animalParent.transform).GetIComponent<Animal>();
+                Animal newAnimal = Instantiate(AssetLoader.loadedAssets[AssetLoader.itemAssetKeys[data.Key].Name] , animalParent.transform).GetComponent<Animal>();
                 newAnimal.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
                 newAnimal.GetComponentInChildren<AnimatedAnimal>().animator.enabled = false;
                 allAnimals[data.Key].deactivateAnimals.Enqueue(newAnimal);
@@ -464,9 +464,11 @@ public class AnimalManager : MonoBehaviour
         controller.animator = animal.GetComponentInChildren<AnimatedAnimal>().animator;
         controller.animator.enabled = true;
         controller.animal = animal;
+#if HAS_ANIMATION_INSTANCING
         controller.animationInstancing = animal.GetComponentInChildren<AnimationInstancing.AnimationInstancing>();
         animal.GetComponentInChildren<AnimationInstancing.AnimationInstancing>().activePlease = true;
-       // animal.GetComponentInChildren<AnimationInstancing.AnimationInstancing>().PlayAnimation(animal.animationDic["Idle_A"]);
+#endif
+        // animal.GetComponentInChildren<AnimationInstancing.AnimationInstancing>().PlayAnimation(animal.animationDic["Idle_A"]);
         controller.animatedAnimal = animal.GetComponentInChildren<AnimatedAnimal>();
         controller.headPoint = animal.GetComponentInChildren<AnimatedAnimal>().GetComponentInChildren<Head>().transform;
         allAnimals[type].activateAnimals.Add(animal);
@@ -604,7 +606,7 @@ public class AnimalManager : MonoBehaviour
         {
             for (int j = 0; j < 6; j++)
             {
-                Rolling rolling = Instantiate(gatcharManager.gameObjects[i], animalParent.transform).GetIComponent<Rolling>();
+                Rolling rolling = Instantiate(gatcharManager.gameObjects[i], animalParent.transform).GetComponent<Rolling>();
                 rolling.gameObject.SetActive(false);
                 if (gatchStack.ContainsKey(rolling.type))
                 {

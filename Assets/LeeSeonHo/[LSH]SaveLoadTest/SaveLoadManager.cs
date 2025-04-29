@@ -1,6 +1,5 @@
 using System.IO;
 using UnityEngine;
-using CryingSnow.FastFoodRush;
 using Newtonsoft.Json;
 using System.Data;
 using System.Collections.Generic;

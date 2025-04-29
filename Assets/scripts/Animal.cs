@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
+#if HAS_ANIMATION_INSTANCING
 using AnimationInstancing;
+#endif
 
 public class Animal : MonoBehaviour
 {
@@ -78,6 +80,8 @@ public class Animal : MonoBehaviour
 
          
         }
+#else
+        yield return null;
 #endif
     }
     private void enables()

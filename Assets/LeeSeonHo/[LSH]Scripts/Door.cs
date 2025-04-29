@@ -1,5 +1,7 @@
-using UnityEngine;
+#if HAS_DOTWEEN
 using DG.Tweening;
+#endif
+using UnityEngine;
 
 public class Door : MonoBehaviour
 {
@@ -32,17 +34,21 @@ public class Door : MonoBehaviour
         float dotProduct = Vector3.Dot(direction, transform.forward);
         Vector3 targetAngle = openAngle * Mathf.Sign(dotProduct);
 
+#if HAS_DOTWEEN
         doorTransform.DOLocalRotate(targetAngle, openDuration, RotateMode.LocalAxisAdd).OnComplete(() =>
         {
             isOpen = true;
         });
+#endif
     }
 
     public void CloseDoor()
     {
+#if HAS_DOTWEEN
         doorTransform.DOLocalRotate(Vector3.zero, closeDuration).SetEase(Ease.OutBounce).OnComplete(() =>
         {
             isOpen = false;
         });
+#endif
     }
 }

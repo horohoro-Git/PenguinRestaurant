@@ -2,7 +2,6 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using CryingSnow.FastFoodRush;
 using System;
 
 public class UnlockableBuyer : MonoBehaviour

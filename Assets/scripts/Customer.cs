@@ -1,6 +1,8 @@
 using Cysharp.Threading.Tasks;
 using Cysharp.Threading.Tasks.Triggers;
+#if HAS_DOTWEEN
 using DG.Tweening;
+#endif
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -696,7 +698,9 @@ public class Customer : AnimalController
                         f.Release();
                         float r = UnityEngine.Random.Range(1, 2.5f);
                         Vector3 t = table.transforms.position + GameInstance.GetVector3(0, 0.7f + table.foodStacks[0].foodStack.Count, 0);
+#if HAS_DOTWEEN
                         f.transforms.DOJump(t, r, 1, 0.2f);
+#endif
                         table.foodStacks[0].foodStack.Push(f);
                         await UniTask.Delay(300, cancellationToken: cancellationToken);
                     }
@@ -1027,7 +1031,9 @@ public class Customer : AnimalController
                     }
                 }*/
                 float r = UnityEngine.Random.Range(1, 2.5f);
+#if HAS_DOTWEEN
                 f.transforms.DOJump(table.transforms.position + GameInstance.GetVector3(0, 0.7f + table.foodStacks[0].foodStack.Count, 0), r, 1, 0.2f);
+#endif
                 table.foodStacks[0].foodStack.Push(f);
                 audioSource.Play();
             }
@@ -1311,8 +1317,10 @@ public class Customer : AnimalController
             }
 
             float r = UnityEngine.Random.Range(1, 2.5f);
+#if HAS_DOTWEEN
             f.transforms.DOJump(table.transforms.position + GameInstance.GetVector3(0, 0.7f + table.foodStacks[0].foodStack.Count, 0), r, 1, 0.2f);
-         //   table.foodStacks[0].foodStack.Add(f);
+#endif
+            //   table.foodStacks[0].foodStack.Add(f);
             audioSource.Play();
 
             yield return GetWaitTimer.WaitTimer.GetTimer(100); //new WaitForSeconds(0.1f);

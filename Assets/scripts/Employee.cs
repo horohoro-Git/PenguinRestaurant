@@ -1,8 +1,7 @@
-using AnimationInstancing;
-using CryingSnow.FastFoodRush;
 using Cysharp.Threading.Tasks;
+#if HAS_DOTWEEN
 using DG.Tweening;
-using DG.Tweening.Core.Easing;
+#endif
 using JetBrains.Annotations;
 using System;
 using System.Collections;
@@ -1313,10 +1312,11 @@ public class Employee : AnimalController
 
                             Vector3 targetPosition = headPoint.position + GameInstance.GetVector3(0, 0.7f * (currentStackCount + 1), 0); // 목적지 저장
                             float r = UnityEngine.Random.Range(1, 2.5f);
+#if HAS_DOTWEEN
                             DOTween.Kill(f.transforms); //Tween 제거
                             f.transforms.DOJump(targetPosition, r, 1, 0.2f).OnComplete(() =>
                               OnFoodStackComplete(f, targetPosition, foodStack, audioSource, foodStack.foodStack.Count, headPoint));
-
+#endif
                             await UniTask.Delay(300, cancellationToken: cancellationToken);
                         }
                     }
@@ -1397,8 +1397,10 @@ public class Employee : AnimalController
                             float r = UnityEngine.Random.Range(1, 2.5f);
                             int currentStackCount = foodStacks[t].foodStack.Count; // 음식 개수 저장
                             Vector3 targetPosition = headPoint.position + GameInstance.GetVector3(0, 0.7f * (currentStackCount + 1), 0); // 목적지
+#if HAS_DOTWEEN
                             DOTween.Kill(f.transforms); //Tween 제거
                             f.transforms.DOJump(counter.stackPoints[i].position + GameInstance.GetVector3(0, 0.7f * counter.foodStacks[i].foodStack.Count, 0), r, 1, 0.2f);
+#endif
                             counter.foodStacks[i].foodStack.Push(f);
                             counter.foodStacks[i].getNum = counter.foodStacks[i].getNum - 1 < 0 ? 0 : counter.foodStacks[i].getNum - 1;
 
@@ -1486,9 +1488,11 @@ public class Employee : AnimalController
                                         float r = UnityEngine.Random.Range(1, 2.5f);
                                         int currentStackCount = foodStacks[t].foodStack.Count; // 음식 개수 저장
                                         Vector3 pos = counter.customer.headPoint.position + GameInstance.GetVector3(0, 0.7f * index, 0);
+#if HAS_DOTWEEN
                                         DOTween.Kill(f.transforms);
                                         f.transforms.DOJump(pos, r, 1, 0.2f).OnComplete(() =>
                                         OnFoodStackComplete(f, pos, counter.customer.foodStacks[j], audioSource, index, counter.customer.headPoint));
+#endif
                                         counter.customer.VisualizingFoodStack.Add(f);
                                         index++;
                                         await UniTask.Delay(300, cancellationToken: cancellationToken);
@@ -1563,10 +1567,11 @@ public class Employee : AnimalController
                         Vector3 pos = headPoint.position + GameInstance.GetVector3(0, 0.5f * garbageList.Count, 0);
                         float r = UnityEngine.Random.Range(1, 2.5f);
                         int index = garbageList.Count;
+#if HAS_DOTWEEN
                         DOTween.Kill(garbage.transforms);
                         garbage.transforms.DOJump(pos, r, 1, 0.2f).OnComplete(() =>
                         OnGarbageStackComplete(garbage, pos, garbageList, audioSource, index, headPoint));
-
+#endif
                         await UniTask.Delay(300, cancellationToken: cancellationToken);
                     }
 
@@ -1634,10 +1639,11 @@ public class Employee : AnimalController
                         Vector3 pos = trash.transforms.position;
                         float r = UnityEngine.Random.Range(1, 2.5f);
                         int index = garbageList.Count;
+#if HAS_DOTWEEN
                         DOTween.Kill(garbage.transforms);
                         garbage.transforms.DOJump(pos, r, 1, 0.2f).OnComplete(() =>
                         OnGarbageClearComplete(garbage, audioSource));
-
+#endif
                         await UniTask.Delay(300, cancellationToken: cancellationToken);
                     }
                     await UniTask.Delay(500, cancellationToken: cancellationToken);
@@ -1773,8 +1779,9 @@ public class Employee : AnimalController
 
 
                             float r = UnityEngine.Random.Range(1, 2.5f);
-
+#if HAS_DOTWEEN
                             packageFood.transforms.DOJump(packingTable.packageStackTrans.position, r, 1, 0.2f);
+#endif
                             packingTable.packageStack.foodStack.Push(packageFood);
                             await UniTask.Delay(300, cancellationToken: cancellationToken);
 
@@ -1822,10 +1829,12 @@ public class Employee : AnimalController
                                 {
                                     Food f = fs.foodStack.Pop();
                                     float r = UnityEngine.Random.Range(1, 2.5f);
-                                    f.DOKill();
                                     Transform t = packingTable.packageFood.packageTrans[packingTable.packingNumber];
+#if HAS_DOTWEEN
+                                    f.DOKill();
                                     f.transforms.DOJump(packingTable.packageFood.packageTrans[packingTable.packingNumber].position, r, 1, 0.2f).OnComplete(() =>
                                     CompleteMove(f, t, t.position, packingTable));
+#endif
                                     audioSource.Play();
                                     await UniTask.Delay(300, cancellationToken: cancellationToken);
                                     if (packingTable.packingNumber == 4) break;
@@ -1915,9 +1924,11 @@ public class Employee : AnimalController
                         PackageFood f = (PackageFood)packingTable.packageStack.foodStack.Pop();
                         Vector3 targetPosition = headPoint.position + GameInstance.GetVector3(0, 0.7f * (currentStackCount + 1), 0); // 목적지 저장
                         float r = UnityEngine.Random.Range(1, 2.5f);
+#if HAS_DOTWEEN
                         DOTween.Kill(f.transforms); //Tween 제거
                         f.transforms.DOJump(targetPosition, r, 1, 0.2f).OnComplete(() =>
                           OnFoodStackComplete(f, targetPosition, foodStacks[MachineType.PackingTable], audioSource, foodStacks[MachineType.PackingTable].foodStack.Count, headPoint));
+#endif
                         await UniTask.Delay(300, cancellationToken: cancellationToken);
                     }
 
@@ -1961,8 +1972,10 @@ public class Employee : AnimalController
                                         f.Release();
                                         Vector3 targetPosition = targetTable.smallTable2.position + GameInstance.GetVector3(0, 0.7f * (targetTable.packageStack.foodStack.Count), 0);
                                         float r = UnityEngine.Random.Range(1, 2.5f);
+#if HAS_DOTWEEN
                                         f.transforms.DOKill();
                                         f.transforms.DOJump(targetPosition, r, 1, 0.2f);
+#endif
                                         targetTable.packageStack.foodStack.Push(f);
 
                                         await UniTask.Delay(300, cancellationToken: cancellationToken);
@@ -1985,10 +1998,11 @@ public class Employee : AnimalController
                                         Vector3 targetPosition = headPoint.position + GameInstance.GetVector3(0, 0.7f * (currentStackCount + 1), 0); // 목적지 저장
                                         float r = UnityEngine.Random.Range(1, 2.5f);
 
+#if HAS_DOTWEEN
                                         DOTween.Kill(f.transforms); //Tween 제거
                                         f.transforms.DOJump(targetPosition, r, 1, 0.2f).OnComplete(() =>
                                           OnFoodStackComplete(f, targetPosition, foodStacks[MachineType.PackingTable], audioSource, foodStacks[MachineType.PackingTable].foodStack.Count, headPoint));
-
+#endif
                                         await UniTask.Delay(300, cancellationToken: cancellationToken);
                                     }
                                     packingTable.employeeAssistant = null;
@@ -2005,8 +2019,10 @@ public class Employee : AnimalController
                                 f.Release();
                                 Vector3 targetPosition = targetTable.smallTable2.position + GameInstance.GetVector3(0, 0.7f * (targetTable.packageStack.foodStack.Count), 0);
                                 float r = UnityEngine.Random.Range(1, 2.5f);
+#if HAS_DOTWEEN
                                 f.transforms.DOKill();
                                 f.transforms.DOJump(targetPosition, r, 1, 0.2f);
+#endif
                                 targetTable.packageStack.foodStack.Push(f);
 
                                 await UniTask.Delay(300, cancellationToken: cancellationToken);
@@ -2084,10 +2100,11 @@ public class Employee : AnimalController
                         int currentStackCount = foodStacks[MachineType.PackingTable].foodStack.Count;
                         Vector3 targetPosition = headPoint.position + GameInstance.GetVector3(0, 0.7f * (currentStackCount + 1), 0); // 목적지 저장
                         float r = UnityEngine.Random.Range(1, 2.5f);
+#if HAS_DOTWEEN
                         DOTween.Kill(f.transforms); //Tween 제거
                         f.transforms.DOJump(targetPosition, r, 1, 0.2f).OnComplete(() =>
                           OnFoodStackComplete(f, targetPosition, foodStacks[MachineType.PackingTable], audioSource, foodStacks[MachineType.PackingTable].foodStack.Count, headPoint));
-
+#endif
                         await UniTask.Delay(300, cancellationToken: cancellationToken);
                     }
                     await UniTask.Delay(500, cancellationToken: cancellationToken);
@@ -2654,12 +2671,12 @@ public class Employee : AnimalController
                 Garbage go = table.garbageList[table.garbageList.Count - 1];//garbages.Pop();
                 table.garbageList.Remove(go);
                 table.numberOfGarbage--;
-                go.transforms.DOJump(headPoint.position + GameInstance.GetVector3(0, 0.5f * garbageList.Count, 0), p, 1, employeeData.action_speed * 0.9f).OnComplete(() =>
+              /*  go.transforms.DOJump(headPoint.position + GameInstance.GetVector3(0, 0.5f * garbageList.Count, 0), p, 1, employeeData.action_speed * 0.9f).OnComplete(() =>
                 {
                     audioSource.Play();
                     go.transforms.position = headPoint.position + GameInstance.GetVector3(0, 0.5f * garbageList.Count, 0);
              //       garbageList.Add(go);
-                });
+                });*/
             }
             else
             {
@@ -3569,12 +3586,12 @@ public class Employee : AnimalController
                 Garbage go = table.garbageList[table.garbageList.Count - 1];//garbages.Pop();
                 table.garbageList.Remove(go);
                 table.numberOfGarbage--;
-                go.transforms.DOJump(headPoint.position + GameInstance.GetVector3(0, 0.5f * garbageList.Count, 0), p, 1, employeeData.action_speed * 0.9f).OnComplete(() =>
+              /*  go.transforms.DOJump(headPoint.position + GameInstance.GetVector3(0, 0.5f * garbageList.Count, 0), p, 1, employeeData.action_speed * 0.9f).OnComplete(() =>
                 {
                     audioSource.Play();
                     go.transforms.position = headPoint.position + GameInstance.GetVector3(0, 0.5f * garbageList.Count, 0);
                //     garbageList.Add(go);
-                });
+                });*/
             }
             
             while(coroutineTimer <= 0.5f)
