@@ -117,6 +117,7 @@ public class Employee : AnimalController
 
     private void Awake()
     {
+        
         // pooledCoroutine = EmployeeWait();
         //openCoords.Capacity = 200;
         //closedCoords.Capacity = 200;

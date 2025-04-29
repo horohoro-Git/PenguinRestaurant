@@ -83,8 +83,6 @@
 /[Aa]ssets/PolygonCity.meta
 /[Aa]ssets/Quirky Series Ultimate/
 /[Aa]ssets/Quirky Series Ultimate.meta
-/[Aa]ssets/Resources/
-/[Aa]ssets/Resources.meta
 /[Aa]ssets/Scenes/*
 /[Aa]ssets/SimpleNaturePack/
 /[Aa]ssets/SimpleNaturePack.meta
@@ -99,7 +97,21 @@
 
 
 /[Bb]undle/
-
+/[Aa]ssets/Resources/
+!/[Aa]ssets/Resources/Cat_LOD0.bytes
+!/[Aa]ssets/Resources/Cat_LOD0.bytes.meta
+!/[Aa]ssets/Resources/Crow_LOD0.bytes
+!/[Aa]ssets/Resources/Crow_LOD0.bytes.meta
+!/[Aa]ssets/Resources/Dog_LOD0.bytes
+!/[Aa]ssets/Resources/Dog_LOD0.bytes.meta
+!/[Aa]ssets/Resources/Parrot_LOD0.bytes
+!/[Aa]ssets/Resources/Parrot_LOD0.bytes.meta
+!/[Aa]ssets/Resources/Penguin_LOD0.bytes
+!/[Aa]ssets/Resources/Penguin_LOD0.bytes.meta
+!/[Aa]ssets/Resources/Rabbit_LOD0.bytes
+!/[Aa]ssets/Resources/Rabbit_LOD0.bytes.meta
+!/[Aa]ssets/Resources/Tortoise_LOD0.bytes
+!/[Aa]ssets/Resources/Tortoise_LOD0.bytes.meta
 !/[Aa]ssets/Scenes/App.unity
 !/[Aa]ssets/Scenes/App.unity.meta
 
