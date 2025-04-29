@@ -15,6 +15,94 @@
 /[Bb]uilds/
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
+/[Aa]ssets/\[PSW\]/Prefab/
+/[Aa]ssets/\[PSW\]/Prefab.meta
+/[Aa]ssets/\[PSW\]/\[PSW\]Scenes/
+/[Aa]ssets/\[PSW\]/\[PSW\]Scenes.meta
+/[Aa]ssets/_TerrainAutoUpgrade/
+/[Aa]ssets/_TerrainAutoUpgrade.meta
+/[Aa]ssets/Alstra Infinite/
+/[Aa]ssets/Alstra Infinite.meta
+/[Aa]ssets/AniInstancing/
+/[Aa]ssets/AniInstancing.meta
+/[Aa]ssets/AnimalRestaurantPrefabs/
+/[Aa]ssets/AnimalRestaurantPrefabs.meta
+/[Aa]ssets/AssetBundle/
+/[Aa]ssets/AssetBundle.meta
+/[Aa]ssets/AssetBundles-Browser-master/
+/[Aa]ssets/AssetBundles-Browser-master.meta
+/[Aa]ssets/Assets/
+/[Aa]ssets/Assets.meta
+/[Aa]ssets/AStar/
+/[Aa]ssets/AStar.meta
+/[Aa]ssets/atlases/
+/[Aa]ssets/atlases.meta
+/[Aa]ssets/BGM-Romance/
+/[Aa]ssets/BGM-Romance.meta
+/[Aa]ssets/Bolt 2D JellyFarm VE2/
+/[Aa]ssets/Bolt 2D JellyFarm VE2.meta
+/[Aa]ssets/CaptainCatSparrow/
+/[Aa]ssets/CaptainCatSparrow.meta
+/[Aa]ssets/DataTable/
+/[Aa]ssets/DataTable.meta
+/[Aa]ssets/EMX/
+/[Aa]ssets/EMX.meta
+/[Aa]ssets/ETC/
+/[Aa]ssets/ETC.meta
+/[Aa]ssets/FastFoodRush/
+/[Aa]ssets/FastFoodRush.meta
+/[Aa]ssets/GreekPack1Lite/
+/[Aa]ssets/GreekPack1Lite.meta
+/[Aa]ssets/GUI Kit Casual Game/
+/[Aa]ssets/GUI Kit Casual Game.meta
+/[Aa]ssets/GUI Kit The Stone/
+/[Aa]ssets/GUI Kit The Stone.meta
+/[Aa]ssets/GUI Pro Kit Fantasy RPG/
+/[Aa]ssets/GUI Pro Kit Fantasy RPG.meta
+/[Aa]ssets/LeeSeonHo/\[LSH\]Fonts/
+/[Aa]ssets/LeeSeonHo/\[LSH\]Fonts.meta
+/[Aa]ssets/LeeSeonHo/\[LSH\]Prefabs/
+/[Aa]ssets/LeeSeonHo/\[LSH\]Prefabs.meta
+/[Aa]ssets/LeeSeonHo/\[LSH\]Scenes/
+/[Aa]ssets/LeeSeonHo/\[LSH\]Scenes.meta
+/[Aa]ssets/LeeSeonHo/\[LSH\]Textures/
+/[Aa]ssets/LeeSeonHo/\[LSH\]Textures.meta
+/[Aa]ssets/Lowpoly Forest Pack Winter/
+/[Aa]ssets/Lowpoly Forest Pack Winter.meta
+/[Aa]ssets/Materials/
+/[Aa]ssets/Materials.meta
+/[Aa]ssets/Matthew Guz/
+/[Aa]ssets/Matthew Guz.meta
+/[Aa]ssets/MeshBaker/
+/[Aa]ssets/MeshBaker.meta
+/[Aa]ssets/Plugins/
+/[Aa]ssets/Plugins.meta
+/[Aa]ssets/Polygonal Particles/
+/[Aa]ssets/Polygonal Particles.meta
+/[Aa]ssets/PolygonCity/
+/[Aa]ssets/PolygonCity.meta
+/[Aa]ssets/Quirky Series Ultimate/
+/[Aa]ssets/Quirky Series Ultimate.meta
+/[Aa]ssets/Resources/
+/[Aa]ssets/Resources.meta
+/[Aa]ssets/Scenes/*
+/[Aa]ssets/SimpleNaturePack/
+/[Aa]ssets/SimpleNaturePack.meta
+/[Aa]ssets/SimplestMeshBaker/
+/[Aa]ssets/SimplestMeshBaker.meta
+/[Aa]ssets/StompyRobot/
+/[Aa]ssets/StompyRobot.meta
+/[Aa]ssets/TestPrefab/
+/[Aa]ssets/TestPrefab.meta
+/[Aa]ssets/TransparencyCapture/
+/[Aa]ssets/TransparencyCapture.meta
+
+
+/[Bb]undle/
+
+!/[Aa]ssets/Scenes/App.unity
+!/[Aa]ssets/Scenes/App.unity.meta
+
 
 # MemoryCaptures can get excessive in size.
 # They also could contain extremely sensitive data
