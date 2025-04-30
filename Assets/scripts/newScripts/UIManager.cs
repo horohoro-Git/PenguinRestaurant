@@ -1,0 +1,320 @@
+
+using System.Collections;
+using System.Collections.Generic;
+using TMPro;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+
+
+public class UIManager : MonoBehaviour
+{
+    public TMP_Text moneyText;
+    public TMP_Text fishText;
+    public Order[] order;
+
+    public Button animalGuideButton;
+    public Panel panel;
+    public Button goRestaurant;
+    public Button goDraw;
+    public Button drawBtn;
+    public Button drawSpeedUpBtn;
+    public GameObject animalGuide;
+    public Image fadeImage;
+    public GraphicRaycaster graphicRaycaster;
+
+    public GameObject checkMark;
+
+    bool bGuideOn = false;
+
+    private float cameraSize;
+
+    // Start is called before the first frame update
+    private void Awake()
+    {
+        graphicRaycaster = GetComponent<GraphicRaycaster>();
+        panel = GetComponentInChildren<Panel>();
+        GameInstance.GameIns.uiManager = this;
+    }
+    private void OnEnable()
+    {
+        if (graphicRaycaster == null) graphicRaycaster = GetComponent<GraphicRaycaster>();
+        GameInstance.AddGraphicCaster(graphicRaycaster);
+    }
+    private void OnDisable()
+    {
+        if (graphicRaycaster == null) graphicRaycaster = GetComponent<GraphicRaycaster>();
+        GameInstance.RemoveGraphicCaster(graphicRaycaster);
+        
+    }
+    void Start()
+    {
+        animalGuideButton.onClick.AddListener(() =>
+        {
+            if (bGuideOn)
+            {
+                bGuideOn = false;
+
+                GameInstance.GameIns.inputManager.inputDisAble = false;
+                GameInstance.GameIns.inputManager.DragScreen_WindowEditor(true);
+
+                //      animalGuide.SetActive(bGuideOn);
+                StartCoroutine(FadeInFadeOut(bGuideOn, 0));
+            }
+            else
+            {
+                // if(state == SceneState.Draw)
+                {
+                    GameInstance.GameIns.inputManager.inputDisAble = true;
+                    GameInstance.GameIns.inputManager.DragScreen_WindowEditor(true);
+                }
+                bGuideOn = true;
+                // animalGuide.SetActive(bGuideOn);
+                StartCoroutine(FadeInFadeOut(bGuideOn, 0));
+            }
+
+        });
+
+        goRestaurant.onClick.AddListener(() =>
+        {
+            if (GameInstance.GameIns.app.currentScene != SceneState.Restaurant)
+            {
+                GameInstance.GameIns.inputManager.inputDisAble = true;
+
+                drawBtn.gameObject.SetActive(false);
+                drawSpeedUpBtn.gameObject.SetActive(false);
+
+                StartCoroutine(FadeInFadeOut(true, 1));
+            }
+        });
+
+        goDraw.onClick.AddListener(() =>
+        {
+            if (GameInstance.GameIns.app.currentScene != SceneState.Draw)
+            {
+                GameInstance.GameIns.inputManager.inputDisAble = true;
+
+                GameInstance.GameIns.app.pos = GameInstance.GameIns.inputManager.cameraTrans.position;
+
+                if (GameInstance.GameIns.applianceUIManager.currentBox != null)
+                {
+                    GameInstance.GameIns.applianceUIManager.currentBox.ClearFishes();
+                }
+                cameraSize = Camera.main.orthographicSize;
+
+                StartCoroutine(FadeInFadeOut(true, 2));
+            }
+
+        });
+
+        drawBtn.onClick.AddListener(() =>
+        {
+
+            GameInstance.GameIns.gatcharManager.StartGatcha();
+        });
+
+        drawSpeedUpBtn.onClick.AddListener(() =>
+        {
+            GameInstance.GameIns.gatcharManager.GatcharSpeedUp();
+        });
+    }
+
+
+    IEnumerator FadeInFadeOut(bool fades,int t)
+    {
+      //  if (fades)
+        {
+            float f = 0;
+            while (true)
+            {   
+                f += Time.unscaledDeltaTime * 8;
+                Color c = fadeImage.color;
+                c.a = f;
+                if (fadeImage.color.a > 0.9)
+                {
+                    if (t == 1)
+                    {
+                        Camera.main.orthographicSize = cameraSize;
+                    }
+                    else if (t == 2)
+                    {
+                        Camera.main.orthographicSize = 15;
+                    }
+                    ShowUI(t);
+                    c.a = 0;
+                    fadeImage.color = c;
+                    break;
+                }
+                    fadeImage.color = c;
+                yield return null;
+            }
+          
+        }
+    }
+
+    void ShowUI(int t)
+    {
+       
+        if (t == 0)
+        {
+        
+            if (bGuideOn)
+            {
+                GameInstance.GameIns.applianceUIManager.UIClearAll(false);
+                drawBtn.gameObject.SetActive(false);
+                drawSpeedUpBtn.gameObject.SetActive(false);
+            }
+            else
+            {
+                if (GameInstance.GameIns.app.currentScene == SceneState.Draw)
+                {
+                    GameInstance.GameIns.applianceUIManager.UIClearAll(false);
+                    drawBtn.gameObject.SetActive(true);
+                    drawSpeedUpBtn.gameObject.SetActive(true);
+                }        
+                else
+                {
+                    GameInstance.GameIns.applianceUIManager.UIClearAll(true);
+                }
+            }
+            animalGuide.SetActive(bGuideOn);
+        }
+        else if (t == 1)
+        {
+            GameInstance.GameIns.applianceUIManager.UIClearAll(true);
+            animalGuide.SetActive(false);
+            bGuideOn = false;
+            GameInstance.GameIns.app.ChangeScene_Restaurant();
+        }
+        else if (t == 2)
+        {
+            GameInstance.GameIns.applianceUIManager.UIClearAll(false);
+            animalGuide.SetActive(false);
+            bGuideOn = false;
+            GameInstance.GameIns.app.ChangeScene_DrawScene();
+        }
+    }
+
+    public void UpdateOrder(AnimalController customer, Counter.CounterType counterType)
+    {
+        Customer cs = customer.GetComponent<Customer>();
+        List<Counter> c = GameInstance.GameIns.workSpaceManager.counters;
+        List<PackingTable> p = GameInstance.GameIns.workSpaceManager.packingTables;
+        if (counterType == Counter.CounterType.Delivery)
+        {
+            int count = 0;
+            for (int i=0; i<p.Count; i++)
+            {
+                if (p[i].counterType == counterType)
+                {
+                    if (cs.foodStacks[0].needFoodNum - cs.foodStacks[0].foodStack.Count != 0)
+                    {
+                        PrintOrder(customer, cs.foodStacks[0].type, cs.foodStacks[0].needFoodNum - cs.foodStacks[0].foodStack.Count, count, counterType);
+                        count++;
+                    }
+                    else
+                    {
+                        ClearOrder(counterType);
+                    }
+                }
+            }
+        }
+        else
+        {
+            int count = 0;
+            for (int i = 0; i < c.Count; i++)
+            {
+                if (c[i].Customer == customer)
+                {
+                    for (int j = 0; j < cs.foodStacks.Count; j++)
+                    {
+                        if (cs.foodStacks[j].needFoodNum - cs.foodStacks[j].foodStack.Count != 0)
+                        {
+                            PrintOrder(customer, cs.foodStacks[j].type, cs.foodStacks[j].needFoodNum - cs.foodStacks[j].foodStack.Count, count, counterType);
+                            count++;
+                        }
+                        else if(count == 0)
+                        {
+                            ClearOrder(counterType);
+                        }
+
+                    }
+                }
+            }
+        }
+    }
+
+    void ClearOrder(Counter.CounterType counterType)
+    {
+        order[(int)counterType - 1].gameObject.SetActive(false);
+        order[(int)counterType - 1].transform.SetParent(null);
+    }
+
+    void PrintOrder(AnimalController customer, MachineType type, int num, int count, Counter.CounterType counterType)
+    {
+
+        order[(int)counterType - 1].animalController = customer;
+        // transform.position = order[(int)counterType - 1].animalController.transform.position + new Vector3(0, 10, 0);
+        //  transform.rotation = Quaternion.Euler(new Vector3(60, 45, 0));
+        order[(int)counterType - 1].transform.position = order[(int)counterType - 1].animalController.transform.position + GameInstance.GetVector3(0, 10, 0);
+        order[(int)counterType - 1].transform.rotation = Quaternion.Euler(60, 45, 0);
+
+        order[(int)counterType - 1].transform.SetParent(customer.transform);
+        order[(int)counterType - 1].ShowOrder(type, num,count);
+        order[(int)counterType - 1].gameObject.SetActive(true);
+        if (num == 0) ClearOrder(counterType);
+    }
+
+    public float currentMoney = 900f; // 초기 돈 설정
+   // public TextMeshProUGUI moneyText; // UI 텍스트를 연결할 변수
+
+   
+   /* // 돈을 추가하는 메서드
+    public void AddMoney(int amount)
+    {
+        currentMoney += amount;
+        UpdateMoneyText();
+    }
+*/
+   /* // 돈을 소모하는 메서드
+    public void SpendMoney(int amount)
+    {
+        if (currentMoney >= amount)
+        {
+            currentMoney -= amount;
+            UpdateMoneyText();
+        }
+        else
+        {
+        }
+    }*/
+
+    // UI 텍스트 업데이트 메서드
+    public void UpdateMoneyText(float money)
+    {
+        currentMoney = money;
+        if (currentMoney >= 1_000_000_000)
+        {
+            // 1_000_000_000 이상일 경우 B 단위로 표시
+            float valueInK = currentMoney / 1_000_000_000f;
+            moneyText.text = valueInK.ToString("F2") + "B";
+        }
+        else if (currentMoney >= 1_000_000)
+        {
+            // 1000000 이상일 경우 M 단위로 표시
+            float valueInK = currentMoney / 1_000_000f;
+            moneyText.text = valueInK.ToString("F2") + "M";
+        }
+        else if (currentMoney >= 1_000)
+        {
+            // 1000 이상일 경우 K 단위로 표시
+            float valueInK = currentMoney / 1_000f;
+            moneyText.text = valueInK.ToString("F2") + "K";
+        }
+        else
+        {
+            // 1000 미만일 경우 일반 표시
+            moneyText.text = currentMoney.ToString();
+        }
+    }
+}
