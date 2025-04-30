@@ -229,7 +229,11 @@ public enum AssetType
 
 public class Utility
 {
-   
+    public static bool IsInsideCameraViewport(Vector2 screenPosition, Camera cam)
+    {
+        Vector3 viewportPos = cam.ScreenToViewportPoint(screenPosition);
+        return viewportPos.x >= 0f && viewportPos.x <= 1f && viewportPos.y >= 0f && viewportPos.y <= 1f;
+    }
 }
 
 public interface ITableID<K>

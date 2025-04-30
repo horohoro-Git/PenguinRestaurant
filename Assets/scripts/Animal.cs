@@ -58,7 +58,7 @@ public class Animal : MonoBehaviour
             animationDic[GetComponentInChildren<AnimationInstancing.AnimationInstancing>().aniInfo[i].animationName] = i;
         }
         gameObject.SetActive(false);
-        GetComponentInChildren<AnimationInstancing.AnimationInstancing>().activePlease = false;
+        //GetComponentInChildren<AnimationInstancing.AnimationInstancing>().activePlease = false;
         // GetComponentInChildren<AnimationInstancing.AnimationInstancing>().PlayAnimation(animationDic["Idle_A"]);
         // GetComponentInChildren<AnimationInstancing.AnimationInstancing>().GetPreAnimationInfo
 #endif

@@ -78,6 +78,16 @@ public class ApplianceUIManager : MonoBehaviour
 
         appliancePanel.SetActive(false);
     }
+    private void OnEnable()
+    {
+        if(gr == null) gr = GetComponent<GraphicRaycaster>();
+        GameInstance.AddGraphicCaster(gr);
+    }
+    private void OnDisable()
+    {
+        if (gr == null) gr = GetComponent<GraphicRaycaster>();
+        GameInstance.RemoveGraphicCaster(gr);
+    }
     private void Start()
     {
         //gameinstance.gameins.applianceuimanager = this;

@@ -40,7 +40,7 @@ public class App : MonoBehaviour
     }
     private void Start()
     {
-        if(GameInstance.GameIns.assetLoader)
+        if (GameInstance.GameIns.assetLoader)
         {
             UniTask.Void(async () =>
             {

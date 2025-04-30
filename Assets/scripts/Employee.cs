@@ -51,7 +51,6 @@ public class Employee : AnimalController
 
     EmployeeLevelStruct LevelStruct;
     public EmployeeLevelStruct employeeLevel { get { return LevelStruct; } set { LevelStruct = value; if (ui != null) ui.UpdateLevel(LevelStruct.level); } }
-    CancellationTokenSource moveCTS;
     int exp;
     public int EXP
     {
@@ -141,14 +140,7 @@ public class Employee : AnimalController
         foodStacks[MachineType.DonutMachine] = new FoodStack(MachineType.DonutMachine, 0, false, 0);
         foodStacks[MachineType.PackingTable] = new FoodStack(MachineType.PackingTable, 0, true, 0);
     }
-    void OnEnable()
-    {
-        moveCTS = new CancellationTokenSource();
-    }
-    void OnDisable()
-    {
-        moveCTS.Cancel();              // 오브젝트 파괴·비활성화 시 이동 취소
-    }
+  
     //  public GameObject testObject;
     Vector3 prePosition = Vector3.zero;
     // Update is called once per frame
@@ -1388,8 +1380,7 @@ public class Employee : AnimalController
                     {
                         MachineType t = counter.foodStacks[i].type;
                         foodStack = foodStacks[t];
-                        Debug.Log(t + " typoe" + foodStack.foodStack.Count);
-                    
+                  
                         while (foodStack.foodStack.Count > 0)
                         {
                             int index = counter.foodStacks[i].foodStack.Count;

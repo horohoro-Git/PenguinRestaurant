@@ -36,6 +36,17 @@ public class UIManager : MonoBehaviour
         panel = GetComponentInChildren<Panel>();
         GameInstance.GameIns.uiManager = this;
     }
+    private void OnEnable()
+    {
+        if (graphicRaycaster == null) graphicRaycaster = GetComponent<GraphicRaycaster>();
+        GameInstance.AddGraphicCaster(graphicRaycaster);
+    }
+    private void OnDisable()
+    {
+        if (graphicRaycaster == null) graphicRaycaster = GetComponent<GraphicRaycaster>();
+        GameInstance.RemoveGraphicCaster(graphicRaycaster);
+        
+    }
     void Start()
     {
         animalGuideButton.onClick.AddListener(() =>

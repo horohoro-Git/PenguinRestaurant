@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameInstance
 {
@@ -22,7 +23,7 @@ public class GameInstance
     public AssetLoader assetLoader;
     public static GameInstance GameIns { get { return gameInstance; }  }
     private static Queue<Vector3> pool = new Queue<Vector3>();
-
+    public static List<GraphicRaycaster> graphicRaycasters = new List<GraphicRaycaster>();
     public static Stack<Node> GetNodes(ref Stack<Node> stackNodes, Node node)
     {
         Node nd = node;
@@ -67,4 +68,12 @@ public class GameInstance
         }
     }
 
+    public static void AddGraphicCaster(GraphicRaycaster raycaster)
+    {
+        if(!graphicRaycasters.Contains(raycaster)) graphicRaycasters.Add(raycaster);
+    }
+    public static void RemoveGraphicCaster(GraphicRaycaster raycaster)
+    {
+        graphicRaycasters.Remove(raycaster);
+    }
 }
