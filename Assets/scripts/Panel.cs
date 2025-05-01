@@ -45,7 +45,6 @@ public class Panel : MonoBehaviour
     IEnumerator SpreadRectTranform()
     {
         RectTransform rectTransforms = rectTransform;
-        Vector2 currentVec = rectTransform.sizeDelta;
         Vector3 currentVec2 = rectTransform.localPosition;
         float elapsedTimer = 0;
         while (elapsedTimer / 0.3f <= 1)

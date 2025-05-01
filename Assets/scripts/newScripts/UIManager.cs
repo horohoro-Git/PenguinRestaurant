@@ -65,7 +65,7 @@ public class UIManager : MonoBehaviour
             {
                 // if(state == SceneState.Draw)
                 {
-                    GameInstance.GameIns.inputManager.inputDisAble = true;
+                //    GameInstance.GameIns.inputManager.inputDisAble = true;
                     GameInstance.GameIns.inputManager.DragScreen_WindowEditor(true);
                 }
                 bGuideOn = true;
@@ -79,7 +79,7 @@ public class UIManager : MonoBehaviour
         {
             if (GameInstance.GameIns.app.currentScene != SceneState.Restaurant)
             {
-                GameInstance.GameIns.inputManager.inputDisAble = true;
+           //     GameInstance.GameIns.inputManager.inputDisAble = true;
 
                 drawBtn.gameObject.SetActive(false);
                 drawSpeedUpBtn.gameObject.SetActive(false);
@@ -92,7 +92,7 @@ public class UIManager : MonoBehaviour
         {
             if (GameInstance.GameIns.app.currentScene != SceneState.Draw)
             {
-                GameInstance.GameIns.inputManager.inputDisAble = true;
+    //            GameInstance.GameIns.inputManager.inputDisAble = true;
 
                 GameInstance.GameIns.app.pos = GameInstance.GameIns.inputManager.cameraTrans.position;
 

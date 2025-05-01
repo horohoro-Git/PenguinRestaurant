@@ -39,10 +39,8 @@ public class UnlockableBuyer : MonoBehaviour
     }
     public void MouseDown()
     {
-        if (fillCoroutine != null)
-        {
-            StopCoroutine(fillCoroutine);
-        }
+        if (fillCoroutine != null) StopCoroutine(fillCoroutine);
+      
         fillCoroutine = StartCoroutine(FillProgress());
         GameInstance.GameIns.inputManager.inOtherAction = true;
 

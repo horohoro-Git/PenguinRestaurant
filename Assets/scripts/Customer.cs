@@ -720,8 +720,7 @@ public class Customer : AnimalController
                         Food f = table.foodStacks[0].foodStack.Pop();
                         FoodManager.EatFood(f);
                         table.numberOfGarbage++;
-                        // Debug.Log(table.foodStacks[0].foodStack.Count);
-
+                        
 
                         if (table.foodStacks[0].foodStack.Count == 0)
                         {

@@ -234,6 +234,20 @@ public class Utility
         Vector3 viewportPos = cam.ScreenToViewportPoint(screenPosition);
         return viewportPos.x >= 0f && viewportPos.x <= 1f && viewportPos.y >= 0f && viewportPos.y <= 1f;
     }
+
+    public static bool TryGetComponentInParent<T>(GameObject go, out T target)
+    {
+        target = go.GetComponentInParent<T>();
+
+        return target != null ? true : false;
+    }
+
+    public static bool TryGetComponentInChildren<T>(GameObject go, out T target)
+    {
+        target = go.GetComponentInChildren<T>();
+
+        return target != null ? true : false;
+    }
 }
 
 public interface ITableID<K>

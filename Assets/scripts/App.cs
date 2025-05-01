@@ -218,7 +218,7 @@ public class App : MonoBehaviour
         if (currentScene == SceneState.Draw) return;
         currentScene = SceneState.Draw;
         GameInstance.GameIns.inputManager.DragScreen_WindowEditor(true);
-        GameInstance.GameIns.inputManager.inputDisAble = true;
+    //    GameInstance.GameIns.inputManager.inputDisAble = true;
         pos = GameInstance.GameIns.inputManager.cameraTrans.position;
         Time.timeScale = 0;
         Time.fixedDeltaTime = 0f;

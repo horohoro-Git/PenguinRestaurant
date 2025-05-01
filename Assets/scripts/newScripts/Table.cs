@@ -1,7 +1,10 @@
 
+using Cysharp.Threading.Tasks;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
@@ -27,10 +30,10 @@ public class Table : MonoBehaviour
     public Transform plateLoc;
     public bool interacting;
     public int seatNum;
-    GameInstance gameInstance = new GameInstance();
 
     public float weight;
     public float height;
+
     public void Awake()
     {
         //transforms = transform;
@@ -38,9 +41,26 @@ public class Table : MonoBehaviour
     }
     private void Start()
     {
-       
+        weight = 2;
+        height = 40;
         plateLoc = trashPlate.transforms;
         foodStacks.Add(new FoodStack());
+
+
+        //test
+       /* numberOfGarbage = 8;
+        for (int i = 0; i < numberOfGarbage; i++)
+        {
+            Garbage go = GarbageManager.CreateGarbage();
+            go.transforms.SetParent(trashPlate.transforms);
+            garbageList.Add(go);
+
+            float x = UnityEngine.Random.Range(-1f, 1f);
+            float z = UnityEngine.Random.Range(-1f, 1f);
+            go.transforms.position = up.position + GameInstance.GetVector3(x, 0, z);
+        }
+        interacting = false;
+        isDirty = true;*/
     }
 
     private void OnMouseEnter()
@@ -54,8 +74,9 @@ public class Table : MonoBehaviour
 
     public void CleanTableManually()
     {
-      
-        StartCoroutine(Clean());
+        Clean(App.GlobalToken).Forget();
+        
+       //StartCoroutine(Clean());
     }
     public Transform transforms { 
         
@@ -63,85 +84,95 @@ public class Table : MonoBehaviour
             if (Transforms == null) Transforms = transform;    
             return Transforms; 
         } }
-    IEnumerator Clean()
+
+    async UniTask Clean(CancellationToken cancellationToken = default)
     {
-        while (garbageList.Count > 0)
+        try
         {
-            Garbage g = garbageList[garbageList.Count - 1];
-            garbageList.Remove(g);
-            numberOfGarbage--;
-            StartCoroutine(Rising(g));
-          //  GarbageManager.ClearGarbage(g);
-            yield return null;
-        }
-        interacting = false;
-        isDirty = false;
-        /* GameInstance instance = new GameInstance();
-         TrashCan tc = instance.GameIns.workSpaceManager.trashCans[0];
-         //     instance.GameIns.inputManager.inOtherAction = true;
+            cancellationToken.ThrowIfCancellationRequested();
+            interacting = true;
 
-         while (garbageList.Count > 0)
-         {
-             Garbage g = garbageList[garbageList.Count - 1];
-             garbageList.Remove(g);
+            List<UniTask> tasks = new List<UniTask>();
 
-             numberOfGarbage--;
-             // trashPlate.transform.DO
-             g.transform.DOJump(tc.transform.position, 2, 1, 0.2f).OnComplete(() =>
-             {
-                 Destroy(g.gameObject);
-                 // GarbageManager.ClearGarbage(g);
-             });
-
-
-             yield return new WaitForSecondsRealtime(0.2f);
-         }
-
-         interacting = false;
-         isDirty = false;
-         trashPlate.transform.position = new Vector3(transform.position.x, transform.position.y + 0.44f, transform.position.z);*/
-        //  yield return StartCoroutine(instance.GameIns.inputManager.BecomeToOrgin());
-        //      instance.GameIns.inputManager.inOtherAction = false;
-    }
-    IEnumerator Rising(Garbage go)
-    {
-     
-        bool bstart = true;
-        float elapsedTime = 0;
-        Vector3 startPoint = go.transforms.position;
-        Vector3 endPoint = Camera.main.ScreenToWorldPoint(GameInstance.GameIns.applianceUIManager.rewardChest.transform.position);
-    
-        Vector3 controlVector = (startPoint + endPoint) / weight + Vector3.up * height;
-
-        while (bstart)
-        {
-            endPoint = Camera.main.ScreenToWorldPoint(GameInstance.GameIns.applianceUIManager.rewardChest.transform.position);
-            controlVector = (startPoint + endPoint) / weight + Vector3.up * height;
-            elapsedTime += Time.deltaTime;
-            float t = Mathf.Clamp01(elapsedTime / 0.5f);
-
-            Vector3 origin = go.transforms.position;
-            // Vector3 targetLoc = Vector3.Lerp(startPoint, endPoint, t);// CalculateBezierPoint(t, startPoint, controlVector, endPoint);
-            Vector3 targetLoc = CalculateBezierPoint(t, startPoint, controlVector, endPoint);
-
-            Vector3 dir = targetLoc - origin;
-           // float angle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
-           // modelTrans.rotation = Quaternion.AngleAxis(angle, Vector3.up);
-            Debug.DrawLine(go.transforms.position, targetLoc, Color.red, 5f);
-            go.transforms.position = targetLoc;
-
-
-            if (t >= 1.0f)
+            while (garbageList.Count > 0)
             {
-                go.transforms.position = endPoint;
-                GarbageManager.ClearGarbage(go);
-                bstart = false;                           
+                Garbage g = garbageList[garbageList.Count - 1];
+                garbageList.Remove(g);
+                numberOfGarbage--;
+                tasks.Add(Rising(g, App.GlobalToken));
+                await UniTask.NextFrame(cancellationToken: cancellationToken);
             }
 
-            yield return null;
+            await UniTask.WhenAll(tasks);
+            isDirty = false;
+            interacting = false;
         }
-        yield return null;
+        catch (OperationCanceledException)
+        {
+            // 작업이 취소되었을 때의 정리 코드
+            Debug.Log("Clean task was cancelled");
+            throw; // 필요에 따라 rethrow 또는 생략
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"Error in Clean: {ex.Message}");
+            throw;
+        }
+    }
 
+    async UniTask Rising(Garbage go, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            bool bstart = true;
+            float elapsedTime = 0;
+            Vector3 startPoint = go.transforms.position;
+            Vector3 screenTarget = RectTransformUtility.WorldToScreenPoint(
+    InputManger.cachingCamera,
+    GameInstance.GameIns.applianceUIManager.rewardChest.transform.position
+);
+
+           // Vector3 endPoint = InputManger.cachingCamera.ScreenToWorldPoint(GameInstance.GameIns.applianceUIManager.rewardChest.transform.position);
+            Vector3 endPoint = InputManger.cachingCamera.ScreenToWorldPoint(screenTarget);
+            Vector3 controlVector = (startPoint + endPoint) / weight + Vector3.up * height;
+
+            while (bstart)
+            {
+                endPoint = InputManger.cachingCamera.ScreenToWorldPoint(GameInstance.GameIns.applianceUIManager.rewardChest.transform.position);
+                controlVector = (startPoint + endPoint) / weight + Vector3.up * height;
+                elapsedTime += Time.deltaTime;
+                float t = Mathf.Clamp01(elapsedTime / 0.5f);
+
+                Vector3 origin = go.transforms.position;
+                Vector3 targetLoc = CalculateBezierPoint(t, startPoint, controlVector, endPoint);
+
+                Vector3 dir = targetLoc - origin;
+                Debug.DrawLine(go.transforms.position, targetLoc, Color.red, 5f);
+                go.transforms.position = targetLoc;
+
+                if (t >= 1.0f)
+                {
+                    go.transforms.position = endPoint;
+                    GarbageManager.ClearGarbage(go);
+                    bstart = false;
+                }
+
+                await UniTask.NextFrame(cancellationToken: cancellationToken);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // 작업이 취소되었을 때의 정리 코드
+            Debug.Log("Rising task was cancelled");
+            throw; // 필요에 따라 rethrow 또는 생략
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"Error in Rising: {ex.Message}");
+            throw;
+        }
     }
     private Vector3 CalculateBezierPoint(float t, Vector3 p0, Vector3 p1, Vector3 p2)
     {

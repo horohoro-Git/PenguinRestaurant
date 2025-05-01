@@ -11,9 +11,12 @@ public class RewardsBox : MonoBehaviour
     public Stack<Food> foods = new Stack<Food>();
  //   public List<GameObject> rewards = new List<GameObject>();
     public Mesh meshFilter;
-
+    [NonSerialized]
+    public float spawnTimer;
     [NonSerialized]
     public int boxIndex;
+    [NonSerialized]
+    public Employee animal;
     private void Awake()
     {
         transforms = transform;

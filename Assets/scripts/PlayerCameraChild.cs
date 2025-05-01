@@ -11,10 +11,10 @@ public class PlayerCameraChild : MonoBehaviour
 
     void LateUpdate()
     {
-        Vector3 checkPosition = transform.position;
+      /*  Vector3 checkPosition = transform.position;
 
         // 주변 박스 내에 충돌 대상이 있는지 확인
-        Collider[] hits = Physics.OverlapBox(checkPosition, boxSize * 1, Quaternion.identity, 0b11000000);
+        Collider[] hits = Physics.OverlapBox(checkPosition, boxSize * 1, Quaternion.identity, 0b10000000);
 
         if (hits.Length > 0)
         {
@@ -25,7 +25,7 @@ public class PlayerCameraChild : MonoBehaviour
             transform.parent.position += bounceDir * bounceForce;
 
             Debug.Log("바운스 발생");
-        }
+        }*/
     }
 
 }

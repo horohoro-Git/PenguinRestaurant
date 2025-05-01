@@ -19,14 +19,22 @@ public static class GarbageManager
 
             g.gameObject.SetActive(false);
             deActivatedGarbages.Enqueue(g);
+        
         }
     }
 
     public static Garbage CreateGarbage()
     {
+      
+        if (deActivatedGarbages.Count == 0)
+        {
+            NewGarbage(GameInstance.GameIns.workSpaceManager.garbage, 10);
+        }
+
         Garbage g = deActivatedGarbages.Dequeue();
         g.gameObject.SetActive(true);
         activatedGarbages.Add(g);
+
         return g;
     }
 

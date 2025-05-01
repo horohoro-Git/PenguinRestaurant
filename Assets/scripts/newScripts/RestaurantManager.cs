@@ -87,7 +87,7 @@ public class RestaurantManager : MonoBehaviour
         {
             if(!machineLevelData.ContainsKey((MachineType)data.Value.type)) machineLevelData[(MachineType)data.Value.type] = new Dictionary<int, MachineLevelStruct>();
             machineLevelData[(MachineType)data.Value.type][data.Value.level] = data.Value;
-            Debug.Log((MachineType)data.Value.type + " " + data.Value.level);
+    //        Debug.Log((MachineType)data.Value.type + " " + data.Value.level);
         }
         levelData = SaveLoadSystem.LoadLevelData();
         // if(GameInstance.GameIns.uiManager !=null) GameInstance.GameIns.uiManager.UpdateMoneyText(playerData.money);
