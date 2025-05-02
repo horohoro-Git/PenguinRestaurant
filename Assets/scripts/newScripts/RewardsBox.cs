@@ -24,6 +24,8 @@ public class RewardsBox : MonoBehaviour
     float fallSpeed = 0.5f;
     float lastTimer = 0f;
     bool removes=false;
+    [NonSerialized]
+    public bool destroyed;
     private void Update()
     {
         if (removes)
@@ -196,6 +198,7 @@ public class RewardsBox : MonoBehaviour
     }
     public IEnumerator RemoveRewardBox()
     {
+        destroyed = true;
         while(true)
         {
             Vector3 testScale = GameInstance.GetVector3(transform.localScale.x - Time.deltaTime * 10f, transform.localScale.y - Time.deltaTime * 10f, transform.localScale.z - Time.deltaTime * 10f);

@@ -117,10 +117,9 @@ public class ApplianceUIManager : MonoBehaviour
         }
         if(feeding)
         {
-            if(currentBox)
-           // if (GameInstance.GameIns.restaurantManager.fishNum > 0)// && hit.collider.GetComponent<RewardsBox>() == currentBox)
+            if(currentBox && !currentBox.destroyed)
             {
-                if (currentBox.GetFish()) GameInstance.GameIns.restaurantManager.UseFish();
+              
                 if (currentBox.foods.Count == 0 && currentBox.spawnTimer <= Time.time)
                 {
                     currentBox.animal.reward = null;
@@ -128,6 +127,8 @@ public class ApplianceUIManager : MonoBehaviour
                     currentBox = null;
                     feedingDescription.gameObject.SetActive(false);
                 }
+             
+                if (currentBox.GetFish()) GameInstance.GameIns.restaurantManager.UseFish();
                 //  feeding = true;
             }
         }
@@ -135,7 +136,7 @@ public class ApplianceUIManager : MonoBehaviour
         {
             if(currentBox)
             {
-                if(currentBox.foods.Count == 0 && currentBox.spawnTimer <= Time.time)
+                if(currentBox.foods.Count == 0 && currentBox.spawnTimer <= Time.time && !currentBox.destroyed)
                 {
                     currentBox.animal.reward = null;
                     StartCoroutine(currentBox.RemoveRewardBox());
@@ -450,13 +451,6 @@ public class ApplianceUIManager : MonoBehaviour
                 //UnlockHire(false);
                 appliancePanel.SetActive(true);
                 if (infoCoroutine != null) StopCoroutine(infoCoroutine);
-/*#if UNITY_ANDROID
-                infoCoroutine = StartCoroutine(InputInfos_A());
-#else
-                infoCoroutine = StartCoroutine(InputInfos());
-#endif
-*/
-
                 applianceImage.sprite = employeeIcon;
                 // upgradeCostText.text = $"업그레이드 비용 : {employeeData.}원";
                 upgradeInfoText.text = $"레벨 : {employeeData.level}\n이동 속도 : {employeeData.move_speed}\n행동 속도 : {employeeData.move_speed}/s\n최대 운반량 : {employeeData.max_weight}개";
@@ -519,7 +513,7 @@ public class ApplianceUIManager : MonoBehaviour
                 //  gameInstance.GameIns.inputManager.inputDisAble = true;
                 if (currentBox != null)
                 {
-                    if (currentBox.foods.Count == 0 && currentBox.spawnTimer <= Time.time)
+                    if (currentBox.foods.Count == 0 && currentBox.spawnTimer <= Time.time && !currentBox.destroyed)
                     {
                         currentBox.animal.reward = null;
                         currentBox.RemoveRewardBox();
@@ -585,10 +579,13 @@ public class ApplianceUIManager : MonoBehaviour
 
                 if (rb != currentBox)
                 {
-                    if (currentBox.foods.Count == 0)
+                    if (currentBox != null)
                     {
-                        currentBox.animal.reward = null;
-                        StartCoroutine(currentBox.RemoveRewardBox());
+                        if (currentBox.foods.Count == 0)
+                        {
+                            currentBox.animal.reward = null;
+                            StartCoroutine(currentBox.RemoveRewardBox());
+                        }
                     }
                 }
 
@@ -1197,18 +1194,16 @@ public class ApplianceUIManager : MonoBehaviour
 
     public void UIClearAll(bool visible)
     {
-
-        Debug.Log(("UIClearAll"));
         bHidden = !visible;
         if (visible)
         {
             GetComponent<Canvas>().renderMode = RenderMode.ScreenSpaceOverlay;
-            Camera.main.cullingMask |= (1 << LayerMask.NameToLayer("ApplianceUI"));
+            InputManger.cachingCamera.cullingMask |= (1 << LayerMask.NameToLayer("ApplianceUI"));
         }
         else
         {
             GetComponent<Canvas>().renderMode = RenderMode.WorldSpace;
-            Camera.main.cullingMask &= ~(1 << LayerMask.NameToLayer("ApplianceUI"));
+            InputManger.cachingCamera.cullingMask &= ~(1 << LayerMask.NameToLayer("ApplianceUI"));
         }
     }
 }

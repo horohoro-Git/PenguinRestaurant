@@ -11,7 +11,6 @@ public class DataEncryptionEditor : EditorWindow
 {
     string key;
     string dataName;
-    string encryptName;
     [MenuItem("Tools/DataEncryptionEditor")]
     public static void ShowWindow()
     {
@@ -20,15 +19,16 @@ public class DataEncryptionEditor : EditorWindow
     private void OnGUI()
     {
         dataName = EditorGUILayout.TextField("Data Name", dataName);
-        encryptName = EditorGUILayout.TextField("Encrypt Name", encryptName);
         key = EditorGUILayout.TextField("AES Key", key);
         string dirPath = Path.Combine(Application.persistentDataPath, "PlayData");
 
-        if (GUILayout.Button("Data Encrypt") && dataName.Length > 0 && encryptName.Length > 0 && key.Length > 0)
+        if (GUILayout.Button("Data Encrypt") && dataName.Length > 0 && key.Length > 0)
         {
             //string path = Path.Combine(dirPath, dataName);
 
-            Encryption(dirPath, key, dataName, encryptName);
+            string dName = dataName + ".json";
+            string eName = dataName + ".bytes";
+            Encryption(dirPath, key, dName, eName);
         }
     }
 

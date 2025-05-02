@@ -1092,14 +1092,13 @@ public class Employee : AnimalController
     {
         Employee_Delivery(position, packingTable, App.GlobalToken).Forget();
     }
-    FoodMachine fm;
+
     public void Work(Vector3 position, FoodMachine foodMachine)
     {
         Employee_FoodMachine(position, foodMachine, App.GlobalToken).Forget();
 
     }
 
-    Counter ct;
     public void Work(Vector3 position, Counter counter, bool serving)
     {
         if (!serving) Employee_Counter(position, counter, App.GlobalToken).Forget();
@@ -1254,7 +1253,6 @@ public class Employee : AnimalController
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                fm = foodMachine;
                 lastPos = position;
                 moveNode = await CalculateNodes_Async(position, cancellationToken);
                 if (moveNode != null)
@@ -1346,7 +1344,6 @@ public class Employee : AnimalController
         {
             while (true)
             {
-                ct = counter;
                 lastPos = position;
                 cancellationToken.ThrowIfCancellationRequested();
                 moveNode = await CalculateNodes_Async(position, cancellationToken);
@@ -1435,7 +1432,6 @@ public class Employee : AnimalController
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                ct = counter;
                 lastPos = position;
                 moveNode = await CalculateNodes_Async(position, cancellationToken);
                 if (moveNode != null)
@@ -1542,6 +1538,16 @@ public class Employee : AnimalController
                         if (reCalculate)
                         {
                             reCalculate = false;
+
+                            if(table.interacting)
+                            {
+                                animator.SetInteger("state", 0);
+                                PlayAnim(animal.animationDic[animation_Idle_A], animation_Idle_A);
+                                await UniTask.Delay(500);
+                                GameInstance.GameIns.animalManager.AttachEmployeeTask(this);
+                                return;
+                            }
+
                             continue;
                         }
 

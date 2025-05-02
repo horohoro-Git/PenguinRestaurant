@@ -16,6 +16,7 @@ public class AssetLoader : MonoBehaviour
     public static Dictionary<string, GameObject> loadedAssets = new Dictionary<string, GameObject>();
     public static Dictionary<string, Sprite> loadedSprites = new Dictionary<string, Sprite>();
     public static Dictionary<int, ItemStruct> items = new Dictionary<int, ItemStruct>();
+    public static Dictionary<int, ItemStruct> sprites = new Dictionary<int, ItemStruct>();
     public static Dictionary<int, MachineLevelStruct> machines_levels = new Dictionary<int, MachineLevelStruct>();
     public static Dictionary<int, EmployeeLevelStruct> employees_levels = new Dictionary<int, EmployeeLevelStruct>();
     public static Dictionary<int, AnimalStruct> animals = new Dictionary<int, AnimalStruct>();
@@ -26,9 +27,9 @@ public class AssetLoader : MonoBehaviour
     int unloadNum;
     public bool assetLoadSuccessful;
     public bool sceneLoaded;
-    string[] tables = new string[6]
+    string[] tables = new string[7]
     {
-        "all", "employees", "machines", "animals", "level","furniture"
+        "all", "employees", "machines", "animals", "level","furniture", "sprites"
     };
     Dictionary<string, string> tableContents = new Dictionary<string, string>();
 
@@ -110,21 +111,16 @@ public class AssetLoader : MonoBehaviour
                 await UniTask.RunOnThreadPool(() =>
                 {
                     items = SaveLoadSystem.GetDictionaryData<int, ItemStruct>(tableContents["all"]);
-                 //   mapKeys = SaveLoadSystem.GetDictionaryData<string, StringStruct>(tableContents["maps"]);
+                    sprites = SaveLoadSystem.GetDictionaryData<int, ItemStruct>(tableContents["sprites"]);
                     machines_levels = SaveLoadSystem.GetDictionaryData<int, MachineLevelStruct>(tableContents["machines"]);
                     animals = SaveLoadSystem.GetDictionaryData<int, AnimalStruct>(tableContents["animals"]);
-                    Debug.Log(animals.Count);
                     employees_levels = SaveLoadSystem.GetDictionaryData<int, EmployeeLevelStruct>(tableContents["employees"]);
-
                     levelData = SaveLoadSystem.GetDictionaryDataClass<int, LevelData>(tableContents["level"]);
                     restaurantParams = SaveLoadSystem.GetListData<RestaurantParam>(tableContents["furniture"]);
                 });
-                foreach (KeyValuePair<int, ItemStruct> keyValuePair in items)
-                {
-                    string spriteName = keyValuePair.Value.asset_name + "_Sprite";
-                    spriteAssetKeys[keyValuePair.Key] = new StringStruct(spriteName);
-                    itemAssetKeys[keyValuePair.Key] = new StringStruct(keyValuePair.Value.asset_name);
-                }
+                foreach (KeyValuePair<int, ItemStruct> keyValuePair in items) itemAssetKeys[keyValuePair.Key] = new StringStruct(keyValuePair.Value.asset_name);
+                foreach (KeyValuePair<int, ItemStruct> keyValuePair in sprites) spriteAssetKeys[keyValuePair.Key] = new StringStruct(keyValuePair.Value.asset_name);
+           
 
                 await LoadAsync<GameObject, StringStruct, string>(itemAssetKeys, loadedAssets);
                 await LoadAsync<Sprite, StringStruct, string>(spriteAssetKeys, loadedSprites);

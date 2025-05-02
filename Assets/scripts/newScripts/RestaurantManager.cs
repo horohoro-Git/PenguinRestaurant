@@ -8,19 +8,19 @@ using System;
 
 public class RestaurantManager : MonoBehaviour
 {
-    public int[] employeeHire = { 0, 500, 1000, 1500, 2000, 2500, 3000, 3500 };
+    [NonSerialized] public int[] employeeHire = { 0, 700, 1500, 2500, 4000, 6000, 9000, 15000 };
     
     public GameObject[] levels;
     public NextTarget[] levelGuides;
     NextTargetData[] nextTargetDatas = new NextTargetData[100];
     public AudioSource purchase;
-    public int level = 0;
+    [NonSerialized] public int level = 0;
     public bool allLevelUp;
-    public int fishNum = 0;
+    [NonSerialized] public int fishNum = 0;
     public bool employable;
     public int restaurantValue = 0;
 
-    public PlayerData playerData = new PlayerData(0, 0f, 0,0, null, 0);
+    [NonSerialized] public PlayerData playerData = new PlayerData(0, 0f, 0,0, null, 0);
     public PlayerStruct playerStruct = new PlayerStruct(0, 0f, 0, 0, null, 0);
     public List<EmployeeLevelStruct> employeeData = new List<EmployeeLevelStruct>();
     public List<RestaurantParam> restaurantparams = new List<RestaurantParam>();
@@ -33,7 +33,7 @@ public class RestaurantManager : MonoBehaviour
     public EmployeeData currentEmployeeData;
     public Dictionary<MachineType, List<MachineData>> upgradeMachineDic = new Dictionary<MachineType, List<MachineData>>();
 
-    public List<Vector3> flyingEndPoints = new List<Vector3>();
+    [NonSerialized] public List<Vector3> flyingEndPoints = new List<Vector3>();
 
     public List<FoodStack> foodStacks = new List<FoodStack>();
 

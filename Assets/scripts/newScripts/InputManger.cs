@@ -111,6 +111,7 @@ public class InputManger : MonoBehaviour
       //  GameInstance.GameIns.uiManager = UIManager;
         GameInstance.GameIns.inputManager = this;
         ped = new PointerEventData(es);
+       
     }
    
     // Start는 첫 프레임 전에 호출됩니다.

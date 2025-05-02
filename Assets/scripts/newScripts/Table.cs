@@ -13,22 +13,23 @@ public class Table : MonoBehaviour
 {
     //  public Transform Transforms;
     public Transform Transforms;
-    public bool isDirty = false;
+    [NonSerialized] public bool isDirty = false;
     public AnimalController controller;
-    public AnimalController employeeContoller;
-  
-    public List<FoodStack>foodStacks = new List<FoodStack>();
+    [NonSerialized] public AnimalController employeeContoller;
+
+    [NonSerialized] public List<FoodStack>foodStacks = new List<FoodStack>();
     //public Stack<Garbage> garbages = new Stack<Garbage>();
-    public List<Garbage> garbageList = new List<Garbage>();
+    [NonSerialized] public List<Garbage> garbageList = new List<Garbage>();
     public Garbage garbageInstance;
     public Transform animalSeat;
     public Transform cleanSeat;
     public Transform up;
-    public int numberOfGarbage;
+    [NonSerialized] public int numberOfGarbage;
+    [NonSerialized] public int numberOfFoods;
     public Seat[] seats;
     public Plate trashPlate;
     public Transform plateLoc;
-    public bool interacting;
+    [NonSerialized] public bool interacting;
     public int seatNum;
 
     public float weight;
@@ -74,6 +75,8 @@ public class Table : MonoBehaviour
 
     public void CleanTableManually()
     {
+        employeeContoller.reCalculate = true;
+        employeeContoller = null;
         Clean(App.GlobalToken).Forget();
         
        //StartCoroutine(Clean());

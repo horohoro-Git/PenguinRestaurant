@@ -41,9 +41,9 @@ public class PanelAnimalsController : MonoBehaviour
                 animalCard[index].eatSpeed = animal.eat_speed;//.eatSpeed;
                 animalCard[index].minOrder = animal.min_order;
                 animalCard[index].maxOrder = animal.max_order;
-                animalCard[index].cardBg.sprite = this.cardBg[type.Value - 1];
+             /*   animalCard[index].cardBg.sprite = this.cardBg[type.Value - 1];
                 animalCard[index].backGlow.color = this.backGlowColor[type.Value - 1];
-                animalCard[index].glow.color = this.glowColor[type.Value - 1];
+                animalCard[index].glow.color = this.glowColor[type.Value - 1];*/
             }
         }
          
