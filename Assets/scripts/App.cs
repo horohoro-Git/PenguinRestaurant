@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -23,6 +24,8 @@ public class App : MonoBehaviour
     public SceneState currentScene;
     GetWaitTimer getWaitTimer = new GetWaitTimer();
     public Vector3 pos;
+    static Dictionary<string, Scene> scenes = new Dictionary<string, Scene>();
+    Loading loading;
     private void Awake()
     {
         //Resources.UnloadUnusedAssets();
@@ -30,76 +33,133 @@ public class App : MonoBehaviour
         currentScene = SceneState.Restaurant;
         GameInstance.GameIns.app = this;
         DontDestroyOnLoad(this);
-        SceneManager.LoadSceneAsync("LoadingScene", LoadSceneMode.Additive);
+        //    AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("LoadingScene", LoadSceneMode.Additive);
         /*   SceneManager.LoadSceneAsync("InteractionScene", LoadSceneMode.Additive);
            SceneManager.LoadSceneAsync("RestaurantScene", LoadSceneMode.Additive);
           // SceneManager.LoadSceneAsync("RestaurantScene(BackUp)", LoadSceneMode.Additive);
            SceneManager.LoadSceneAsync("GatCharScene_Town", LoadSceneMode.Additive);*/
 
         //   SceneManager.sceneCount
+        if (!scenes.ContainsKey("LoadingScene")) LoadLoadingScene(GlobalToken).Forget();
     }
-    private void Start()
-    {
-        if (GameInstance.GameIns.assetLoader)
-        {
-            UniTask.Void(async () =>
-            {
-               await GameInstance.GameIns.assetLoader.DownloadAssetBundle();
-            });
-            GameObject.Find("Loading").GetComponent<Loading>().ChangeText("에셋 로딩 중");
-            Invoke("LoadAsset", 0.5f);
-        }
-     /*   for (int i = 0; i < SceneManager.sceneCount; i++)
-        {
-            Scene scene = SceneManager.GetSceneAt(i);
 
-            // 현재 씬의 모든 루트 오브젝트 비활성화
-            foreach (GameObject rootObject in scene.GetRootGameObjects())
+    async UniTask LoadLoadingScene(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            await LoadScene("LoadingScene", cancellationToken);
+
+            await LoadGameAsset(cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+
+        }
+    }
+
+    async UniTask LoadGameAsset(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            if (scenes["LoadingScene"].IsValid() && scenes["LoadingScene"].isLoaded)
             {
-                bool visible = !(scene.name == "GatCharScene_Town");// || scene.name == "RestaurantScene");
-              //  rootObject.SetActive(visible); // 특정 씬만 활성화
+                GameObject[] rootObjects = scenes["LoadingScene"].GetRootGameObjects();
+
+                foreach (GameObject go in rootObjects)
+                {
+                    if (go.name == "Loading")
+                    {
+                        loading = go.GetComponent<Loading>();
+                        break;
+                    }
+                }
             }
-        }*/
-     
-    }
 
-    void LoadScene()
-    {
-        if (GameInstance.GameIns.assetLoader.sceneLoaded)
-        {
-            Debug.Log("Load");
-            GameLoaded();
-        }
-        else
-        {
-            Invoke("LoadScene", 0.5f);
-        }
-    }
-    void LoadAsset()
-    {
-        if (GameInstance.GameIns.assetLoader.assetLoadSuccessful)
-        {
-            UniTask.Void(async () =>
+
+            if (GameInstance.GameIns.assetLoader)
             {
-                await GameInstance.GameIns.assetLoader.DownloadAsset_SceneBundle();
-            });
-            GameObject.Find("Loading").GetComponent<Loading>().ChangeText("맵 로딩 중");
-            Invoke("LoadScene", 0.5f);
+                loading.ChangeText("에셋 로딩 중");
+                await GameInstance.GameIns.assetLoader.DownloadAssetBundle(cancellationToken);
+                await UniTask.Delay(500);
+                await LoadAssetWithBundle(cancellationToken);
+                /*   UniTask.Void(async () =>
+                   {
+                       await GameInstance.GameIns.assetLoader.DownloadAssetBundle();
+                   });
+                   loading.ChangeText("에셋 로딩 중");
+                   Invoke("LoadAssetWithBundle", 0.5f);
+       */
+            }
         }
-        else
+        catch (OperationCanceledException)
         {
-            Invoke("LoadAsset", 0.5f);
+
         }
     }
 
-    void GameLoaded()
+    async UniTask LoadSceneWithBundle(CancellationToken cancellationToken = default)
     {
-        SceneManager.LoadSceneAsync(AssetLoader.loadedMap["InteractionScene"], LoadSceneMode.Additive);
-        SceneManager.LoadSceneAsync(AssetLoader.loadedMap["RestaurantScene"], LoadSceneMode.Additive);
-        SceneManager.LoadSceneAsync(AssetLoader.loadedMap["GatCharScene_Town"], LoadSceneMode.Additive);
-        currentScene = SceneState.Restaurant;
+        try
+        {
 
-        GameObject.Find("Loading").GetComponent<Loading>().Set();
+            if (GameInstance.GameIns.assetLoader.sceneLoaded)
+            {
+                Debug.Log("Load");
+                await GameLoaded(GlobalToken);
+            }
+            else
+            {
+                await UniTask.Delay(500, cancellationToken: cancellationToken);
+                await LoadAssetWithBundle(cancellationToken);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+
+        }
+    }
+    async UniTask LoadAssetWithBundle(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            if (GameInstance.GameIns.assetLoader.assetLoadSuccessful)
+            {
+                loading.ChangeText("맵 로딩 중");
+                await GameInstance.GameIns.assetLoader.DownloadAsset_SceneBundle(cancellationToken);
+                await UniTask.Delay(500, cancellationToken: cancellationToken);
+                await LoadSceneWithBundle(cancellationToken);
+            }
+            else
+            {
+                await UniTask.Delay(500, cancellationToken: cancellationToken);
+                await LoadAssetWithBundle(cancellationToken);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+
+        }
+    }
+
+    async UniTask GameLoaded(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            await LoadScene(AssetLoader.loadedMap["InteractionScene"], cancellationToken);
+            await LoadScene(AssetLoader.loadedMap["RestaurantScene"], cancellationToken);
+            await LoadScene(AssetLoader.loadedMap["GatCharScene_Town"], cancellationToken);
+
+            currentScene = SceneState.Restaurant;
+
+            loading.LoadingComplete();
+        }
+        catch (OperationCanceledException)
+        {
+
+        }
     }
 
     private void OnApplicationQuit()
@@ -112,100 +172,44 @@ public class App : MonoBehaviour
             globalCts = null;
         }
     }
-    //bool down=false;
-    /*  public void Update()
-      {
-          if (Input.GetKeyDown(KeyCode.Alpha1) && !down )
-          {
 
-              if (GameInstance.GameIns.animalManager)
-              {
-                //  if (GameInstance.GameIns.animalManager.animalActionCoroutine != null) { StopCoroutine(GameInstance.GameIns.animalManager.animalActionCoroutine); }
+    public static async UniTask LoadScene(string name, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            cancellationToken.ThrowIfCancellationRequested();
 
-                  for (int i = 0; i < SceneManager.sceneCount; i++)
-                  {
-                      Scene scene = SceneManager.GetSceneAt(i);
+            AsyncOperation asyncUnLoad = SceneManager.LoadSceneAsync(name, LoadSceneMode.Additive);
 
-                      // 현재 씬의 모든 루트 오브젝트 비활성화
-                      foreach (GameObject rootObject in scene.GetRootGameObjects())
-                      {
-                  //        rootObject.SetActive(scene.name != "RestaurantScene"); // 특정 씬만 활성화
+            await asyncUnLoad.ToUniTask(cancellationToken: cancellationToken);
 
-                      }
+            scenes[name] = SceneManager.GetSceneByName(name);
+        }
+        catch (OperationCanceledException)
+        {
 
-                  }
+        }
+    }
+    public static void UnloadScene(string name, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            UniTask.Void(async () =>
+            {
+                AsyncOperation asyncUnLoad = SceneManager.UnloadSceneAsync(name);
 
-              }
-              down = true;
-          }
-          if (Input.GetKeyDown(KeyCode.Alpha2) && down)
-          {
-              down = false;
+                await asyncUnLoad.ToUniTask(cancellationToken: cancellationToken);
 
-              if (GameInstance.GameIns.animalManager)
-              {
+                scenes.Remove(name);
+            });
+        }
+        catch (OperationCanceledException)
+        {
 
-                  for (int i = 0; i < SceneManager.sceneCount; i++)
-                  {
-                      Scene scene = SceneManager.GetSceneAt(i);
-
-                      // 현재 씬의 모든 루트 오브젝트 비활성화
-                      foreach (GameObject rootObject in scene.GetRootGameObjects())
-                      {
-                          bool visible = (scene.name == "InteractionScene" || scene.name == "RestaurantScene");
-               //           rootObject.SetActive(visible); // 특정 씬만 활성화
-                      }
-                  }
-              }
-               GameInstance.GameIns.inputManager.inputDisAble = false;
-              GameInstance.GameIns.inputManager.cameraTrans.position = pos;
-              Time.timeScale = 1;
-              //
-
-              //GameInstance.GameIns.animalManager.StartRoutine();
-
-              ////
-              //for (int i = 0; i < GameInstance.GameIns.animalManager.employeeControllers.Count; i++)
-              //{
-              //    if (GameInstance.GameIns.animalManager.employeeControllers[i].spawning == false)
-              //    {
-              //        if (GameInstance.GameIns.animalManager.employeeControllers[i].restartCoroutine != null)
-              //        {
-              //            GameInstance.GameIns.animalManager.employeeControllers[i].restartCoroutine.Invoke();
-
-              //        }
-
-              //    }
-              //    else
-              //    {
-              //        GameInstance.GameIns.animalManager.employeeControllers[i].StartFalling(false);
-              //    }
-              //}
-
-              //for (int i = 0; i < GameInstance.GameIns.animalManager.customerControllers.Count; i++)
-              //{
-              //    if (GameInstance.GameIns.animalManager.customerControllers[i].restartCoroutine != null)
-              //    {
-              //        GameInstance.GameIns.animalManager.customerControllers[i].restartCoroutine.Invoke();
-              //    }
-              //}
-
-              //for (int i = 0; i < GameInstance.GameIns.workSpaceManager.foodMachines.Count; i++)
-              //{
-
-              //    GameInstance.GameIns.workSpaceManager.foodMachines[i].Cooking();
-              //}
-
-              //for (int i = 0; i < GameInstance.GameIns.workSpaceManager.spwaners.Count; i++)
-              //{
-              //    if (GameInstance.GameIns.workSpaceManager.spwaners[i])
-              //    {
-              //        GameInstance.GameIns.workSpaceManager.spwaners[i].RestartSpawner();
-              //    }
-              //}
-          }
-      }
-  */
+        }
+    }
+  
     public void ChangeScene_Restaurant()
     {
         if (currentScene == SceneState.Restaurant) return;

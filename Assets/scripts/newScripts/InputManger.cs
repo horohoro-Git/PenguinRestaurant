@@ -13,8 +13,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using System.Threading;
-using UnityEngine.InputSystem.EnhancedTouch;
-using CryingSnow.FastFoodRush;
+using static GameInstance;
 //using UnityEngine.InputSystem;
 //using UnityEditor.Experimental.GraphView;
 //using static DG.Tweening.DOTweenModuleUtils;
@@ -103,7 +102,8 @@ public class InputManger : MonoBehaviour
     PointerEventData pointerEventData;
 
     UnlockableBuyer buyer;
-
+    int refX;
+    int refY;
     private void Awake()
     {
         es = GetComponent<EventSystem>();
@@ -157,109 +157,6 @@ public class InputManger : MonoBehaviour
                 StartClickIngameObject(currentPoint);
             }
         }
-
-
-        //Debug.Log(blockedDir);
-        /*    if(Physics.SphereCast(cameraRange.position, 0.5f, blockedDir, out RaycastHit hitInfo, 5, 1 << 7 | 1<< 8))
-            {
-                Vector3 pushBackDir = hit.normal;
-                float penetrationDepth = 0.5f - hit.distance;
-                cameraTrans.position -= pushBackDir * ( penetrationDepth) * Time.deltaTime;
-
-            }*/
-      
-        /*  if (Input.GetKeyDown(KeyCode.Escape)) {
-              Vector3 vbv = Camera.main.ScreenToWorldPoint(GameInstance.GameIns.uiManager.moneyText.rectTransform.position);
-              testTrash.transform.position = new Vector3(vbv.x, vbv.y -1, vbv.z);
-              //Vector3 screenPosition = Camera.main.WorldToScreenPoint(new Vector3(testTrash.transform.position.x, testTrash.transform.position.y, Camera.main.nearClipPlane));
-          }*/
-
-        /*   preLoc = curLoc;
-           curLoc = cameraRange.position;
-           if (!inputDisAble)
-           {
-               if (Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer)
-               {
-                   if (Utility.IsInsideCameraViewport(Input.mousePosition, cachingCamera))
-                   {
-                       DragScreen_WindowEditor();
-                       Unlock_T();
-                       ClickMachine_T();
-                   }
-               }
-
-               if (Application.platform == RuntimePlatform.Android)
-               {
-                   DragScreen_Android();
-                   Unlock();
-                   ClickMachine();
-               }
-
-
-               //   DoubleClick();
-
-               *//*   if (clickedTable != null)
-                  {
-                      Vector2 viewLocation;
-
-                      if (Application.platform == RuntimePlatform.WindowsEditor) viewLocation = Camera.main.ScreenToViewportPoint(Input.mousePosition);
-                      else if (Input.touchCount > 0)
-                      {
-                          Touch t = Input.GetTouch(0);
-                          viewLocation = Camera.main.ScreenToViewportPoint(t.position);
-                      }
-                      else viewLocation = new Vector2(0.5f, 0.5f);
-
-                      if (viewLocation.x < 0.01f)
-                      {
-                          Vector3 dir = Quaternion.Euler(0, 45, 0) * new Vector3(-1, 0, 0);
-                          RayMove(dir, 30);
-                      }
-                      if (viewLocation.x > 0.99f)
-                      {
-                          Vector3 dir = Quaternion.Euler(0, 45, 0) * new Vector3(1, 0, 0);
-                          RayMove(dir, 30);
-                      }
-                      if (viewLocation.y > 0.99f)
-                      {
-                          Vector3 dir = Quaternion.Euler(0, 45, 0) * new Vector3(0, 0, 1);
-                          RayMove(dir, 30);
-                      }
-                      if (viewLocation.y < 0.01f)
-                      {
-                          Vector3 dir = Quaternion.Euler(0, 45, 0) * new Vector3(0, 0, -1);
-                          RayMove(dir, 30);
-                      }
-
-                  }*//*
-
-           }  
-           else
-           {
-               if (Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer)
-               {
-
-                   Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                   if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity))
-                   {
-                       dragOrigin = hit.point;
-                   }
-                   isDragging = false;
-               }
-               if (Application.platform == RuntimePlatform.Android)
-               {
-                   if(Input.touchCount > 0)
-                   {
-                       Touch touch = Input.GetTouch(0);
-                       Ray ray = Camera.main.ScreenPointToRay(touch.position);
-                       if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity))
-                       {
-                           dragOrigin = hit.point;
-                       }
-                   }
-                   isDragging = false;
-               }
-           }*/
 
 
     }
@@ -469,11 +366,9 @@ public class InputManger : MonoBehaviour
                     if (CheckRayMove(d))
                     {
                         cameraTrans.position = move;
-                        
+                        CheckHirable(ref refX, ref refY);
                     }
                    
-                    //  cameraTrans.position += mm * d;
-                    //cameraTrans.position = Vector3.SmoothDamp(followPosition, realPosition, ref camVelocity, 0.2f);
                 }
                 else
                 {
@@ -485,7 +380,7 @@ public class InputManger : MonoBehaviour
                     if (CheckRayMove(d))
                     {
                         cameraTrans.position = move;
-                     
+                        CheckHirable(ref refX, ref refY);
                     }
                    
                 }
@@ -499,12 +394,6 @@ public class InputManger : MonoBehaviour
        //     camVelocity = Vector3.zero; 
             isDragging = false;
         }
-     //   catch (Exception ex)
-        {
-    //        isDragging = false;
-   //         throw;
-        }
-
     }
 
     IEnumerator Blocking(Vector3 move)
@@ -566,7 +455,60 @@ public class InputManger : MonoBehaviour
         }
         return false;
     }
-  
+
+    void CheckHirable(ref int x, ref int y)
+    {
+        Vector3 loc = cameraRange.position;
+        int playerX = (int)((loc.x - GameIns.calculatorScale.minX) / GameIns.calculatorScale.distanceSize);
+        int playerY = (int)((loc.z - GameIns.calculatorScale.minY) / GameIns.calculatorScale.distanceSize);
+
+        // Debug.DrawLine()
+
+        if(x == playerX && y == playerY) return;
+        x =playerX; y =playerY;
+
+
+
+
+
+        /*float angleStep = 360f / 60;
+
+        for (int i = 0; i < 60; i++)
+        {
+            float angleCurrent = Mathf.Deg2Rad * (i * angleStep);
+            float angleNext = Mathf.Deg2Rad * ((i + 1) * angleStep);
+
+            Vector3 pointA = loc + new Vector3(Mathf.Cos(angleCurrent), 0, Mathf.Sin(angleCurrent)) * (Camera.main.orthographicSize / 2.5f);
+            Vector3 pointB = loc + new Vector3(Mathf.Cos(angleNext), 0, Mathf.Sin(angleNext)) * (Camera.main.orthographicSize / 2.5f);
+
+            Debug.DrawLine(pointA, pointB, Color.yellow, 0.1f); // 마지막 인자는 지속시간
+        }*/
+        if (Utility.ValidCheck(playerY, playerX))
+        {
+            int minX = (int)(-Camera.main.orthographicSize / 2.5f);
+            int maxX = (int)(Camera.main.orthographicSize / 2.5f);
+            int minY = (int)(-Camera.main.orthographicSize / 2.5f);
+            int maxY = (int)(Camera.main.orthographicSize / 2.5f);
+
+            for (int i = minX; i <= maxX; i++)
+            {
+                for( int j = minY; j <= maxY; j++)
+                {
+                    if(Utility.ValidCheck(playerY + j, playerX + i))
+                    {
+                        if (!MoveCalculator.GetBlocks[playerY + j, playerX + i])
+                        {
+                            GameIns.applianceUIManager.UnlockHire(true);
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+        GameIns.applianceUIManager.UnlockHire(false);
+    }
+
+
     /*bool RayMove(Vector3 direction, float speed)
     {
         double d = 0;

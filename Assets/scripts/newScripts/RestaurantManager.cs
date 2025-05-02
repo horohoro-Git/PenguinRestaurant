@@ -5,6 +5,8 @@ using UnityEngine;
 using System.Text.RegularExpressions;
 using static SaveLoadManager;
 using System;
+using CryingSnow.FastFoodRush;
+using Unity.VisualScripting;
 
 public class RestaurantManager : MonoBehaviour
 {
@@ -390,17 +392,16 @@ public class RestaurantManager : MonoBehaviour
                 GameInstance.GameIns.applianceUIManager.UnlockHire(false);
             }
 
-         //   SaveLoadManager.Save(SaveState.)
+            //   SaveLoadManager.Save(SaveState.)
         }
     }
-
     public void HireEmployee()
     {
-        if (playerData.employeeNum < 8 && employeeHire[playerData.employeeNum] <= GetRestaurantValue())
-        {
-            playerData.employeeNum++;
+            if (playerData.employeeNum < 8 && employeeHire[playerData.employeeNum] <= GetRestaurantValue())
+            {
+                playerData.employeeNum++;
 
-            //SaveLoadManager.Save(SaveLoadManager.SaveState.ONLY_SAVE_PLAYERDATA);//
+                //SaveLoadManager.Save(SaveLoadManager.SaveState.ONLY_SAVE_PLAYERDATA);//
             EmployeeNum();
         }
        // EmployeeNum();

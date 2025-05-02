@@ -45,16 +45,11 @@ public class Loading : MonoBehaviour
     {
         loading = t;
     }
-    public void Set()
+    public void LoadingComplete()
     {
         done = true;
         text.text = "로딩 완료!";
 
-       // text.text = "working";
-
-        //   cam.enabled = false;
-        //  Camera.main.enabled = true;
-        //.Destroy(cam);
         StartCoroutine(FadeOut());
     }
 
@@ -73,5 +68,9 @@ public class Loading : MonoBehaviour
             yield return null;
         }
         image.color = new Color(1, 1, 1,0);
+
+        image.raycastTarget = false;
+
+        
     }
 }
