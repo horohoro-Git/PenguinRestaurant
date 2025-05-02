@@ -109,15 +109,7 @@ public class Customer : AnimalController
                 {
                     workSpaceManager.counters[i].customer = this;
                     transforms.position = workSpaceManager.counters[i].transforms.position;
-                    //       FoodStack ss= new FoodStack();
-                    //   ss.
-                    //foodStack
-
-                    /*  FoodStack foodStack = new FoodStack
-                      {
-                          needFoodNum = 8,
-                          type = FoodMachine.MachineType.PackingTable
-                      };*/
+             
                     FoodStack foodStack = FoodStackManager.FM.GetFoodStack();
                     ClearPlate(foodStack);
                     foodStack.needFoodNum = 8;
@@ -474,11 +466,11 @@ public class Customer : AnimalController
             animator.SetInteger("state", 0);
             PlayAnim(animal.animationDic["Idle_A"], "Idle_A");
 
-
+            //음식 주문
             Order();
-
             GameInstance.GameIns.uiManager.UpdateOrder(this, counter.counterType);
 
+            //받은 음식 체크
             while (true)
             {
                 bool check = true;
@@ -495,8 +487,11 @@ public class Customer : AnimalController
             }
 
             GameInstance.GameIns.uiManager.UpdateOrder(this, counter.counterType);
+
+            //비용 지불
             float foodPrices = 0;
             int tipNum = 0;
+            int foodNum = 0;
             for (int j = 0; j < foodStacks.Count; j++)
             {
                 for (int k = 0; k < foodStacks[j].foodStack.Count; k++)
@@ -504,6 +499,8 @@ public class Customer : AnimalController
                     //         foodPrices += foodStacks[j].foodStack[k].foodPrice;
                     int tip = UnityEngine.Random.Range(1, 11);
                     if (tip == 1) tipNum++;
+
+                    foodNum++;
                 }
             }
 
@@ -517,7 +514,12 @@ public class Customer : AnimalController
                 hasMoney = false;
             }
 
-            List<Table> tables = GameInstance.GameIns.workSpaceManager.tables;
+            List<Table> tables = GameInstance.GameIns.workSpaceManager.tables.ToList();
+            //foodMachine  거리 오름차순 개수 내림차순
+
+            tables = tables
+                    .OrderBy(fm => (fm.transforms.position - trans.position).magnitude) // 음식 개수 내림차순
+                    .ToList();
 
             while (true)
             {
@@ -534,6 +536,7 @@ public class Customer : AnimalController
                                 counter.customer = null;
                                 position[0].controller = null;
                                 t.seats[j].customer = this;
+                                t.numberOfFoods += foodNum;
                                 customerState = CustomerState.Counter;
                                 busy = false;
                                 GameInstance.GameIns.animalManager.AttacCustomerTask(this);
@@ -705,6 +708,7 @@ public class Customer : AnimalController
                         await UniTask.Delay(300, cancellationToken: cancellationToken);
                     }
 
+                    //식사
                     animator.SetInteger("state", 2);
                     PlayAnim(animal.animationDic["Eat"], "Eat");
                     GameObject particle = ParticleManager.CreateParticle();
@@ -719,11 +723,11 @@ public class Customer : AnimalController
                         if (table.foodStacks[0].foodStack.Count == 0) break;
                         Food f = table.foodStacks[0].foodStack.Pop();
                         FoodManager.EatFood(f);
+                        table.numberOfFoods--;
                         table.numberOfGarbage++;
-                        // Debug.Log(table.foodStacks[0].foodStack.Count);
+                        
 
-
-                        if (table.foodStacks[0].foodStack.Count == 0)
+                        if (table.foodStacks[0].foodStack.Count == 0 && table.numberOfFoods == 0)
                         {
                             table.numberOfGarbage = table.numberOfGarbage > 10 ? 10 : table.numberOfGarbage;
                             table.isDirty = true;

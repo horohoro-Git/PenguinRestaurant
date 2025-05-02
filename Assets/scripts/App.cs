@@ -30,12 +30,12 @@ public class App : MonoBehaviour
         currentScene = SceneState.Restaurant;
         GameInstance.GameIns.app = this;
         DontDestroyOnLoad(this);
+        SceneManager.LoadSceneAsync("LoadingScene", LoadSceneMode.Additive);
+        /*   SceneManager.LoadSceneAsync("InteractionScene", LoadSceneMode.Additive);
+           SceneManager.LoadSceneAsync("RestaurantScene", LoadSceneMode.Additive);
+          // SceneManager.LoadSceneAsync("RestaurantScene(BackUp)", LoadSceneMode.Additive);
+           SceneManager.LoadSceneAsync("GatCharScene_Town", LoadSceneMode.Additive);*/
 
-     /*   SceneManager.LoadSceneAsync("InteractionScene", LoadSceneMode.Additive);
-        SceneManager.LoadSceneAsync("RestaurantScene", LoadSceneMode.Additive);
-       // SceneManager.LoadSceneAsync("RestaurantScene(BackUp)", LoadSceneMode.Additive);
-        SceneManager.LoadSceneAsync("GatCharScene_Town", LoadSceneMode.Additive);*/
-       
         //   SceneManager.sceneCount
     }
     private void Start()
@@ -46,6 +46,7 @@ public class App : MonoBehaviour
             {
                await GameInstance.GameIns.assetLoader.DownloadAssetBundle();
             });
+            GameObject.Find("Loading").GetComponent<Loading>().ChangeText("에셋 로딩 중");
             Invoke("LoadAsset", 0.5f);
         }
      /*   for (int i = 0; i < SceneManager.sceneCount; i++)
@@ -82,6 +83,7 @@ public class App : MonoBehaviour
             {
                 await GameInstance.GameIns.assetLoader.DownloadAsset_SceneBundle();
             });
+            GameObject.Find("Loading").GetComponent<Loading>().ChangeText("맵 로딩 중");
             Invoke("LoadScene", 0.5f);
         }
         else
@@ -95,6 +97,9 @@ public class App : MonoBehaviour
         SceneManager.LoadSceneAsync(AssetLoader.loadedMap["InteractionScene"], LoadSceneMode.Additive);
         SceneManager.LoadSceneAsync(AssetLoader.loadedMap["RestaurantScene"], LoadSceneMode.Additive);
         SceneManager.LoadSceneAsync(AssetLoader.loadedMap["GatCharScene_Town"], LoadSceneMode.Additive);
+        currentScene = SceneState.Restaurant;
+
+        GameObject.Find("Loading").GetComponent<Loading>().Set();
     }
 
     private void OnApplicationQuit()
@@ -218,7 +223,7 @@ public class App : MonoBehaviour
         if (currentScene == SceneState.Draw) return;
         currentScene = SceneState.Draw;
         GameInstance.GameIns.inputManager.DragScreen_WindowEditor(true);
-        GameInstance.GameIns.inputManager.inputDisAble = true;
+    //    GameInstance.GameIns.inputManager.inputDisAble = true;
         pos = GameInstance.GameIns.inputManager.cameraTrans.position;
         Time.timeScale = 0;
         Time.fixedDeltaTime = 0f;

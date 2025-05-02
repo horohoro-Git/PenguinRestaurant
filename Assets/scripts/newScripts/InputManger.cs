@@ -12,9 +12,9 @@ using Unity.VisualScripting;
 using UnityEngine.SceneManagement;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
-using Cysharp.Threading.Tasks;
 using System.Threading;
-using SRF;
+using UnityEngine.InputSystem.EnhancedTouch;
+using CryingSnow.FastFoodRush;
 //using UnityEngine.InputSystem;
 //using UnityEditor.Experimental.GraphView;
 //using static DG.Tweening.DOTweenModuleUtils;
@@ -40,7 +40,7 @@ public class InputManger : MonoBehaviour
 
     public GameObject testTrash;
 
-    public bool inputDisAble;
+    public bool inputDisAble { get; set; }
     public bool bCleaningMode; //탁자를 치울 수 있는가
                                //   public bool a;
                                //    Vector3 lastPoint = new Vector3();
@@ -86,7 +86,7 @@ public class InputManger : MonoBehaviour
     //  bool dragging=false;
     //private Vector3 dragOrigin;
     public Slider slider;
-    Camera cachingCamera;
+    public static Camera cachingCamera;
     [SerializeField]
     PlayerInput playerInput;
 
@@ -96,10 +96,14 @@ public class InputManger : MonoBehaviour
     Vector3 deltaPosition;
     Vector3 followPosition;
     Vector3 realPosition;
+    Vector3 dummyChar;
     bool bClick;
     List<RaycastResult> results = new List<RaycastResult>();
     Vector3 camVelocity;
     PointerEventData pointerEventData;
+
+    UnlockableBuyer buyer;
+
     private void Awake()
     {
         es = GetComponent<EventSystem>();
@@ -107,6 +111,7 @@ public class InputManger : MonoBehaviour
       //  GameInstance.GameIns.uiManager = UIManager;
         GameInstance.GameIns.inputManager = this;
         ped = new PointerEventData(es);
+       
     }
    
     // Start는 첫 프레임 전에 호출됩니다.
@@ -114,7 +119,6 @@ public class InputManger : MonoBehaviour
     {
       
         //Money = 100000; // 시작할 때 돈을 10000으로 설정
-
         restaurantManager = GetComponent<RestaurantManager>(); // RestaurantManager 컴포넌트 가져오기
         animalManager = GetComponent<AnimalManager>(); // AnimalManager 컴포넌트 가져오기
      //   animalManager.SpawnAnimal(AnimalController.PlayType.Employee, new FoodsAnimalsWant()); // 직원 동물 생성
@@ -127,7 +131,7 @@ public class InputManger : MonoBehaviour
 
         originSize = Camera.main.orthographicSize;
     }
-    
+
     void Update()
     {
         if (Input.GetKey(KeyCode.O))
@@ -145,98 +149,119 @@ public class InputManger : MonoBehaviour
           //  SaveLoadTest.ReadData();
             // Camera.main.orthographicSize += 5f * Time.deltaTime;
         }
+
+        if(!isDragging && bClick)
+        {
+            if(buyer == null)
+            {
+                StartClickIngameObject(currentPoint);
+            }
+        }
+
+
+        //Debug.Log(blockedDir);
+        /*    if(Physics.SphereCast(cameraRange.position, 0.5f, blockedDir, out RaycastHit hitInfo, 5, 1 << 7 | 1<< 8))
+            {
+                Vector3 pushBackDir = hit.normal;
+                float penetrationDepth = 0.5f - hit.distance;
+                cameraTrans.position -= pushBackDir * ( penetrationDepth) * Time.deltaTime;
+
+            }*/
+      
         /*  if (Input.GetKeyDown(KeyCode.Escape)) {
               Vector3 vbv = Camera.main.ScreenToWorldPoint(GameInstance.GameIns.uiManager.moneyText.rectTransform.position);
               testTrash.transform.position = new Vector3(vbv.x, vbv.y -1, vbv.z);
               //Vector3 screenPosition = Camera.main.WorldToScreenPoint(new Vector3(testTrash.transform.position.x, testTrash.transform.position.y, Camera.main.nearClipPlane));
           }*/
-      
-     /*   preLoc = curLoc;
-        curLoc = cameraRange.position;
-        if (!inputDisAble)
-        {
-            if (Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer)
-            {
-                if (Utility.IsInsideCameraViewport(Input.mousePosition, cachingCamera))
-                {
-                    DragScreen_WindowEditor();
-                    Unlock_T();
-                    ClickMachine_T();
-                }
-            }
 
-            if (Application.platform == RuntimePlatform.Android)
-            {
-                DragScreen_Android();
-                Unlock();
-                ClickMachine();
-            }
-
-           
-            //   DoubleClick();
-
-            *//*   if (clickedTable != null)
+        /*   preLoc = curLoc;
+           curLoc = cameraRange.position;
+           if (!inputDisAble)
+           {
+               if (Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer)
                {
-                   Vector2 viewLocation;
-
-                   if (Application.platform == RuntimePlatform.WindowsEditor) viewLocation = Camera.main.ScreenToViewportPoint(Input.mousePosition);
-                   else if (Input.touchCount > 0)
+                   if (Utility.IsInsideCameraViewport(Input.mousePosition, cachingCamera))
                    {
-                       Touch t = Input.GetTouch(0);
-                       viewLocation = Camera.main.ScreenToViewportPoint(t.position);
+                       DragScreen_WindowEditor();
+                       Unlock_T();
+                       ClickMachine_T();
                    }
-                   else viewLocation = new Vector2(0.5f, 0.5f);
+               }
 
-                   if (viewLocation.x < 0.01f)
-                   {
-                       Vector3 dir = Quaternion.Euler(0, 45, 0) * new Vector3(-1, 0, 0);
-                       RayMove(dir, 30);
-                   }
-                   if (viewLocation.x > 0.99f)
-                   {
-                       Vector3 dir = Quaternion.Euler(0, 45, 0) * new Vector3(1, 0, 0);
-                       RayMove(dir, 30);
-                   }
-                   if (viewLocation.y > 0.99f)
-                   {
-                       Vector3 dir = Quaternion.Euler(0, 45, 0) * new Vector3(0, 0, 1);
-                       RayMove(dir, 30);
-                   }
-                   if (viewLocation.y < 0.01f)
-                   {
-                       Vector3 dir = Quaternion.Euler(0, 45, 0) * new Vector3(0, 0, -1);
-                       RayMove(dir, 30);
-                   }
+               if (Application.platform == RuntimePlatform.Android)
+               {
+                   DragScreen_Android();
+                   Unlock();
+                   ClickMachine();
+               }
 
-               }*//*
 
-        }  
-        else
-        {
-            if (Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer)
-            {
+               //   DoubleClick();
 
-                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity))
-                {
-                    dragOrigin = hit.point;
-                }
-                isDragging = false;
-            }
-            if (Application.platform == RuntimePlatform.Android)
-            {
-                if(Input.touchCount > 0)
-                {
-                    Touch touch = Input.GetTouch(0);
-                    Ray ray = Camera.main.ScreenPointToRay(touch.position);
-                    if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity))
-                    {
-                        dragOrigin = hit.point;
-                    }
-                }
-                isDragging = false;
-            }
-        }*/
+               *//*   if (clickedTable != null)
+                  {
+                      Vector2 viewLocation;
+
+                      if (Application.platform == RuntimePlatform.WindowsEditor) viewLocation = Camera.main.ScreenToViewportPoint(Input.mousePosition);
+                      else if (Input.touchCount > 0)
+                      {
+                          Touch t = Input.GetTouch(0);
+                          viewLocation = Camera.main.ScreenToViewportPoint(t.position);
+                      }
+                      else viewLocation = new Vector2(0.5f, 0.5f);
+
+                      if (viewLocation.x < 0.01f)
+                      {
+                          Vector3 dir = Quaternion.Euler(0, 45, 0) * new Vector3(-1, 0, 0);
+                          RayMove(dir, 30);
+                      }
+                      if (viewLocation.x > 0.99f)
+                      {
+                          Vector3 dir = Quaternion.Euler(0, 45, 0) * new Vector3(1, 0, 0);
+                          RayMove(dir, 30);
+                      }
+                      if (viewLocation.y > 0.99f)
+                      {
+                          Vector3 dir = Quaternion.Euler(0, 45, 0) * new Vector3(0, 0, 1);
+                          RayMove(dir, 30);
+                      }
+                      if (viewLocation.y < 0.01f)
+                      {
+                          Vector3 dir = Quaternion.Euler(0, 45, 0) * new Vector3(0, 0, -1);
+                          RayMove(dir, 30);
+                      }
+
+                  }*//*
+
+           }  
+           else
+           {
+               if (Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer)
+               {
+
+                   Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                   if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity))
+                   {
+                       dragOrigin = hit.point;
+                   }
+                   isDragging = false;
+               }
+               if (Application.platform == RuntimePlatform.Android)
+               {
+                   if(Input.touchCount > 0)
+                   {
+                       Touch touch = Input.GetTouch(0);
+                       Ray ray = Camera.main.ScreenPointToRay(touch.position);
+                       if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity))
+                       {
+                           dragOrigin = hit.point;
+                       }
+                   }
+                   isDragging = false;
+               }
+           }*/
+
+
     }
 
 
@@ -261,16 +286,16 @@ public class InputManger : MonoBehaviour
     private static CancellationTokenSource cts = new CancellationTokenSource();
     public static CancellationToken cancelToken => cts.Token;
     Coroutine coroutines;
+    Coroutine coroutines2;
  //   CancellationToken cancellation = new CancellationToken();
     void ScreenPoint(InputAction.CallbackContext callbackContext)
     {
       
 
         Vector2 vector2 = callbackContext.ReadValue<Vector2>();
-
         prevPoint = currentPoint;
         currentPoint = vector2;
-       
+
 #if UNITY_ANDROID
         if(Touchscreen.current.touches.Count >= 2)
         {
@@ -283,6 +308,7 @@ public class InputManger : MonoBehaviour
 #endif
         if (bClick)
         {
+            if (inputDisAble) return;
             if (!Utility.IsInsideCameraViewport(currentPoint, cachingCamera))
             {
                 return;
@@ -290,17 +316,31 @@ public class InputManger : MonoBehaviour
             if (Physics.Raycast(cachingCamera.ScreenPointToRay(currentPoint), out RaycastHit hitInfo, float.MaxValue)) currentPosition = hitInfo.point;
             if (Physics.Raycast(cachingCamera.ScreenPointToRay(prevPoint), out RaycastHit hitInfos, float.MaxValue)) deltaPosition = hitInfos.point;
 
-
             if (!isDragging)
             {
+
                 if (coroutines != null) StopCoroutine(coroutines);
                 coroutines = StartCoroutine(Drag());
             }
+            else
+            {
+                if (buyer != null)
+                {
+                    buyer.MouseUp();
+                    buyer = null;
+                }
+            }
         }
+        else
+        {
+            ((Action)EventManager.Publish(3))?.Invoke();
+        }
+
     }
 
     void StartClick(InputAction.CallbackContext callbackContext)
     {
+        camVelocity = Vector3.zero;
         if (cachingCamera == null) cachingCamera = Camera.main;
         if (CheckClickedUI()) return;
         if (Utility.IsInsideCameraViewport(currentPoint, cachingCamera))
@@ -308,25 +348,93 @@ public class InputManger : MonoBehaviour
            
             isDragging = false;
             bClick = true;
+            
+
+            ((Action<Vector3>)EventManager.Publish(2))?.Invoke(currentPoint);
+            ((Action)EventManager.Publish(4))?.Invoke();
+            StartClickIngameObject(currentPoint);
         }
     }
     void EndClick(InputAction.CallbackContext callbackContext)
     {
+        ((Action)EventManager.Publish(3))?.Invoke();
 #if UNITY_ANDROID
          if(Touchscreen.current.touches.Count > 0) return;
 #endif
         bClick = false;
+        if (buyer != null)
+        {
+            buyer.MouseUp();
+            buyer = null;
+        }
+         
+        if (CheckClickedUI()) return;
+        if (!isDragging)
+        {
+            //인게임 오브젝트 클릭
+            EndClickIngameObject(currentPoint);
+
+            ((Action<Vector3>)EventManager.PublishWithDestory(1))?.Invoke(currentPoint);
+           
+      
+        }
     }
+    void StartClickIngameObject(Vector3 pos)
+    {
+        Ray ray = cachingCamera.ScreenPointToRay(pos);
+        RaycastHit hit;
+        if (Physics.Raycast(ray, out hit, Mathf.Infinity, 1 << 3))
+        {
+            GameObject go = hit.collider.gameObject;
+            if (go.TryGetComponent<UnlockableBuyer>(out UnlockableBuyer unlockableBuyer))
+            {
+                buyer = unlockableBuyer;
+                buyer.MouseDown();
+
+            }
+        }
+    }
+    //인게임 오브젝트 상호작용
+    void EndClickIngameObject(Vector3 pos)
+    {
+        Ray ray = cachingCamera.ScreenPointToRay(pos);
+        RaycastHit hit;
+
+        if(Physics.Raycast(ray, out hit, Mathf.Infinity, 1<<13 | 1<< 11 | 1<< 10))
+        {
+            GameObject go = hit.collider.gameObject;
+            if(Utility.TryGetComponentInParent<FoodMachine>(go, out FoodMachine foodMachine))
+            {
+                GameInstance.GameIns.applianceUIManager.ShowApplianceInfo(foodMachine);
+            }
+            else if(Utility.TryGetComponentInParent<Animal>(go, out Animal animal))
+            {
+                if(Utility.TryGetComponentInChildren<Employee>(animal.gameObject, out Employee employee))
+                {
+                    GameInstance.GameIns.applianceUIManager.ShowPenguinUpgradeInfo(employee);
+                }
+            }
+            else if(go.TryGetComponent<Table>(out Table table))
+            {
+                if (table.isDirty && !table.interacting)
+                {
+                    clickedTable = table;
+                    clickedTable.interacting = true;
+                    clickedTable.CleanTableManually();
+                 //   targetVector = dragTouch.position;
+                }
+            }
+        }
+    }
+
   //  async UniTask
-    IEnumerator Drag(CancellationToken cancellationToken = default)
+    IEnumerator Drag()
     {
     //    try
         {
-            cancellationToken.ThrowIfCancellationRequested();
             isDragging = true;
             followPosition = cameraTrans.position;
             realPosition = followPosition;
-            float targetSmoothTime = 0.5f;
             float currentSmoothTime = 0.2f;
             float distanceFactor = 0f;
             Vector3 test = Vector3.zero;
@@ -351,15 +459,35 @@ public class InputManger : MonoBehaviour
                 if (bClick)
                 {
                     realPosition += n * m;
-                    cameraTrans.position = Vector3.SmoothDamp(followPosition, realPosition, ref camVelocity, 0.2f);
+
+                      Vector3 move = Vector3.SmoothDamp(followPosition, realPosition, ref camVelocity, 0.2f);
+                    //Vector3 lerps = Vector3.Lerp(followPosition, realPosition, 0.2f);
+                   
+                 //   Debug.DrawLine(cameraRange.position, cameraRange.position + n * camVelocity.magnitude, Color.red, 5f);
+
+                    Vector3 d =  move - cameraTrans.position;
+                    if (CheckRayMove(d))
+                    {
+                        cameraTrans.position = move;
+                        
+                    }
+                   
+                    //  cameraTrans.position += mm * d;
+                    //cameraTrans.position = Vector3.SmoothDamp(followPosition, realPosition, ref camVelocity, 0.2f);
                 }
                 else
                 {
                 
                    // targetSmoothTime = Mathf.Lerp(0.2f, 1f, distanceFactor);
                     currentSmoothTime = Mathf.Lerp(0.2f, distanceFactor, 0.05f);
-                    cameraTrans.position = Vector3.SmoothDamp(followPosition, test, ref camVelocity, currentSmoothTime);
-
+                    Vector3 move = Vector3.SmoothDamp(followPosition, test, ref camVelocity, currentSmoothTime);
+                    Vector3 d = move - cameraTrans.position;
+                    if (CheckRayMove(d))
+                    {
+                        cameraTrans.position = move;
+                     
+                    }
+                   
                 }
                 followPosition = cameraTrans.position;
 
@@ -368,6 +496,7 @@ public class InputManger : MonoBehaviour
                // await UniTask.NextFrame(cancellationToken: cancellationToken);
                 yield return null;
             }
+       //     camVelocity = Vector3.zero; 
             isDragging = false;
         }
      //   catch (Exception ex)
@@ -377,7 +506,48 @@ public class InputManger : MonoBehaviour
         }
 
     }
+
+    IEnumerator Blocking(Vector3 move)
+    {
+        float i = 0;
+        isDragging = false;
+        while(i < 0.5f)
+        {
+            cameraTrans.position -= move * Time.deltaTime;
+            i += Time.deltaTime;
+            yield return null;
+        }
+    }
+    bool CheckRayMove(Vector3 move)
+    {
+        double d = 0;
+        while (d <= 1)
+        {
+            Vector3 lerp = Vector3.Lerp(cameraRange.position , (cameraRange.position + move * 1.05f), (float)d);
+
+            Vector3 origin = cameraRange.position;
+            Vector3 target = lerp;
+            Vector3 direction = (target - origin).normalized;
+            float distance = Vector3.Distance(origin, target);
    
+            RaycastHit hit;
+            Debug.DrawRay(origin, direction * distance, Color.red, 1f);
+          //  bool hitBlock = Physics.Raycast(origin, direction, out hit, distance, 1 << 7 | 1 << 8);
+            bool hitBlock = Physics.CheckSphere(origin + direction * distance, 0.2f, 1 << 7 | 1 << 8);
+            if (hitBlock)
+            {
+                followPosition = cameraTrans.position;
+                realPosition = followPosition;
+
+                if(coroutines2 != null) StopCoroutine(coroutines2);
+                coroutines2 = StartCoroutine(Blocking(direction));
+
+                return false;
+            }
+            d += 0.05f;
+        }
+        return true;
+    }
 
     bool CheckClickedUI()
     {
@@ -390,7 +560,7 @@ public class InputManger : MonoBehaviour
 
             if (results.Count > 0)
             {
-                Debug.Log(results.Count);
+               // Debug.Log(results.Count);
                 return true;
             }
         }
@@ -455,7 +625,7 @@ public class InputManger : MonoBehaviour
 
             RaycastHit hit;
             bool hitBlock = Physics.Raycast(cameraRange.position, direction, out hit, lerp, 1 << 7 | 1 << 8);
-
+            Debug.DrawLine(cameraRange.position, cameraRange.position + direction * lerp, Color.red, 1);
             if (!hitBlock)
             {
                 currentSpeed = lerp;
@@ -717,8 +887,8 @@ public class InputManger : MonoBehaviour
     }
 
     Vector3 lastVector;
-    Touch dragTouch;
-    public void DragScreen_Android(bool draged = false)
+   // Touch dragTouch;
+  /*  public void DragScreen_Android(bool draged = false)
     {
         if (Input.touchCount > 0 && inOtherAction == false || draged)
         {
@@ -778,7 +948,7 @@ public class InputManger : MonoBehaviour
                 }
                 else
                 {
-                  /*  if (clickedTable != null)
+                  *//*  if (clickedTable != null)
                     {
                         lastVector = dragTouch.position;
                         Ray ray = Camera.main.ScreenPointToRay(dragTouch.position);
@@ -786,7 +956,7 @@ public class InputManger : MonoBehaviour
                         {
                             clickedTable.trashPlate.transform.position = h.point;
                         }
-                    }*/
+                    }*//*
                 //    else
                     {
 
@@ -845,7 +1015,7 @@ public class InputManger : MonoBehaviour
         }
         else
         {
-           /* if (clickedTable != null && inOtherAction == false)
+           *//* if (clickedTable != null && inOtherAction == false)
             {
                 Ray ray = Camera.main.ScreenPointToRay(lastVector);
                 if (Physics.Raycast(ray, out RaycastHit h, Mathf.Infinity, 1 << 11))
@@ -872,7 +1042,7 @@ public class InputManger : MonoBehaviour
                 }
                 clickedTable.interacting = false;
                 clickedTable = null;
-            }*/
+            }*//*
 
             if (dragTimer > 0)
             {
@@ -883,7 +1053,7 @@ public class InputManger : MonoBehaviour
                 if(diff < 0) diff = 0;
             }
         }
-    }
+    }*/
 
 
     void DoubleClick()
@@ -932,9 +1102,8 @@ public class InputManger : MonoBehaviour
         }
     }
 
-    UnlockableBuyer currentUnlockableBuyer;
 
-    void Unlock()
+  /*  void Unlock()
     {
         if (Input.touchCount == 1)
         {
@@ -961,7 +1130,7 @@ public class InputManger : MonoBehaviour
                 }
             }
           //  else if(touch.phase)
-         /*   else
+         *//*   else
             {
                 Ray ray = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
                 if (Physics.Raycast(ray, out RaycastHit h, Mathf.Infinity, LayerMask.GetMask("LevelUp")))
@@ -985,9 +1154,9 @@ public class InputManger : MonoBehaviour
                         isDragging = false;
                     }
                 }
-            }*/
+            }*//*
         }
-       /* else
+       *//* else
         {
             if (currentUnlockableBuyer != null)
             {
@@ -995,9 +1164,9 @@ public class InputManger : MonoBehaviour
                 currentUnlockableBuyer = null;
                 isDragging = false;
             }
-        }*/
-    }
-    void Unlock_T()
+        }*//*
+    }*/
+/*    void Unlock_T()
     {
         if (Input.GetMouseButtonDown(0))
         {
@@ -1035,11 +1204,11 @@ public class InputManger : MonoBehaviour
                 isDragging = false;
             }
         }
-    }
+    }*/
 
 
     public Vector3 lastLoc;
-    private void ClickMachine()
+    /*private void ClickMachine()
     {
         float test = (preLoc - curLoc).magnitude;
 
@@ -1071,7 +1240,7 @@ public class InputManger : MonoBehaviour
                 }
             }
         }
-    }
+    }*/
     private void ClickMachine_T()
     {
 

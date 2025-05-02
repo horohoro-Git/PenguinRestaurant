@@ -168,6 +168,7 @@ public static class FoodManager
     public static RewardsBox GetRewardsBox()
     {
         RewardsBox r = rewardsBoxesPooling.Dequeue();
+        r.destroyed = false;
       //  r.meshFilter.mesh = meshFilter;
        // f.parentType = machineType;
       //  r.gameObject.SetActive(true);

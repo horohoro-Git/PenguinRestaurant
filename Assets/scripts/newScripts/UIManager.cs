@@ -5,7 +5,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-
+using static AssetLoader;
+using static GameInstance;
 
 public class UIManager : MonoBehaviour
 {
@@ -14,13 +15,16 @@ public class UIManager : MonoBehaviour
     public Order[] order;
 
     public Button animalGuideButton;
+    public Image animalGuideImage;
     public Panel panel;
-    public Button goRestaurant;
-    public Button goDraw;
+    public Button changeScene;
+    public Image changeSceneImage;
     public Button drawBtn;
     public Button drawSpeedUpBtn;
     public GameObject animalGuide;
     public Image fadeImage;
+
+
     public GraphicRaycaster graphicRaycaster;
 
     public GameObject checkMark;
@@ -34,17 +38,17 @@ public class UIManager : MonoBehaviour
     {
         graphicRaycaster = GetComponent<GraphicRaycaster>();
         panel = GetComponentInChildren<Panel>();
-        GameInstance.GameIns.uiManager = this;
+        GameIns.uiManager = this;
     }
     private void OnEnable()
     {
         if (graphicRaycaster == null) graphicRaycaster = GetComponent<GraphicRaycaster>();
-        GameInstance.AddGraphicCaster(graphicRaycaster);
+        AddGraphicCaster(graphicRaycaster);
     }
     private void OnDisable()
     {
         if (graphicRaycaster == null) graphicRaycaster = GetComponent<GraphicRaycaster>();
-        GameInstance.RemoveGraphicCaster(graphicRaycaster);
+        RemoveGraphicCaster(graphicRaycaster);
         
     }
     void Start()
@@ -53,46 +57,91 @@ public class UIManager : MonoBehaviour
         {
             if (bGuideOn)
             {
+                Debug.Log("W");
+                animalGuideImage.sprite = loadedSprites[spriteAssetKeys[10001].ID];
                 bGuideOn = false;
+            }
+            else
+            {
+                switch (GameIns.app.currentScene)
+                {
+                    case SceneState.Restaurant:
+                        Debug.Log("s");
+                        animalGuideImage.sprite = loadedSprites[spriteAssetKeys[10002].ID];
+                        break;
+                    case SceneState.Draw:
+                        Debug.Log("s");
+                        animalGuideImage.sprite = loadedSprites[spriteAssetKeys[10003].ID];
+                        break;
+                }
 
-                GameInstance.GameIns.inputManager.inputDisAble = false;
-                GameInstance.GameIns.inputManager.DragScreen_WindowEditor(true);
+                bGuideOn = true;
+            }
+            
+            StartCoroutine(FadeInFadeOut(bGuideOn, 0));
 
-                //      animalGuide.SetActive(bGuideOn);
-                StartCoroutine(FadeInFadeOut(bGuideOn, 0));
+         /*   //   GameInstance.GameIns.inputManager.inputDisAble = false;
+            //   GameInstance.GameIns.inputManager.DragScreen_WindowEditor(true);
+
+            //      animalGuide.SetActive(bGuideOn);
+            StartCoroutine(FadeInFadeOut(bGuideOn, 0));
             }
             else
             {
                 // if(state == SceneState.Draw)
                 {
-                    GameInstance.GameIns.inputManager.inputDisAble = true;
-                    GameInstance.GameIns.inputManager.DragScreen_WindowEditor(true);
+                //    GameInstance.GameIns.inputManager.inputDisAble = true;
+         //           GameInstance.GameIns.inputManager.DragScreen_WindowEditor(true);
                 }
                 bGuideOn = true;
                 // animalGuide.SetActive(bGuideOn);
                 StartCoroutine(FadeInFadeOut(bGuideOn, 0));
+            }*/
+
+        });
+
+        changeScene.onClick.AddListener(() =>
+        {
+            switch (GameIns.app.currentScene)
+            {
+                case SceneState.Restaurant:
+                    animalGuideImage.sprite = loadedSprites[spriteAssetKeys[10001].ID];
+                    changeSceneImage.sprite = loadedSprites[spriteAssetKeys[10003].ID];
+                    GameIns.app.pos = GameIns.inputManager.cameraTrans.position;
+                    if (GameIns.applianceUIManager.currentBox != null) GameIns.applianceUIManager.currentBox.ClearFishes();
+               
+                    cameraSize = InputManger.cachingCamera.orthographicSize;
+                    StartCoroutine(FadeInFadeOut(true, 1));
+                    break;
+                case SceneState.Draw:
+                    animalGuideImage.sprite = loadedSprites[spriteAssetKeys[10001].ID];
+                    changeSceneImage.sprite = loadedSprites[spriteAssetKeys[10002].ID];
+                    drawBtn.gameObject.SetActive(false);
+                    drawSpeedUpBtn.gameObject.SetActive(false);
+                    StartCoroutine(FadeInFadeOut(true, 2));
+                    break;
             }
 
         });
 
-        goRestaurant.onClick.AddListener(() =>
+      /*  goRestaurant.onClick.AddListener(() =>
         {
             if (GameInstance.GameIns.app.currentScene != SceneState.Restaurant)
             {
-                GameInstance.GameIns.inputManager.inputDisAble = true;
+           //     GameInstance.GameIns.inputManager.inputDisAble = true;
 
                 drawBtn.gameObject.SetActive(false);
                 drawSpeedUpBtn.gameObject.SetActive(false);
 
                 StartCoroutine(FadeInFadeOut(true, 1));
             }
-        });
-
+        });*/
+/*
         goDraw.onClick.AddListener(() =>
         {
             if (GameInstance.GameIns.app.currentScene != SceneState.Draw)
             {
-                GameInstance.GameIns.inputManager.inputDisAble = true;
+    //            GameInstance.GameIns.inputManager.inputDisAble = true;
 
                 GameInstance.GameIns.app.pos = GameInstance.GameIns.inputManager.cameraTrans.position;
 
@@ -105,17 +154,17 @@ public class UIManager : MonoBehaviour
                 StartCoroutine(FadeInFadeOut(true, 2));
             }
 
-        });
+        });*/
 
         drawBtn.onClick.AddListener(() =>
         {
 
-            GameInstance.GameIns.gatcharManager.StartGatcha();
+            GameIns.gatcharManager.StartGatcha();
         });
 
         drawSpeedUpBtn.onClick.AddListener(() =>
         {
-            GameInstance.GameIns.gatcharManager.GatcharSpeedUp();
+            GameIns.gatcharManager.GatcharSpeedUp();
         });
     }
 
@@ -160,38 +209,38 @@ public class UIManager : MonoBehaviour
         
             if (bGuideOn)
             {
-                GameInstance.GameIns.applianceUIManager.UIClearAll(false);
+                GameIns.applianceUIManager.UIClearAll(false);
                 drawBtn.gameObject.SetActive(false);
                 drawSpeedUpBtn.gameObject.SetActive(false);
             }
             else
             {
-                if (GameInstance.GameIns.app.currentScene == SceneState.Draw)
+                if (GameIns.app.currentScene == SceneState.Draw)
                 {
-                    GameInstance.GameIns.applianceUIManager.UIClearAll(false);
+                    GameIns.applianceUIManager.UIClearAll(false);
                     drawBtn.gameObject.SetActive(true);
                     drawSpeedUpBtn.gameObject.SetActive(true);
                 }        
                 else
                 {
-                    GameInstance.GameIns.applianceUIManager.UIClearAll(true);
+                    GameIns.applianceUIManager.UIClearAll(true);
                 }
             }
             animalGuide.SetActive(bGuideOn);
         }
         else if (t == 1)
         {
-            GameInstance.GameIns.applianceUIManager.UIClearAll(true);
+            GameIns.applianceUIManager.UIClearAll(true);
             animalGuide.SetActive(false);
             bGuideOn = false;
-            GameInstance.GameIns.app.ChangeScene_Restaurant();
+            GameIns.app.ChangeScene_Restaurant();
         }
         else if (t == 2)
         {
-            GameInstance.GameIns.applianceUIManager.UIClearAll(false);
+            GameIns.applianceUIManager.UIClearAll(false);
             animalGuide.SetActive(false);
             bGuideOn = false;
-            GameInstance.GameIns.app.ChangeScene_DrawScene();
+            GameIns.app.ChangeScene_DrawScene();
         }
     }
 
@@ -256,7 +305,7 @@ public class UIManager : MonoBehaviour
         order[(int)counterType - 1].animalController = customer;
         // transform.position = order[(int)counterType - 1].animalController.transform.position + new Vector3(0, 10, 0);
         //  transform.rotation = Quaternion.Euler(new Vector3(60, 45, 0));
-        order[(int)counterType - 1].transform.position = order[(int)counterType - 1].animalController.transform.position + GameInstance.GetVector3(0, 10, 0);
+        order[(int)counterType - 1].transform.position = order[(int)counterType - 1].animalController.transform.position + GetVector3(0, 10, 0);
         order[(int)counterType - 1].transform.rotation = Quaternion.Euler(60, 45, 0);
 
         order[(int)counterType - 1].transform.SetParent(customer.transform);

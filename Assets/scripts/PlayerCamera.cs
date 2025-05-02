@@ -7,6 +7,9 @@ public class PlayerCamera : MonoBehaviour
     public Transform GetTransform;
     private Vector3 moveDir = Vector3.zero;
     public float bounceForce = 3f;
+
+
+   
     // Start is called before the first frame update
     void Start()
     {

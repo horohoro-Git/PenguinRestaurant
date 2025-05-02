@@ -39,13 +39,11 @@ public class Panel : MonoBehaviour
             if (currentCoroutine != null) StopCoroutine(currentCoroutine);
             currentCoroutine = StartCoroutine(SpreadRectTranform());
         }
-       
     }
 
     IEnumerator SpreadRectTranform()
     {
         RectTransform rectTransforms = rectTransform;
-        Vector2 currentVec = rectTransform.sizeDelta;
         Vector3 currentVec2 = rectTransform.localPosition;
         float elapsedTimer = 0;
         while (elapsedTimer / 0.3f <= 1)
@@ -71,7 +69,7 @@ public class Panel : MonoBehaviour
         while (elapsedTimer / 0.3f <= 1)
         {
             elapsedTimer += Time.unscaledDeltaTime;
-            float cal = Mathf.Lerp(currentVec2.y, 400, elapsedTimer / 0.3f);
+            float cal = Mathf.Lerp(currentVec2.y, 300, elapsedTimer / 0.3f);
 
             Vector3 v = new Vector3(currentVec2.x, cal, currentVec2.z);
             rectTransform.localPosition = v;
