@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using System;
 using Cysharp.Threading.Tasks;
+using System.Threading;
 public class AssetLoader : MonoBehaviour
 {
     [NonSerialized]
@@ -38,102 +39,115 @@ public class AssetLoader : MonoBehaviour
     {
         GameInstance.GameIns.assetLoader = this;
     }
-    public async UniTask DownloadAsset_SceneBundle()
+    public async UniTask DownloadAsset_SceneBundle(CancellationToken cancellationToken = default)
     {
-
-        string homeUrl = Path.Combine(SaveLoadSystem.LoadServerURL(), "restaurant_scene");
-        Debug.Log(homeUrl);
-        Hash128 bundleHash = SaveLoadSystem.ComputeHash128(System.Text.Encoding.UTF8.GetBytes(homeUrl));
-        if (Caching.IsVersionCached(homeUrl, bundleHash))
+        try
         {
-            Debug.Log("Asset Found");
-        }
-        else
-        {
-            Debug.Log("Asset Not Found");
-        }
-        UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle(homeUrl, bundleHash, 0);
-        await www.SendWebRequest();
-
-        if (www.result == UnityWebRequest.Result.Success)
-        {
-            bundle_scene = DownloadHandlerAssetBundle.GetContent(www);
+            string homeUrl = Path.Combine(SaveLoadSystem.LoadServerURL(), "restaurant_scene");
+            Debug.Log(homeUrl);
+            Hash128 bundleHash = SaveLoadSystem.ComputeHash128(System.Text.Encoding.UTF8.GetBytes(homeUrl));
             if (Caching.IsVersionCached(homeUrl, bundleHash))
             {
-                Debug.Log("AssetBundle Cached Successfully");
+                Debug.Log("Asset Found");
             }
-
-            string[] scenePaths = bundle_scene.GetAllScenePaths();
-
-            foreach (string scenePath in scenePaths)
+            else
             {
-                string sceneName = Path.GetFileNameWithoutExtension(scenePath);
-                if(!loadedMap.ContainsKey(sceneName))
+                Debug.Log("Asset Not Found");
+            }
+            UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle(homeUrl, bundleHash, 0);
+            await www.SendWebRequest();
+            
+            if (www.result == UnityWebRequest.Result.Success)
+            {
+                bundle_scene = DownloadHandlerAssetBundle.GetContent(www);
+                if (Caching.IsVersionCached(homeUrl, bundleHash))
                 {
-                    loadedMap.Add(sceneName, scenePath);
+                    Debug.Log("AssetBundle Cached Successfully");
+                }
+
+                string[] scenePaths = bundle_scene.GetAllScenePaths();
+
+                foreach (string scenePath in scenePaths)
+                {
+                    string sceneName = Path.GetFileNameWithoutExtension(scenePath);
+                    if (!loadedMap.ContainsKey(sceneName))
+                    {
+                        loadedMap.Add(sceneName, scenePath);
+                    }
+                }
+
+                if (!bundle.isStreamedSceneAssetBundle)
+                {
+                    sceneLoaded = true;
                 }
             }
+        }
+        catch (OperationCanceledException)
+        {
 
-            if (!bundle.isStreamedSceneAssetBundle)
-            {
-                sceneLoaded = true;
-            }
         }
     }
 
-    public async UniTask DownloadAssetBundle()
+    public async UniTask DownloadAssetBundle(CancellationToken cancellationToken = default)
     {
-        string homeUrl = SaveLoadSystem.LoadServerURL() + "/restaurant";
-        Hash128 bundleHash = SaveLoadSystem.ComputeHash128(System.Text.Encoding.UTF8.GetBytes(homeUrl));
-        if (Caching.IsVersionCached(homeUrl, bundleHash))
+        try
         {
-            Debug.Log("Asset Found");
-        }
-        else
-        {
-            Debug.Log("Asset Not Found");
-        }
-        UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle(homeUrl, bundleHash, 0);
-        await www.SendWebRequest();
-        if (www.result == UnityWebRequest.Result.Success)
-        {
-            bundle = DownloadHandlerAssetBundle.GetContent(www);
-
+            string homeUrl = SaveLoadSystem.LoadServerURL() + "/restaurant";
+            Hash128 bundleHash = SaveLoadSystem.ComputeHash128(System.Text.Encoding.UTF8.GetBytes(homeUrl));
             if (Caching.IsVersionCached(homeUrl, bundleHash))
             {
-                Debug.Log("AssetBundle Cached Successfully");
+                Debug.Log("Asset Found");
             }
-
-            if (!bundle.isStreamedSceneAssetBundle)
+            else
             {
-                await DatatableLoad();
+                Debug.Log("Asset Not Found");
+            }
+            UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle(homeUrl, bundleHash, 0);
+            await www.SendWebRequest();
+            if (www.result == UnityWebRequest.Result.Success)
+            {
+                bundle = DownloadHandlerAssetBundle.GetContent(www);
 
-                await UniTask.RunOnThreadPool(() =>
+                if (Caching.IsVersionCached(homeUrl, bundleHash))
                 {
-                    items = SaveLoadSystem.GetDictionaryData<int, ItemStruct>(tableContents["all"]);
-                    sprites = SaveLoadSystem.GetDictionaryData<int, ItemStruct>(tableContents["sprites"]);
-                    machines_levels = SaveLoadSystem.GetDictionaryData<int, MachineLevelStruct>(tableContents["machines"]);
-                    animals = SaveLoadSystem.GetDictionaryData<int, AnimalStruct>(tableContents["animals"]);
-                    employees_levels = SaveLoadSystem.GetDictionaryData<int, EmployeeLevelStruct>(tableContents["employees"]);
-                    levelData = SaveLoadSystem.GetDictionaryDataClass<int, LevelData>(tableContents["level"]);
-                    restaurantParams = SaveLoadSystem.GetListData<RestaurantParam>(tableContents["furniture"]);
-                });
-                foreach (KeyValuePair<int, ItemStruct> keyValuePair in items) itemAssetKeys[keyValuePair.Key] = new StringStruct(keyValuePair.Value.asset_name);
-                foreach (KeyValuePair<int, ItemStruct> keyValuePair in sprites) spriteAssetKeys[keyValuePair.Key] = new StringStruct(keyValuePair.Value.asset_name);
-           
+                    Debug.Log("AssetBundle Cached Successfully");
+                }
 
-                await LoadAsync<GameObject, StringStruct, string>(itemAssetKeys, loadedAssets);
-                await LoadAsync<Sprite, StringStruct, string>(spriteAssetKeys, loadedSprites);
+                if (!bundle.isStreamedSceneAssetBundle)
+                {
+                    await DatatableLoad();
+
+                    await UniTask.RunOnThreadPool(() =>
+                    {
+                        items = SaveLoadSystem.GetDictionaryData<int, ItemStruct>(tableContents["all"]);
+                        sprites = SaveLoadSystem.GetDictionaryData<int, ItemStruct>(tableContents["sprites"]);
+                        machines_levels = SaveLoadSystem.GetDictionaryData<int, MachineLevelStruct>(tableContents["machines"]);
+                        animals = SaveLoadSystem.GetDictionaryData<int, AnimalStruct>(tableContents["animals"]);
+                        employees_levels = SaveLoadSystem.GetDictionaryData<int, EmployeeLevelStruct>(tableContents["employees"]);
+                        levelData = SaveLoadSystem.GetDictionaryDataClass<int, LevelData>(tableContents["level"]);
+                        restaurantParams = SaveLoadSystem.GetListData<RestaurantParam>(tableContents["furniture"]);
+                    });
+                    foreach (KeyValuePair<int, ItemStruct> keyValuePair in items) itemAssetKeys[keyValuePair.Key] = new StringStruct(keyValuePair.Value.asset_name);
+                    foreach (KeyValuePair<int, ItemStruct> keyValuePair in sprites) spriteAssetKeys[keyValuePair.Key] = new StringStruct(keyValuePair.Value.asset_name);
+
+
+                    await LoadAsync<GameObject, StringStruct, string>(itemAssetKeys, loadedAssets);
+                    await LoadAsync<Sprite, StringStruct, string>(spriteAssetKeys, loadedSprites);
+                }
+            }
+            else
+            {
+                unloadNum++;
+                Debug.Log("Error");
+            }
+            if (unloadNum == 0)
+            {
+                assetLoadSuccessful = true;
             }
         }
-        else
+        catch (OperationCanceledException)
         {
-            unloadNum++;
-            Debug.Log("Error");
-        }
-        if (unloadNum == 0)
-        {
-            assetLoadSuccessful = true;
+
         }
     }
 

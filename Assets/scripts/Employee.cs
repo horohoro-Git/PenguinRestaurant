@@ -7,9 +7,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Threading;
-using TMPro;
 using UnityEngine;
 public class Employee : AnimalController
 {
@@ -346,6 +346,42 @@ public class Employee : AnimalController
         z = 0;
         length = 0;
 
+        /* Vector3 loc = GameIns.inputManager.cameraRange.position;
+         int playerX = (int)((loc.x - GameIns.calculatorScale.minX) / GameIns.calculatorScale.distanceSize);
+         int playerY = (int)((loc.z - GameIns.calculatorScale.minY) / GameIns.calculatorScale.distanceSize);
+         while(true)
+         {
+             int xx = (int)UnityEngine.Random.Range(-Camera.main.orthographicSize / 2.5f, Camera.main.orthographicSize / 2.5f);
+             int zz = (int)UnityEngine.Random.Range(-Camera.main.orthographicSize / 2.5f, Camera.main.orthographicSize / 2.5f);
+             length = (int)UnityEngine.Random.Range(-Camera.main.orthographicSize / 2.5f, Camera.main.orthographicSize / 2.5f);
+             if (Utility.ValidCheck(playerY + zz, playerX + xx))
+             {
+                 if (!MoveCalculator.GetBlocks[playerY + zz, playerX + xx])
+                 {
+                     //   float r = GameInstance.GameIns.calculatorScale.minY + node.r * GameInstance.GameIns.calculatorScale.distanceSize;
+                     //   float c = GameInstance.GameIns.calculatorScale.minX + node.c * GameInstance.GameIns.calculatorScale.distanceSize;
+                     int tx = (int)(GameIns.calculatorScale.minX + (playerX + xx) * GameIns.calculatorScale.distanceSize);
+                     int ty = (int)(GameIns.calculatorScale.minY + (playerY + zz) * GameIns.calculatorScale.distanceSize);
+                     startPoint = trans.position; //start.position;
+
+                     endPoint = new Vector3(loc.x, 0, loc.z);
+                     dir2 = new Vector3(xx, 0, zz).normalized;
+
+                     endPoint += dir2 * length;
+                     if(Utility.ValidCheck((int)endPoint.z, (int)endPoint.x) && !MoveCalculator.GetBlocks[(int)endPoint.z, (int)endPoint.x])
+                     {
+
+                         controlVector = (startPoint + endPoint) / RestaurantMgr.weight + Vector3.up * RestaurantMgr.height;
+
+                         RestaurantMgr.flyingEndPoints.Add(endPoint);
+                     }
+                     return true;
+                 }
+
+             }
+
+         }*/
+
         if (Physics.CheckSphere(GameInstance.GameIns.inputManager.cameraRange.position, Camera.main.orthographicSize / 4f, 1))
         {
             while (true)
@@ -362,16 +398,18 @@ public class Employee : AnimalController
                 {
                     //   Debug.DrawLine(ta + Vector3.up * 10, test + Vector3.down * 100f, Color.red, 100);
 
-                    if (Physics.CheckBox(ta, GameInstance.GetVector3(0.5f, 0.5f, 0.5f), Quaternion.identity, 1 << 6 | 1 << 7 | 1 << 8))
+                    if (Physics.CheckBox(ta, GameInstance.GetVector3(0.6f, 0.6f, 0.6f), Quaternion.identity, 1 << 6 | 1 << 7 | 1 << 8))
                     {
 
                     }
                     else break;
+
+               
                 }
             }
             startPoint = trans.position; //start.position;
 
-            endPoint = new Vector3(GameInstance.GameIns.inputManager.cameraRange.position.x, 0, GameInstance.GameIns.inputManager.cameraRange.position.z);
+            endPoint = GameInstance.GetVector3(GameInstance.GameIns.inputManager.cameraRange.position.x, 0, GameInstance.GameIns.inputManager.cameraRange.position.z);
             dir2 = new Vector3(x, 0, z).normalized;
 
             endPoint += dir2 * length;

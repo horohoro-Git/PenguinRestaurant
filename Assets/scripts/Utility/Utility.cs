@@ -248,6 +248,15 @@ public class Utility
 
         return target != null ? true : false;
     }
+    public static bool ValidCheck(int r, int c)
+    {
+        if (r >= 0 && r < GameInstance.GameIns.calculatorScale.sizeY && c >= 0 && c < GameInstance.GameIns.calculatorScale.sizeX)
+        {
+            return true;
+        }
+
+        return false;
+    }
 }
 
 public interface ITableID<K>

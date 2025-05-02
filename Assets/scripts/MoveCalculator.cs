@@ -11,7 +11,7 @@ using Unity.Collections;
 using Unity.Jobs;
 using Unity.VisualScripting;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
+using static Utility;
 //한글
 
 
@@ -468,15 +468,7 @@ public class MoveCalculator
         return p;
     }
 
-    bool ValidCheck(int r, int c)
-    {
-        if (r >= 0 && r < gameInstance.calculatorScale.sizeY && c >= 0 && c < gameInstance.calculatorScale.sizeX)
-        {
-            return true;
-        }
-
-        return false;
-    }
+   
     Vector3 vSize= new Vector3(0.6f,0.6f,0.6f);
     bool LineOfSight(Node start, Node end, float radius)
     {
@@ -566,6 +558,7 @@ public class MoveCalculator
         //ResetThisGrids();
     }
 
+    public static bool[,] GetBlocks => blockedAreas;
     
 }
 
