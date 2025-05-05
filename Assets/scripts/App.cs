@@ -76,7 +76,6 @@ public class App : MonoBehaviour
                 }
             }
 
-
             if (GameInstance.GameIns.assetLoader)
             {
                 loading.ChangeText("에셋 로딩 중");

@@ -11,6 +11,9 @@ using System.Net;
 using System.Reflection;
 using System.Threading;
 using UnityEngine;
+using UnityEngine.ProBuilder;
+using UnityEngine.UIElements;
+using static GameInstance;
 public class Employee : AnimalController
 {
     enum EmployeeActions
@@ -111,7 +114,8 @@ public class Employee : AnimalController
     TrashCan tc;
     bool gettingRewards;
     Vector3 lastPos;
-    bool falling = false;
+    [NonSerialized]
+    public bool falling = false;
 
 
     private void Awake()
@@ -267,7 +271,6 @@ public class Employee : AnimalController
                }
            }*/
     }
-    Coroutine knockbackCO;
     private void FixedUpdate()
     {
         /*        if (!knockback)
@@ -308,33 +311,14 @@ public class Employee : AnimalController
     }
 
     //WaitForFixedUpdate fix = new WaitForFixedUpdate();
-    IEnumerator Knockback()
-    {
-        Vector3 v = kockbackVector - trans.position;
-
-        float timer = 0;
-        float elappsedTimer = 0.2f;
-        while (timer < elappsedTimer)
-        {
-            timer += Time.deltaTime;
-            Vector3 speed = Vector3.Lerp(trans.position, kockbackVector, timer / elappsedTimer);
-            trans.position = speed;
-
-            yield return null;
-        }
-
-        knockback = false;
-        kockbackVector = Vector3.zero;
-        knockbackCO = null;
-    }
-
+   
     public void StartFalling(bool onlyFirst)
     {
         if (onlyFirst)
         {
             if (!CalculateFallingStrength()) return;
         }
-        StartCoroutine(Falling());
+        Falling(App.GlobalToken).Forget();
     }
 
     bool CalculateFallingStrength()
@@ -382,51 +366,70 @@ public class Employee : AnimalController
 
          }*/
 
-        if (Physics.CheckSphere(GameInstance.GameIns.inputManager.cameraRange.position, Camera.main.orthographicSize / 4f, 1))
+        int num = InputManger.spawnDetects.Count;
+
+        if (num == 0) return false;
+        else
         {
-            while (true)
-            {
-                x = UnityEngine.Random.Range(-Camera.main.orthographicSize / 2.5f, Camera.main.orthographicSize / 2.5f);
-                z = UnityEngine.Random.Range(-Camera.main.orthographicSize / 2.5f, Camera.main.orthographicSize / 2.5f);
-                length = UnityEngine.Random.Range(-Camera.main.orthographicSize / 2.5f, Camera.main.orthographicSize / 2.5f);
-                //  length = Random.Range(-10,10);
-                Vector3 test = GameInstance.GetVector3(GameInstance.GameIns.inputManager.cameraRange.position.x, 0, GameInstance.GameIns.inputManager.cameraRange.position.z);
-                Vector3 n = GameInstance.GetVector3(x, 0, z).normalized;
-                Vector3 ta = test + n * length;
+            int rand = UnityEngine.Random.Range(0, num);
+            Vector3 selectedPosition = InputManger.spawnDetects[rand];
+            startPoint = trans.position;
+            Transform t = GameInstance.GameIns.inputManager.cameraRange;
 
-                if (Physics.Raycast(ta + Vector3.up * 5, Vector3.down, 5))
-                {
-                    //   Debug.DrawLine(ta + Vector3.up * 10, test + Vector3.down * 100f, Color.red, 100);
-
-                    if (Physics.CheckBox(ta, GameInstance.GetVector3(0.6f, 0.6f, 0.6f), Quaternion.identity, 1 << 6 | 1 << 7 | 1 << 8))
-                    {
-
-                    }
-                    else break;
-
-               
-                }
-            }
-            startPoint = trans.position; //start.position;
-
-            endPoint = GameInstance.GetVector3(GameInstance.GameIns.inputManager.cameraRange.position.x, 0, GameInstance.GameIns.inputManager.cameraRange.position.z);
-            dir2 = new Vector3(x, 0, z).normalized;
-
-            endPoint += dir2 * length;
+            endPoint = selectedPosition;// GameInstance.GetVector3(t.position.x, 0, t.position.z);
+            dir2 = (endPoint - startPoint).normalized;
+            //endPoint += dir2 * dirs.magnitude;
+            float distance = Vector3.Distance(startPoint, endPoint);
             controlVector = (startPoint + endPoint) / RestaurantMgr.weight + Vector3.up * RestaurantMgr.height;
-
-            RestaurantMgr.flyingEndPoints.Add(endPoint);
             return true;
         }
-        return false;
+
+        /*  if (Physics.CheckSphere(GameInstance.GameIns.inputManager.cameraRange.position, Camera.main.orthographicSize / 4f, 1))
+          {
+              while (true)
+              {
+                  x = UnityEngine.Random.Range(-Camera.main.orthographicSize / 2.5f, Camera.main.orthographicSize / 2.5f);
+                  z = UnityEngine.Random.Range(-Camera.main.orthographicSize / 2.5f, Camera.main.orthographicSize / 2.5f);
+                  length = UnityEngine.Random.Range(-Camera.main.orthographicSize / 2.5f, Camera.main.orthographicSize / 2.5f);
+                  //  length = Random.Range(-10,10);
+                  Vector3 test = GameInstance.GetVector3(GameInstance.GameIns.inputManager.cameraRange.position.x, 0, GameInstance.GameIns.inputManager.cameraRange.position.z);
+                  Vector3 n = GameInstance.GetVector3(x, 0, z).normalized;
+                  Vector3 ta = test + n * length;
+
+                  if (Physics.Raycast(ta + Vector3.up * 5, Vector3.down, 5))
+                  {
+                      //   Debug.DrawLine(ta + Vector3.up * 10, test + Vector3.down * 100f, Color.red, 100);
+
+                      if (Physics.CheckBox(ta, GameInstance.GetVector3(0.6f, 0.6f, 0.6f), Quaternion.identity, 1 << 6 | 1 << 7 | 1 << 8))
+                      {
+
+                      }
+                      else break;
+
+
+                  }
+              }
+              startPoint = trans.position; //start.position;
+
+              endPoint = GameInstance.GetVector3(GameInstance.GameIns.inputManager.cameraRange.position.x, 0, GameInstance.GameIns.inputManager.cameraRange.position.z);
+              dir2 = new Vector3(x, 0, z).normalized;
+
+              endPoint += dir2 * length;
+              controlVector = (startPoint + endPoint) / RestaurantMgr.weight + Vector3.up * RestaurantMgr.height;
+
+              RestaurantMgr.flyingEndPoints.Add(endPoint);
+              return true;
+          }
+          return false;*/
     }
     // busy = false;
     //Debug.DrawLine(trans.position, targetLoc, Color.red, 5f);
-    IEnumerator Falling()
+    async UniTask Falling(CancellationToken cancellationToken = default)
     {
         PlayAnim(animal.animationDic["Fly"], "Fly");
         animator.SetInteger("state", 3); //보이지 않는 내부 모델의 애니메이션
-        //controlVector = (startPoint + endPoint) / RestaurantMgr.weight + Vector3.up * RestaurantMgr.height;
+                                         //controlVector = (startPoint + endPoint) / RestaurantMgr.weight + Vector3.up * RestaurantMgr.height;
+        
         while (true)
         {
             elapsedTime += Time.deltaTime;
@@ -434,24 +437,30 @@ public class Employee : AnimalController
 
             Vector3 origin = trans.position;
             Vector3 targetLoc = CalculateBezierPoint(t, startPoint, controlVector, endPoint); //배지어 곡선의 t에 해당하는 위치 계산
-                                                                                              //  Debug.DrawLine(trans.position, targetLoc, Color.red, 5f);
+//  Debug.DrawLine(trans.position, targetLoc, Color.red, 5f);
             Vector3 dir = targetLoc - origin;
             float angle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;     //회전 각도 계산
             modelTrans.rotation = Quaternion.AngleAxis(angle, Vector3.up);
             trans.position = targetLoc;
-            yield return null;
+            int posX = (int)((endPoint.x - GameIns.calculatorScale.minX) / GameIns.calculatorScale.distanceSize);
+            int posZ = (int)((endPoint.z - GameIns.calculatorScale.minY) / GameIns.calculatorScale.distanceSize);
+
+            if (MoveCalculator.GetBlocks[posZ, posX]) FindSafetyZone(endPoint);
+            
+            await UniTask.NextFrame(cancellationToken: cancellationToken);
             if (t >= 1.0f)
             {
                 trans.position = endPoint;
                 break;
             }
         }
-        yield return null;
+        await UniTask.NextFrame(cancellationToken: cancellationToken);
         PlayAnim(animal.animationDic["Idle_A"], "Idle_A");
         animator.SetInteger("state", 0);
         falling = false;    // 낙하 종료
-        GameInstance.GameIns.animalManager.AttachEmployeeTask(this);
+        GameIns.animalManager.AttachEmployeeTask(this);
     }
+
     private Vector3 CalculateBezierPoint(float t, Vector3 p0, Vector3 p1, Vector3 p2)
     {
         float u = 1 - t;
@@ -465,7 +474,48 @@ public class Employee : AnimalController
         return point;
     }
 
+    void FindSafetyZone(Vector3 endPosition)
+    {
+        int posX = (int)((endPosition.x - GameIns.calculatorScale.minX) / GameIns.calculatorScale.distanceSize);
+        int posZ = (int)((endPosition.z - GameIns.calculatorScale.minY) / GameIns.calculatorScale.distanceSize);
 
+        int arrZ = MoveCalculator.GetBlocks.GetLength(0);
+        int arrX = MoveCalculator.GetBlocks.GetLength(1);
+        int finalX = posX;
+        int finalZ = posZ;
+        bool[,] visit = new bool[arrZ, arrX];
+        int[] dirX = new int[4] { 0, 1, 0, -1 };
+        int[] dirZ = new int[4] { 1, 0, -1, 0 };
+        Queue<(int x, int z)> q = new();
+        q.Enqueue((posX, posZ));
+
+        while(q.Count > 0)
+        {
+            var(currentX, currentZ) = q.Dequeue();
+            finalX = currentX;
+            finalZ = currentZ;
+            if (!MoveCalculator.GetBlocks[finalZ, finalX]) break;
+
+            for(int i = 0; i<4; i++)
+            {
+                int nextX = currentX + dirX[i];
+                int nextZ = currentZ + dirZ[i];
+                if(Utility.ValidCheck(nextZ,nextX) && !visit[nextZ, nextX])
+                {
+                    visit[nextZ, nextX] = true;
+                    q.Enqueue((nextX, nextZ));
+                }
+            }
+        }
+
+        float worldX = GameIns.calculatorScale.minX + finalX * GameIns.calculatorScale.distanceSize;
+        float worldZ = GameIns.calculatorScale.minY + finalZ * GameIns.calculatorScale.distanceSize;
+        Vector3 target = new Vector3(worldX, 0, worldZ);
+
+        endPoint = target;
+        float distance = Vector3.Distance(startPoint, endPoint);
+        controlVector = (startPoint + endPoint) / RestaurantMgr.weight + Vector3.up * RestaurantMgr.height;
+    }
 
     public void FindEmployeeWorks()
     {
@@ -1158,7 +1208,6 @@ public class Employee : AnimalController
     public int success;
     public Coroutine employeeCoroutine;
 
-
     void Wait()
     {
         if (waitTimer > 0f)
@@ -1180,7 +1229,7 @@ public class Employee : AnimalController
         try
         {
             cancellationToken.ThrowIfCancellationRequested();
-            r = 4;
+            r = 2;
             if (r == 2)
             {
                 animator.SetInteger("state", 2);
@@ -1254,6 +1303,7 @@ public class Employee : AnimalController
                             await Employee_Move(moveNode, cancellationToken);
                             if (reCalculate)
                             {
+                                while(bWait) await UniTask.NextFrame(cancellationToken: cancellationToken);
                                 reCalculate = false;
                                 continue;
                             }
@@ -1307,6 +1357,7 @@ public class Employee : AnimalController
 
                         if (reCalculate)
                         {
+                            while (bWait) await UniTask.NextFrame(cancellationToken: cancellationToken);
                             reCalculate = false;
 
                             continue;
@@ -1397,6 +1448,7 @@ public class Employee : AnimalController
                         await Employee_Move(moveNode, cancellationToken);
                         if (reCalculate)
                         {
+                            while (bWait) await UniTask.NextFrame(cancellationToken: cancellationToken);
                             reCalculate = false;
                             continue;
                         }
@@ -1485,6 +1537,7 @@ public class Employee : AnimalController
                         await Employee_Move(moveNode, cancellationToken);
                         if (reCalculate)
                         {
+                            while (bWait) await UniTask.NextFrame(cancellationToken: cancellationToken);
                             reCalculate = false;
                             continue;
                         }
@@ -1575,6 +1628,7 @@ public class Employee : AnimalController
 
                         if (reCalculate)
                         {
+                            while (bWait) await UniTask.NextFrame(cancellationToken: cancellationToken);
                             reCalculate = false;
 
                             if(table.interacting)
@@ -1659,6 +1713,7 @@ public class Employee : AnimalController
 
                         if (reCalculate)
                         {
+                            while (bWait) await UniTask.NextFrame(cancellationToken: cancellationToken);
                             reCalculate = false;
                             continue;
                         }
@@ -1727,6 +1782,7 @@ public class Employee : AnimalController
 
                         if (reCalculate)
                         {
+                            while (bWait) await UniTask.NextFrame(cancellationToken: cancellationToken);
                             reCalculate = false;
                             continue;
                         }
@@ -1794,6 +1850,7 @@ public class Employee : AnimalController
                         await Employee_Move(moveNode, cancellationToken);
                         if (reCalculate)
                         {
+                            while (bWait) await UniTask.NextFrame(cancellationToken: cancellationToken);
                             reCalculate = false;
                             continue;
                         }
@@ -1945,6 +2002,7 @@ public class Employee : AnimalController
 
                         if (reCalculate)
                         {
+                            while (bWait) await UniTask.NextFrame(cancellationToken: cancellationToken);
                             reCalculate = false;
                             continue;
                         }
@@ -2121,6 +2179,7 @@ public class Employee : AnimalController
                         await Employee_Move(moveNode, cancellationToken);
                         if (reCalculate)
                         {
+                            while (bWait) await UniTask.NextFrame(cancellationToken: cancellationToken);
                             reCalculate = false;
                             continue;
                         }
@@ -2270,7 +2329,6 @@ public class Employee : AnimalController
             }
             //packingTable.customer = null;
 
-
             await UniTask.Delay(5000, cancellationToken: cancellationToken);
 
             bool check = false;
@@ -2280,7 +2338,7 @@ public class Employee : AnimalController
             {
                 moveX = UnityEngine.Random.Range(-18, 22);
                 moveZ = UnityEngine.Random.Range(-22, 21);
-                if (Physics.CheckBox(GameInstance.GetVector3(moveX, 0, moveZ), GameInstance.GetVector3(0.5f, 0.5f, 0.5f), Quaternion.identity, 1 << 6 | 1 << 7 | 1 << 8))
+                if (Physics.CheckBox(GameInstance.GetVector3(moveX, 0, moveZ), GameInstance.GetVector3(0.6f, 0.6f, 0.6f), Quaternion.identity, 1 << 6 | 1 << 7 | 1 << 8))
                 {
                     check = false;
                 }

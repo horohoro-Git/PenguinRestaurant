@@ -133,6 +133,9 @@ public class MoveCalculator
                 }
             }
         }
+       int xx = 0;
+        int yy = 0;
+        if(GameInstance.GameIns != null && GameInstance.GameIns.inputManager != null && GameInstance.GameIns.inputManager.cameraRange != null) CheckHirable(GameInstance.GameIns.inputManager.cameraRange.position, ref xx, ref yy, true);
     }
 
     void ResetNodes()

@@ -104,6 +104,7 @@ public class InputManger : MonoBehaviour
     UnlockableBuyer buyer;
     int refX;
     int refY;
+    public static List<Vector3> spawnDetects = new List<Vector3>();
     private void Awake()
     {
         es = GetComponent<EventSystem>();
@@ -366,7 +367,8 @@ public class InputManger : MonoBehaviour
                     if (CheckRayMove(d))
                     {
                         cameraTrans.position = move;
-                        CheckHirable(ref refX, ref refY);
+                        Utility.CheckHirable(cameraRange.position, ref refX, ref refY);
+               
                     }
                    
                 }
@@ -380,7 +382,7 @@ public class InputManger : MonoBehaviour
                     if (CheckRayMove(d))
                     {
                         cameraTrans.position = move;
-                        CheckHirable(ref refX, ref refY);
+                        Utility.CheckHirable(cameraRange.position, ref refX, ref refY);
                     }
                    
                 }
@@ -403,6 +405,7 @@ public class InputManger : MonoBehaviour
         while(i < 0.5f)
         {
             cameraTrans.position -= move * Time.deltaTime;
+            Utility.CheckHirable(cameraRange.position, ref refX, ref refY);
             i += Time.deltaTime;
             yield return null;
         }
@@ -456,57 +459,56 @@ public class InputManger : MonoBehaviour
         return false;
     }
 
-    void CheckHirable(ref int x, ref int y)
+   /* public static void CheckHirable(Vector3 center, ref int x, ref int y, bool forcedCheck = false)
     {
-        Vector3 loc = cameraRange.position;
-        int playerX = (int)((loc.x - GameIns.calculatorScale.minX) / GameIns.calculatorScale.distanceSize);
-        int playerY = (int)((loc.z - GameIns.calculatorScale.minY) / GameIns.calculatorScale.distanceSize);
+        Vector3 loc = center;
 
-        // Debug.DrawLine()
+        int cameraPosX = (int)((loc.x - GameIns.calculatorScale.minX) / GameIns.calculatorScale.distanceSize);
+        int cameraPosZ = (int)((loc.z - GameIns.calculatorScale.minY) / GameIns.calculatorScale.distanceSize);
 
-        if(x == playerX && y == playerY) return;
-        x =playerX; y =playerY;
+        if(x == cameraPosX && y == cameraPosZ && !forcedCheck) return;
+        x = cameraPosX; y = cameraPosZ;
 
-
-
+        spawnDetects.Clear();
 
 
-        /*float angleStep = 360f / 60;
+        float tileSize = GameIns.calculatorScale.distanceSize;
+  
+        float radiusInGrid = (cachingCamera.orthographicSize / 2.5f) / tileSize;
+        float radiusSqr = radiusInGrid * radiusInGrid;
 
-        for (int i = 0; i < 60; i++)
+        int minX = Mathf.FloorToInt(cameraPosX - radiusInGrid);
+        int maxX = Mathf.CeilToInt(cameraPosX + radiusInGrid);
+        int minY = Mathf.FloorToInt(cameraPosZ - radiusInGrid);
+        int maxY = Mathf.CeilToInt(cameraPosZ + radiusInGrid);
+
+        for (int xx = minX; xx <= maxX; xx++)
         {
-            float angleCurrent = Mathf.Deg2Rad * (i * angleStep);
-            float angleNext = Mathf.Deg2Rad * ((i + 1) * angleStep);
+            for (int yy = minY; yy <= maxY; yy++)
+            {   
+                float dx = xx - cameraPosX;
+                float dy = yy - cameraPosZ;
 
-            Vector3 pointA = loc + new Vector3(Mathf.Cos(angleCurrent), 0, Mathf.Sin(angleCurrent)) * (Camera.main.orthographicSize / 2.5f);
-            Vector3 pointB = loc + new Vector3(Mathf.Cos(angleNext), 0, Mathf.Sin(angleNext)) * (Camera.main.orthographicSize / 2.5f);
-
-            Debug.DrawLine(pointA, pointB, Color.yellow, 0.1f); // 마지막 인자는 지속시간
-        }*/
-        if (Utility.ValidCheck(playerY, playerX))
-        {
-            int minX = (int)(-Camera.main.orthographicSize / 2.5f);
-            int maxX = (int)(Camera.main.orthographicSize / 2.5f);
-            int minY = (int)(-Camera.main.orthographicSize / 2.5f);
-            int maxY = (int)(Camera.main.orthographicSize / 2.5f);
-
-            for (int i = minX; i <= maxX; i++)
-            {
-                for( int j = minY; j <= maxY; j++)
+                if (dx * dx + dy * dy <= radiusSqr)
                 {
-                    if(Utility.ValidCheck(playerY + j, playerX + i))
-                    {
-                        if (!MoveCalculator.GetBlocks[playerY + j, playerX + i])
-                        {
-                            GameIns.applianceUIManager.UnlockHire(true);
-                            return;
-                        }
-                    }
+                    if (!Utility.ValidCheck(yy, xx)) continue;
+
+                    bool isBlocked = MoveCalculator.GetBlocks[yy, xx];
+
+                    float worldX = GameIns.calculatorScale.minX + xx * tileSize;
+                    float worldZ = GameIns.calculatorScale.minY + yy * tileSize;
+                    Vector3 worldPos = new Vector3(worldX, 0, worldZ);
+
+                    Color debugColor = isBlocked ? Color.red : Color.green;
+                    Debug.DrawRay(worldPos, Vector3.up * 0.5f, debugColor, 0.1f);
+                    if(!isBlocked) spawnDetects.Add(worldPos);
                 }
             }
         }
-        GameIns.applianceUIManager.UnlockHire(false);
-    }
+
+        if(spawnDetects.Count > 0) GameIns.applianceUIManager.UnlockHire(true);
+        else GameIns.applianceUIManager.UnlockHire(false);
+    }*/
 
 
     /*bool RayMove(Vector3 direction, float speed)
