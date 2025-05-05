@@ -149,12 +149,14 @@ public class UnlockableBuyer : MonoBehaviour
         if (fillAmount >= 1f && unlock == false)
         {
             unlock = true;
-            BoxCollider bc = GameInstance.GameIns.restaurantManager.levels[GameInstance.GameIns.restaurantManager.level].GetComponent<BoxCollider>();
+            PurchaseItem();
+           /* BoxCollider bc = GameInstance.GameIns.restaurantManager.levels[GameInstance.GameIns.restaurantManager.level].GetComponent<BoxCollider>();
             if (bc != null)
             {
+                PurchaseItem();
                 Collider[] colliders = Physics.OverlapBox(bc.transform.position + bc.center, bc.size, bc.transform.rotation, 1 << 10);
 
-                for(int i=0; i<colliders.Length; i++)
+                for (int i=0; i<colliders.Length; i++)
                 {
                     Animal animal = colliders[i].GetComponentInParent<Animal>();
                     AnimalController ac = animal.GetComponentInChildren<AnimalController>();
@@ -165,6 +167,8 @@ public class UnlockableBuyer : MonoBehaviour
                         while(true)
                         {
                     
+
+
                             float randX = UnityEngine.Random.Range(3, 5);
                             float randY = UnityEngine.Random.Range(3, 5);
                             Vector3 newLoc = GameInstance.GetVector3(loc.x + randX, loc.y, loc.z + randY);
@@ -183,17 +187,17 @@ public class UnlockableBuyer : MonoBehaviour
                     }
                 }
                 PurchaseItem();
-                if (colliders.Length > 0) { Debug.Log(colliders.Length); }
+                if (colliders.Length > 0) { Debug.Log(colliders.Length); }*/
                 //if (checkAnimal || checkFlyingAnimal)
                 //{
                 //    Debug.Log("Animal");
                 //}
              //   else PurchaseItem();
-            }
+          /*  }
             else
             {
                 PurchaseItem();
-            }
+            }*/
                     //    bool checkAnimal = Physics.CheckBox(bc.bounds.center, bc.bounds.size, bc.transform.rotation, 1 << 10);
                  //       if (!checkAnimal) PurchaseItem();
                      //   else Debug.Log("Animal Exists");

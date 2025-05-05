@@ -4,9 +4,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Text.RegularExpressions;
 using static SaveLoadManager;
+using static GameInstance;
 using System;
 using CryingSnow.FastFoodRush;
 using Unity.VisualScripting;
+using Cysharp.Threading.Tasks;
+using System.Threading;
 
 public class RestaurantManager : MonoBehaviour
 {
@@ -147,6 +150,7 @@ public class RestaurantManager : MonoBehaviour
         if (levelGuides[level].type == MachineType.CoffeeMachine && workSpaceManager.unlocks[1] == 0) workSpaceManager.unlocks[1]++;
         if (levelGuides[level].type == MachineType.DonutMachine && workSpaceManager.unlocks[1] == 1) workSpaceManager.unlocks[1]++;
 
+
         switch (levelGuides[level].workSpaceType)
         {
             case NextTarget.WorkSpaceType.Counter:
@@ -163,7 +167,7 @@ public class RestaurantManager : MonoBehaviour
                 {
                     if (levels[level].gameObject.TryGetComponent<FoodMachine>(out FoodMachine foodMachine))
                     {
-                        StartCoroutine(SetMachineLayer(foodMachine.modelTrans.gameObject));
+                        SetMachineLayer(foodMachine.modelTrans.gameObject).Forget();
                         workSpaceManager.foodMachines.Add(foodMachine);
                         foodMachine.restaurantParam = restaurantparams[level];
                         foodMachine.Set(level);
@@ -204,13 +208,24 @@ public class RestaurantManager : MonoBehaviour
         if (checkArea)
         {
             MoveCalculator.CheckArea(GameInstance.GameIns.calculatorScale);
-            for(int i = 0; i < GameInstance.GameIns.animalManager.employeeControllers.Count; i++)
+
+            for (int i = 0; i < GameInstance.GameIns.animalManager.employeeControllers.Count; i++)
             {
-                GameInstance.GameIns.animalManager.employeeControllers[i].reCalculate = true;
+                Employee e = GameInstance.GameIns.animalManager.employeeControllers[i];
+                e.reCalculate = true;
+                int posX = (int)((e.trans.position.x - GameIns.calculatorScale.minX) / GameIns.calculatorScale.distanceSize);
+                int posZ = (int)((e.trans.position.z - GameIns.calculatorScale.minY) / GameIns.calculatorScale.distanceSize);
+                if (!e.falling && MoveCalculator.GetBlocks[posZ, posX]) AnimalCollision(e, posX, posZ, App.GlobalToken).Forget();
+           
             }
             for (int i = 0; i < GameInstance.GameIns.animalManager.customerControllers.Count; i++)
             {
-                GameInstance.GameIns.animalManager.customerControllers[i].reCalculate = true;
+                Customer c = GameIns.animalManager.customerControllers[i];
+                c.reCalculate = true;
+                int posX = (int)((c.trans.position.x - GameIns.calculatorScale.minX) / GameIns.calculatorScale.distanceSize);
+                int posZ = (int)((c.trans.position.z - GameIns.calculatorScale.minY) / GameIns.calculatorScale.distanceSize);
+                if (MoveCalculator.GetBlocks[posZ, posX]) AnimalCollision(c, posX, posZ, App.GlobalToken).Forget();
+
             }
         }
         if (!load)
@@ -241,9 +256,91 @@ public class RestaurantManager : MonoBehaviour
         }
     }
 
-    IEnumerator SetMachineLayer(GameObject go)
+    async UniTask AnimalCollision(AnimalController animal, int x, int z, CancellationToken cancellationToken = default)
     {
-        yield return GetWaitTimer.WaitTimer.GetTimer(1000);
+        animal.bWait = true;
+        int finalX = x;
+        int finalZ = z;
+       
+        await UniTask.RunOnThreadPool(() =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            while (true)
+            {
+                if (Utility.ValidCheck(finalZ, finalX))
+                {
+                    if (MoveCalculator.GetBlocks[finalZ, finalX])
+                    {
+                        int width = MoveCalculator.GetBlocks.GetLength(1);
+                        int height = MoveCalculator.GetBlocks.GetLength(0);
+                        bool[,] visited = new bool[height, width];
+
+                        Queue<(int z, int x)> queue = new();
+                        queue.Enqueue((finalZ, finalX));
+                        visited[finalZ, finalX] = true;
+                        int[] dx = { 0, 1, 0, -1 };
+                        int[] dz = { 1, 0, -1, 0 };
+
+                        while (queue.Count > 0)
+                        {
+                            cancellationToken.ThrowIfCancellationRequested();
+                            var (currentZ, currentX) = queue.Dequeue();
+                            finalX = currentX;
+                            finalZ = currentZ;
+                            if (!MoveCalculator.GetBlocks[currentZ, currentX])
+                            {
+                                break;
+                            }
+                        
+                            for (int i = 0; i < 4; i++)
+                            {
+                                int nextX = currentX + dx[i];
+                                int nextZ = currentZ + dz[i];
+
+                                if (nextX >= 0 && nextZ >= 0 && nextX < width && nextZ < height)
+                                {
+                                    if (Utility.ValidCheck(nextZ, nextX) && !visited[nextZ, nextX])
+                                    {
+                                        visited[nextZ, nextX] = true;
+                                        queue.Enqueue((nextZ, nextX));
+                                    }
+                                }
+                            }
+                            Thread.Sleep(1);
+                        }
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+        });
+        float worldX = GameIns.calculatorScale.minX + finalX * 0.6f;
+        float worldZ = GameIns.calculatorScale.minY + finalZ * 0.6f;
+        Vector3 targetPos = new Vector3(worldX, 0, worldZ);
+        Vector3 st = animal.trans.position;
+        float t = 0;
+        animal.animator.SetInteger("state", 0);
+        animal.PlayAnim(animal.animal.animationDic["Idle_A"], "Idle_A");
+        while (t < 0.2f)
+        {
+            float progress = t / 0.2f; // 0 ~ 1
+            animal.trans.position = Vector3.Lerp(st, targetPos, progress);
+
+            t += Time.deltaTime;
+            await UniTask.NextFrame(cancellationToken);
+        }
+        animal.trans.position = targetPos;
+
+        Debug.Log(x + " " + z + " " + finalX + " " + finalZ + " " + st + " " + targetPos);
+        animal.bWait = false;
+    }
+
+    async UniTask SetMachineLayer(GameObject go)
+    {
+        await UniTask.Delay(1000);
+       // yield return GetWaitTimer.WaitTimer.GetTimer(1000);
         go.layer = LayerMask.NameToLayer("RestaurantObject");
     }
 
@@ -374,7 +471,6 @@ public class RestaurantManager : MonoBehaviour
         else GameInstance.GameIns.applianceUIManager.UnlockHire(false);
     }
 
-
     public void UpgradeMachine(FoodMachine foodMachine)
     {
         if (foodMachine.machineData.upgrade_cost <= playerData.money)
@@ -402,8 +498,8 @@ public class RestaurantManager : MonoBehaviour
                 playerData.employeeNum++;
 
                 //SaveLoadManager.Save(SaveLoadManager.SaveState.ONLY_SAVE_PLAYERDATA);//
-            EmployeeNum();
-        }
+                EmployeeNum();
+            }
        // EmployeeNum();
     }
 
@@ -433,25 +529,28 @@ public class RestaurantManager : MonoBehaviour
 
     public void EmployeeNum()
     {
-        Employee animal = GameInstance.GameIns.animalManager.SpawnEmployee();
-
-        //  animal.EmployeeData = employeeDatas[combineDatas.employeeData[animal.id - 1].level - 1];
-        animal.employeeLevel = AssetLoader.employees_levels[1];
-       // animal.EmployeeData = new EmployeeData(1, 1, 1, 1, 1);
-        //   Vector3 targetPos = GameInstance.GameIns.inputManager.cameraRange.position;
-        animal.busy = true;
-        animal.trans.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-
-        if ((playerData.employeeNum < 8 && employeeHire[playerData.employeeNum] <= GetRestaurantValue()))
+        for (int i = 0; i < 8; i++)
         {
-            GameInstance.GameIns.applianceUIManager.UnlockHire(true);
+            Employee animal = GameInstance.GameIns.animalManager.SpawnEmployee();
+
+            //  animal.EmployeeData = employeeDatas[combineDatas.employeeData[animal.id - 1].level - 1];
+            animal.employeeLevel = AssetLoader.employees_levels[1];
+            // animal.EmployeeData = new EmployeeData(1, 1, 1, 1, 1);
+            //   Vector3 targetPos = GameInstance.GameIns.inputManager.cameraRange.position;
+            animal.busy = true;
+            animal.trans.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+            if ((playerData.employeeNum < 8 && employeeHire[playerData.employeeNum] <= GetRestaurantValue()))
+            {
+                GameInstance.GameIns.applianceUIManager.UnlockHire(true);
+            }
+            else
+            {
+                GameInstance.GameIns.applianceUIManager.UnlockHire(false);
+            }
+
+            animal.StartFalling(true);
         }
-        else
-        {
-            GameInstance.GameIns.applianceUIManager.UnlockHire(false);
-        }
-       
-        animal.StartFalling(true);
     }
 
 

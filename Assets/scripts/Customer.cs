@@ -675,6 +675,7 @@ public class Customer : AnimalController
                         await Customer_Move(moveNode, cancellationToken: cancellationToken);
                         if (reCalculate)
                         {
+                            while (bWait) await UniTask.NextFrame(cancellationToken: cancellationToken);
                             reCalculate = false;
                             continue;
                         }
@@ -794,6 +795,7 @@ public class Customer : AnimalController
                         await Customer_Move(moveNode, cancellationToken: cancellationToken);
                         if (reCalculate)
                         {
+                            while (bWait) await UniTask.NextFrame(cancellationToken: cancellationToken);
                             reCalculate = false;
                             continue;
                         }

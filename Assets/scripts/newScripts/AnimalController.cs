@@ -111,7 +111,7 @@ public class AnimalController : MonoBehaviour
     public bool knockback = false;
     public Vector3 kockbackVector;
     public bool reCalculate = false;
-
+    public bool bWait = false;
     [HideInInspector]
     public float waitTimer;
 

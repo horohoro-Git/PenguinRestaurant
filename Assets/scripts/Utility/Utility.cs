@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using static GameInstance;
 public enum MachineType
 {
     None,
@@ -257,6 +257,60 @@ public class Utility
 
         return false;
     }
+
+    public static void CheckHirable(Vector3 center, ref int x, ref int y, bool forcedCheck = false)
+    {
+        Vector3 loc = center;
+
+        int cameraPosX = (int)((loc.x - GameIns.calculatorScale.minX) / GameIns.calculatorScale.distanceSize);
+        int cameraPosZ = (int)((loc.z - GameIns.calculatorScale.minY) / GameIns.calculatorScale.distanceSize);
+
+        if (x == cameraPosX && y == cameraPosZ && !forcedCheck) return;
+        x = cameraPosX; y = cameraPosZ;
+
+        InputManger.spawnDetects.Clear();
+
+
+        float tileSize = GameIns.calculatorScale.distanceSize;
+
+        Camera cam = null;
+        if (InputManger.cachingCamera == null) cam = Camera.main;
+        else cam = InputManger.cachingCamera;
+        float radiusInGrid = (cam.orthographicSize / 2.5f) / tileSize;
+        float radiusSqr = radiusInGrid * radiusInGrid;
+
+        int minX = Mathf.FloorToInt(cameraPosX - radiusInGrid);
+        int maxX = Mathf.CeilToInt(cameraPosX + radiusInGrid);
+        int minY = Mathf.FloorToInt(cameraPosZ - radiusInGrid);
+        int maxY = Mathf.CeilToInt(cameraPosZ + radiusInGrid);
+
+        for (int xx = minX; xx <= maxX; xx++)
+        {
+            for (int yy = minY; yy <= maxY; yy++)
+            {
+                float dx = xx - cameraPosX;
+                float dy = yy - cameraPosZ;
+
+                if (dx * dx + dy * dy <= radiusSqr)
+                {
+                    if (!ValidCheck(yy, xx)) continue;
+
+                    bool isBlocked = MoveCalculator.GetBlocks[yy, xx];
+
+                    float worldX = GameIns.calculatorScale.minX + xx * tileSize;
+                    float worldZ = GameIns.calculatorScale.minY + yy * tileSize;
+                    Vector3 worldPos = new Vector3(worldX, 0, worldZ);
+
+                    Color debugColor = isBlocked ? Color.red : Color.green;
+                    Debug.DrawRay(worldPos, Vector3.up * 0.5f, debugColor, 0.1f);
+                    if (!isBlocked) InputManger.spawnDetects.Add(worldPos);
+                }
+            }
+        }
+
+        if (InputManger.spawnDetects.Count > 0) GameIns.applianceUIManager.UnlockHire(true);
+        else GameIns.applianceUIManager.UnlockHire(false);
+    }
 }
 
 public interface ITableID<K>
@@ -264,3 +318,4 @@ public interface ITableID<K>
     K ID { get; }
     public string Name { get; }
 }
+
