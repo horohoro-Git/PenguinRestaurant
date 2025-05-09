@@ -771,7 +771,7 @@ public class Employee : AnimalController
       .ToList();
             
                 //foodMachine  거리 오름차순 개수 내림차순
-                foodMachineList = workSpaceManager.foodMachines.ToList();
+                foodMachineList = workSpaceManager.foodMachines;
                 foodMachineList = foodMachineList
     .OrderByDescending(fm => fm.foodStack.foodStack.Count) // 음식 개수 내림차순
     .ThenBy(fm => (fm.transforms.position - trans.position).magnitude) // 거리 오름차순

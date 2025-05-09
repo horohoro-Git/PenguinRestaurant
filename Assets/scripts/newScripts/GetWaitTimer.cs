@@ -10,10 +10,10 @@ public class GetWaitTimer
     public static GetWaitTimer WaitTimer { get { return waitTimer; }}
     public GetWaitTimer()
     {
-        for (int i = 100; i <= 5000; i += 100)
+       /* for (int i = 100; i <= 5000; i += 100)
         {
             waitForSeconds[i] = new WaitForSeconds(i / 1000f);
-        }
+        }*/
     }
 
 

@@ -8,3 +8,4 @@ Animal Restaurant Tycoon Game
 05/02 Several fixes and a loading scene added, check locations where staff can be hired
 05/05 Penguin employment and animal movement no longer get stuck in structures
 05/07 Adding emotional expressions to animals
+05/08 Adding animals lod system

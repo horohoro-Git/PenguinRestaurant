@@ -1,11 +1,15 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
+using Cysharp.Threading.Tasks;
+using CryingSnow.FastFoodRush;
+
+
+
 #if HAS_ANIMATION_INSTANCING
 using AnimationInstancing;
+using AnimIns = AnimationInstancing.AnimationInstancing;
 #endif
 
 public class Animal : MonoBehaviour
@@ -14,7 +18,8 @@ public class Animal : MonoBehaviour
 
     public Transform trans;
     public Transform modelTrans;
-
+   
+    public LODController lODController;
     [HideInInspector]
     public float speed;
     [HideInInspector]
@@ -27,52 +32,136 @@ public class Animal : MonoBehaviour
     public int likeFood;
     [HideInInspector]
     public int hateFood;
-    //  Animator animator;
-
-   // public AnimationClip clip;
+    [SerializeField]
+    public List<GameObject> lodList = new List<GameObject>();
+#if HAS_ANIMATION_INSTANCING
+    Dictionary<int, AnimIns> instancingLODs = new Dictionary<int, AnimIns>();
+#endif
+    // public AnimationClip clip;
     public Dictionary<string, int> animationDic = new Dictionary<string, int>();
     private void Start()
     {
-        //StartCoroutine(enable());
-        // animator = GetComponent<Animator>();
-
-        //  if(gameObject.activeSelf)Invoke("enables", 0.1f);
-        // GetComponentInChildren<SkinnedMeshRenderer>().enabled = true;
         GetAnimationInstancing();
     }
 
     public void GetAnimationInstancing()
     {
-        StartCoroutine(Instancing());
-       
+        Instancing().Forget();
     }
 
-    IEnumerator Instancing()
+    async UniTask Instancing()
     {
-        yield return GetWaitTimer.WaitTimer.GetTimer(100); //new WaitForSeconds(0.1f);
-                                                           //  GetComponentInChildren<AnimationInstancing.AnimationInstancing>().Mode = 
-                                                           //   GetComponentInChildren<AnimationInstancing.AnimationInstancing>().;
 #if HAS_ANIMATION_INSTANCING
-        for (int i = 0; i < GetComponentInChildren<AnimationInstancing.AnimationInstancing>().GetAnimationCount(); i++)
+        for (int i=0; i< lodList.Count;i++)
         {
-            animationDic[GetComponentInChildren<AnimationInstancing.AnimationInstancing>().aniInfo[i].animationName] = i;
+            instancingLODs[i + 1] = lodList[i].GetComponent<AnimIns>();
         }
+    
+        foreach(var v in instancingLODs)
+        {
+            if (v.Key == (int)LODManager.lod_type) v.Value.visible = true;
+            else v.Value.visible = false;
+        }
+#endif
+        lodList.Clear();
+        //yield return GetWaitTimer.WaitTimer.GetTimer(100);
+        await UniTask.Delay(100);
+    
+#if HAS_ANIMATION_INSTANCING
+        for (int i = 0; i < GetComponentInChildren<AnimIns>().GetAnimationCount(); i++)
+        {
+            animationDic[GetComponentInChildren<AnimIns>().aniInfo[i].animationName] = i;
+        }
+     //   PlayAnimation("Idle_A");
         gameObject.SetActive(false);
-        //GetComponentInChildren<AnimationInstancing.AnimationInstancing>().activePlease = false;
-        // GetComponentInChildren<AnimationInstancing.AnimationInstancing>().PlayAnimation(animationDic["Idle_A"]);
-        // GetComponentInChildren<AnimationInstancing.AnimationInstancing>().GetPreAnimationInfo
+
 #endif
     }
+#if HAS_ANIMATION_INSTANCING
+    public AnimIns GetAnimIns(int i)
+    {
+        return instancingLODs[i];
+    }
+#endif
+    public void PlayAnimation(string str)
+    {
+#if HAS_ANIMATION_INSTANCING
+        GetAnimIns(1).PlayAnim(animationDic[str], str);
+      //  GetAnimIns(2).PlayAnim(animationDic[str], str);
+#endif
+    }
+    public void InstancingVisible (bool isVisible)
+    {
+#if HAS_ANIMATION_INSTANCING
+        GetAnimIns(1).visible = isVisible;
+       // GetAnimIns(2).visible = isVisible;
+#endif
+    }
+    public void InstancingLOD(int lod)
+    {
+        GetAnimIns(1).lodLevel = (int)LODManager.lod_type - 1;
+    }
+
+
+    public void CheckVisible(bool isVisible, bool force=false)
+    {
+        if(force)
+        {
+
+            GetAnimIns(1).visibity = isVisible;
+            GetAnimIns(1).lodLevel = (int)LODManager.lod_type - 1;
+            return;
+        }
+       
+        if (lODController != null)
+        {
+            bool enabled = lODController.GetRenderer(1).enabled;
+            if (enabled)
+            {
+                GetAnimIns(1).visibity = false;
+              //  GetAnimIns(2).visibity = false;
+            }
+            else
+            { 
+             //   GetAnimIns(1).visibity = true;
+             //   GetAnimIns(2).visibity = true;
+                foreach (var v in instancingLODs)
+                {
+                    if (v.Key == (int)LODManager.lod_type)
+                    {
+                        Debug.LogWarning("BB");
+                        v.Value.visibity = true;
+                    }
+                    else
+                    {
+                        Debug.LogWarning("AA");
+                        v.Value.visibity = false;
+                    }
+                }
+                GetAnimIns(1).lodLevel = (int)LODManager.lod_type - 1;
+            }
+        }
+    }
+    public void InstancingActivate(bool activate)
+    {
+
+#if HAS_ANIMATION_INSTANCING
+     
+        GetAnimIns(1).gameObject.SetActive(activate);
+        GetAnimIns(2).gameObject.SetActive(activate);
+#endif
+    }
+
     IEnumerator enable()
     {
 #if HAS_ANIMATION_INSTANCING
-        GetComponentInChildren<AnimationInstancing.AnimationInstancing>().PlayAnimation(animationDic["Idle_A"]);
+        GetComponentInChildren<AnimIns>().PlayAnimation(animationDic["Idle_A"]);
         float timer = 0;
         while (true)
         {
       //      if(GetComponentInChildren<AnimationInstancing.AnimationInstancing>().GetCurrentAnimationInfo() != null)
-            GetComponentInChildren<AnimationInstancing.AnimationInstancing>().PlayAnimation(animationDic["Idle_A"]);
-            timer = GetComponentInChildren<AnimationInstancing.AnimationInstancing>().aniInfo[animationDic["Idle_A"]].totalFrame;
+            GetComponentInChildren<AnimIns>().PlayAnimation(animationDic["Idle_A"]);
+            timer = GetComponentInChildren<AnimIns>().aniInfo[animationDic["Idle_A"]].totalFrame;
             for (int i = 0; i < timer; i++)
             {
                 yield return null;

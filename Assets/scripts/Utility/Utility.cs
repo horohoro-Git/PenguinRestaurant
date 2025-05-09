@@ -17,6 +17,11 @@ public enum MapType
     forest,
     winter
 }
+public enum LOD_Type
+{
+    LOD1 = 1,
+    LOD2 = 2
+}
 public class RestaurantParam
 {
     public int id;
