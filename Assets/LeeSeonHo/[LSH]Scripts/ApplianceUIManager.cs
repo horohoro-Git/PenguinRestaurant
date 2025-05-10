@@ -1180,7 +1180,7 @@ public class ApplianceUIManager : MonoBehaviour
             int num = restaurantManager.playerData.employeeNum;
             if (num < 8 && restaurantManager.employeeHire[num] <= restaurantManager.GetRestaurantValue())
             {
-                Debug.Log(num + " " + restaurantManager.employeeHire[num] + " " + restaurantManager.GetRestaurantValue());
+                //Debug.Log(num + " " + restaurantManager.employeeHire[num] + " " + restaurantManager.GetRestaurantValue());
                 viewHireBtn = true;
                 hireBtn.gameObject.SetActive(true);
             }

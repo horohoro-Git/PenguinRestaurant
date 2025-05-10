@@ -322,7 +322,7 @@ public class RestaurantManager : MonoBehaviour
         Vector3 st = animal.trans.position;
         float t = 0;
         animal.animator.SetInteger("state", 0);
-        animal.PlayAnim(animal.animal.animationDic["Idle_A"], "Idle_A");
+        animal.animal.PlayAnimation(AnimationKeys.Idle);// (animal.animal.animationDic["Idle_A"], "Idle_A");
         while (t < 0.2f)
         {
             float progress = t / 0.2f; // 0 ~ 1
@@ -529,7 +529,7 @@ public class RestaurantManager : MonoBehaviour
 
     public void EmployeeNum()
     {
-        for (int i = 0; i < 8; i++)
+      //  for (int i = 0; i < 8; i++)
         {
             Employee animal = GameInstance.GameIns.animalManager.SpawnEmployee();
 

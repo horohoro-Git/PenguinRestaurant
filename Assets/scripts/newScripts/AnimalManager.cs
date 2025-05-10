@@ -223,11 +223,11 @@ public class AnimalManager : MonoBehaviour
         allAnimals[10] = new AllAnimals();
         allAnimals[10].activateAnimals = new List<Animal>();
         allAnimals[10].deactivateAnimals = new Queue<Animal>();
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 8; i++)
         {
-            Animal newAnimal = Instantiate(AssetLoader.loadedAssets["NewPenguin"], animalParent.transform).GetComponent<Animal>();
-            newAnimal.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
-            newAnimal.GetComponentInChildren<AnimatedAnimal>().animator.enabled = false;
+            Animal newAnimal = Instantiate(AssetLoader.loadedAssets["PenguinEmployee"], animalParent.transform).GetComponent<Animal>();
+           // newAnimal.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
+           // newAnimal.GetComponentInChildren<LODController>().animator.enabled = false;
             allAnimals[10].deactivateAnimals.Enqueue(newAnimal);
         }
 
@@ -235,15 +235,22 @@ public class AnimalManager : MonoBehaviour
         //µ¿¹°µé
         foreach (var data in AssetLoader.animals)
         {
-            allAnimals[data.Key] = new AllAnimals();
-            allAnimals[data.Key].activateAnimals = new List<Animal>();
-            allAnimals[data.Key].deactivateAnimals = new Queue<Animal>();
-            for (int j = 0; j < 30; j++)
+                Debug.Log("AA");
+            if (data.Value.is_customer)
             {
-                Animal newAnimal = Instantiate(AssetLoader.loadedAssets[AssetLoader.itemAssetKeys[data.Key].Name] , animalParent.transform).GetComponent<Animal>();
-                newAnimal.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
-                newAnimal.GetComponentInChildren<AnimatedAnimal>().animator.enabled = false;
-                allAnimals[data.Key].deactivateAnimals.Enqueue(newAnimal);
+                allAnimals[data.Key] = new AllAnimals();
+                allAnimals[data.Key].activateAnimals = new List<Animal>();
+                allAnimals[data.Key].deactivateAnimals = new Queue<Animal>();
+
+                for (int j = 0; j < 30; j++)
+                {
+                    Animal newAnimal = Instantiate(AssetLoader.loadedAssets[AssetLoader.itemAssetKeys[data.Key].Name], animalParent.transform).GetComponent<Animal>();
+                    //   newAnimal.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
+
+              //      newAnimal.GetComponentInChildren<LODController>().animator.enabled = false;
+                   // newAnimal.gameObject.SetActive(false);
+                    allAnimals[data.Key].deactivateAnimals.Enqueue(newAnimal);
+                }
             }
         }
 
@@ -461,16 +468,16 @@ public class AnimalManager : MonoBehaviour
         controller.trans = animal.trans;
         controller.modelTrans = animal.modelTrans;
         controller.transform.SetParent(animal.transform);
-        controller.animator = animal.GetComponentInChildren<AnimatedAnimal>().animator;
+        controller.animator = animal.GetComponentInChildren<LODController>().animator;
         controller.animator.enabled = true;
         controller.animal = animal;
 #if HAS_ANIMATION_INSTANCING
         controller.animationInstancing = animal.GetComponentInChildren<AnimationInstancing.AnimationInstancing>();
-        animal.GetComponentInChildren<AnimationInstancing.AnimationInstancing>().activePlease = true;
+       // animal.GetComponentInChildren<AnimationInstancing.AnimationInstancing>().activePlease = true;
 #endif
         // animal.GetComponentInChildren<AnimationInstancing.AnimationInstancing>().PlayAnimation(animal.animationDic["Idle_A"]);
-        controller.animatedAnimal = animal.GetComponentInChildren<AnimatedAnimal>();
-        controller.headPoint = animal.GetComponentInChildren<AnimatedAnimal>().GetComponentInChildren<Head>().transform;
+       // controller.animatedAnimal = animal.GetComponentInChildren<AnimatedAnimal>();
+        controller.headPoint = animal.GetComponentInChildren<Head>().transform;
         allAnimals[type].activateAnimals.Add(animal);
         
         Shadow shadow = deactivateShadows.Dequeue();
@@ -616,7 +623,7 @@ public class AnimalManager : MonoBehaviour
                 {
                     gatchStack[rolling.type] = new Queue<Rolling>();
                 }
-            Debug.Log(rolling.type);
+           // Debug.Log(rolling.type);
             }
         }
     }

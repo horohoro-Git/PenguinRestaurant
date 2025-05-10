@@ -136,8 +136,9 @@ public class SaveLoadSystem
                         float eat_speed = reader.ReadSingle();
                         int min_order = reader.ReadInt32();
                         int max_order = reader.ReadInt32();
+                        bool is_customer = reader.ReadBoolean();
 
-                        animalsDic[id] = new AnimalStruct(id, name, asset_name, tier, speed, eat_speed, min_order, max_order);
+                        animalsDic[id] = new AnimalStruct(id, name, asset_name, tier, speed, eat_speed, min_order, max_order, is_customer);
                     }
                 }
             }
@@ -175,6 +176,7 @@ public class SaveLoadSystem
                     float eat_speed = animal.Value.eat_speed;
                     int min_order = animal.Value.min_order;
                     int max_order = animal.Value.max_order;
+                    bool is_customer = animal.Value.is_customer;
 
                     writer.Write(id);
                     writer.Write(name);
@@ -184,6 +186,7 @@ public class SaveLoadSystem
                     writer.Write(eat_speed);
                     writer.Write(min_order);
                     writer.Write(max_order);
+                    writer.Write(is_customer);
                 }
             }
         }

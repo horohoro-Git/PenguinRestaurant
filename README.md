@@ -9,3 +9,4 @@ Animal Restaurant Tycoon Game
 05/05 Penguin employment and animal movement no longer get stuck in structures
 05/07 Adding emotional expressions to animals
 05/08 Adding animals lod system
+05/09 Applied the newly added features to all animals, updated the illustrations of the animals
