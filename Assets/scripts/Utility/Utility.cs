@@ -19,8 +19,8 @@ public enum MapType
 }
 public enum LOD_Type
 {
-    LOD1 = 1,
-    LOD2 = 2
+    LOD0,
+    LOD1
 }
 public class RestaurantParam
 {
@@ -150,12 +150,13 @@ public struct AnimalStruct : ITableID<int>
     public float speed;
     public float eat_speed;
     public int min_order;
-    public int max_order;   
+    public int max_order;
+    public bool is_customer;
     public readonly int ID => id;
 
     public readonly string Name => name;
 
-    public AnimalStruct(int id, string name, string asset_name, int tier, float speed, float eat_speed, int min_order, int max_order)
+    public AnimalStruct(int id, string name, string asset_name, int tier, float speed, float eat_speed, int min_order, int max_order, bool is_customer)
     {
         this.id = id;
         this.name = name;
@@ -165,6 +166,7 @@ public struct AnimalStruct : ITableID<int>
         this.eat_speed = eat_speed;
         this.min_order = min_order;
         this.max_order = max_order;
+        this.is_customer = is_customer;
     }
 
 }

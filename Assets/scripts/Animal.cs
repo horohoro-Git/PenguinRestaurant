@@ -14,12 +14,13 @@ using AnimIns = AnimationInstancing.AnimationInstancing;
 
 public class Animal : MonoBehaviour
 {
-  
+    int id = 0;
+    public int ID { get { if (id == 0) id = GetInstanceID(); return id; } }
 
-    public Transform trans;
+    Transform tran;
+    public Transform trans { get { if (tran == null) tran = transform; return tran; } }
     public Transform modelTrans;
    
-    public LODController lODController;
     [HideInInspector]
     public float speed;
     [HideInInspector]
@@ -32,10 +33,11 @@ public class Animal : MonoBehaviour
     public int likeFood;
     [HideInInspector]
     public int hateFood;
-    [SerializeField]
-    public List<GameObject> lodList = new List<GameObject>();
+
 #if HAS_ANIMATION_INSTANCING
-    Dictionary<int, AnimIns> instancingLODs = new Dictionary<int, AnimIns>();
+    AnimIns animIns;
+    public AnimIns InstancingCharacter { get { if (animIns == null) animIns = GetComponentInChildren<AnimIns>(); return animIns;} }
+    //Dictionary<int, AnimIns> instancingLODs = new Dictionary<int, AnimIns>();
 #endif
     // public AnimationClip clip;
     public Dictionary<string, int> animationDic = new Dictionary<string, int>();
@@ -51,19 +53,6 @@ public class Animal : MonoBehaviour
 
     async UniTask Instancing()
     {
-#if HAS_ANIMATION_INSTANCING
-        for (int i=0; i< lodList.Count;i++)
-        {
-            instancingLODs[i + 1] = lodList[i].GetComponent<AnimIns>();
-        }
-    
-        foreach(var v in instancingLODs)
-        {
-            if (v.Key == (int)LODManager.lod_type) v.Value.visible = true;
-            else v.Value.visible = false;
-        }
-#endif
-        lodList.Clear();
         //yield return GetWaitTimer.WaitTimer.GetTimer(100);
         await UniTask.Delay(100);
     
@@ -77,29 +66,18 @@ public class Animal : MonoBehaviour
 
 #endif
     }
-#if HAS_ANIMATION_INSTANCING
-    public AnimIns GetAnimIns(int i)
-    {
-        return instancingLODs[i];
-    }
-#endif
+
     public void PlayAnimation(string str)
     {
 #if HAS_ANIMATION_INSTANCING
-        GetAnimIns(1).PlayAnim(animationDic[str], str);
+        InstancingCharacter.PlayAnim(animationDic[str], str);
       //  GetAnimIns(2).PlayAnim(animationDic[str], str);
 #endif
     }
-    public void InstancingVisible (bool isVisible)
-    {
-#if HAS_ANIMATION_INSTANCING
-        GetAnimIns(1).visible = isVisible;
-       // GetAnimIns(2).visible = isVisible;
-#endif
-    }
+
     public void InstancingLOD(int lod)
     {
-        GetAnimIns(1).lodLevel = (int)LODManager.lod_type - 1;
+        InstancingCharacter.lodLevel = (int)LODManager.lod_type;
     }
 
 
@@ -108,24 +86,25 @@ public class Animal : MonoBehaviour
         if(force)
         {
 
-            GetAnimIns(1).visibity = isVisible;
-            GetAnimIns(1).lodLevel = (int)LODManager.lod_type - 1;
+            InstancingCharacter.visible = isVisible;
+            InstancingCharacter.lodLevel = (int)LODManager.lod_type;
             return;
         }
        
-        if (lODController != null)
+      /*  if (lODController != null)
         {
             bool enabled = lODController.GetRenderer(1).enabled;
             if (enabled)
             {
-                GetAnimIns(1).visibity = false;
+                InstancingCharacter.visibity = false;
               //  GetAnimIns(2).visibity = false;
             }
             else
-            { 
-             //   GetAnimIns(1).visibity = true;
-             //   GetAnimIns(2).visibity = true;
-                foreach (var v in instancingLODs)
+            {
+                //   GetAnimIns(1).visibity = true;
+                //   GetAnimIns(2).visibity = true;
+              //  InstancingCharacter.
+               *//* foreach (var v in instancingLODs)
                 {
                     if (v.Key == (int)LODManager.lod_type)
                     {
@@ -137,19 +116,10 @@ public class Animal : MonoBehaviour
                         Debug.LogWarning("AA");
                         v.Value.visibity = false;
                     }
-                }
-                GetAnimIns(1).lodLevel = (int)LODManager.lod_type - 1;
-            }
-        }
-    }
-    public void InstancingActivate(bool activate)
-    {
-
-#if HAS_ANIMATION_INSTANCING
-     
-        GetAnimIns(1).gameObject.SetActive(activate);
-        GetAnimIns(2).gameObject.SetActive(activate);
-#endif
+                }*//*
+               InstancingCharacter.lodLevel = (int)LODManager.lod_type - 1;
+            }*/
+        
     }
 
     IEnumerator enable()

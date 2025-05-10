@@ -18,6 +18,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 using static FoodMachine;
+using AnimIns = AnimationInstancing.AnimationInstancing;
 //using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
 /// <summary>
 /// using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
@@ -68,23 +69,15 @@ public class AnimalController : MonoBehaviour
 
     [HideInInspector]
     public PlayType playType;
-    // public AnimalType animalType;
-    //  public EmployeeState employeeState;
-    //public CustomerState customerState;
-    //public RewardingType rewardingType;
 
-    public Animal animal;
+    public Animal animal { get; set; }
     public AnimatedAnimal animatedAnimal;
     public Animator animator;
     public Transform headPoint;
     public Transform mousePoint;
  //   public int maxWeight = 3;
     public bool busy = false;
-  //  public RewardsBox reward;
 
-  //  public List<Garbage> garbageList = new List<Garbage>();
-
-  //  public GameObject garbage;
     public AnimalData data;
     public List<AnimalData> animalDatas1 = new List<AnimalData>();
     //public FoodsAnimalsWant foodsAnimalsWant;
@@ -94,7 +87,8 @@ public class AnimalController : MonoBehaviour
     public AudioSource audioSource;
     public float coroutineTimer = 0;
 #if HAS_ANIMATION_INSTANCING
-    public AnimationInstancing.AnimationInstancing animationInstancing;
+    AnimIns animIns;
+    public AnimIns animationInstancing { get; set; }
 #endif
     public Shadow shadow;
     public const string animation_Idle_A = "Idle_A";
@@ -123,37 +117,8 @@ public class AnimalController : MonoBehaviour
             if (restaurantManager == null) restaurantManager = GameInstance.GameIns.restaurantManager;
             return restaurantManager;
         }}
-    //public int exp;
-    /* int exp;
-     public int EXP { get { return exp; } set { 
-                         if(value != 0)
-                         {
-                             int a = Mathf.Abs(exp - value);
-                             exp = value;
-                             if (ui != null) ui.UpdateEXP(a);
-                         }
-                         else
-                         {
-                             exp = 0;    
-                             if(ui!= null) ui.ClearEXP();
-                         }
-                     } }*/
-    private void Awake()
-    {
-      //  openCoords.Capacity = 200;
-       // closedCoords.Capacity = 200;
-    }
-    // Start is called before the first frame update
-    void Start()
-    {
-      //  if (employeeData == null) employeeData = new EmployeeData(0, 3, 3, 4, 5);
-    //    data = new AnimalData();
-     //   data.animal_move_speed = 8f;
-        
-       
-    }
-    
-    public void PlayAnim(int id, string name)
+  
+   /* public void PlayAnim(int id, string name)
     {
 #if HAS_ANIMATION_INSTANCING
         if (animationInstancing.GetCurrentAnimationInfo() != null)
@@ -168,7 +133,7 @@ public class AnimalController : MonoBehaviour
             animationInstancing.PlayAnimation(id);
         }
 #endif
-    }
+    }*/
    
  /*   public void Setup(FoodsAnimalsWant foodsAnimals)
     {
