@@ -18,6 +18,8 @@ public class UIManager : MonoBehaviour
     public Image animalGuideImage;
     public Panel panel;
     public Button changeScene;
+    public Button menuOption;
+    public GameObject option;
     public Image changeSceneImage;
     public Button drawBtn;
     public Button drawSpeedUpBtn;
@@ -105,56 +107,34 @@ public class UIManager : MonoBehaviour
             switch (GameIns.app.currentScene)
             {
                 case SceneState.Restaurant:
-                    animalGuideImage.sprite = loadedSprites[spriteAssetKeys[10001].ID];
-                    changeSceneImage.sprite = loadedSprites[spriteAssetKeys[10003].ID];
-                    GameIns.app.pos = GameIns.inputManager.cameraTrans.position;
+                    // GameIns.app.currentScene = SceneState.Draw;
                     if (GameIns.applianceUIManager.currentBox != null) GameIns.applianceUIManager.currentBox.ClearFishes();
-               
-                    cameraSize = InputManger.cachingCamera.orthographicSize;
-                    StartCoroutine(FadeInFadeOut(true, 1));
-                    break;
-                case SceneState.Draw:
                     animalGuideImage.sprite = loadedSprites[spriteAssetKeys[10001].ID];
                     changeSceneImage.sprite = loadedSprites[spriteAssetKeys[10002].ID];
+
+                    cameraSize = InputManger.cachingCamera.orthographicSize;
                     drawBtn.gameObject.SetActive(false);
                     drawSpeedUpBtn.gameObject.SetActive(false);
                     StartCoroutine(FadeInFadeOut(true, 2));
+                    break;
+                case SceneState.Draw:
+                  //  GameIns.app.currentScene = SceneState.Restaurant;
+                    animalGuideImage.sprite = loadedSprites[spriteAssetKeys[10001].ID];
+                    changeSceneImage.sprite = loadedSprites[spriteAssetKeys[10003].ID];
+               //     GameIns.app.pos = GameIns.inputManager.cameraTrans.position;
+                   // if (GameIns.applianceUIManager.currentBox != null) GameIns.applianceUIManager.currentBox.ClearFishes();
+
+                    StartCoroutine(FadeInFadeOut(true, 1));
                     break;
             }
 
         });
 
-      /*  goRestaurant.onClick.AddListener(() =>
-        {
-            if (GameInstance.GameIns.app.currentScene != SceneState.Restaurant)
-            {
-           //     GameInstance.GameIns.inputManager.inputDisAble = true;
+        menuOption.onClick.AddListener(() => {
 
-                drawBtn.gameObject.SetActive(false);
-                drawSpeedUpBtn.gameObject.SetActive(false);
-
-                StartCoroutine(FadeInFadeOut(true, 1));
-            }
-        });*/
-/*
-        goDraw.onClick.AddListener(() =>
-        {
-            if (GameInstance.GameIns.app.currentScene != SceneState.Draw)
-            {
-    //            GameInstance.GameIns.inputManager.inputDisAble = true;
-
-                GameInstance.GameIns.app.pos = GameInstance.GameIns.inputManager.cameraTrans.position;
-
-                if (GameInstance.GameIns.applianceUIManager.currentBox != null)
-                {
-                    GameInstance.GameIns.applianceUIManager.currentBox.ClearFishes();
-                }
-                cameraSize = Camera.main.orthographicSize;
-
-                StartCoroutine(FadeInFadeOut(true, 2));
-            }
-
-        });*/
+            option.SetActive(true);
+        
+        });
 
         drawBtn.onClick.AddListener(() =>
         {
@@ -174,6 +154,7 @@ public class UIManager : MonoBehaviour
       //  if (fades)
         {
             float f = 0;
+            fadeImage.raycastTarget = true;
             while (true)
             {   
                 f += Time.unscaledDeltaTime * 8;
@@ -189,15 +170,16 @@ public class UIManager : MonoBehaviour
                     {
                         Camera.main.orthographicSize = 15;
                     }
+                    fadeImage.raycastTarget = false;
                     ShowUI(t);
                     c.a = 0;
                     fadeImage.color = c;
                     break;
                 }
-                    fadeImage.color = c;
+                fadeImage.color = c;
                 yield return null;
             }
-          
+            
         }
     }
 
@@ -230,9 +212,12 @@ public class UIManager : MonoBehaviour
         }
         else if (t == 1)
         {
-            GameIns.applianceUIManager.UIClearAll(true);
+            
+            // GameIns.applianceUIManager.UIClearAll(true);
             animalGuide.SetActive(false);
             bGuideOn = false;
+            drawBtn.gameObject.SetActive(false);
+            drawSpeedUpBtn.gameObject.SetActive(false);
             GameIns.app.ChangeScene_Restaurant();
         }
         else if (t == 2)

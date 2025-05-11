@@ -23,7 +23,9 @@ public class App : MonoBehaviour
 
     public SceneState currentScene;
     GetWaitTimer getWaitTimer = new GetWaitTimer();
-    public Vector3 pos;
+
+    Vector3 vector;
+    public Vector3 pos { get { return vector; } set { vector = value; Debug.Log(value); } }
     static Dictionary<string, Scene> scenes = new Dictionary<string, Scene>();
     Loading loading;
     private void Awake()
@@ -216,7 +218,12 @@ public class App : MonoBehaviour
         GameInstance.GameIns.inputManager.cameraTrans.position = pos;
       //  GameInstance.GameIns.inputManager.DragScreen_WindowEditor(true);
         GameInstance.GameIns.inputManager.inputDisAble = false;
-    //    GameInstance.GameIns.applianceUIManager.UIClearAll(true);
+        GameInstance.GameIns.applianceUIManager.UIClearAll(true);
+        int i = 100;
+        int j = 100;
+
+
+        Utility.CheckHirable(GameInstance.GameIns.inputManager.cameraRange.position, ref i, ref j);
         Time.timeScale = 1;
         Time.fixedDeltaTime = 0.02f;
     }
@@ -225,11 +232,12 @@ public class App : MonoBehaviour
     {
         if (currentScene == SceneState.Draw) return;
         currentScene = SceneState.Draw;
-        GameInstance.GameIns.inputManager.DragScreen_WindowEditor(true);
-    //    GameInstance.GameIns.inputManager.inputDisAble = true;
+      //  GameInstance.GameIns.inputManager.DragScreen_WindowEditor(true);
+        GameInstance.GameIns.inputManager.inputDisAble = true;
         pos = GameInstance.GameIns.inputManager.cameraTrans.position;
         Time.timeScale = 0;
         Time.fixedDeltaTime = 0f;
+        Debug.LogWarning(pos);
         GameInstance.GameIns.inputManager.cameraTrans.position = GameInstance.GetVector3(-80.35f, 0, -1080.7f);
         GameInstance.GameIns.uiManager.drawBtn.gameObject.SetActive(true);
         GameInstance.GameIns.uiManager.drawSpeedUpBtn.gameObject.SetActive(true);

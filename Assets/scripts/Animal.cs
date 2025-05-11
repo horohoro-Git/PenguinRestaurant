@@ -55,11 +55,13 @@ public class Animal : MonoBehaviour
     {
         //yield return GetWaitTimer.WaitTimer.GetTimer(100);
         await UniTask.Delay(100);
-    
+
 #if HAS_ANIMATION_INSTANCING
-        for (int i = 0; i < GetComponentInChildren<AnimIns>().GetAnimationCount(); i++)
+        AnimIns animIns = GetComponentInChildren<AnimIns>();
+        int c = animIns.GetAnimationCount();
+        for (int i = 0; i < c; i++)
         {
-            animationDic[GetComponentInChildren<AnimIns>().aniInfo[i].animationName] = i;
+            animationDic[animIns.aniInfo[i].animationName] = i;
         }
      //   PlayAnimation("Idle_A");
         gameObject.SetActive(false);

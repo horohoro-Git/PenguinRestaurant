@@ -366,7 +366,7 @@ public class InputManger : MonoBehaviour
                     Vector3 d =  move - cameraTrans.position;
                     if (CheckRayMove(d))
                     {
-                        cameraTrans.position = move;
+                        if (!inputDisAble) cameraTrans.position = move;
                         Utility.CheckHirable(cameraRange.position, ref refX, ref refY);
                
                     }
@@ -381,7 +381,7 @@ public class InputManger : MonoBehaviour
                     Vector3 d = move - cameraTrans.position;
                     if (CheckRayMove(d))
                     {
-                        cameraTrans.position = move;
+                        if (!inputDisAble) cameraTrans.position = move;
                         Utility.CheckHirable(cameraRange.position, ref refX, ref refY);
                     }
                    
@@ -404,7 +404,7 @@ public class InputManger : MonoBehaviour
         isDragging = false;
         while(i < 0.5f)
         {
-            cameraTrans.position -= move * Time.deltaTime;
+            if(!inputDisAble) cameraTrans.position -= move * Time.deltaTime;
             Utility.CheckHirable(cameraRange.position, ref refX, ref refY);
             i += Time.deltaTime;
             yield return null;

@@ -69,7 +69,7 @@ public class Panel : MonoBehaviour
         while (elapsedTimer / 0.3f <= 1)
         {
             elapsedTimer += Time.unscaledDeltaTime;
-            float cal = Mathf.Lerp(currentVec2.y, 300, elapsedTimer / 0.3f);
+            float cal = Mathf.Lerp(currentVec2.y, 410, elapsedTimer / 0.3f);
 
             Vector3 v = new Vector3(currentVec2.x, cal, currentVec2.z);
             rectTransform.localPosition = v;

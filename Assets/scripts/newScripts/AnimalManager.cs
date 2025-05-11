@@ -235,7 +235,6 @@ public class AnimalManager : MonoBehaviour
         //µ¿¹°µé
         foreach (var data in AssetLoader.animals)
         {
-                Debug.Log("AA");
             if (data.Value.is_customer)
             {
                 allAnimals[data.Key] = new AllAnimals();
@@ -275,7 +274,6 @@ public class AnimalManager : MonoBehaviour
             deactivateSliders.Enqueue(instancedSlider);
         }
 
-        Garbage go = GarbageManager.CreateGarbage();
     }
 
     //float timer = 0f;
