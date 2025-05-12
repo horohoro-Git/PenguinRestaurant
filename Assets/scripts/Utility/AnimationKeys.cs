@@ -24,4 +24,6 @@ public static class AnimationKeys
     public const string state = "state";
     public const string eat = "eat";
     public const string emotion = "emotion";
+
+    public const string popup_close = "popup_close";
 }

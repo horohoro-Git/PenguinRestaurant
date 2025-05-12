@@ -20,6 +20,7 @@ public class UIManager : MonoBehaviour
     public Button changeScene;
     public Button menuOption;
     public GameObject option;
+    public RectTransform optionPopup;
     public Image changeSceneImage;
     public Button drawBtn;
     public Button drawSpeedUpBtn;
@@ -133,7 +134,7 @@ public class UIManager : MonoBehaviour
         menuOption.onClick.AddListener(() => {
 
             option.SetActive(true);
-        
+            
         });
 
         drawBtn.onClick.AddListener(() =>
@@ -302,26 +303,37 @@ public class UIManager : MonoBehaviour
     public float currentMoney = 900f; // 초기 돈 설정
    // public TextMeshProUGUI moneyText; // UI 텍스트를 연결할 변수
 
-   
-   /* // 돈을 추가하는 메서드
-    public void AddMoney(int amount)
+
+    //게임 종료 (사용중)
+    public void QuitGame()
     {
-        currentMoney += amount;
-        UpdateMoneyText();
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
     }
-*/
-   /* // 돈을 소모하는 메서드
-    public void SpendMoney(int amount)
-    {
-        if (currentMoney >= amount)
-        {
-            currentMoney -= amount;
-            UpdateMoneyText();
-        }
-        else
-        {
-        }
-    }*/
+
+
+    /* // 돈을 추가하는 메서드
+     public void AddMoney(int amount)
+     {
+         currentMoney += amount;
+         UpdateMoneyText();
+     }
+ */
+    /* // 돈을 소모하는 메서드
+     public void SpendMoney(int amount)
+     {
+         if (currentMoney >= amount)
+         {
+             currentMoney -= amount;
+             UpdateMoneyText();
+         }
+         else
+         {
+         }
+     }*/
 
     // UI 텍스트 업데이트 메서드
     public void UpdateMoneyText(float money)

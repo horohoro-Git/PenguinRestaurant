@@ -296,10 +296,14 @@ public class MoveCalculator
         try
         {
             cancellation.ThrowIfCancellationRequested();
-            int playerX = (int)((startVector.x - gameInstance.calculatorScale.minX) / gameInstance.calculatorScale.distanceSize);
-            int playerY = (int)((startVector.z - gameInstance.calculatorScale.minY) / gameInstance.calculatorScale.distanceSize);
-            int targetX = (int)((endVector.x - gameInstance.calculatorScale.minX) / gameInstance.calculatorScale.distanceSize);
-            int targetY = (int)((endVector.z - gameInstance.calculatorScale.minY) / gameInstance.calculatorScale.distanceSize);
+            int playerX = Mathf.RoundToInt((startVector.x - gameInstance.calculatorScale.minX) / gameInstance.calculatorScale.distanceSize);
+            int playerY = Mathf.RoundToInt((startVector.z - gameInstance.calculatorScale.minY) / gameInstance.calculatorScale.distanceSize);
+            int targetX = Mathf.RoundToInt((endVector.x - gameInstance.calculatorScale.minX) / gameInstance.calculatorScale.distanceSize);
+            int targetY = Mathf.RoundToInt((endVector.z - gameInstance.calculatorScale.minY) / gameInstance.calculatorScale.distanceSize);
+            /*  int playerX = (int)((startVector.x - gameInstance.calculatorScale.minX) / gameInstance.calculatorScale.distanceSize);
+              int playerY = (int)((startVector.z - gameInstance.calculatorScale.minY) / gameInstance.calculatorScale.distanceSize);
+              int targetX = (int)((endVector.x - gameInstance.calculatorScale.minX) / gameInstance.calculatorScale.distanceSize);
+              int targetY = (int)((endVector.z - gameInstance.calculatorScale.minY) / gameInstance.calculatorScale.distanceSize);*/
 
             bool playerValidCheck = ValidCheck(playerX, playerY);
             bool targetValidCheck = ValidCheck(targetX, targetY);

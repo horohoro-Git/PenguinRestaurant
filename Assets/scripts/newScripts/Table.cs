@@ -75,7 +75,7 @@ public class Table : MonoBehaviour
 
     public void CleanTableManually()
     {
-        employeeContoller.reCalculate = true;
+        if(employeeContoller != null) employeeContoller.reCalculate = true;
         employeeContoller = null;
         Clean(App.GlobalToken).Forget();
         
@@ -112,9 +112,8 @@ public class Table : MonoBehaviour
         }
         catch (OperationCanceledException)
         {
-            // 작업이 취소되었을 때의 정리 코드
             Debug.Log("Clean task was cancelled");
-            throw; // 필요에 따라 rethrow 또는 생략
+            throw; 
         }
         catch (Exception ex)
         {

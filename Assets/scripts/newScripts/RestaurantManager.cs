@@ -215,16 +215,19 @@ public class RestaurantManager : MonoBehaviour
                 e.reCalculate = true;
                 int posX = (int)((e.trans.position.x - GameIns.calculatorScale.minX) / GameIns.calculatorScale.distanceSize);
                 int posZ = (int)((e.trans.position.z - GameIns.calculatorScale.minY) / GameIns.calculatorScale.distanceSize);
-                if (!e.falling && MoveCalculator.GetBlocks[posZ, posX]) AnimalCollision(e, posX, posZ, App.GlobalToken).Forget();
+                if (!e.falling && Utility.ValidCheck(posZ, posX) && MoveCalculator.GetBlocks[posZ, posX]) AnimalCollision(e, posX, posZ, App.GlobalToken).Forget();
            
             }
             for (int i = 0; i < GameInstance.GameIns.animalManager.customerControllers.Count; i++)
             {
                 Customer c = GameIns.animalManager.customerControllers[i];
-                c.reCalculate = true;
-                int posX = (int)((c.trans.position.x - GameIns.calculatorScale.minX) / GameIns.calculatorScale.distanceSize);
-                int posZ = (int)((c.trans.position.z - GameIns.calculatorScale.minY) / GameIns.calculatorScale.distanceSize);
-                if (MoveCalculator.GetBlocks[posZ, posX]) AnimalCollision(c, posX, posZ, App.GlobalToken).Forget();
+                if (c.trans)
+                {
+                    c.reCalculate = true;
+                    int posX = (int)((c.trans.position.x - GameIns.calculatorScale.minX) / GameIns.calculatorScale.distanceSize);
+                    int posZ = (int)((c.trans.position.z - GameIns.calculatorScale.minY) / GameIns.calculatorScale.distanceSize);
+                    if (Utility.ValidCheck(posZ, posX) && MoveCalculator.GetBlocks[posZ, posX]) AnimalCollision(c, posX, posZ, App.GlobalToken).Forget();
+                }
 
             }
         }
@@ -493,11 +496,11 @@ public class RestaurantManager : MonoBehaviour
     }
     public void HireEmployee()
     {
-            if (playerData.employeeNum < 8 && employeeHire[playerData.employeeNum] <= GetRestaurantValue())
+            if (playerData.employeeNum < 8 && employeeHire[playerData.employeeNum] <= GetRestaurantValue() && GameIns.inputManager.CheckHire())
             {
                 playerData.employeeNum++;
-
-                //SaveLoadManager.Save(SaveLoadManager.SaveState.ONLY_SAVE_PLAYERDATA);//
+           
+            //SaveLoadManager.Save(SaveLoadManager.SaveState.ONLY_SAVE_PLAYERDATA);//
                 EmployeeNum();
             }
        // EmployeeNum();
@@ -537,7 +540,7 @@ public class RestaurantManager : MonoBehaviour
             animal.employeeLevel = AssetLoader.employees_levels[1];
             // animal.EmployeeData = new EmployeeData(1, 1, 1, 1, 1);
             //   Vector3 targetPos = GameInstance.GameIns.inputManager.cameraRange.position;
-            animal.busy = true;
+            //animal.busy = true;
             animal.trans.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
             if ((playerData.employeeNum < 8 && employeeHire[playerData.employeeNum] <= GetRestaurantValue()))

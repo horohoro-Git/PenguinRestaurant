@@ -94,7 +94,7 @@ public class AnimalManagerEditor : Editor
                                         finalMachineList[0].employee = em;
                                         em.employeeState = EmployeeState.FoodMachine;
                                         target = finalMachineList[0].workingSpot.position;
-                                        em.Work(target, finalMachineList[0]);
+                                   //     em.Work(target, finalMachineList[0]);
                                         return;
                                     }
                                 }
@@ -131,7 +131,7 @@ public class AnimalManagerEditor : Editor
                                 machine.employee = em;
                                 em.employeeState = EmployeeState.FoodMachine;
                                 target = machine.workingSpot.position;
-                                em.Work(target, machine);
+                                //em.Work(target, machine);
                                 return;
                             }
                         }

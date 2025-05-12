@@ -14,6 +14,16 @@ public class LODManager : MonoBehaviour
     public static LOD_Type lod_type = LOD_Type.LOD0;
     private void Start()
     {
+        int i = 5;
+        int j = 10;
+        i = (int)((i - -22) / 0.6f);
+        j = (int)((j - -26) / 0.6f);
+        i = Mathf.RoundToInt((5 - -22) / 0.6f);
+
+        float r = -22 + i * 0.6f;
+        float c = -26 + j * 0.6f;
+        Debug.Log(i + " " +r);
+
         if (cachingCamera == null) cachingCamera = Camera.main;
         if(cachingCamera.orthographicSize <= 10)
         {

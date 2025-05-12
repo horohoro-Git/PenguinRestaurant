@@ -433,37 +433,80 @@ public class Customer : AnimalController
     {
         try
         {
-            for (int i = position.Length - 1; i >= 0; i--)
-            {
+            Vector3 pos = position[position.Length - 1].transforms.position;
 
-                while (position[i].controller != null)
+            int currentPoint = position.Length - 1;
+            position[position.Length - 1].controller = this;
+            moveNode = await CalculateNodes_Async(pos, cancellationToken);
+
+            await Customer_Move(moveNode, pos, true, cancellationToken: cancellationToken);
+            modelTrans.rotation = position[currentPoint].transforms.rotation;
+            
+            for (int i = position.Length - 2; i >= 0; i--)
+            {
+                while (position[i].controller != null && position[i].controller != this)
                 {
+                    if (i >= position.Length) continue;
                     animator.SetInteger("state", 0);
                     animal.PlayAnimation(AnimationKeys.Idle);
-                    //PlayAnim(animal.animationDic["Idle_A"], "Idle_A");
+
                     await UniTask.Delay(200, cancellationToken: cancellationToken);
                 }
+                Vector3 p = position[i].transforms.position;
+                position[currentPoint].controller = null;
+                currentPoint = i;
+                position[currentPoint].controller = this;
 
-                if (position[i].controller == null && i > 0 && position[i - 1].controller == null) continue;
-
-                Vector3 pos = position[i].transforms.position;
-                if (i + 1 <= position.Length - 1)
+                while(true)
                 {
-                    if (position[i + 1].controller == this) position[i + 1].controller = null;
+                    if (Vector3.Distance(trans.position, p) < 0.001f) break;
+
+                    animator.SetInteger("state", 1);
+                    animal.PlayAnimation(AnimationKeys.Walk);
+                    trans.position = Vector3.MoveTowards(trans.position, p, animalStruct.speed * Time.deltaTime);
+                    await UniTask.NextFrame(cancellationToken: cancellationToken);
                 }
-                position[i].controller = this;
-                moveNode = await CalculateNodes_Async(pos, cancellationToken);
-
-                await Customer_Move(moveNode, pos, true, cancellationToken);
-                if (reCalculate) reCalculate = false;
-                modelTrans.rotation = position[i].transforms.rotation;
-                animatedAnimal.transforms.rotation = position[i].transforms.rotation;
-
-                await UniTask.Delay(200, cancellationToken: cancellationToken);
             }
 
-            //요구 사항 표시
-            counter.customer = this;
+
+                /*for (int i = position.Length - 2; i >= 0; i--)
+                {
+                    while (position[i].controller != null && position[i].controller != this)
+                    {
+                        if (i >= position.Length) continue;
+                        animator.SetInteger("state", 0);
+                        animal.PlayAnimation(AnimationKeys.Idle);
+
+                        await UniTask.Delay(200, cancellationToken: cancellationToken);
+                    }
+                 //   if (position[i].controller == null && i > 0 && position[i - 1].controller == null) continue;
+
+
+                    Vector3 pos = position[i].transforms.position;
+
+                    if(currentPoint < position.Length && position[currentPoint].controller == this) position[currentPoint].controller = null;
+                    position[i].controller = this;
+                    currentPoint = i;
+                    moveNode = await CalculateNodes_Async(pos, cancellationToken);
+
+                    await Customer_Move(moveNode, pos, true, currentPoint > 0 ? position[i - currentPoint] : null, cancellationToken: cancellationToken);
+                    if (reCalculate)
+                    {
+                        if (currentPoint > 0 && position[currentPoint - 1].controller == null)
+                        {
+                            position[currentPoint].controller = null;
+                            currentPoint -= 1;
+                            position[currentPoint].controller = null;
+                        }
+                        reCalculate = false;
+                    }
+                    else modelTrans.rotation = position[i].transforms.rotation;
+                   // await UniTask.NextFrame(cancellationToken: cancellationToken);
+                   // await UniTask.Delay(200, cancellationToken: cancellationToken);
+                }*/
+
+                //요구 사항 표시
+                counter.customer = this;
             animator.SetInteger("state", 0);
             // PlayAnim(animal.animationDic["Idle_A"], "Idle_A");
             animal.PlayAnimation(AnimationKeys.Idle);
@@ -477,6 +520,7 @@ public class Customer : AnimalController
                 bool check = true;
                 for (int j = 0; j < foodStacks.Count; j++)
                 {
+                    if (j >= foodStacks.Count) continue;
                     if (foodStacks[j].needFoodNum != foodStacks[j].foodStack.Count)
                     {
                         check = false;
@@ -560,7 +604,7 @@ public class Customer : AnimalController
             throw;
         }
     }
-    async UniTask Customer_Move(Node n, Vector3 loc = new Vector3(), bool standInline = false, CancellationToken cancellationToken = default)
+    async UniTask Customer_Move(Node n, Vector3 loc = new Vector3(), bool standInline = false, QueuePoint point = null, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -587,23 +631,65 @@ public class Customer : AnimalController
             {
                 if (trans == null || !trans)
                 {
+                    Debug.Log("No Trans");
                     await UniTask.NextFrame();
                     return;
                 }
                 Node node = stack.Pop();
+
                 float r = GameInstance.GameIns.calculatorScale.minY + node.r * GameInstance.GameIns.calculatorScale.distanceSize;
                 float c = GameInstance.GameIns.calculatorScale.minX + node.c * GameInstance.GameIns.calculatorScale.distanceSize;
                 Vector3 target = new Vector3(c, 0, r);
                 float cur = (target - trans.position).magnitude;
 
-                while (cur > 0.1f)
+                while(true)
                 {
                     if (!standInline && reCalculate)
                     {
+                        Debug.Log("reCalculate");
                         return;
                     }
                     if (trans == null || !trans)
                     {
+                        Debug.Log("No Trans");
+                        await UniTask.NextFrame();
+                        return;
+                    }
+
+                    if (Vector3.Distance(trans.position, target) <= 0.01f) break;
+
+                    Debug.DrawLine(trans.position, target, Color.red, 0.1f);
+                    //  moveCTS.Token.ThrowIfCancellationRequested();
+                    animator.SetInteger("state", 1);
+                    animal.PlayAnimation(AnimationKeys.Walk);
+                    // PlayAnim(animal.animationDic["Run"], "Run");
+                    cur = (target - trans.position).magnitude;
+                    Vector3 dir = (target - trans.position).normalized;
+                    trans.position = Vector3.MoveTowards(trans.position, target, animalStruct.speed * Time.deltaTime);
+                    float angle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
+                    modelTrans.rotation = Quaternion.AngleAxis(angle, Vector3.up);
+                    await UniTask.NextFrame(cancellationToken: cancellationToken);
+                }
+
+                /*while (cur > 0.1f)
+                {
+                    if(standInline && point != null)
+                    {
+                        if(point.controller == null)
+                        {
+                            reCalculate = true;
+                        }
+                    }
+
+
+                    if (!standInline && reCalculate)
+                    {
+                        Debug.Log("reCalculate");
+                        return;
+                    }
+                    if (trans == null || !trans)
+                    {
+                        Debug.Log("No Trans");
                         await UniTask.NextFrame();
                         return;
                     }
@@ -617,12 +703,12 @@ public class Customer : AnimalController
                     trans.position = Vector3.MoveTowards(trans.position, target, animalStruct.speed * Time.deltaTime);
                     float angle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
                     modelTrans.rotation = Quaternion.AngleAxis(angle, Vector3.up);
-                    animatedAnimal.transforms.rotation = Quaternion.AngleAxis(angle, Vector3.up);
+                   // animatedAnimal.transforms.rotation = Quaternion.AngleAxis(angle, Vector3.up);
                     await UniTask.NextFrame(cancellationToken: cancellationToken);
-                }
+                }*/
             }
 
-            if (standInline)
+          /*  if (standInline)
             {
                 float cu2 = (loc - trans.position).magnitude;
 
@@ -644,7 +730,7 @@ public class Customer : AnimalController
 
                     await UniTask.NextFrame(cancellationToken: cancellationToken);
                 }
-            }
+            }*/
             animator.SetInteger("state", 0);
             animal.PlayAnimation(AnimationKeys.Idle);
             //PlayAnim(animal.animationDic["Idle_A"], "Idle_A");
@@ -684,7 +770,7 @@ public class Customer : AnimalController
                             continue;
                         }
                         modelTrans.rotation = table.seats[index].transforms.rotation;
-                        animatedAnimal.transforms.rotation = modelTrans.rotation;
+                     
                     }
                     seatIndex = index;
                     tb = table;

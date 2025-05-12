@@ -11,3 +11,4 @@ Animal Restaurant Tycoon Game
 05/08 Adding animals lod system
 05/09 Applied the newly added features to all animals, updated the illustrations of the animals
 05/10 Added settings window and optimized memory usage
+05/11 Fixed the issue where multiple baked characters were displayed as the same character, fixed the issue where animals would misalign when lining up, updated to allow penguins to be picked up by hand

@@ -104,7 +104,9 @@ public class InputManger : MonoBehaviour
     UnlockableBuyer buyer;
     int refX;
     int refY;
+    bool checkingHirePos;
     public static List<Vector3> spawnDetects = new List<Vector3>();
+    Employee draggingEmployee;
     private void Awake()
     {
         es = GetComponent<EventSystem>();
@@ -211,8 +213,8 @@ public class InputManger : MonoBehaviour
             {
                 return;
             }
-            if (Physics.Raycast(cachingCamera.ScreenPointToRay(currentPoint), out RaycastHit hitInfo, float.MaxValue)) currentPosition = hitInfo.point;
-            if (Physics.Raycast(cachingCamera.ScreenPointToRay(prevPoint), out RaycastHit hitInfos, float.MaxValue)) deltaPosition = hitInfos.point;
+            if (Physics.Raycast(cachingCamera.ScreenPointToRay(currentPoint), out RaycastHit hitInfo, float.MaxValue, 1)) currentPosition = hitInfo.point;
+            if (Physics.Raycast(cachingCamera.ScreenPointToRay(prevPoint), out RaycastHit hitInfos, float.MaxValue, 1)) deltaPosition = hitInfos.point;
 
             if (!isDragging)
             {
@@ -255,6 +257,12 @@ public class InputManger : MonoBehaviour
     }
     void EndClick(InputAction.CallbackContext callbackContext)
     {
+        if (draggingEmployee != null)
+        {
+            inputDisAble = false;
+            draggingEmployee.UnDragged();
+            draggingEmployee = null;
+        }
         ((Action)EventManager.Publish(3))?.Invoke();
 #if UNITY_ANDROID
          if(Touchscreen.current.touches.Count > 0) return;
@@ -281,7 +289,7 @@ public class InputManger : MonoBehaviour
     {
         Ray ray = cachingCamera.ScreenPointToRay(pos);
         RaycastHit hit;
-        if (Physics.Raycast(ray, out hit, Mathf.Infinity, 1 << 3))
+        if (Physics.Raycast(ray, out hit, Mathf.Infinity, 1 << 3 | 1 << 11 | 1 << 10))
         {
             GameObject go = hit.collider.gameObject;
             if (go.TryGetComponent<UnlockableBuyer>(out UnlockableBuyer unlockableBuyer))
@@ -289,6 +297,31 @@ public class InputManger : MonoBehaviour
                 buyer = unlockableBuyer;
                 buyer.MouseDown();
 
+            }
+            else if (Utility.TryGetComponentInParent<Animal>(go, out Animal animal))
+            {
+                if (Utility.TryGetComponentInChildren<Employee>(animal.gameObject, out Employee employee))
+                {
+                    if(draggingEmployee == null && !employee.falling && !employee.pause)
+                    {
+                        
+                        inputDisAble = true;
+                        draggingEmployee = employee;
+                        draggingEmployee.Dragged();
+                        draggingEmployee.pause = true;
+                    }
+                    //GameInstance.GameIns.applianceUIManager.ShowPenguinUpgradeInfo(employee);
+                }
+            }
+            else if (go.TryGetComponent<Table>(out Table table))
+            {
+                if (table.isDirty && !table.interacting)
+                {
+                    clickedTable = table;
+                    clickedTable.interacting = true;
+                    clickedTable.CleanTableManually();
+                    //   targetVector = dragTouch.position;
+                }
             }
         }
     }
@@ -298,29 +331,12 @@ public class InputManger : MonoBehaviour
         Ray ray = cachingCamera.ScreenPointToRay(pos);
         RaycastHit hit;
 
-        if(Physics.Raycast(ray, out hit, Mathf.Infinity, 1<<13 | 1<< 11 | 1<< 10))
+        if(Physics.Raycast(ray, out hit, Mathf.Infinity, 1<<13))
         {
             GameObject go = hit.collider.gameObject;
             if(Utility.TryGetComponentInParent<FoodMachine>(go, out FoodMachine foodMachine))
             {
                 GameInstance.GameIns.applianceUIManager.ShowApplianceInfo(foodMachine);
-            }
-            else if(Utility.TryGetComponentInParent<Animal>(go, out Animal animal))
-            {
-                if(Utility.TryGetComponentInChildren<Employee>(animal.gameObject, out Employee employee))
-                {
-                    GameInstance.GameIns.applianceUIManager.ShowPenguinUpgradeInfo(employee);
-                }
-            }
-            else if(go.TryGetComponent<Table>(out Table table))
-            {
-                if (table.isDirty && !table.interacting)
-                {
-                    clickedTable = table;
-                    clickedTable.interacting = true;
-                    clickedTable.CleanTableManually();
-                 //   targetVector = dragTouch.position;
-                }
             }
         }
     }
@@ -366,8 +382,8 @@ public class InputManger : MonoBehaviour
                     Vector3 d =  move - cameraTrans.position;
                     if (CheckRayMove(d))
                     {
-                        if (!inputDisAble) cameraTrans.position = move;
-                        Utility.CheckHirable(cameraRange.position, ref refX, ref refY);
+                        if (!inputDisAble) cameraTrans.position = new Vector3(move.x,0,move.z);
+                //        Utility.CheckHirable(cameraRange.position, ref refX, ref refY);
                
                     }
                    
@@ -381,8 +397,8 @@ public class InputManger : MonoBehaviour
                     Vector3 d = move - cameraTrans.position;
                     if (CheckRayMove(d))
                     {
-                        if (!inputDisAble) cameraTrans.position = move;
-                        Utility.CheckHirable(cameraRange.position, ref refX, ref refY);
+                        if (!inputDisAble) cameraTrans.position = new Vector3(move.x, 0, move.z);
+                      //  Utility.CheckHirable(cameraRange.position, ref refX, ref refY);
                     }
                    
                 }
@@ -405,7 +421,7 @@ public class InputManger : MonoBehaviour
         while(i < 0.5f)
         {
             if(!inputDisAble) cameraTrans.position -= move * Time.deltaTime;
-            Utility.CheckHirable(cameraRange.position, ref refX, ref refY);
+            Utility.CheckHirable(cameraRange.position, ref refX, ref refY, checkingHirePos);
             i += Time.deltaTime;
             yield return null;
         }
@@ -430,7 +446,7 @@ public class InputManger : MonoBehaviour
             {
                 followPosition = cameraTrans.position;
                 realPosition = followPosition;
-
+                direction.y = 0;
                 if(coroutines2 != null) StopCoroutine(coroutines2);
                 coroutines2 = StartCoroutine(Blocking(direction));
 
@@ -441,6 +457,11 @@ public class InputManger : MonoBehaviour
         return true;
     }
 
+    public bool CheckHire()
+    {
+        checkingHirePos = Utility.CheckHirable(cameraRange.position, ref refX, ref refY, checkingHirePos);
+        return checkingHirePos;
+    }
     bool CheckClickedUI()
     {
         results.Clear();
