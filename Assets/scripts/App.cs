@@ -223,7 +223,7 @@ public class App : MonoBehaviour
         int j = 100;
 
 
-        Utility.CheckHirable(GameInstance.GameIns.inputManager.cameraRange.position, ref i, ref j);
+     //   Utility.CheckHirable(GameInstance.GameIns.inputManager.cameraRange.position, ref i, ref j);
         Time.timeScale = 1;
         Time.fixedDeltaTime = 0.02f;
     }

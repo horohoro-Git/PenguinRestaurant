@@ -65,11 +65,6 @@ public class AnimalSpawner : MonoBehaviour
                 // Debug.Log(GameInstance.GameIns.restaurantManager.GetRestaurantValue());
                 WorkSpaceManager workSpaceManager = gameInstance.workSpaceManager;
 
-
-                //   yield return GetWaitTimer.WaitTimer.GetTimer(3000); //new WaitForSeconds(3);
-                //    GetWaitTimer.WaitTimer.GetTimer(3000);
-
-                // for(int i=0; i)
                 if (waitingCustomers.Count < maxCustomer)
                 {
                     switch (type)
@@ -97,7 +92,8 @@ public class AnimalSpawner : MonoBehaviour
                                     float value = GameInstance.GameIns.restaurantManager.GetRestaurantValue();
                                     float timerValue = 1650 / value + 2;
 
-                                    await UniTask.Delay((int)timerValue, cancellationToken: cancellationToken);
+                                 //   await UniTask.Delay((int)timerValue, cancellationToken: cancellationToken);
+                                    await UniTask.Delay(5000);
                                     //yield return new WaitForSeconds(timerValue);
                                 }
                                 break;
@@ -124,8 +120,8 @@ public class AnimalSpawner : MonoBehaviour
 
                                     float value = GameInstance.GameIns.restaurantManager.GetRestaurantValue();
                                     float timerValue = 1650 / value + 2;
-
-                                    await UniTask.Delay((int)timerValue, cancellationToken: cancellationToken);
+                                    await UniTask.Delay(5000);
+                                  //  await UniTask.Delay((int)timerValue, cancellationToken: cancellationToken);
                                 }
                                 break;
                             }

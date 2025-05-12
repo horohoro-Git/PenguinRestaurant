@@ -71,12 +71,11 @@ public class AnimalController : MonoBehaviour
     public PlayType playType;
 
     public Animal animal { get; set; }
-    public AnimatedAnimal animatedAnimal;
     public Animator animator;
     public Transform headPoint;
     public Transform mousePoint;
  //   public int maxWeight = 3;
-    public bool busy = false;
+    public bool busy { get; set; }
 
     public AnimalData data;
     public List<AnimalData> animalDatas1 = new List<AnimalData>();

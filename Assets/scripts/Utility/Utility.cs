@@ -265,14 +265,14 @@ public class Utility
         return false;
     }
 
-    public static void CheckHirable(Vector3 center, ref int x, ref int y, bool forcedCheck = false)
+    public static bool CheckHirable(Vector3 center, ref int x, ref int y, bool check, bool forcedCheck = false)
     {
         Vector3 loc = center;
 
         int cameraPosX = (int)((loc.x - GameIns.calculatorScale.minX) / GameIns.calculatorScale.distanceSize);
         int cameraPosZ = (int)((loc.z - GameIns.calculatorScale.minY) / GameIns.calculatorScale.distanceSize);
 
-        if (x == cameraPosX && y == cameraPosZ && !forcedCheck) return;
+        if (x == cameraPosX && y == cameraPosZ && !forcedCheck) return check;
         x = cameraPosX; y = cameraPosZ;
 
         InputManger.spawnDetects.Clear();
@@ -315,8 +315,16 @@ public class Utility
             }
         }
 
-        if (InputManger.spawnDetects.Count > 0) GameIns.applianceUIManager.UnlockHire(true);
-        else GameIns.applianceUIManager.UnlockHire(false);
+        if (InputManger.spawnDetects.Count > 0)
+        {
+            return true;
+           // GameIns.applianceUIManager.UnlockHire(true);
+        }
+        else
+        {
+            return false;
+         //   GameIns.applianceUIManager.UnlockHire(false);
+        }
     }
 }
 

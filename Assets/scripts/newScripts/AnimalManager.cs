@@ -81,7 +81,14 @@ public class AnimalManager : MonoBehaviour
     public Coroutine animalActionCoroutine;
 
     public Action<Customer> customerCallback = (customer) => { customer.FindCustomerActions(); };
-    public Action<Employee> employeeCallback = (employee) => { employee.FindEmployeeWorks(); };
+    public Action<Employee> employeeCallback = (employee) => {
+        Debug.Log(employee.pause + " " + employee.busy);
+        if (!employee.pause && !employee.busy)
+        {
+            employee.busy = true;
+            employee.FindEmployeeWorks();
+        }
+    };
     private void Awake()
     {
         WorkSpaceManager workSpaceManager = GetComponent<WorkSpaceManager>();
