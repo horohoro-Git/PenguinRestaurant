@@ -30,7 +30,7 @@ public class Node : IComparable<Node>
     }
     public Node parentNode = null;
 
-    public static Node node = new Node(1, 1, true);
+   // public static Node node = new Node(1, 1, true);
     public Node(int r, int c, bool blocked = false)
     {
         this.r = r;

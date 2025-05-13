@@ -60,7 +60,7 @@ public class Customer : AnimalController
     Table tb;
     int seatIndex;
     int animalEat;
-
+    public Action<Customer> customerCallback;
     public AnimalStruct animalStruct { get; set; }
 
     public List<FoodStack> foodStacks = new List<FoodStack>();
@@ -71,7 +71,6 @@ public class Customer : AnimalController
 
     [NonSerialized]
     public int customerIndex;
-
 
     public Animal currentAnimal;
     private void Awake()
@@ -86,9 +85,9 @@ public class Customer : AnimalController
     {
     }
 
-  //  FoodStack foodStack = new FoodStack();
+    //  FoodStack foodStack = new FoodStack();
 
-  
+
     public void Setup(FoodsAnimalsWant foodsAnimals)
     {
         int r = UnityEngine.Random.Range(0, 3);
@@ -406,7 +405,7 @@ public class Customer : AnimalController
 
     public void CustomerPlayAction(Vector3 position)
     {
-      //  Debug.Log("A");
+    
         Customer_GoHome(position, App.GlobalToken).Forget();
     }
 
@@ -415,7 +414,8 @@ public class Customer : AnimalController
         try
         {
             await UniTask.Delay(200, cancellationToken: cancellationToken);
-            GameInstance.GameIns.animalManager.AttacCustomerTask(this);
+         //   GameInstance.GameIns.animalManager.AttacCustomerTask(this);
+            customerCallback?.Invoke(this);
         }
         catch (OperationCanceledException)
         {
@@ -437,16 +437,15 @@ public class Customer : AnimalController
 
             int currentPoint = position.Length - 1;
             position[position.Length - 1].controller = this;
-            moveNode = await CalculateNodes_Async(pos, cancellationToken);
+            Stack<Vector3> moveTargets = await CalculateNodes_Async(pos, cancellationToken);
 
-            await Customer_Move(moveNode, pos, true, cancellationToken: cancellationToken);
+            await Customer_Move(moveTargets, pos, true, cancellationToken: cancellationToken);
             modelTrans.rotation = position[currentPoint].transforms.rotation;
             
             for (int i = position.Length - 2; i >= 0; i--)
             {
                 while (position[i].controller != null && position[i].controller != this)
                 {
-                    if (i >= position.Length) continue;
                     animator.SetInteger("state", 0);
                     animal.PlayAnimation(AnimationKeys.Idle);
 
@@ -469,41 +468,7 @@ public class Customer : AnimalController
             }
 
 
-                /*for (int i = position.Length - 2; i >= 0; i--)
-                {
-                    while (position[i].controller != null && position[i].controller != this)
-                    {
-                        if (i >= position.Length) continue;
-                        animator.SetInteger("state", 0);
-                        animal.PlayAnimation(AnimationKeys.Idle);
-
-                        await UniTask.Delay(200, cancellationToken: cancellationToken);
-                    }
-                 //   if (position[i].controller == null && i > 0 && position[i - 1].controller == null) continue;
-
-
-                    Vector3 pos = position[i].transforms.position;
-
-                    if(currentPoint < position.Length && position[currentPoint].controller == this) position[currentPoint].controller = null;
-                    position[i].controller = this;
-                    currentPoint = i;
-                    moveNode = await CalculateNodes_Async(pos, cancellationToken);
-
-                    await Customer_Move(moveNode, pos, true, currentPoint > 0 ? position[i - currentPoint] : null, cancellationToken: cancellationToken);
-                    if (reCalculate)
-                    {
-                        if (currentPoint > 0 && position[currentPoint - 1].controller == null)
-                        {
-                            position[currentPoint].controller = null;
-                            currentPoint -= 1;
-                            position[currentPoint].controller = null;
-                        }
-                        reCalculate = false;
-                    }
-                    else modelTrans.rotation = position[i].transforms.rotation;
-                   // await UniTask.NextFrame(cancellationToken: cancellationToken);
-                   // await UniTask.Delay(200, cancellationToken: cancellationToken);
-                }*/
+               
 
                 //요구 사항 표시
                 counter.customer = this;
@@ -584,7 +549,8 @@ public class Customer : AnimalController
                                 t.numberOfFoods += foodNum;
                                 customerState = CustomerState.Counter;
                                 busy = false;
-                                GameInstance.GameIns.animalManager.AttacCustomerTask(this);
+                                customerCallback?.Invoke(this);
+                               // GameInstance.GameIns.animalManager.AttacCustomerTask(this);
                                 return;
                             }
                         }
@@ -604,30 +570,26 @@ public class Customer : AnimalController
             throw;
         }
     }
-    async UniTask Customer_Move(Node n, Vector3 loc = new Vector3(), bool standInline = false, QueuePoint point = null, CancellationToken cancellationToken = default)
+    async UniTask Customer_Move(Stack<Vector3> n, Vector3 loc = new Vector3(), bool standInline = false, QueuePoint point = null, CancellationToken cancellationToken = default)
     {
         try
         {
             cancellationToken.ThrowIfCancellationRequested();
-            Node a = n.parentNode == null ? n : n.parentNode;
-            Stack<Node> stack = new Stack<Node>();
-            while (a != null)
-            {
-                if (a.parentNode != null)
-                {
-                    stack.Push(a);
+            /*   Node a = n.parentNode == null ? n : n.parentNode;
+               Stack<Node> stack = new Stack<Node>();
+               while (a != null)
+               {
+                   stack.Push(a);
+                   a = a.parentNode;
 
-                }
+                   await UniTask.NextFrame();
+               }
+               stack.Pop();*/
+            List<Vector3> vector3s = n.ToList();   
+            n.Pop();
 
-                stack.Push(a);
-                a = a.parentNode;
-
-
-                await UniTask.NextFrame();
-            }
-            stack.Pop();
             await UniTask.NextFrame(cancellationToken: cancellationToken);
-            while (stack.Count > 0)
+            while (n.Count > 0)
             {
                 if (trans == null || !trans)
                 {
@@ -635,15 +597,17 @@ public class Customer : AnimalController
                     await UniTask.NextFrame();
                     return;
                 }
-                Node node = stack.Pop();
+                /* Node node = stack.Pop();
 
-                float r = GameInstance.GameIns.calculatorScale.minY + node.r * GameInstance.GameIns.calculatorScale.distanceSize;
-                float c = GameInstance.GameIns.calculatorScale.minX + node.c * GameInstance.GameIns.calculatorScale.distanceSize;
-                Vector3 target = new Vector3(c, 0, r);
+                 float r = GameInstance.GameIns.calculatorScale.minY + node.r * GameInstance.GameIns.calculatorScale.distanceSize;
+                 float c = GameInstance.GameIns.calculatorScale.minX + node.c * GameInstance.GameIns.calculatorScale.distanceSize;
+                 Vector3 target = new Vector3(c, 0, r);*/
+                float checkTimer = 0;
+                Vector3 target = n.Pop();
                 float cur = (target - trans.position).magnitude;
-
                 while(true)
                 {
+                    checkTimer += Time.deltaTime;   
                     if (!standInline && reCalculate)
                     {
                         Debug.Log("reCalculate");
@@ -651,11 +615,20 @@ public class Customer : AnimalController
                     }
                     if (trans == null || !trans)
                     {
-                        Debug.Log("No Trans");
+                        Debug.LogError("No Trans Find");
                         await UniTask.NextFrame();
                         return;
                     }
-
+                    if (checkTimer > 200)
+                    {
+                        string c = "";
+                        Debug.Log(trans.position + " " + target + " " + customerIndex);
+                     /*   for (int i = 0; i < vector3s.Count; i++)
+                        {
+                            c += vector3s[i].ToString() + " ";
+                        }*/
+                        Debug.Log(c);
+                    }
                     if (Vector3.Distance(trans.position, target) <= 0.01f) break;
 
                     Debug.DrawLine(trans.position, target, Color.red, 0.1f);
@@ -708,29 +681,6 @@ public class Customer : AnimalController
                 }*/
             }
 
-          /*  if (standInline)
-            {
-                float cu2 = (loc - trans.position).magnitude;
-
-                while (cu2 > 0.1f)
-                {
-                    if (trans == null || !trans)
-                    {
-                        await UniTask.NextFrame();
-                        return;
-                    }
-                    Debug.DrawLine(trans.position, loc, Color.red, 0.1f);
-                    //  moveCTS.Token.ThrowIfCancellationRequested();
-                    animator.SetInteger("state", 1);
-                    animal.PlayAnimation(AnimationKeys.Walk);
-                   // PlayAnim(animal.animationDic["Run"], "Run");
-                    cu2 = (loc - trans.position).magnitude;
-                    Vector3 dir = (loc - trans.position).normalized;
-                    trans.position = Vector3.MoveTowards(trans.position, loc, animalStruct.speed * Time.deltaTime);
-
-                    await UniTask.NextFrame(cancellationToken: cancellationToken);
-                }
-            }*/
             animator.SetInteger("state", 0);
             animal.PlayAnimation(AnimationKeys.Idle);
             //PlayAnim(animal.animationDic["Idle_A"], "Idle_A");
@@ -755,14 +705,18 @@ public class Customer : AnimalController
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                moveNode = await CalculateNodes_Async(position, cancellationToken);
-
-                if (moveNode != null)
+                Stack<Vector3> moveTargets = await CalculateNodes_Async(position, cancellationToken);
+                if (moveTargets != null && moveTargets.Count > 0)
+                // if (moveNode != null)
                 {
-                    if (moveNode.r == 100 && moveNode.c == 100) moveNode = null;
+                    Vector3 test = moveTargets.Peek();
+                    if (test.z == 100 && test.x == 100)
+                    {
+                        // moveNode = null;
+                    }
                     else
                     {
-                        await Customer_Move(moveNode, cancellationToken: cancellationToken);
+                        await Customer_Move(moveTargets, cancellationToken: cancellationToken);
                         if (reCalculate)
                         {
                             while (bWait) await UniTask.NextFrame(cancellationToken: cancellationToken);
@@ -800,7 +754,8 @@ public class Customer : AnimalController
                     }
 
                     //식사
-                    animator.SetInteger("state", 2);
+                    animator.SetTrigger(AnimationKeys.eat);
+                   // animator.SetInteger("state", 2);
                     animal.PlayAnimation(AnimationKeys.Eat);
                    // PlayAnim(animal.animationDic["Eat"], "Eat");
                     GameObject particle = ParticleManager.CreateParticle();
@@ -847,7 +802,8 @@ public class Customer : AnimalController
                     animal.PlayAnimation(AnimationKeys.Idle);
                     //PlayAnim(animal.animationDic["Idle_A"], "Idle_A");
                     table.seats[index].customer = null;
-                    GameInstance.GameIns.animalManager.AttacCustomerTask(this);
+                    customerCallback?.Invoke(this);
+                  //  GameInstance.GameIns.animalManager.AttacCustomerTask(this);
                 }
                 else
                 {
@@ -877,14 +833,19 @@ public class Customer : AnimalController
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                moveNode = await CalculateNodes_Async(position, cancellationToken);
-                if (moveNode != null)
+                Stack<Vector3> moveTargets = await CalculateNodes_Async(position, cancellationToken);
+                if (moveTargets != null && moveTargets.Count > 0)
+                //    if (moveNode != null)
                 {
-                    if (moveNode.r == 100 && moveNode.c == 100) moveNode = null;
+                    Vector3 test = moveTargets.Peek();
+                    if (test.z == 100 && test.x == 100)
+                    {
+                        // moveNode = null;
+                    }
                     else
                     {
                         customerAction = CustomerAction.CustomerGoToHome;
-                        await Customer_Move(moveNode, cancellationToken: cancellationToken);
+                        await Customer_Move(moveTargets, cancellationToken: cancellationToken);
                         if (reCalculate)
                         {
                             while (bWait) await UniTask.NextFrame(cancellationToken: cancellationToken);
@@ -896,7 +857,6 @@ public class Customer : AnimalController
                     bStart = false;
                     busy = false;
                     customerAction = CustomerAction.NONE;
-
                     GameInstance.GameIns.animalManager.DespawnCustomer(this);
                 }
 
@@ -928,5 +888,16 @@ public class Customer : AnimalController
             customerAction = CustomerAction.NONE;
             GameInstance.GameIns.animalManager.AttacCustomerTask(this);
         }
+    }
+
+    public override void SetDefault()
+    {
+        base.SetDefault();
+        animalStruct = new AnimalStruct();
+        eatParticle = null;
+        animalSpawner = null;
+        nodes.Clear();
+        foodStacks.Clear();
+        currentAnimal = null;
     }
 }

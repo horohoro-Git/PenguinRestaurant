@@ -21,7 +21,8 @@ public struct FoodsAnimalsWant
 
 public class AnimalSpawner : MonoBehaviour
 {
-    HashSet<Customer> waitingCustomers = new HashSet<Customer>(10);
+    Dictionary<int, Customer> waitingCustomers = new Dictionary<int, Customer>();
+    //HashSet<Customer> waitingCustomers = new HashSet<Customer>(10);
     GameInstance gameInstance;
     AnimalManager animalManager;
     public int maxCustomer = 6;
@@ -86,7 +87,9 @@ public class AnimalSpawner : MonoBehaviour
                                     Customer ac = animalManager.SpawnCustomer(foodsAnimalsWant);
                                     ac.animalSpawner = this;
                                     ac.trans.position = transform.position;
-                                    waitingCustomers.Add(ac);
+                                    if(!waitingCustomers.ContainsKey(ac.customerIndex)) waitingCustomers[ac.customerIndex] = ac;
+                                    Debug.Log(waitingCustomers.Count);
+                                    await UniTask.Delay(100, cancellationToken: cancellationToken);
                                     GameInstance.GameIns.animalManager.AttacCustomerTask(ac);
 
                                     float value = GameInstance.GameIns.restaurantManager.GetRestaurantValue();
@@ -115,7 +118,7 @@ public class AnimalSpawner : MonoBehaviour
                                     Customer ac = animalManager.SpawnCustomer(foodsAnimalsWant);
                                     ac.animalSpawner = this;
                                     ac.trans.position = transform.position;
-                                    waitingCustomers.Add(ac);
+                                    if (!waitingCustomers.ContainsKey(ac.customerIndex)) waitingCustomers[ac.customerIndex] = ac;
                                     GameInstance.GameIns.animalManager.AttacCustomerTask(ac);
 
                                     float value = GameInstance.GameIns.restaurantManager.GetRestaurantValue();
@@ -231,7 +234,7 @@ public class AnimalSpawner : MonoBehaviour
 
     public void RemoveWaitingCustomer(Customer customer)
     {
-        waitingCustomers.Remove(customer);
+        if (waitingCustomers.ContainsKey(customer.customerIndex)) waitingCustomers.Remove(customer.customerIndex);
     }
 
     void GetFoodUnlock(out bool foodA, out bool foodB, int index)

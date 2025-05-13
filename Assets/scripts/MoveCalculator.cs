@@ -8,8 +8,6 @@ using System.Net;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using Unity.Collections;
-using Unity.Jobs;
-using Unity.VisualScripting;
 using UnityEngine;
 using static Utility;
 //한글
@@ -290,7 +288,7 @@ public class MoveCalculator
     }
     CancellationTokenSource cts = new();
 
-    public async UniTask<Node> AStarAlgorithm_Async(Vector3 startVector, Vector3 endVector, MinHeap<Node> openList, HashSet<Node> closedList, CancellationToken cancellation = default) //(Coord start, Coord end)
+    public async UniTask<Stack<Vector3>> AStarAlgorithm_Async(Vector3 startVector, Vector3 endVector, MinHeap<Node> openList, HashSet<Node> closedList, CancellationToken cancellation = default) //(Coord start, Coord end)
     {
 
         try
@@ -313,14 +311,19 @@ public class MoveCalculator
                 Debug.Log("AA");
             }
 
-            return await UniTask.RunOnThreadPool<Node>(() =>
+            return await UniTask.RunOnThreadPool<Stack<Vector3>>(() =>
             {
                 // ResetNodes();
 
                 cancellation.ThrowIfCancellationRequested();
+                Stack<Vector3> returnVectors = new Stack<Vector3>();
                 if (!(playerValidCheck && targetValidCheck))
                 {
-                    return new Node(100, 100);
+                    float r = 100;
+                    float c = 100;
+                    Vector3 target = new Vector3(c, 0, r);
+                    returnVectors.Push(target);
+                    return returnVectors;  //returnVectors.Push(target);
                 }
 
                 int indexStart = playerY * 200 + playerX;
@@ -332,11 +335,11 @@ public class MoveCalculator
                                                       //   usingNodes.Enqueue(end);
                 if (playerY == targetY && playerX == targetX)
                 {
-                    //   Node already = returnCoord100;// new Coord(100, 100);
-                    Node already = new Node(100, 100); //NodePool.GetNode(100, 100);
-                                                       //     usingNodes.Enqueue(already);
-                                                       //     Debug.Log("alreadyEnd");
-                    return already;
+                    float r =  100;
+                    float c = 100;
+                    Vector3 target = new Vector3(c, 0, r);
+                    returnVectors.Push(target);
+                    return returnVectors;
                 }
 
                 if (blockedAreas[targetY, targetX])
@@ -366,7 +369,22 @@ public class MoveCalculator
                                 if (end.r == r && end.c == c)
                                 {
                                     end.parentNode = node;  //목적지 탐색 완료
-                                    return end;
+
+                                    Node a = end.parentNode == null ? end : end.parentNode;
+                                    
+                                    while (a != null)
+                                    {
+                                        float rr = gameInstance.calculatorScale.minY + a.r * gameInstance.calculatorScale.distanceSize;
+                                        float cc = gameInstance.calculatorScale.minX + a.c * gameInstance.calculatorScale.distanceSize;
+                                        Vector3 target = new Vector3(cc, 0, rr);
+                                        returnVectors.Push(target);
+
+                                        Node t = a.parentNode;
+                                        a.parentNode = null;
+                                        a = t;
+                                    }
+
+                                    return returnVectors;
                                 }
 
 
@@ -431,7 +449,9 @@ public class MoveCalculator
 
                     }
                 }
-                return null;
+                Vector3 temp = new Vector3(100, 0, 100);
+                returnVectors.Push(temp);
+                return returnVectors;
             }, cancellationToken: cancellation);
         }
         catch (OperationCanceledException)
@@ -446,12 +466,11 @@ public class MoveCalculator
             throw;
         }
     }
-    public static int FastAbs(int x) => x < 0 ? -x : x;
-
+ 
     int GetDistance(Node nodeA, Node nodeB)
     {
-        int dstX = FastAbs(nodeA.c - nodeB.c);
-        int dstY = FastAbs(nodeA.r - nodeB.r);
+        int dstX = Mathf.Abs(nodeA.c - nodeB.c);
+        int dstY = Mathf.Abs(nodeA.r - nodeB.r);
 
           if (dstX > dstY)
               return 14 * dstY + 10 * (dstX - dstY);
