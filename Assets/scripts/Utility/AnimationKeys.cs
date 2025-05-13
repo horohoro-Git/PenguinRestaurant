@@ -4,6 +4,7 @@ using UnityEngine;
 
 public static class AnimationKeys 
 {
+    //인스턴싱 애니메이션 파라미터
     public const string Idle = "Idle_A"; 
     public const string Walk = "Walk";
     public const string Run = "Run";

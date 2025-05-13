@@ -24,7 +24,7 @@ public class GameInstance
     public static GameInstance GameIns { get { return gameInstance; }  }
     private static Queue<Vector3> pool = new Queue<Vector3>();
     public static List<GraphicRaycaster> graphicRaycasters = new List<GraphicRaycaster>();
-    public static Stack<Node> GetNodes(ref Stack<Node> stackNodes, Node node)
+  /*  public static Stack<Node> GetNodes(ref Stack<Node> stackNodes, Node node)
     {
         Node nd = node;
         //   Stack<Coord> stack = new Stack<Coord>();
@@ -37,7 +37,7 @@ public class GameInstance
             stackNodes.Push(nd);
         }
         return stackNodes;
-    }
+    }*/
     static Vector3 newVector = new Vector3(0,0,0);
     public static Vector3 GetVector3(float x, float y, float z)
     {

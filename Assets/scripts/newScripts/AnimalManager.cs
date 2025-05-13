@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 
@@ -82,7 +83,6 @@ public class AnimalManager : MonoBehaviour
 
     public Action<Customer> customerCallback = (customer) => { customer.FindCustomerActions(); };
     public Action<Employee> employeeCallback = (employee) => {
-        Debug.Log(employee.pause + " " + employee.busy);
         if (!employee.pause && !employee.busy)
         {
             employee.busy = true;
@@ -218,7 +218,7 @@ public class AnimalManager : MonoBehaviour
         }
 
         // 손님 초기화
-        for (int i = 0; i < 50; i++)
+        for (int i = 0; i < 10; i++)
         {
             Customer controller = Instantiate(customerController, animalParent.transform).GetComponentInChildren<Customer>();
             controller.customerIndex = i;
@@ -424,17 +424,18 @@ public class AnimalManager : MonoBehaviour
         {
             Customer customer = deactivateCustomerControllers.Dequeue();
             customer.gameObject.SetActive(true);
-
+            customer.SetDefault();
+            //  Customer customer = new GameObject().AddComponent<Customer>();
             if (!onlyOrder)
             {
-                Animal animal = SpawnAnimal(customer, res);
-
-                //customer.animalType = (AnimalType)randomStruct.id;
-           //     customer.headPoint = animal.GetComponentInChildren<Head>().gameObject.transform;
+                Animal animal = SpawnAnimal(customer, res); //SpawnAnimal(customer, res);
+                
                 customer.mousePoint = animal.GetComponentInChildren<Mouse>().gameObject.transform;
-           //     customer.animator = animal.GetComponentInChildren<Animator>();
+
                 customer.eatParticle = eatParticle;
                 customer.animal = animal;
+                customer.customerCallback -= CustomerAction;
+                customer.customerCallback += CustomerAction;
             }
             customer.animalStruct = animalStructs[res];
             customer.Setup(foodsAnimalsWant);
@@ -470,7 +471,14 @@ public class AnimalManager : MonoBehaviour
         }
 
         animal.gameObject.SetActive(true);
-        controller.trans = animal.trans;
+        if (controller.trans == null) controller.trans = animal.trans;
+        else
+        {
+            Debug.Log("컨트롤러가 이미 값을 갖고 있음" + controller.trans);
+            controller.animal = null;
+            controller.trans = null;
+            controller.trans = animal.trans;
+        }
         controller.modelTrans = animal.modelTrans;
         controller.transform.SetParent(animal.transform);
         controller.animator = animal.GetComponentInChildren<LODController>().animator;
@@ -540,11 +548,15 @@ public class AnimalManager : MonoBehaviour
 
     public void DespawnCustomer(Customer customer, bool onlyOrder = false)
     {
+
+
+
         customer.customerState = CustomerState.Walk;
         customer.busy = false;
+
         customerControllers.Remove(customer);
         deactivateCustomerControllers.Enqueue(customer);
-        
+
         if (!onlyOrder)
         {
             customer.animalSpawner.RemoveWaitingCustomer(customer);
@@ -553,9 +565,11 @@ public class AnimalManager : MonoBehaviour
             customer.gameObject.SetActive(false);
             customer.trans.position = GameInstance.GetVector3(100, 100, 100);
             customer.animator.enabled = false;
-          //  int t = (int)customer.animalType;
+            customer.customerCallback -= CustomerAction;
+            //  int t = (int)customer.animalType;
             int t = customer.animalStruct.id;
             DespawnAnimal(customer, t);
+
         }
         else
         {
@@ -573,8 +587,8 @@ public class AnimalManager : MonoBehaviour
         {
             FoodStackManager.FM.RemoveFoodStack(stack);
         }
-        customer.foodStacks.Clear();
-        deactivateCustomerControllers.Enqueue(customer);
+        customer.SetDefault();
+        // deactivateCustomerControllers.Enqueue(customer);
     }
 
     void DespawnAnimal(AnimalController controller, int type)
@@ -591,7 +605,8 @@ public class AnimalManager : MonoBehaviour
         s.gameObject.SetActive(false);
         activateShadows.Remove(s);
         deactivateShadows.Enqueue(s);
-        controller.shadow = null;
+      
+        //Destroy(this);
     }
 
     public void UpdateEmployeeUpgrade(Employee animal)
@@ -655,5 +670,10 @@ public class AnimalManager : MonoBehaviour
         r.gameObject.SetActive(false);
         gatchStack[r.type].Enqueue(r);
         
+    }
+
+    public void CustomerAction(Customer customer)
+    {
+        customer.FindCustomerActions();
     }
 }

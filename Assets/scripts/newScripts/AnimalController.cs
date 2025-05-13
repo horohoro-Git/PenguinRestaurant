@@ -16,6 +16,7 @@ using Unity.Collections.LowLevel.Unsafe;
 using Unity.VisualScripting;
 //using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.UIElements;
 using static FoodMachine;
 using AnimIns = AnimationInstancing.AnimationInstancing;
@@ -64,13 +65,13 @@ public class AnimalController : MonoBehaviour
      }*/
     
     public SliderController ui;
-    public Transform trans;
+    public Transform trans;// { get; set; }
     public Transform modelTrans;
 
     [HideInInspector]
     public PlayType playType;
 
-    public Animal animal { get; set; }
+    public Animal animal;// { get; set; }
     public Animator animator;
     public Transform headPoint;
     public Transform mousePoint;
@@ -117,6 +118,17 @@ public class AnimalController : MonoBehaviour
             return restaurantManager;
         }}
   
+    public virtual void SetDefault()
+    {
+        animator = null;
+        trans = null;
+        animal = null;
+        modelTrans = null;
+        mousePoint = null;
+        headPoint = null;
+      //  shadow = null;
+        animationInstancing = null;
+    }
    /* public void PlayAnim(int id, string name)
     {
 #if HAS_ANIMATION_INSTANCING
@@ -1808,7 +1820,7 @@ public class AnimalController : MonoBehaviour
         }
     }
 
-    protected async UniTask<Node> CalculateNodes_Async(Vector3 position, CancellationToken cancellationToken = default)
+    protected async UniTask<Stack<Vector3>> CalculateNodes_Async(Vector3 position, CancellationToken cancellationToken = default)
     {
         moveCalculator.Init();
         openLists.Clear();
@@ -1824,7 +1836,7 @@ public class AnimalController : MonoBehaviour
                 return null;    
             }
 
-            Node node = await moveCalculator.AStarAlgorithm_Async(trans.position, position, openLists, closedLists, cancellationToken);
+            Stack<Vector3> node = await moveCalculator.AStarAlgorithm_Async(trans.position, position, openLists, closedLists, cancellationToken);
             if (node != null)
             {
                 return node;
@@ -1845,7 +1857,7 @@ public class AnimalController : MonoBehaviour
     
         stack.Clear();
      
-        GameInstance.GetNodes(ref stack, node);
+     //   GameInstance.GetNodes(ref stack, node);
      
         while (stack.Count > 0)
         {
