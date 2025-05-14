@@ -137,6 +137,7 @@ public class InputManger : MonoBehaviour
 
     void Update()
     {
+       // Utility.CheckHirable(cameraRange.position, ref refX, ref refY, true, true);
         if (Input.GetKey(KeyCode.O))
         {
            // for (int i = 0; i < 1; i++)
@@ -421,7 +422,7 @@ public class InputManger : MonoBehaviour
         while(i < 0.5f)
         {
             if(!inputDisAble) cameraTrans.position -= move * Time.deltaTime;
-            Utility.CheckHirable(cameraRange.position, ref refX, ref refY, checkingHirePos);
+         //   Utility.CheckHirable(cameraRange.position, ref refX, ref refY, checkingHirePos);
             i += Time.deltaTime;
             yield return null;
         }

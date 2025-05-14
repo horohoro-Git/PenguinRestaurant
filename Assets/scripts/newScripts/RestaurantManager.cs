@@ -215,7 +215,7 @@ public class RestaurantManager : MonoBehaviour
                 e.reCalculate = true;
                 int posX = (int)((e.trans.position.x - GameIns.calculatorScale.minX) / GameIns.calculatorScale.distanceSize);
                 int posZ = (int)((e.trans.position.z - GameIns.calculatorScale.minY) / GameIns.calculatorScale.distanceSize);
-                if (!e.falling && Utility.ValidCheck(posZ, posX) && MoveCalculator.GetBlocks[posZ, posX]) AnimalCollision(e, posX, posZ, App.GlobalToken).Forget();
+                if (!e.falling && Utility.ValidCheck(posZ, posX) && MoveCalculator.GetBlocks[MoveCalculator.GetIndex(posX, posZ)]) AnimalCollision(e, posX, posZ, App.GlobalToken).Forget();
            
             }
             for (int i = 0; i < GameInstance.GameIns.animalManager.customerControllers.Count; i++)
@@ -226,7 +226,7 @@ public class RestaurantManager : MonoBehaviour
                     c.reCalculate = true;
                     int posX = (int)((c.trans.position.x - GameIns.calculatorScale.minX) / GameIns.calculatorScale.distanceSize);
                     int posZ = (int)((c.trans.position.z - GameIns.calculatorScale.minY) / GameIns.calculatorScale.distanceSize);
-                    if (Utility.ValidCheck(posZ, posX) && MoveCalculator.GetBlocks[posZ, posX]) AnimalCollision(c, posX, posZ, App.GlobalToken).Forget();
+                    if (Utility.ValidCheck(posZ, posX) && MoveCalculator.GetBlocks[MoveCalculator.GetIndex(posX, posZ)]) AnimalCollision(c, posX, posZ, App.GlobalToken).Forget();
                 }
 
             }
@@ -272,15 +272,16 @@ public class RestaurantManager : MonoBehaviour
             {
                 if (Utility.ValidCheck(finalZ, finalX))
                 {
-                    if (MoveCalculator.GetBlocks[finalZ, finalX])
+                    if (MoveCalculator.GetBlocks[MoveCalculator.GetIndex(finalX, finalZ)])
                     {
-                        int width = MoveCalculator.GetBlocks.GetLength(1);
-                        int height = MoveCalculator.GetBlocks.GetLength(0);
-                        bool[,] visited = new bool[height, width];
-
+                        //i//nt width = MoveCalculator.GetBlocks.GetLength(1);
+                      // // int height = MoveCalculator.GetBlocks.GetLength(0);
+                      //  bool[,] visited = new bool[height, width];
+                        bool[] visited = MoveCalculator.GetBlocks;
                         Queue<(int z, int x)> queue = new();
                         queue.Enqueue((finalZ, finalX));
-                        visited[finalZ, finalX] = true;
+                        visited[MoveCalculator.GetIndex(finalX, finalZ)] = true;
+                     //   visited[finalZ, finalX] = true;
                         int[] dx = { 0, 1, 0, -1 };
                         int[] dz = { 1, 0, -1, 0 };
 
@@ -290,7 +291,7 @@ public class RestaurantManager : MonoBehaviour
                             var (currentZ, currentX) = queue.Dequeue();
                             finalX = currentX;
                             finalZ = currentZ;
-                            if (!MoveCalculator.GetBlocks[currentZ, currentX])
+                            if (!MoveCalculator.GetBlocks[MoveCalculator.GetIndex(currentX, currentZ)])
                             {
                                 break;
                             }
@@ -300,11 +301,11 @@ public class RestaurantManager : MonoBehaviour
                                 int nextX = currentX + dx[i];
                                 int nextZ = currentZ + dz[i];
 
-                                if (nextX >= 0 && nextZ >= 0 && nextX < width && nextZ < height)
+                                if (nextX >= 0 && nextZ >= 0 && nextX < GameIns.calculatorScale.sizeX && nextZ < GameIns.calculatorScale.sizeY)
                                 {
-                                    if (Utility.ValidCheck(nextZ, nextX) && !visited[nextZ, nextX])
+                                    if (Utility.ValidCheck(nextZ, nextX) && !visited[MoveCalculator.GetIndex(nextX, nextZ)])
                                     {
-                                        visited[nextZ, nextX] = true;
+                                        visited[MoveCalculator.GetIndex(nextX, nextZ)] = true;
                                         queue.Enqueue((nextZ, nextX));
                                     }
                                 }
@@ -319,8 +320,8 @@ public class RestaurantManager : MonoBehaviour
                 }
             }
         });
-        float worldX = GameIns.calculatorScale.minX + finalX * 0.6f;
-        float worldZ = GameIns.calculatorScale.minY + finalZ * 0.6f;
+        float worldX = GameIns.calculatorScale.minX + finalX * (GameIns.calculatorScale.distanceSize + 0.1f);
+        float worldZ = GameIns.calculatorScale.minY + finalZ * (GameIns.calculatorScale.distanceSize + 0.1f);
         Vector3 targetPos = new Vector3(worldX, 0, worldZ);
         Vector3 st = animal.trans.position;
         float t = 0;
@@ -532,7 +533,7 @@ public class RestaurantManager : MonoBehaviour
 
     public void EmployeeNum()
     {
-      //  for (int i = 0; i < 8; i++)
+        for (int i = 0; i < 3; i++)
         {
             Employee animal = GameInstance.GameIns.animalManager.SpawnEmployee();
 

@@ -68,7 +68,13 @@ public class Animal : MonoBehaviour
 
 #endif
     }
-
+    public void PlayTriggerAnimation(string str)
+    {
+#if HAS_ANIMATION_INSTANCING
+        InstancingCharacter.PlayTriggerAnim(animationDic[str]);
+        //  GetAnimIns(2).PlayAnim(animationDic[str], str);
+#endif
+    }
     public void PlayAnimation(string str)
     {
 #if HAS_ANIMATION_INSTANCING

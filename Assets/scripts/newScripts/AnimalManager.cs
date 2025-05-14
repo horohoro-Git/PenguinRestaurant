@@ -206,6 +206,7 @@ public class AnimalManager : MonoBehaviour
 
     private void Start()
     {
+        GameInstance.GameIns.calculatorScale.distanceSize = 0.4f;
         MoveCalculator.CheckArea(GameInstance.GameIns.calculatorScale);
 
         animalStructs = SaveLoadSystem.LoadAnimalsData();
@@ -218,7 +219,7 @@ public class AnimalManager : MonoBehaviour
         }
 
         // º’¥‘ √ ±‚»≠
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 20; i++)
         {
             Customer controller = Instantiate(customerController, animalParent.transform).GetComponentInChildren<Customer>();
             controller.customerIndex = i;
@@ -402,6 +403,8 @@ public class AnimalManager : MonoBehaviour
             employee.eatParticle = eatParticle;
             employee.transform.localPosition = Vector3.zero;
             employee.transform.localRotation = Quaternion.identity;
+            employee.employeeCallback -= EmployeeAction;
+            employee.employeeCallback += EmployeeAction;
             return employee;
         }
         return null;
@@ -537,6 +540,7 @@ public class AnimalManager : MonoBehaviour
         employee.gameObject.SetActive(false);
         employee.employeeState = EmployeeState.Wait;
         employee.busy = false;
+        employee.employeeCallback -= EmployeeAction;
         employeeControllers.Remove(employee);
         int type = 0;
         DespawnAnimal(employee, type);
@@ -675,5 +679,13 @@ public class AnimalManager : MonoBehaviour
     public void CustomerAction(Customer customer)
     {
         customer.FindCustomerActions();
+    }
+    public void EmployeeAction(Employee employee)
+    {
+        if (!employee.pause && !employee.busy)
+        {
+            employee.busy = true;
+            employee.FindEmployeeWorks();
+        }
     }
 }

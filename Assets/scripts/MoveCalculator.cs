@@ -9,6 +9,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using Unity.Collections;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 using static Utility;
 //한글
 
@@ -46,18 +47,19 @@ public struct CalculatorScale
 
 public class MoveCalculator
 {
-
     int[] moveX = { 1, -1, 0, 0, 1, 1, -1, -1 };
     int[] moveY = { 0, 0, 1, -1, 1, -1, 1, -1 };
    // static CalculatorScale calculatorScale = new CalculatorScale();
     public Node result;
-    Node[,] nodes = new Node[200, 200];
+   // Node[,] nodes = new Node[400, 400];
    // NodeStruct[,] nodeStructs = new NodeStruct[200, 200];
     //List<Coord> defaults = new List<Coord>(1000);
     GameInstance gameInstance;
-    static bool[,] blockedAreas = new bool[200, 200];
+  //  static BitArray blockedAreas = new BitArray(400 * 400);
+    public static int GetIndex(int x, int y) => y * GameInstance.GameIns.calculatorScale.sizeX + x;
+    static bool[] blockedAreas = new bool[400 * 400];
     NativeArray<NodeStruct> nodeStructs; //= new NativeArray<NodeStruct>(40000, Allocator.Persistent);
-
+    
     Queue<Node> usingNodes = new Queue<Node>(1000);
     public MoveCalculator()
     {
@@ -94,7 +96,6 @@ public class MoveCalculator
 
     public static void CheckArea(CalculatorScale calculatorScale)
     {
-       // GameInstance.GameIns.calculatorScale = calculatorScale;
         float maxX = calculatorScale.maxX;
         float minX = calculatorScale.minX;
         float maxY = calculatorScale.maxY;
@@ -110,7 +111,8 @@ public class MoveCalculator
         {
             for (int j = 0; j < calculateScaleX; j++)
             {
-                blockedAreas[i, j] = false;
+                blockedAreas[GetIndex(j, i)] = false;
+              //  blockedAreas[i, j] = false;
             }
         }
         for (int i = 0; i < calculateScaleY; i++)
@@ -127,7 +129,8 @@ public class MoveCalculator
                 //bool isWall = Physics.CheckBox(worldPoint,vector, Quaternion.Euler(0, 0, 0), LayerMask.GetMask("wall"));
                 if (check)
                 {
-                    blockedAreas[i, j] = true;
+                    // blockedAreas[i, j] = true;
+                    blockedAreas[GetIndex(j,i)] = true;
                 }
             }
         }
@@ -199,7 +202,7 @@ public class MoveCalculator
             return already;
         }
         
-        if (blockedAreas[targetY, targetX])
+        if (blockedAreas[GetIndex(targetX, targetY)])
         {
             //Debug.Log("EndBlocked");
             return null;
@@ -222,7 +225,7 @@ public class MoveCalculator
                 {
                     Node neighbor = NodePool.GetNode(r,c);// nodes[r, c];
                     usingNodes.Enqueue(neighbor);
-                    if (closedList.Contains(neighbor) == false && !blockedAreas[r,c])
+                    if (closedList.Contains(neighbor) == false && !blockedAreas[GetIndex(c, r)])
                     {
                         if (end.r == r && end.c == c)
                         {
@@ -323,6 +326,7 @@ public class MoveCalculator
                     float c = 100;
                     Vector3 target = new Vector3(c, 0, r);
                     returnVectors.Push(target);
+                    Debug.Log("Fail");
                     return returnVectors;  //returnVectors.Push(target);
                 }
 
@@ -339,10 +343,11 @@ public class MoveCalculator
                     float c = 100;
                     Vector3 target = new Vector3(c, 0, r);
                     returnVectors.Push(target);
+                    Debug.Log("Fail2");
                     return returnVectors;
                 }
 
-                if (blockedAreas[targetY, targetX])
+                if (blockedAreas[GetIndex(targetX, targetY)])
                 {
                     //Debug.Log("EndBlocked");
                     return null;
@@ -359,18 +364,25 @@ public class MoveCalculator
                     {
                         int r = node.r + moveY[i];
                         int c = node.c + moveX[i];
+                      /*  float cellSize = gameInstance.calculatorScale.distanceSize;
+                        float minX = gameInstance.calculatorScale.minX;
+                        float minY = gameInstance.calculatorScale.minY;
 
-                        if (ValidCheck(r, c))   //크기 체크
+                        float worldX = minX + c * cellSize;
+                        float worldZ = minY + r * cellSize;*/
+                         //  if (ValidCheck(r, c))   //크기 체크
+                        if (ValidCheckWithCharacterSize(c,r, moveX, moveY) && ValidCheck(c,r))
+                      //  if(Utility.ValidCheckWithSize(r,c, gameInstance.calculatorScale.distanceSize))
                         {
                             Node neighbor = new Node(r, c); //NodePool.GetNode(r, c);// nodes[r, c];
                                                             // usingNodes.Enqueue(neighbor);
-                            if (closedList.Contains(neighbor) == false && !blockedAreas[r, c])
+                            if (closedList.Contains(neighbor) == false && !blockedAreas[GetIndex(c, r)])
                             {
                                 if (end.r == r && end.c == c)
                                 {
                                     end.parentNode = node;  //목적지 탐색 완료
 
-                                    Node a = end.parentNode == null ? end : end.parentNode;
+                                    Node a = node.parentNode;// == null ? end : end.parentNode;
                                     
                                     while (a != null)
                                     {
@@ -451,6 +463,7 @@ public class MoveCalculator
                 }
                 Vector3 temp = new Vector3(100, 0, 100);
                 returnVectors.Push(temp);
+                Debug.Log("Fail3");
                 return returnVectors;
             }, cancellationToken: cancellation);
         }
@@ -536,10 +549,19 @@ public class MoveCalculator
         int err = dx - dy;
         while (true)
         {
-            if(ValidCheck(s2,s1))
+
+            float cellSize = gameInstance.calculatorScale.distanceSize;
+            float minX = gameInstance.calculatorScale.minX;
+            float minY = gameInstance.calculatorScale.minY;
+
+            float worldX = minX + s1 * cellSize;
+            float worldZ = minY + s2 * cellSize;
+
+            if(ValidCheckWithCharacterSize(s1, s2, moveX, moveY) && ValidCheck(s2,s1))
+            // if (ValidCheck(s2,s1))
             {
                
-                if (blockedAreas[s2, s1])
+                if (blockedAreas[GetIndex(s1, s2)])
                     return false; // 장애물 있음
 
                 if (s1 == e1 && s2 == e2)
@@ -584,7 +606,7 @@ public class MoveCalculator
         //ResetThisGrids();
     }
 
-    public static bool[,] GetBlocks => blockedAreas;
+    public static bool[] GetBlocks => blockedAreas;
     
 }
 

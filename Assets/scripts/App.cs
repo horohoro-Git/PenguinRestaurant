@@ -243,4 +243,13 @@ public class App : MonoBehaviour
         GameInstance.GameIns.uiManager.drawSpeedUpBtn.gameObject.SetActive(true);
 
     }
+
+    public static void UnloadAsync(string name)
+    {
+        if(scenes.ContainsKey(name))
+        {
+            SceneManager.UnloadSceneAsync(scenes[name]);
+            scenes.Remove(name);
+        }
+    }
 }
