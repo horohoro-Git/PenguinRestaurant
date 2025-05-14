@@ -40,7 +40,8 @@ public class CustomerInfoPopup : MonoBehaviour
 
     public void SetCustomerInfo()
     {
-        animalFace.sprite = animalTextures[id];
+        Debug.Log(id);
+        animalFace.sprite = AssetLoader.loadedSprites[AssetLoader.spriteAssetKeys[id].Name];// animalTextures[id];
         name_text.text = name;
         speed_text.text = speed.ToString();
         eatSpeed_text.text = eatSpeed.ToString();

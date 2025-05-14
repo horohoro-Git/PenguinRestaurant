@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,7 +7,12 @@ using UnityEngine.UI;
 public class PanelAnimalsController : MonoBehaviour
 {
     public ScrollRect scrollRect;
-    public AnimalCard[] animalCard;
+    public AnimalCard animalCard;
+
+    Dictionary<int, AnimalCard> cardDic = new Dictionary<int, AnimalCard>();
+    [SerializeField] RectTransform contents;
+    [SerializeField] CustomerInfoPopup customers_popup;
+//   public AnimalCard[] animalCard;
     public Sprite[] cardBg;
     public Color[] backGlowColor;
     public Color[] glowColor;
@@ -24,16 +30,50 @@ public class PanelAnimalsController : MonoBehaviour
     // Update is called once per frame
     public void CardUpdate()
     {
-
-
         foreach (var type in AnimalManager.gatchaTiers)
         {
             if(type.Value > 0)
             {
                 AnimalStruct animal = AssetLoader.animals[type.Key];
                 int index = type.Key - 100;
-                animalCard[index].gameObject.SetActive(true);
-                animalCard[index].id = index;
+                if (cardDic.ContainsKey(index))
+                {
+                    //키드 업데이트
+                    cardDic[index].tier = type.Value;
+                    cardDic[index].speed = animal.speed;
+                    cardDic[index].eatSpeed = animal.eat_speed;
+                    cardDic[index].minOrder = animal.min_order;
+                    cardDic[index].maxOrder = animal.max_order;
+                    cardDic[index].cardBg.sprite = cardBg[type.Value - 1];
+                    cardDic[index].backGlow.color = backGlowColor[type.Value - 1];
+                    cardDic[index].glow.color = glowColor[type.Value - 1];
+                }
+                else
+                {
+                    //카드 추가
+                    AnimalCard card = Instantiate(animalCard);
+                    card.GetComponent<RectTransform>().SetParent(contents);
+                    Debug.Log(AssetLoader.spriteAssetKeys[type.Key].Name);
+                    card.id = animal.id;
+                    card.character.sprite = AssetLoader.loadedSprites[AssetLoader.spriteAssetKeys[type.Key].Name];
+                    card.customerInfoPopup = customers_popup;
+                    card.name = animal.name;
+                    card.textName.text = animal.name;
+                    card.tier = type.Value;
+                    card.speed = animal.speed;
+                    card.eatSpeed = animal.eat_speed;
+                    card.minOrder = animal.min_order;
+                    card.maxOrder = animal.max_order;
+                    card.cardBg.sprite = cardBg[type.Value - 1];
+                    card.backGlow.color = backGlowColor[type.Value - 1];
+                    card.glow.color = glowColor[type.Value - 1];
+                    cardDic[index] = card;
+                }
+                //AnimalStruct animal = AssetLoader.animals[type.Key];
+//int index = type.Key - 100;
+                //animalCard[index].gameObject.SetActive(true);
+           /*     animalCard[index].id = index;
+                animalCard[index].character.sprite = AssetLoader.loadedSprites[AssetLoader.spriteAssetKeys[type.Key].Name];
                 animalCard[index].name = animal.name;
                 animalCard[index].tier = type.Value;
                 Debug.Log(type.Value);
@@ -41,9 +81,12 @@ public class PanelAnimalsController : MonoBehaviour
                 animalCard[index].eatSpeed = animal.eat_speed;//.eatSpeed;
                 animalCard[index].minOrder = animal.min_order;
                 animalCard[index].maxOrder = animal.max_order;
-             /*   animalCard[index].cardBg.sprite = this.cardBg[type.Value - 1];
+                animalCard[index].cardBg.sprite = this.cardBg[type.Value - 1];
                 animalCard[index].backGlow.color = this.backGlowColor[type.Value - 1];
                 animalCard[index].glow.color = this.glowColor[type.Value - 1];*/
+                /*   animalCard[index].cardBg.sprite = this.cardBg[type.Value - 1];
+                   animalCard[index].backGlow.color = this.backGlowColor[type.Value - 1];
+                   animalCard[index].glow.color = this.glowColor[type.Value - 1];*/
             }
         }
          

@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Runtime.ConstrainedExecution;
 using System.Threading;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 // 한글
 
@@ -570,22 +571,19 @@ public class Customer : AnimalController
             throw;
         }
     }
-    async UniTask Customer_Move(Stack<Vector3> n, Vector3 loc = new Vector3(), bool standInline = false, QueuePoint point = null, CancellationToken cancellationToken = default)
+    async UniTask Customer_Move(Stack<Vector3> n, Vector3 loc, bool standInline = false, QueuePoint point = null, CancellationToken cancellationToken = default)
     {
         try
         {
             cancellationToken.ThrowIfCancellationRequested();
-            /*   Node a = n.parentNode == null ? n : n.parentNode;
-               Stack<Node> stack = new Stack<Node>();
-               while (a != null)
-               {
-                   stack.Push(a);
-                   a = a.parentNode;
 
-                   await UniTask.NextFrame();
-               }
-               stack.Pop();*/
-            List<Vector3> vector3s = n.ToList();   
+            string cc = "";
+            foreach(var v in n)
+            {
+                cc += v + " ";
+            }
+            cc += loc;
+            Debug.Log(cc);
             n.Pop();
 
             await UniTask.NextFrame(cancellationToken: cancellationToken);
@@ -597,11 +595,6 @@ public class Customer : AnimalController
                     await UniTask.NextFrame();
                     return;
                 }
-                /* Node node = stack.Pop();
-
-                 float r = GameInstance.GameIns.calculatorScale.minY + node.r * GameInstance.GameIns.calculatorScale.distanceSize;
-                 float c = GameInstance.GameIns.calculatorScale.minX + node.c * GameInstance.GameIns.calculatorScale.distanceSize;
-                 Vector3 target = new Vector3(c, 0, r);*/
                 float checkTimer = 0;
                 Vector3 target = n.Pop();
                 float cur = (target - trans.position).magnitude;
@@ -681,6 +674,22 @@ public class Customer : AnimalController
                 }*/
             }
 
+            Vector3 newLoc = loc;
+            newLoc.y = 0;
+
+            while (true)
+            {
+                animator.SetInteger("state", 1);
+                animal.PlayAnimation(AnimationKeys.Walk);
+                trans.position = Vector3.MoveTowards(trans.position, newLoc, animalStruct.speed * Time.deltaTime);
+                if (Vector3.Distance(trans.position, newLoc) <= 0.01f) break;
+                Vector3 dir = newLoc - trans.position;
+                float angle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
+                modelTrans.rotation = Quaternion.AngleAxis(angle, Vector3.up);
+                await UniTask.NextFrame(cancellationToken: cancellationToken);
+            }
+
+
             animator.SetInteger("state", 0);
             animal.PlayAnimation(AnimationKeys.Idle);
             //PlayAnim(animal.animationDic["Idle_A"], "Idle_A");
@@ -716,16 +725,18 @@ public class Customer : AnimalController
                     }
                     else
                     {
-                        await Customer_Move(moveTargets, cancellationToken: cancellationToken);
+                        await Customer_Move(moveTargets, position, cancellationToken: cancellationToken);
                         if (reCalculate)
                         {
                             while (bWait) await UniTask.NextFrame(cancellationToken: cancellationToken);
                             reCalculate = false;
                             continue;
                         }
+
                         modelTrans.rotation = table.seats[index].transforms.rotation;
-                     
                     }
+                  
+
                     seatIndex = index;
                     tb = table;
                     customerAction = CustomerAction.CustomerTable;
@@ -754,22 +765,47 @@ public class Customer : AnimalController
                     }
 
                     //식사
-                    animator.SetTrigger(AnimationKeys.eat);
-                   // animator.SetInteger("state", 2);
-                    animal.PlayAnimation(AnimationKeys.Eat);
+                   
                    // PlayAnim(animal.animationDic["Eat"], "Eat");
                     GameObject particle = ParticleManager.CreateParticle();
                     while (table.foodStacks[0].foodStack.Count > 0)
                     {
-                        for (int i = 0; i < 100; i++)
+                       /* for (int i = 0; i < 100; i++)
                         {
                             int timer = (int)(10 * animalStruct.eat_speed);
                             await UniTask.Delay(timer);
                             if (table.foodStacks[0].foodStack.Count == 0) break;
-                        }
+                        }*/
                         if (table.foodStacks[0].foodStack.Count == 0) break;
+                        //먹을 음식을 가까이 올려놓기
                         Food f = table.foodStacks[0].foodStack.Pop();
+
+                        Vector3 tablePos = table.transforms.position;
+                        float offset = index == 0 ? 1 : -1;
+                        Vector3 t = new Vector3(tablePos.x, tablePos.y, tablePos.z + offset);
+                        t.y = 0.5f;
+                        f.transforms.DOJump(t, 1, 1, 0.2f);
+                        await UniTask.Delay(300, cancellationToken: cancellationToken);
+
+                        float tm = 0;
+                        for (int i = 0; i < 100; i++)
+                        {
+                            if (tm + 0.5f < Time.time)
+                            {
+                                tm = Time.time;
+
+                                animator.SetTrigger(AnimationKeys.eat);
+                                // animator.SetInteger("state", 2);
+                                animal.PlayTriggerAnimation(AnimationKeys.Eat);
+                            }
+                            int timer = (int)(10 * animalStruct.eat_speed);
+                            await UniTask.Delay(timer);
+                            //if (table.foodStacks[0].foodStack.Count == 0) break;
+                        }
+
                         FoodManager.EatFood(f);
+
+
                         table.numberOfFoods--;
                         table.numberOfGarbage++;
                         
@@ -845,7 +881,7 @@ public class Customer : AnimalController
                     else
                     {
                         customerAction = CustomerAction.CustomerGoToHome;
-                        await Customer_Move(moveTargets, cancellationToken: cancellationToken);
+                        await Customer_Move(moveTargets, position, cancellationToken: cancellationToken);
                         if (reCalculate)
                         {
                             while (bWait) await UniTask.NextFrame(cancellationToken: cancellationToken);

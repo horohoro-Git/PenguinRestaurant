@@ -265,12 +265,32 @@ public class Utility
         return false;
     }
 
+    public static bool ValidCheckWithCharacterSize(int x, int y, int[] offsetX, int[] offsetY)
+    {
+        float cellSize = GameIns.calculatorScale.distanceSize;
+/*        int[] offsetX = { 1, 1, 0, -1, -1, -1, 0, 1 };
+        int[] offsetY = { 0, -1, -1, -1, 0, 1, 1, 1 };*/
+
+        for (int i = 0; i < 8; i++)
+        {
+            int targetX = x + offsetX[i];
+            int targetY = y + offsetY[i];
+
+            if (targetX >= 0 && targetX < GameIns.calculatorScale.sizeX && targetY >= 0 && targetY < GameIns.calculatorScale.sizeY)
+            {
+                if(MoveCalculator.GetBlocks[MoveCalculator.GetIndex(targetX, targetY)]) return false;
+            }
+        }
+
+        return true;
+    }
+
     public static bool CheckHirable(Vector3 center, ref int x, ref int y, bool check, bool forcedCheck = false)
     {
         Vector3 loc = center;
 
-        int cameraPosX = (int)((loc.x - GameIns.calculatorScale.minX) / GameIns.calculatorScale.distanceSize);
-        int cameraPosZ = (int)((loc.z - GameIns.calculatorScale.minY) / GameIns.calculatorScale.distanceSize);
+        int cameraPosX = Mathf.FloorToInt((loc.x - GameIns.calculatorScale.minX) / GameIns.calculatorScale.distanceSize);
+        int cameraPosZ = Mathf.FloorToInt((loc.z - GameIns.calculatorScale.minY) / GameIns.calculatorScale.distanceSize);
 
         if (x == cameraPosX && y == cameraPosZ && !forcedCheck) return check;
         x = cameraPosX; y = cameraPosZ;
@@ -279,7 +299,7 @@ public class Utility
 
 
         float tileSize = GameIns.calculatorScale.distanceSize;
-
+        Debug.Log(tileSize);
         Camera cam = null;
         if (InputManger.cachingCamera == null) cam = Camera.main;
         else cam = InputManger.cachingCamera;
@@ -290,7 +310,7 @@ public class Utility
         int maxX = Mathf.CeilToInt(cameraPosX + radiusInGrid);
         int minY = Mathf.FloorToInt(cameraPosZ - radiusInGrid);
         int maxY = Mathf.CeilToInt(cameraPosZ + radiusInGrid);
-
+        Debug.Log(minX + " " + maxX + " " + minY + " " + maxY + " " + cameraPosX + " " + cameraPosZ);
         for (int xx = minX; xx <= maxX; xx++)
         {
             for (int yy = minY; yy <= maxY; yy++)
@@ -302,14 +322,14 @@ public class Utility
                 {
                     if (!ValidCheck(yy, xx)) continue;
 
-                    bool isBlocked = MoveCalculator.GetBlocks[yy, xx];
+                    bool isBlocked = MoveCalculator.GetBlocks[MoveCalculator.GetIndex(xx, yy)];
 
                     float worldX = GameIns.calculatorScale.minX + xx * tileSize;
                     float worldZ = GameIns.calculatorScale.minY + yy * tileSize;
                     Vector3 worldPos = new Vector3(worldX, 0, worldZ);
 
-                    Color debugColor = isBlocked ? Color.red : Color.green;
-                    Debug.DrawRay(worldPos, Vector3.up * 0.5f, debugColor, 0.1f);
+                  //  Color debugColor = isBlocked ? Color.red : Color.green;
+                  //  Debug.DrawRay(worldPos, Vector3.up * 0.5f, debugColor, 0.1f);
                     if (!isBlocked) InputManger.spawnDetects.Add(worldPos);
                 }
             }
