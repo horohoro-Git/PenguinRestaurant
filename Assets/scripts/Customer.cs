@@ -62,7 +62,7 @@ public class Customer : AnimalController
     int seatIndex;
     int animalEat;
     public Action<Customer> customerCallback;
-    public AnimalStruct animalStruct { get; set; }
+   
 
     public List<FoodStack> foodStacks = new List<FoodStack>();
     Transform transforms;
@@ -576,14 +576,6 @@ public class Customer : AnimalController
         try
         {
             cancellationToken.ThrowIfCancellationRequested();
-
-            string cc = "";
-            foreach(var v in n)
-            {
-                cc += v + " ";
-            }
-            cc += loc;
-            Debug.Log(cc);
             n.Pop();
 
             await UniTask.NextFrame(cancellationToken: cancellationToken);
@@ -595,12 +587,10 @@ public class Customer : AnimalController
                     await UniTask.NextFrame();
                     return;
                 }
-                float checkTimer = 0;
                 Vector3 target = n.Pop();
                 float cur = (target - trans.position).magnitude;
                 while(true)
                 {
-                    checkTimer += Time.deltaTime;   
                     if (!standInline && reCalculate)
                     {
                         Debug.Log("reCalculate");
@@ -612,16 +602,7 @@ public class Customer : AnimalController
                         await UniTask.NextFrame();
                         return;
                     }
-                    if (checkTimer > 200)
-                    {
-                        string c = "";
-                        Debug.Log(trans.position + " " + target + " " + customerIndex);
-                     /*   for (int i = 0; i < vector3s.Count; i++)
-                        {
-                            c += vector3s[i].ToString() + " ";
-                        }*/
-                        Debug.Log(c);
-                    }
+                   
                     if (Vector3.Distance(trans.position, target) <= 0.01f) break;
 
                     Debug.DrawLine(trans.position, target, Color.red, 0.1f);

@@ -47,8 +47,8 @@ public struct CalculatorScale
 
 public class MoveCalculator
 {
-    int[] moveX = { 1, -1, 0, 0, 1, 1, -1, -1 };
-    int[] moveY = { 0, 0, 1, -1, 1, -1, 1, -1 };
+    public static int[] moveX = { 1, -1, 0, 0, 1, 1, -1, -1 };
+    public static int[] moveY = { 0, 0, 1, -1, 1, -1, 1, -1 };
    // static CalculatorScale calculatorScale = new CalculatorScale();
     public Node result;
    // Node[,] nodes = new Node[400, 400];
@@ -123,7 +123,7 @@ public class MoveCalculator
                 float c = minX + j * distanceSize;
                 Vector3 worldPoint = (Vector3.right * (c) + Vector3.forward * (r));
 
-                Vector3 size = GameInstance.GetVector3(distanceSize, distanceSize, distanceSize);
+                Vector3 size = GameInstance.GetVector3(distanceSize +0.2f, distanceSize +0.2f, distanceSize + 0.2f);
 
                 bool check = Physics.CheckBox(worldPoint, size, Quaternion.Euler(0, 0, 0), 1 << 6 | 1 << 7);
                 //bool isWall = Physics.CheckBox(worldPoint,vector, Quaternion.Euler(0, 0, 0), LayerMask.GetMask("wall"));
@@ -371,8 +371,9 @@ public class MoveCalculator
                         float worldX = minX + c * cellSize;
                         float worldZ = minY + r * cellSize;*/
                          //  if (ValidCheck(r, c))   //크기 체크
-                        if (ValidCheckWithCharacterSize(c,r, moveX, moveY) && ValidCheck(c,r))
-                      //  if(Utility.ValidCheckWithSize(r,c, gameInstance.calculatorScale.distanceSize))
+                         if(ValidCheck(c, r))
+                        //  if (ValidCheckWithCharacterSize(c,r, moveX, moveY) && ValidCheck(c,r))
+                        //  if(Utility.ValidCheckWithSize(r,c, gameInstance.calculatorScale.distanceSize))
                         {
                             Node neighbor = new Node(r, c); //NodePool.GetNode(r, c);// nodes[r, c];
                                                             // usingNodes.Enqueue(neighbor);
@@ -557,8 +558,8 @@ public class MoveCalculator
             float worldX = minX + s1 * cellSize;
             float worldZ = minY + s2 * cellSize;
 
-            if(ValidCheckWithCharacterSize(s1, s2, moveX, moveY) && ValidCheck(s2,s1))
-            // if (ValidCheck(s2,s1))
+         //   if(ValidCheckWithCharacterSize(s1, s2, moveX, moveY) && ValidCheck(s2,s1))
+            if (ValidCheck(s2,s1))
             {
                
                 if (blockedAreas[GetIndex(s1, s2)])

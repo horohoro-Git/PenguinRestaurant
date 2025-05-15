@@ -2228,6 +2228,7 @@ public class Employee : AnimalController
 
                                 if (reCalculate)
                                 {
+                                    while (bWait) await UniTask.NextFrame(cancellationToken: cancellationToken);
                                     reCalculate = false;
                                     continue;
                                 }

@@ -4,9 +4,11 @@ using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Shadow : MonoBehaviour
 {
+    public Image shadowImage;
     public Transform model;
     public RectTransform rectTransform;
   //  GameInstance gameInstance = new GameInstance();
@@ -31,8 +33,18 @@ public class Shadow : MonoBehaviour
 
             rectTransform.position = rectPosition;//new Vector3(model.position.x, 0.1f + model.position.y, model.position.z);
             rectTransform.rotation = Quaternion.Euler(rectEuler);//Quaternion.Euler(new Vector3(90,0, -model.rotation.eulerAngles.y));
+            //rectTransform.localScale =  
         }
      //   if (model == null) Debug.Log(GetComponentInParent<Employee>().gameObject.name);
        // transform.rotation = model.rotation;
+    }
+
+    public void Setup()
+    {
+        shadowImage.sprite = AssetLoader.loadedAtlases["Town"].GetSprite("shadow_circle"); //AssetLoader.atlasSprites["shadow_circle"];
+    }
+    public void SetSize(Vector3 size, float offset_x, float offset_z)
+    {
+        Debug.Log(size);
     }
 }

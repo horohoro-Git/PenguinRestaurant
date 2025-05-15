@@ -86,6 +86,7 @@ public class AnimalController : MonoBehaviour
 
     public AudioSource audioSource;
     public float coroutineTimer = 0;
+    public AnimalStruct animalStruct { get; set; }
 #if HAS_ANIMATION_INSTANCING
     AnimIns animIns;
     public AnimIns animationInstancing { get; set; }

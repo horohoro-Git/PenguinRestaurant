@@ -152,11 +152,16 @@ public struct AnimalStruct : ITableID<int>
     public int min_order;
     public int max_order;
     public bool is_customer;
+    public float size_width;
+    public float size_height;
+    public float offset_x;
+    public float offset_z;
+
     public readonly int ID => id;
 
     public readonly string Name => name;
 
-    public AnimalStruct(int id, string name, string asset_name, int tier, float speed, float eat_speed, int min_order, int max_order, bool is_customer)
+    public AnimalStruct(int id, string name, string asset_name, int tier, float speed, float eat_speed, int min_order, int max_order, bool is_customer, float size_width, float size_height, float offset_x, float offset_z)
     {
         this.id = id;
         this.name = name;
@@ -167,6 +172,10 @@ public struct AnimalStruct : ITableID<int>
         this.min_order = min_order;
         this.max_order = max_order;
         this.is_customer = is_customer;
+        this.size_width = size_width;
+        this.size_height = size_height;
+        this.offset_x = offset_x;
+        this.offset_z = offset_z;
     }
 
 }
@@ -299,7 +308,6 @@ public class Utility
 
 
         float tileSize = GameIns.calculatorScale.distanceSize;
-        Debug.Log(tileSize);
         Camera cam = null;
         if (InputManger.cachingCamera == null) cam = Camera.main;
         else cam = InputManger.cachingCamera;
