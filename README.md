@@ -14,3 +14,4 @@ Animal Restaurant Tycoon Game
 05/11 Fixed the issue where multiple baked characters were displayed as the same character, fixed the issue where animals would misalign when lining up, updated to allow penguins to be picked up by hand
 05/12 Optimized pathfinding and fixed customer behavior on controller reuse
 05/13 Improved pathfinding with animal size and fixed penguin position bug
+05/14 Modified the pathfinding system to pre-process neighbor checks, and applied character UI batching

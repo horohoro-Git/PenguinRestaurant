@@ -88,7 +88,6 @@ public class AnimalSpawner : MonoBehaviour
                                     ac.animalSpawner = this;
                                     ac.trans.position = transform.position;
                                     if(!waitingCustomers.ContainsKey(ac.customerIndex)) waitingCustomers[ac.customerIndex] = ac;
-                                    Debug.Log(waitingCustomers.Count);
                                     await UniTask.Delay(100, cancellationToken: cancellationToken);
                                     GameInstance.GameIns.animalManager.AttacCustomerTask(ac);
 

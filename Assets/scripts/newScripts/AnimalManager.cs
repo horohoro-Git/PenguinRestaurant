@@ -3,9 +3,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using Unity.VisualScripting;
 using UnityEngine;
-
+using static AssetLoader;
 
 public class AllAnimals
 {
@@ -52,9 +53,10 @@ public class AnimalManager : MonoBehaviour
     public List<Animal> animals = new List<Animal>();
     //public List<Animal> newAnimals = new List<Animal>();
     Dictionary<int, AllAnimals> allAnimals = new Dictionary<int, AllAnimals>();
-  //  List<AllAnimals> newAllAnimals = new List<AllAnimals>();
-    [SerializeField] List<Shadow> shadows = new List<Shadow>();
-    [SerializeField] SliderController slider;// = SliderController();
+    //  List<AllAnimals> newAllAnimals = new List<AllAnimals>();
+    // [SerializeField] List<Shadow> shadows = new List<Shadow>();
+    public Shadow shadow;
+    public SliderController levelSlider;// = SliderController();
 
     public Dictionary<int, Queue<Rolling>> gatchStack = new Dictionary<int, Queue<Rolling>>();
     public List<Rolling> gatchaList = new List<Rolling>();
@@ -71,8 +73,8 @@ public class AnimalManager : MonoBehaviour
     [SerializeField]
     GameObject eatParticle;
 
-    GameObject shadowParent;
-    GameObject sliderParent;
+   // GameObject shadowParent;
+    public static GameObject SubUIParent;
 
     [NonSerialized]
     public Queue<Employee> employeeTasks = new Queue<Employee>();
@@ -105,11 +107,9 @@ public class AnimalManager : MonoBehaviour
         animalParent.transform.position = new Vector3(100, 100, 100);
         animalParent.name = "animalRoot";
 
-        shadowParent = new GameObject();
-        shadowParent.name = "shadowsRoot";
-
-        sliderParent = new GameObject();
-        sliderParent.name = "slidersRoot";
+        SubUIParent = new GameObject();
+        SubUIParent.AddComponent<Canvas>();
+        SubUIParent.name = "subui";
 
 
         /* for (int i = 0; i < 8; i++)
@@ -197,9 +197,6 @@ public class AnimalManager : MonoBehaviour
             deactivateSliders.Enqueue(instancedSlider);
         }*/
 
-
-
-       
     }
 
 
@@ -239,7 +236,6 @@ public class AnimalManager : MonoBehaviour
             allAnimals[10].deactivateAnimals.Enqueue(newAnimal);
         }
 
-
         //동물들
         foreach (var data in AssetLoader.animals)
         {
@@ -252,32 +248,30 @@ public class AnimalManager : MonoBehaviour
                 for (int j = 0; j < 30; j++)
                 {
                     Animal newAnimal = Instantiate(AssetLoader.loadedAssets[AssetLoader.itemAssetKeys[data.Key].Name], animalParent.transform).GetComponent<Animal>();
-                    //   newAnimal.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
-
-              //      newAnimal.GetComponentInChildren<LODController>().animator.enabled = false;
-                   // newAnimal.gameObject.SetActive(false);
                     allAnimals[data.Key].deactivateAnimals.Enqueue(newAnimal);
                 }
             }
         }
 
 
-        foreach (var shadow in shadows)
+        //그림자 생성
+        for (int i = 0; i < 50; i++)
         {
-            for (int i = 0; i < 50; i++)
-            {
-                Shadow instancedShadow = Instantiate(shadow, shadowParent.transform);
-                instancedShadow.transform.position = new Vector3(100, 100, 100);
-                instancedShadow.gameObject.SetActive(false);
-                deactivateShadows.Enqueue(instancedShadow);
-            }
+            Shadow instancedShadow = Instantiate(shadow, SubUIParent.transform);
+            instancedShadow.Setup();
+            //    instancedShadow.Set
+            instancedShadow.transform.position = new Vector3(100, 100, 100);
+            instancedShadow.gameObject.SetActive(false);
+            deactivateShadows.Enqueue(instancedShadow);
         }
 
         //레벨 슬라이더 생성
         for (int i = 0; i < 10; i++)
         {
-            SliderController instancedSlider = Instantiate(slider, sliderParent.transform);
+            SliderController instancedSlider = Instantiate(levelSlider, SubUIParent.transform);
+            instancedSlider.Setup();
             instancedSlider.transform.position = new Vector3(100, 100, 100);
+            instancedSlider.Activate(false);
             instancedSlider.gameObject.SetActive(false);
             deactivateSliders.Enqueue(instancedSlider);
         }
@@ -384,6 +378,7 @@ public class AnimalManager : MonoBehaviour
             Employee employee = deactivateEmployeeControllers.Dequeue();
             employee.gameObject.SetActive(true);
             employeeControllers.Add(employee);
+            employee.animalStruct = animalStructs[10];
             Animal animal = SpawnAnimal(employee, type);
             employee.id = employeeControllers.Count;
           //  employee.ui =  //animal.GetComponentInChildren<SliderController>();
@@ -395,6 +390,7 @@ public class AnimalManager : MonoBehaviour
             SliderController slider = deactivateSliders.Dequeue();
             activateSliders.Add(slider);
             slider.gameObject.SetActive(true);
+            slider.Activate(true);
             slider.transform.SetParent(GameInstance.GameIns.applianceUIManager.EmployeeStatusUI.transform);
             slider.model = animal.trans;
             employee.ui = slider;
@@ -428,6 +424,7 @@ public class AnimalManager : MonoBehaviour
             Customer customer = deactivateCustomerControllers.Dequeue();
             customer.gameObject.SetActive(true);
             customer.SetDefault();
+            customer.animalStruct = animalStructs[res];
             //  Customer customer = new GameObject().AddComponent<Customer>();
             if (!onlyOrder)
             {
@@ -440,7 +437,7 @@ public class AnimalManager : MonoBehaviour
                 customer.customerCallback -= CustomerAction;
                 customer.customerCallback += CustomerAction;
             }
-            customer.animalStruct = animalStructs[res];
+        
             customer.Setup(foodsAnimalsWant);
             customerControllers.Add(customer);
             customer.transform.localPosition = Vector3.zero;
@@ -499,7 +496,8 @@ public class AnimalManager : MonoBehaviour
         Shadow shadow = deactivateShadows.Dequeue();
         activateShadows.Add(shadow);
         shadow.gameObject.SetActive(true);
-        shadow.transform.SetParent(GameInstance.GameIns.applianceUIManager.AnimalShadowUI.transform);
+        //shadow.transform.SetParent(GameInstance.GameIns.applianceUIManager.AnimalShadowUI.transform);
+        shadow.SetSize(animal.transform.localScale,0,0);
         shadow.model = animal.modelTrans;
         controller.shadow = shadow;
         return animal;
@@ -605,7 +603,7 @@ public class AnimalManager : MonoBehaviour
 
         Shadow s = controller.shadow;
         s.model = null;
-        s.transform.position = shadowParent.transform.position;
+        s.transform.position = SubUIParent.transform.position;
         s.gameObject.SetActive(false);
         activateShadows.Remove(s);
         deactivateShadows.Enqueue(s);

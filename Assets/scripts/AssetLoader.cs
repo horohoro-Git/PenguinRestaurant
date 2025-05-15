@@ -7,6 +7,9 @@ using UnityEngine.Networking;
 using System;
 using Cysharp.Threading.Tasks;
 using System.Threading;
+using UnityEngine.U2D;
+using Unity.Collections.LowLevel.Unsafe;
+using TMPro;
 public class AssetLoader : MonoBehaviour
 {
     [NonSerialized]
@@ -16,21 +19,28 @@ public class AssetLoader : MonoBehaviour
     public static Dictionary<string, string> loadedMap = new Dictionary<string, string>();
     public static Dictionary<string, GameObject> loadedAssets = new Dictionary<string, GameObject>();
     public static Dictionary<string, Sprite> loadedSprites = new Dictionary<string, Sprite>();
+    public static Dictionary<string, Sprite> atlasSprites = new Dictionary<string, Sprite>();
+    public static Dictionary<string, SpriteAtlas> loadedAtlases = new Dictionary<string, SpriteAtlas>();
     public static Dictionary<int, ItemStruct> items = new Dictionary<int, ItemStruct>();
     public static Dictionary<int, ItemStruct> sprites = new Dictionary<int, ItemStruct>();
+    public static Dictionary<int, ItemStruct> atlases = new Dictionary<int, ItemStruct>();
     public static Dictionary<int, MachineLevelStruct> machines_levels = new Dictionary<int, MachineLevelStruct>();
     public static Dictionary<int, EmployeeLevelStruct> employees_levels = new Dictionary<int, EmployeeLevelStruct>();
     public static Dictionary<int, AnimalStruct> animals = new Dictionary<int, AnimalStruct>();
     public static Dictionary<int, StringStruct> itemAssetKeys = new Dictionary<int, StringStruct>();
     public static Dictionary<int, StringStruct> spriteAssetKeys = new Dictionary<int, StringStruct>();
+    public static Dictionary<int, StringStruct> atlasesKeys = new Dictionary<int, StringStruct>();
     public static Dictionary<int, LevelData> levelData = new Dictionary<int, LevelData>();
     public static List<RestaurantParam> restaurantParams = new List<RestaurantParam>();
+
+    public static TMP_FontAsset font;
+    public static Material font_mat;
     int unloadNum;
     public bool assetLoadSuccessful;
     public bool sceneLoaded;
-    string[] tables = new string[7]
+    string[] tables = new string[8]
     {
-        "all", "employees", "machines", "animals", "level","furniture", "sprites"
+        "all", "employees", "machines", "animals", "level","furniture", "sprites", "atlases"
     };
     Dictionary<string, string> tableContents = new Dictionary<string, string>();
 
@@ -121,6 +131,7 @@ public class AssetLoader : MonoBehaviour
                     {
                         items = SaveLoadSystem.GetDictionaryData<int, ItemStruct>(tableContents["all"]);
                         sprites = SaveLoadSystem.GetDictionaryData<int, ItemStruct>(tableContents["sprites"]);
+                        atlases = SaveLoadSystem.GetDictionaryData<int, ItemStruct>(tableContents["atlases"]);
                         machines_levels = SaveLoadSystem.GetDictionaryData<int, MachineLevelStruct>(tableContents["machines"]);
                         animals = SaveLoadSystem.GetDictionaryData<int, AnimalStruct>(tableContents["animals"]);
                         employees_levels = SaveLoadSystem.GetDictionaryData<int, EmployeeLevelStruct>(tableContents["employees"]);
@@ -129,10 +140,33 @@ public class AssetLoader : MonoBehaviour
                     });
                     foreach (KeyValuePair<int, ItemStruct> keyValuePair in items) itemAssetKeys[keyValuePair.Key] = new StringStruct(keyValuePair.Value.asset_name);
                     foreach (KeyValuePair<int, ItemStruct> keyValuePair in sprites) spriteAssetKeys[keyValuePair.Key] = new StringStruct(keyValuePair.Value.asset_name);
+                    foreach (KeyValuePair<int, ItemStruct> keyValuePair in atlases) atlasesKeys[keyValuePair.Key] = new StringStruct(keyValuePair.Value.asset_name);
 
 
                     await LoadAsync<GameObject, StringStruct, string>(itemAssetKeys, loadedAssets);
                     await LoadAsync<Sprite, StringStruct, string>(spriteAssetKeys, loadedSprites);
+                    await LoadAsync<SpriteAtlas, StringStruct, string>(atlasesKeys, loadedAtlases);
+
+                    AssetBundleRequest assetRequest = bundle.LoadAssetAsync<TMP_FontAsset>("BMDOHYEON_ttf");
+                    await assetRequest;
+                    if(assetRequest != null)
+                    {
+                        if (assetRequest.asset is TMP_FontAsset castedAsset)
+                        {
+                            font = castedAsset;
+                            font_mat = font.material;
+                        }
+                        /* font = assetRequest.asset.GetComponent<TMP_FontAsset>();
+                         font_mat = font.material;
+ */
+                    }
+
+                    SpriteAtlasManager.atlasRequested += (tag, callback) =>
+                    {
+                        callback(loadedAtlases[tag]);
+                      
+                    };
+            
                 }
             }
             else
@@ -179,7 +213,7 @@ public class AssetLoader : MonoBehaviour
                     if (assetRequest.asset is T castedAsset)
                     {
                         outputs[keyValue.Value.Name] = castedAsset;
-                        Debug.Log(keyValue + " loaded");
+                 //       Debug.Log(keyValue + " loaded");
                     }
                 }
                 else

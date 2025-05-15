@@ -10,8 +10,7 @@ public class FoodMachine : MonoBehaviour
 
     public MachineType machineType;
 
-    public Mesh mesh;
-    public Food food;
+    public Mesh foodMesh;
     public FoodStack foodStack = new FoodStack();
     //int maxNum = 10;
     public float cookingTimer = 3f;
@@ -29,8 +28,6 @@ public class FoodMachine : MonoBehaviour
     public MachineLevelStruct machineLevelStruct;
     public Transform transforms;
     public Transform modelTrans;
-
-    public Food TestFood;
     public MachineData machineData {
         get { return mData; }
 
@@ -90,7 +87,7 @@ public class FoodMachine : MonoBehaviour
                 int timer = (int)(machineLevelStruct.cooking_time * 10);
                 await UniTask.Delay(timer);
             }
-            Food f = FoodManager.GetFood(mesh, machineType);
+            Food f = FoodManager.GetFood(foodMesh, machineType);
             f.parentType = machineType;
             if (machineType == MachineType.BurgerMachine) foodHight = 0.7f;
             else if (machineType == MachineType.CokeMachine) foodHight = 1f;
@@ -125,7 +122,7 @@ public class FoodMachine : MonoBehaviour
                     //yield return new WaitForSecondsRealtime(cookingTimer);
                     //    coroutineTimer = 0;
                     yield return new WaitForSeconds(cookingTimer);
-                    Food f = FoodManager.GetFood(mesh, machineType);
+                    Food f = FoodManager.GetFood(foodMesh, machineType);
                     f.parentType = machineType;
 
                     if (machineType == MachineType.BurgerMachine) foodHight = 0.7f;

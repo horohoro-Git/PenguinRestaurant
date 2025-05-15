@@ -58,7 +58,7 @@ public class SaveLoadSystem
         Dictionary<K, V> d = new Dictionary<K, V>();
         foreach (var item in vList)
         {
-            Debug.Log(item.ID);
+       //     Debug.Log(item.ID);
             d.Add(item.ID, item);
         }
         return d;
@@ -73,7 +73,7 @@ public class SaveLoadSystem
         Dictionary<K, V> d = new Dictionary<K, V>();
         foreach (var item in vList)
         {
-            Debug.Log(item.ID);
+    //        Debug.Log(item.ID);
             d.Add(item.ID, item);
         }
         return d;
@@ -137,17 +137,21 @@ public class SaveLoadSystem
                         int min_order = reader.ReadInt32();
                         int max_order = reader.ReadInt32();
                         bool is_customer = reader.ReadBoolean();
-
-                        animalsDic[id] = new AnimalStruct(id, name, asset_name, tier, speed, eat_speed, min_order, max_order, is_customer);
+                        float size_width = reader.ReadSingle();
+                        float size_height = reader.ReadSingle();
+                        float offset_x = reader.ReadSingle();
+                        float offset_z = reader.ReadSingle();
+                        animalsDic[id] = new AnimalStruct(id, name, asset_name, tier, speed, eat_speed, min_order, max_order, is_customer, size_width, size_height, offset_x, offset_z);
                     }
                 }
             }
         }
         else
         {
-            AnimalStruct animalStruct = AssetLoader.animals[100];
-            animalsDic[100] = animalStruct;
-            Debug.Log("No player data found. Creating new data." + animalStruct.asset_name);
+            // AnimalStruct animalStruct = AssetLoader.animals[100];
+            animalsDic[10] = AssetLoader.animals[10];
+            animalsDic[100] = AssetLoader.animals[100];
+          //  Debug.Log("No player data found. Creating new data." + animalStruct.asset_name);
         }
 
         return animalsDic;
@@ -177,6 +181,10 @@ public class SaveLoadSystem
                     int min_order = animal.Value.min_order;
                     int max_order = animal.Value.max_order;
                     bool is_customer = animal.Value.is_customer;
+                    float size_width = animal.Value.size_width;
+                    float size_height = animal.Value.size_height;
+                    float offset_x = animal.Value.offset_x;
+                    float offset_z = animal.Value.offset_z;
 
                     writer.Write(id);
                     writer.Write(name);
@@ -187,6 +195,10 @@ public class SaveLoadSystem
                     writer.Write(min_order);
                     writer.Write(max_order);
                     writer.Write(is_customer);
+                    writer.Write(size_width);
+                    writer.Write(size_height);
+                    writer.Write(offset_x);
+                    writer.Write(offset_z);
                 }
             }
         }

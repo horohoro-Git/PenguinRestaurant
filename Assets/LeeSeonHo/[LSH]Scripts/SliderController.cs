@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.U2D;
 //using UnityEditor.Animations; // ***** TextMeshPro를 사용하기 위해 추가 *****
 
 public class SliderController : MonoBehaviour
@@ -9,7 +10,7 @@ public class SliderController : MonoBehaviour
     public Slider slider; // ***** Slider UI 연결 변수 *****
     public float incrementAmount = 10f; // ***** 증가량 *****
     public float duration = 0.3f; // ***** 부드럽게 증가하는 시간 (초) *****
-    public TextMeshProUGUI levelText; // ***** TextMeshPro 연결 변수 ***** 
+    public TMP_Text levelText; // ***** TextMeshPro 연결 변수 ***** 
 
     private float targetValue; // ***** 최종 목표값 *****
     private Coroutine currentCoroutine; // ***** 현재 실행 중인 Coroutine *****
@@ -17,15 +18,61 @@ public class SliderController : MonoBehaviour
 
     public Transform model;
     public RectTransform rectTransform;
+
+    public RectTransform levelTextTrans;
+    public RectTransform BG;
+    public RectTransform Border;
+    public RectTransform Bar;
+    public Image sliderBG;
+    public Image sliderBorder;
+    public Image sliderBar;
     // Start is called before the first frame update
     void Start()
     {
+      /*  if (rectTransform == null) rectTransform = GetComponent<RectTransform>();
+        BG = Instantiate(BG, GetComponent<RectTransform>().parent.GetComponent<RectTransform>());
+        Border = Instantiate(Border, GetComponent<RectTransform>().parent.GetComponent<RectTransform>());
+        Bar = Instantiate(Bar, GetComponent<RectTransform>().parent.GetComponent<RectTransform>());
+        levelText = Instantiate(levelText, GetComponent<RectTransform>().parent.GetComponent<RectTransform>());
+        sliderBG = BG.GetComponent<Image>();
+        sliderBorder = Border.GetComponent<Image>();
+        sliderBar = Bar.GetComponent<Image>();
+        levelTextTrans = levelText.GetComponent<RectTransform>();*/
+
+        // if(levelText.fontMaterial != null) levelText.fontMaterial = null;
+       // levelText.font = AssetLoader.font;
+     //   levelText.fontSharedMaterial = AssetLoader.font_mat;
+
+
         // targetValue = slider.value;
         //  level = 1; // ***** 초기 레벨 설정 *****
         UpdateLevelText(); // ***** 텍스트 초기화 *****
         currentCoroutine = StartCoroutine(SmoothIncrease());
 
-        rectTransform = GetComponent<RectTransform>();
+     //   StartCoroutine(t());
+       // Bar.position = 
+       // Bar.localScale = new Vector3(0.002f, 0.004f, 0.004f);
+    }
+
+    IEnumerator t()
+    {
+        int i = 0;
+        double s;
+      
+        while(true)
+        {
+            i++;
+            Vector2 size = rectTransform.sizeDelta;
+            s = 7.25 * i;
+            size.x = (float)s;
+            Bar.sizeDelta = size;
+            double x = -0.01026 * (100 - i);
+            double z = 0.01026 * (100 - i);
+            Vector3 pos = new Vector3((float)x, 0, (float)z);
+            Bar.position = pos;
+            if (i == 100) break;
+            yield return null;
+        }
     }
 
     // Update is called once per frame
@@ -34,13 +81,52 @@ public class SliderController : MonoBehaviour
         if (model != null)
         {
             Vector3 rectPosition = GameInstance.GetVector3(model.position.x - 50f, model.position.y + 120, model.position.z - 50f);
-            rectTransform.position = rectPosition; // new Vector3(model.position.x - 50f, model.position.y + 120, model.position.z - 50f);
+            BG.position = rectPosition;
+            Border.position = rectPosition;
+            Bar.position = rectPosition;
+            levelTextTrans.position = rectPosition;
+          
+          //  rectTransform.position = rectPosition; // new Vector3(model.position.x - 50f, model.position.y + 120, model.position.z - 50f);
         }
 
     }
 
-    
+    public void Setup()
+    {
+        if(rectTransform == null) rectTransform = GetComponent<RectTransform>();
 
+        //1회 초기화
+        BG = Instantiate(BG);
+        Border = Instantiate(Border);
+        Bar = Instantiate(Bar);
+        levelText = Instantiate(levelText);
+        sliderBG = BG.GetComponent<Image>();
+        sliderBorder = Border.GetComponent<Image>();
+        sliderBar = Bar.GetComponent<Image>();
+        levelTextTrans = levelText.GetComponent<RectTransform>();
+
+       // if(levelText.fontMaterial != null) levelText.fontMaterial = null;
+        levelText.font = AssetLoader.font;
+        levelText.fontSharedMaterial = AssetLoader.font_mat;
+
+        BG.SetParent(AnimalManager.SubUIParent.transform);
+        Border.SetParent(AnimalManager.SubUIParent.transform);
+        Bar.SetParent(AnimalManager.SubUIParent.transform);
+        levelTextTrans.SetParent(AnimalManager.SubUIParent.transform);
+
+        sliderBG.sprite = AssetLoader.loadedAtlases["Town"].GetSprite("slider_bar_color_0"); //AssetLoader.atlasSprites["slider_bar_color_0"];
+        sliderBorder.sprite = AssetLoader.loadedAtlases["Town"].GetSprite("slider_bg_0"); // AssetLoader.atlasSprites["slider_bg_0"];
+        sliderBar.sprite = AssetLoader.loadedAtlases["Town"].GetSprite("slider_bar_color_0");// AssetLoader.atlasSprites["slider_bar_color_0"];
+       // Canvas.ForceUpdateCanvases();
+    }
+
+    public void Activate(bool isActivate)
+    {
+        BG.gameObject.SetActive(isActivate);
+        Border.gameObject.SetActive(isActivate);
+        Bar.gameObject.SetActive(isActivate);
+        levelTextTrans.gameObject.SetActive(isActivate);
+    }
     public void GainExperience()
     {
         // 이미 실행 중인 Coroutine이 있다면 멈춤
