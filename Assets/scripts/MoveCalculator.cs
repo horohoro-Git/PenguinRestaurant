@@ -102,8 +102,8 @@ public class MoveCalculator
         float minY = calculatorScale.minY;
         float distanceSize = calculatorScale.distanceSize;
 
-        int calculateScaleX = (int)((maxX - minX) / distanceSize);
-        int calculateScaleY = (int)((maxY - minY) / distanceSize);
+        int calculateScaleX = Mathf.FloorToInt((maxX - minX) / distanceSize);
+        int calculateScaleY = Mathf.FloorToInt((maxY - minY) / distanceSize);
         GameInstance.GameIns.calculatorScale.sizeX = calculateScaleX;
         GameInstance.GameIns.calculatorScale.sizeY = calculateScaleY;
         //  blockedAreas = new bool[calculateScaleY ,calculateScaleX];
@@ -123,7 +123,7 @@ public class MoveCalculator
                 float c = minX + j * distanceSize;
                 Vector3 worldPoint = (Vector3.right * (c) + Vector3.forward * (r));
 
-                Vector3 size = GameInstance.GetVector3(distanceSize +0.2f, distanceSize +0.2f, distanceSize + 0.2f);
+                Vector3 size = GameInstance.GetVector3(distanceSize * 2f, distanceSize * 2f, distanceSize * 2f);
 
                 bool check = Physics.CheckBox(worldPoint, size, Quaternion.Euler(0, 0, 0), 1 << 6 | 1 << 7);
                 //bool isWall = Physics.CheckBox(worldPoint,vector, Quaternion.Euler(0, 0, 0), LayerMask.GetMask("wall"));

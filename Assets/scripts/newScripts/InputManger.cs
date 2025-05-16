@@ -107,6 +107,7 @@ public class InputManger : MonoBehaviour
     bool checkingHirePos;
     public static List<Vector3> spawnDetects = new List<Vector3>();
     Employee draggingEmployee;
+    public GameObject draggingFurniture;
     private void Awake()
     {
         es = GetComponent<EventSystem>();
@@ -137,7 +138,7 @@ public class InputManger : MonoBehaviour
 
     void Update()
     {
-       // Utility.CheckHirable(cameraRange.position, ref refX, ref refY, true, true);
+    //    Utility.CheckHirable(cameraRange.position, ref refX, ref refY, true, true);
         if (Input.GetKey(KeyCode.O))
         {
            // for (int i = 0; i < 1; i++)
@@ -463,7 +464,7 @@ public class InputManger : MonoBehaviour
         checkingHirePos = Utility.CheckHirable(cameraRange.position, ref refX, ref refY, checkingHirePos);
         return checkingHirePos;
     }
-    bool CheckClickedUI()
+    public bool CheckClickedUI()
     {
         results.Clear();
         if (pointerEventData == null) pointerEventData = new PointerEventData(EventSystem.current);
@@ -472,11 +473,14 @@ public class InputManger : MonoBehaviour
             pointerEventData.position = currentPoint;
             GameInstance.graphicRaycasters[i].Raycast(pointerEventData, results);
 
-            if (results.Count > 0)
+            for(int j = 0; j < results.Count; j++)
             {
-               // Debug.Log(results.Count);
-                return true;
+                if(results[j].gameObject.layer != 0)
+                {
+                    return true;
+                }
             }
+           
         }
         return false;
     }
