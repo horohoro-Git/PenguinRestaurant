@@ -44,6 +44,9 @@ public class RestaurantManager : MonoBehaviour
 
     public bool employeeDebug;
     public bool customerDebug;
+
+    public Dictionary<int, GoodsStruct> goodsStruct = new Dictionary<int, GoodsStruct>();
+
     // Start is called before the first frame update
     private void Awake()
     {
@@ -78,6 +81,7 @@ public class RestaurantManager : MonoBehaviour
       //  playerData = 
         playerData.money = 10000;
 
+        goodsStruct = AssetLoader.goods;
         // playerData = combineDatas.playerData;
 
       
@@ -87,6 +91,8 @@ public class RestaurantManager : MonoBehaviour
     }
     void Start()
     {
+
+
         restaurantparams = SaveLoadSystem.LoadRestaurantData();
         foreach (var data in AssetLoader.machines_levels)
         {
@@ -123,6 +129,9 @@ public class RestaurantManager : MonoBehaviour
         playerData.fishesNum = 1000;
 
         customerDebug = true;
+
+
+        GameIns.store.NewGoods(goodsStruct);
     }
 
  
@@ -153,17 +162,17 @@ public class RestaurantManager : MonoBehaviour
 
         switch (levelGuides[level].workSpaceType)
         {
-            case NextTarget.WorkSpaceType.Counter:
+            case WorkSpaceType.Counter:
                 {
                     workSpaceManager.counters.Add(levels[level].gameObject.GetComponent<Counter>());
                     break;
                 }
-            case NextTarget.WorkSpaceType.Table:
+            case WorkSpaceType.Table:
                 {
                     workSpaceManager.tables.Add(levels[level].gameObject.GetComponent<Table>());
                     break;
                 }
-            case NextTarget.WorkSpaceType.FoodMachine:
+            case WorkSpaceType.FoodMachine:
                 {
                     if (levels[level].gameObject.TryGetComponent<FoodMachine>(out FoodMachine foodMachine))
                     {

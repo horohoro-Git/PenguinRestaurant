@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using static UnityEditor.PlayerSettings;
 
 public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPointerUpHandler
 {
@@ -155,5 +154,13 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
             return;
         }
       
+    }
+
+    public void Shut()
+    {
+        if (scrollCoroutine != null) StopCoroutine(scrollCoroutine);
+      
+        scrollCoroutine = StartCoroutine(Down());
+        animator.SetInteger("scrolling", 2);
     }
 }

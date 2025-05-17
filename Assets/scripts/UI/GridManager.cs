@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using static GameInstance;
 public class GridManager : MonoBehaviour
@@ -263,6 +264,54 @@ public class GridManager : MonoBehaviour
     }
 
 
+    public bool CheckObject(GameObject go)
+    {
+        RemoveCell();
+        colliders.Clear();
+        CalculatorScale calculatorScale = GameIns.calculatorScale;
+        Vector2 gridOffsets = new Vector2(0.7f, 1.2f);
+        float cellSize = 2.5f;
+        go.GetComponentsInChildren(true, colliders);
+
+        foreach (BoxCollider boxCollider in colliders)
+        {
+            if (boxCollider.gameObject.layer == 17)
+            {
+                Vector3 size = GameInstance.GetVector3(calculatorScale.distanceSize * 3f, calculatorScale.distanceSize * 3f, calculatorScale.distanceSize * 3f);
+                bool check = Physics.CheckBox(boxCollider.gameObject.transform.position, size, Quaternion.Euler(0, 0, 0), 1 << 6 | 1 << 7 | 1 << 8 | 1 << 16);
+
+                float x = Mathf.FloorToInt(boxCollider.transform.position.x / cellSize) * cellSize;
+                float z = Mathf.FloorToInt(boxCollider.transform.position.z / cellSize) * cellSize;
+
+                Vector2 vector2 = new Vector2(x, z);
+                if (!cellDic.ContainsKey(vector2))
+                {
+                    //  Debug.Log(boxCollider.name + " " + x + " " + z);
+                    MaterialBlockController cell_GO = GetCell();
+
+                    cell_GO.transform.position = new Vector3(x + gridOffsets.x, 0.2f, z + gridOffsets.y);
+                    if (check)
+                    {
+                        cell_GO.Set(1);
+              //          ch++;
+                    }
+                    else
+                    {
+                        cell_GO.Set(0);
+
+                    }
+                    cellDic[vector2] = cell_GO;
+                }
+                else
+                {
+                    if (check) cellDic[vector2].Set(1);
+
+                }
+            }
+        }
+
+        return true;
+    }
     public Vector3 FurniturePreview(Vector3 startPos)
     {
         float cellSize = 2.5f;
