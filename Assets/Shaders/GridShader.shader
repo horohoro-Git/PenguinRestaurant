@@ -14,7 +14,7 @@
         LOD 100
         Blend SrcAlpha OneMinusSrcAlpha
         ZWrite Off
-
+        ZTest Always
         Pass
         {
             CGPROGRAM
@@ -60,7 +60,8 @@
 
                 // 그리드 선만 색상 적용, 나머지는 완전 투명
                 fixed4 col = _GridColor;
-                col.a = gridLineStrength;
+                col.a = gridLineStrength * 0.5f;
+
                 return col;
             }
             ENDCG

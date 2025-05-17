@@ -125,7 +125,7 @@ public class MoveCalculator
 
                 Vector3 size = GameInstance.GetVector3(distanceSize * 2f, distanceSize * 2f, distanceSize * 2f);
 
-                bool check = Physics.CheckBox(worldPoint, size, Quaternion.Euler(0, 0, 0), 1 << 6 | 1 << 7);
+                bool check = Physics.CheckBox(worldPoint, size, Quaternion.Euler(0, 0, 0), 1 << 6 | 1 << 7 | 1 << 16);
                 //bool isWall = Physics.CheckBox(worldPoint,vector, Quaternion.Euler(0, 0, 0), LayerMask.GetMask("wall"));
                 if (check)
                 {

@@ -1,10 +1,10 @@
-Shader "Custom/HoloShader"
+Shader "Custom/HoloShader2"
 {
     Properties
     {
         _Color ("Base Color", Color) = (0,1,1,1)
-     //   _SecondaryColor ("Secondary Color", Color) = (1,0,1,1)
-    //    _ColorBlend ("Color Blend", Range(0, 1)) = 0.5
+   //     _SecondaryColor ("Secondary Color", Color) = (1,0,1,1)
+ //       _ColorBlend ("Color Blend", Range(0, 1)) = 0.5
         _MainTex ("Albedo (RGB)", 2D) = "white" {}
         _ScanSpeed ("Scan Speed", Range(0.1, 10)) = 2.0
         _ScanWidth ("Scan Width", Range(0.1, 2)) = 0.5
@@ -17,7 +17,6 @@ Shader "Custom/HoloShader"
     {
         Tags { "RenderType"="Transparent" "Queue"="Transparent" }
         LOD 200
-        
         ZTest Always
         CGPROGRAM
         #pragma surface surf Unlit alpha:fade noforwardadd
@@ -29,8 +28,8 @@ Shader "Custom/HoloShader"
             // Properties 블록에 정의된 것과 동일한 이름을 사용하지만
             // 여기서는 인스턴싱 버퍼 내에서만 사용됩니다
             UNITY_DEFINE_INSTANCED_PROP(fixed4, _Color)
-       //     UNITY_DEFINE_INSTANCED_PROP(fixed4, _SecondaryColor)
-      //      UNITY_DEFINE_INSTANCED_PROP(float, _ColorBlend)
+      //      UNITY_DEFINE_INSTANCED_PROP(fixed4, _SecondaryColor)
+       //     UNITY_DEFINE_INSTANCED_PROP(float, _ColorBlend)
             UNITY_DEFINE_INSTANCED_PROP(float, _ScanSpeed)
             UNITY_DEFINE_INSTANCED_PROP(float, _ScanWidth)
             UNITY_DEFINE_INSTANCED_PROP(float, _FresnelPower)
@@ -57,7 +56,7 @@ Shader "Custom/HoloShader"
             
             // 인스턴스화된 프로퍼티 가져오기
             fixed4 color = UNITY_ACCESS_INSTANCED_PROP(Props, _Color);
-           // fixed4 secondaryColor = UNITY_ACCESS_INSTANCED_PROP(Props, _SecondaryColor);
+          //  fixed4 secondaryColor = UNITY_ACCESS_INSTANCED_PROP(Props, _SecondaryColor);
           //  float colorBlend = UNITY_ACCESS_INSTANCED_PROP(Props, _ColorBlend);
             float scanSpeed = UNITY_ACCESS_INSTANCED_PROP(Props, _ScanSpeed);
             float scanWidth = UNITY_ACCESS_INSTANCED_PROP(Props, _ScanWidth);
@@ -67,7 +66,7 @@ Shader "Custom/HoloShader"
             
             fixed4 texColor = tex2D(_MainTex, IN.uv_MainTex);
             
-           // fixed4 blendedColor = lerp(color, secondaryColor, colorBlend);
+        //    fixed4 blendedColor = lerp(color, secondaryColor, colorBlend);
             o.Emission = color.rgb * texColor.rgb;
             
             float fresnel = pow(1.0 - saturate(dot(normalize(o.Normal), normalize(IN.viewDir))), fresnelPower);

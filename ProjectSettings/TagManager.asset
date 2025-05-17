@@ -7,6 +7,8 @@ TagManager:
   - FxTemporaire
   - Customer
   - trashcan
+  - BMD
+  - Bold
   layers:
   - Default
   - TransparentFX

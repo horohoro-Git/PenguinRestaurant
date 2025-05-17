@@ -179,6 +179,15 @@ public struct AnimalStruct : ITableID<int>
     }
 
 }
+
+public struct GoodsStruct
+{
+    public int id;
+    public string name;
+    public string asset_name;
+
+}
+
 public struct ItemStruct : ITableID<int>
 {
     public int id;
@@ -353,6 +362,16 @@ public class Utility
             return false;
          //   GameIns.applianceUIManager.UnlockHire(false);
         }
+    }
+
+    public static void GetComponentsInChildrenReUse<T>(List<T> values, GameObject targetGO)
+    {
+        if (values == null || targetGO == null) return;
+
+        values.Clear(); // 기존 내용 초기화
+
+        // GetComponentsInChildren은 자기 자신도 포함하므로 필요에 따라 제외 가능
+        targetGO.GetComponentsInChildren(true, values); // 비활성 포함 true
     }
 }
 

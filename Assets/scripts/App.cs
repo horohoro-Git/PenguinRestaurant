@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 //한글
@@ -154,8 +155,32 @@ public class App : MonoBehaviour
             await LoadScene(AssetLoader.loadedMap["GatCharScene_Town"], cancellationToken);
 
             currentScene = SceneState.Restaurant;
-
+            await LoadFont(cancellationToken);
             loading.LoadingComplete();
+        }
+        catch (OperationCanceledException)
+        {
+
+        }
+    }
+
+    async UniTask LoadFont(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            loading.ChangeText("글꼴 준비중");
+            TMP_Text[] texts = FindObjectsOfType<TMP_Text>(true);
+
+            foreach (TMP_Text text in texts)
+            {
+                if(text.CompareTag("BMD"))
+                {
+                    text.font = AssetLoader.font;
+                    text.fontSharedMaterial = AssetLoader.font_mat;
+                }
+                await UniTask.NextFrame(cancellationToken: cancellationToken);
+            }
+
         }
         catch (OperationCanceledException)
         {

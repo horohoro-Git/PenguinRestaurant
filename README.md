@@ -16,3 +16,4 @@ Animal Restaurant Tycoon Game
 05/13 Improved pathfinding with animal size and fixed penguin position bug
 05/14 Modified the pathfinding system to pre-process neighbor checks, and applied character UI batching
 05/15 Grid-Based Building System (In Progress)
+05/16 Added a grid-based placement system and shop UI to improve user interaction
