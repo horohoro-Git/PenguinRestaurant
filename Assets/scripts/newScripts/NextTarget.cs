@@ -4,13 +4,7 @@ using UnityEngine;
 
 public class NextTarget : MonoBehaviour
 {
-    public enum WorkSpaceType
-    {
-        None,
-        Counter,
-        Table,
-        FoodMachine
-    }
+  
 
     public int money;
 

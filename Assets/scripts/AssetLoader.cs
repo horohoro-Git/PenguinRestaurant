@@ -27,6 +27,7 @@ public class AssetLoader : MonoBehaviour
     public static Dictionary<int, MachineLevelStruct> machines_levels = new Dictionary<int, MachineLevelStruct>();
     public static Dictionary<int, EmployeeLevelStruct> employees_levels = new Dictionary<int, EmployeeLevelStruct>();
     public static Dictionary<int, AnimalStruct> animals = new Dictionary<int, AnimalStruct>();
+    public static Dictionary<int, GoodsStruct> goods = new Dictionary<int, GoodsStruct>();
     public static Dictionary<int, StringStruct> itemAssetKeys = new Dictionary<int, StringStruct>();
     public static Dictionary<int, StringStruct> spriteAssetKeys = new Dictionary<int, StringStruct>();
     public static Dictionary<int, StringStruct> atlasesKeys = new Dictionary<int, StringStruct>();
@@ -38,9 +39,9 @@ public class AssetLoader : MonoBehaviour
     int unloadNum;
     public bool assetLoadSuccessful;
     public bool sceneLoaded;
-    string[] tables = new string[8]
+    string[] tables = new string[9]
     {
-        "all", "employees", "machines", "animals", "level","furniture", "sprites", "atlases"
+        "all", "employees", "machines", "animals", "level","furniture", "sprites", "atlases", "shop"
     };
     Dictionary<string, string> tableContents = new Dictionary<string, string>();
 
@@ -132,6 +133,7 @@ public class AssetLoader : MonoBehaviour
                         items = SaveLoadSystem.GetDictionaryData<int, ItemStruct>(tableContents["all"]);
                         sprites = SaveLoadSystem.GetDictionaryData<int, ItemStruct>(tableContents["sprites"]);
                         atlases = SaveLoadSystem.GetDictionaryData<int, ItemStruct>(tableContents["atlases"]);
+                        goods = SaveLoadSystem.GetDictionaryData<int, GoodsStruct>(tableContents["shop"]);
                         machines_levels = SaveLoadSystem.GetDictionaryData<int, MachineLevelStruct>(tableContents["machines"]);
                         animals = SaveLoadSystem.GetDictionaryData<int, AnimalStruct>(tableContents["animals"]);
                         employees_levels = SaveLoadSystem.GetDictionaryData<int, EmployeeLevelStruct>(tableContents["employees"]);
@@ -215,7 +217,7 @@ public class AssetLoader : MonoBehaviour
                     if (assetRequest.asset is T castedAsset)
                     {
                         outputs[keyValue.Value.Name] = castedAsset;
-                 //       Debug.Log(keyValue + " loaded");
+                        Debug.Log(keyValue + " loaded");
                     }
                 }
                 else

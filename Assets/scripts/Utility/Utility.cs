@@ -2,6 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static GameInstance;
+
+public enum WorkSpaceType
+{
+    None,
+    Counter,
+    Table,
+    FoodMachine
+}
 public enum MachineType
 {
     None,
@@ -180,12 +188,19 @@ public struct AnimalStruct : ITableID<int>
 
 }
 
-public struct GoodsStruct
+public struct GoodsStruct : ITableID<int>
 {
     public int id;
-    public string name;
     public string asset_name;
+    public string name;
+    public WorkSpaceType type;
+    public int price;
+    public int num;
+    public int require;
 
+    public readonly int ID => id;
+
+    public readonly string Name => asset_name;
 }
 
 public struct ItemStruct : ITableID<int>

@@ -22,6 +22,7 @@ public class GameInstance
     public CoroutneManager coroutneManager;
     public AssetLoader assetLoader;
     public GridManager gridManager;
+    public Store store;
     public static GameInstance GameIns { get { return gameInstance; }  }
     private static Queue<Vector3> pool = new Queue<Vector3>();
     public static List<GraphicRaycaster> graphicRaycasters = new List<GraphicRaycaster>();
