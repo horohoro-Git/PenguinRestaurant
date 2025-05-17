@@ -1,26 +1,28 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using UnityEngine;
 using static GameInstance;
 public class GridManager : MonoBehaviour
 {
     public GameObject grid;
-    public GameObject cell;
+    public MaterialBlockController cell;
     public LineRenderer lineRenderer;
 
     Queue<LineRenderer> lineQueue = new Queue<LineRenderer>();
     Queue<LineRenderer> activatedLineQueue = new Queue<LineRenderer>();
-    Queue<GameObject> cellQueue = new Queue<GameObject>();
+    Queue<MaterialBlockController> cellQueue = new Queue<MaterialBlockController>();
   //  Queue<GameObject> activatedCellQueue = new Queue<GameObject>();
     LineRenderer currentLineRender;
 
-    Dictionary<Vector2, GameObject> cellDic = new Dictionary<Vector2, GameObject>();
+    Dictionary<Vector2, MaterialBlockController> cellDic = new Dictionary<Vector2, MaterialBlockController>();
     
     float x;
     float y;
 
     bool[] grids = new bool[400];
+    List<BoxCollider> colliders = new List<BoxCollider>(100);
    
     private void Awake()
     {
@@ -30,9 +32,16 @@ public class GridManager : MonoBehaviour
     {
         CreateLines();
         CreateCells();
+
+       // Debug.Log(worldPoint);
+        int x = Mathf.FloorToInt((-3 - GameIns.calculatorScale.minX) / GameIns.calculatorScale.distanceSize);
+        int y = Mathf.FloorToInt((-10 - GameIns.calculatorScale.minY) / GameIns.calculatorScale.distanceSize);
+        int gridCellX = Mathf.FloorToInt((x - 0.7f + 2.5f * 0.5f));
+        int gridCellY = Mathf.FloorToInt((y - 1.2f + 2.5f * 0.5f));
+        Debug.Log(x + " " + y + " " + gridCellX + " " + gridCellY);
     }
 
-    private void Update()
+   /* private void Update()
     {
         if (InputManger.cachingCamera)
         {
@@ -42,7 +51,7 @@ public class GridManager : MonoBehaviour
           //      SelectLine(hit.point);
             }
         }
-    }
+    }*/
 
     void CreateLines()
     {
@@ -58,8 +67,8 @@ public class GridManager : MonoBehaviour
     {
         for (int i = 0; i < 30; i++)
         {
-            GameObject c = Instantiate(cell);
-            c.SetActive(false);
+            MaterialBlockController c = Instantiate(cell);
+            c.gameObject.SetActive(false);
             cellQueue.Enqueue(c);
         }
     }
@@ -79,24 +88,24 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    GameObject GetCell()
+    MaterialBlockController GetCell()
     {
         if(cellQueue.Count > 0)
         {
-            GameObject c = cellQueue.Dequeue();
-            c.SetActive(true);
+            MaterialBlockController c = cellQueue.Dequeue();
+            c.gameObject.SetActive(true);
           //  activatedCellQueue.Enqueue(c);
             return c;
         }
         else
         {
-            GameObject c = Instantiate(cell);
+            MaterialBlockController c = Instantiate(cell);
         //    activatedCellQueue.Enqueue(c);
             return c;
         }
     }
 
-    public void SelectLine(Vector3 startPos, GameObject go)
+    public bool SelectLine(Vector3 startPos, GameObject go, bool checkArea)
     {
        
         float cellSize = 2.5f;
@@ -110,7 +119,7 @@ public class GridManager : MonoBehaviour
         float halfSize = cellSize * 0.5f;
         float centerX = cellX * cellSize + gridOffset.x;
         float centerZ = cellY * cellSize + gridOffset.y;
-        if (x == centerX && y == centerZ) return;
+        if (x == centerX && y == centerZ) return checkArea;
         x = centerX; y = centerZ;
 
 
@@ -137,7 +146,7 @@ public class GridManager : MonoBehaviour
         int floorCellX = Mathf.FloorToInt((startPos.x - gridOffsets.x + cellSize * 0.5f) / cellSize);
         int floorCellY = Mathf.FloorToInt((startPos.z - gridOffsets.y + cellSize * 0.5f) / cellSize);
 
-        go.transform.position = new Vector3(floorCellX * cellSize, 0, floorCellY * cellSize);
+        go.transform.position = new Vector3(floorCellX * cellSize + 0.4f, 0, floorCellY * cellSize + 1.25f);
         //        bool[] blocks = new bool[MoveCalculator.GetBlocks.Length];
         // Array.Copy(MoveCalculator.GetBlocks, blocks, blocks.Length);
 
@@ -145,12 +154,62 @@ public class GridManager : MonoBehaviour
         bool[] blockArea = MoveCalculator.GetBlocks;
         CalculatorScale calculatorScale = GameIns.calculatorScale;
         int ch = 0;
-        for (int i = 0; i < calculatorScale.sizeX; i++)
+
+        colliders.Clear();
+        go.GetComponentsInChildren(true, colliders);
+        foreach (BoxCollider boxCollider in colliders)
+        {
+            if(boxCollider.gameObject.layer == 17)
+            {
+                Vector3 size = GameInstance.GetVector3(calculatorScale.distanceSize * 3f, calculatorScale.distanceSize * 3f, calculatorScale.distanceSize * 3f);
+                bool check = Physics.CheckBox(boxCollider.gameObject.transform.position, size, Quaternion.Euler(0, 0, 0), 1 << 6 | 1<< 7 | 1 <<8 | 1 << 16);
+            
+                float x = Mathf.FloorToInt(boxCollider.transform.position.x / cellSize) * cellSize;
+                float z = Mathf.FloorToInt(boxCollider.transform.position.z / cellSize) * cellSize;
+          
+                Vector2 vector2 = new Vector2(x, z);
+                if (!cellDic.ContainsKey(vector2))
+                {
+                  //  Debug.Log(boxCollider.name + " " + x + " " + z);
+                    MaterialBlockController cell_GO = GetCell();
+
+                    cell_GO.transform.position = new Vector3(x + gridOffsets.x, 0.2f, z + gridOffsets.y);
+                    if (check)
+                    {
+                        cell_GO.Set(1);
+                        ch++;
+                    }
+                    else
+                    {
+                        cell_GO.Set(0);
+                    
+                    }
+                    cellDic[vector2] = cell_GO;
+                }
+                else
+                {
+                    if (check) cellDic[vector2].Set(1);
+                  
+                }
+            }
+        }
+     //   Debug.Log(ch);
+        if(ch == 0)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+        /*for (int i = 0; i < calculatorScale.sizeX; i++)
         {
             for (int j = 0; j < calculatorScale.sizeY; j++)
             {
                 float r = calculatorScale.minY + j * calculatorScale.distanceSize;
                 float c = calculatorScale.minX + i * calculatorScale.distanceSize;
+
+                //실제 좌표
                 Vector3 worldPoint = (Vector3.right * (c) + Vector3.forward * (r));
 
                 Vector3 size = GameInstance.GetVector3(calculatorScale.distanceSize * 2f, calculatorScale.distanceSize * 2f, calculatorScale.distanceSize * 2f);
@@ -159,16 +218,13 @@ public class GridManager : MonoBehaviour
                 //bool isWall = Physics.CheckBox(worldPoint,vector, Quaternion.Euler(0, 0, 0), LayerMask.GetMask("wall"));
                 if (check)
                 {
-                  
-                    int x = Mathf.FloorToInt((i - calculatorScale.minX) / calculatorScale.distanceSize);
-                    int y = Mathf.FloorToInt((j - calculatorScale.minY) / calculatorScale.distanceSize);
-                    /*  Vector2 cellOffsets = new Vector2(0.7f, 1.2f);
-                      int gridCellX = Mathf.FloorToInt((x - cellOffsets.x + cellSize * 0.5f) / cellSize);
-                      int gridCellY = Mathf.FloorToInt((y - cellOffsets.y + cellSize * 0.5f) / cellSize);
-  */
-                    Vector2 gridOffsetss = new Vector2(1.5f, 0);
-                    int gridCellX = Mathf.FloorToInt((c - gridOffsetss.x + cellSize * 0.5f) / cellSize);
-                    int gridCellY = Mathf.FloorToInt((r - gridOffsetss.y + cellSize * 0.5f) / cellSize);
+                    Debug.Log(worldPoint);
+                    int x = Mathf.FloorToInt((c - calculatorScale.minX) / calculatorScale.distanceSize);
+                    int y = Mathf.FloorToInt((r - calculatorScale.minY) / calculatorScale.distanceSize);
+                      int gridCellX = Mathf.FloorToInt((c - gridOffsets.x + cellSize * 0.5f));
+                      int gridCellY = Mathf.FloorToInt((r - gridOffsets.y + cellSize * 0.5f));
+                   // int gridCellX = Mathf.FloorToInt((c - gridOffsets.x));
+                  //  int gridCellY = Mathf.FloorToInt((r - gridOffsets.y));
 
                     Vector2 vector2 = new Vector2(gridCellX, gridCellY);
                     if (!cellDic.ContainsKey(vector2))
@@ -177,7 +233,8 @@ public class GridManager : MonoBehaviour
                         MaterialPropertyBlock _propBlock = new MaterialPropertyBlock();
                         GameObject cell_GO = GetCell();
                         Renderer renderer = cell_GO.GetComponent<Renderer>();
-                        cell_GO.transform.position = new Vector3(vector2.x * cellSize , 0.1f, vector2.y * cellSize);
+                       
+                        cell_GO.transform.position = new Vector3(gridCellX, 0.1f, gridCellY);
                         if (!Utility.ValidCheckWithCharacterSize(x, y, MoveCalculator.moveX, MoveCalculator.moveY))
                         {
                             //실패 붉은 색 표시
@@ -197,13 +254,10 @@ public class GridManager : MonoBehaviour
 
                         cellDic[vector2] = cell_GO;
                     }
-                  
+
                 }
             }
-        }
-
-
-        Debug.Log(ch);
+        }*/
 
 
     }
@@ -229,7 +283,7 @@ public class GridManager : MonoBehaviour
     {
         foreach (var c in cellDic)
         {
-            c.Value.SetActive(false);
+            c.Value.gameObject.SetActive(false);
             cellQueue.Enqueue(c.Value);
         }
         cellDic.Clear();

@@ -12,8 +12,10 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
     public GameObject currnet;
     public RectTransform itemImage;
     Vector3 origin;
+    bool currentCheckArea = false;
     public void OnBeginDrag(PointerEventData eventData)
     {
+        currentCheckArea = false;
         GameIns.inputManager.inputDisAble = true;
         currnet = Instantiate(furniture_Preview);
         origin = itemImage.position;
@@ -35,7 +37,7 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
             if(Physics.Raycast(r, out RaycastHit hit, float.MaxValue, 1))
             {
                 //    currnet.transform.position = hit.point;
-                GameIns.gridManager.SelectLine(hit.point, currnet);
+                currentCheckArea = GameIns.gridManager.SelectLine(hit.point, currnet, currentCheckArea);
             }
         //    currnet.transform.position = InputManger.cachingCamera.ScreenToWorldPoint(Input.mousePosition);
         
@@ -44,8 +46,18 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
 
     public void OnEndDrag(PointerEventData eventData)
     {
-      //  if (currnet != null) Destroy(currnet);
-       // currnet = null;
+        //  if (currnet != null) Destroy(currnet);
+        // currnet = null;
+        if (currentCheckArea)
+        {
+            Debug.Log("Success");
+
+        }
+        else
+        {
+            Debug.Log("Fail");
+        }
+
         itemImage.position = origin;
         GameIns.inputManager.inputDisAble = false;
     }

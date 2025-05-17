@@ -27,7 +27,12 @@ public class AnimalCard : MonoBehaviour
     public AnimalType animalType;
 
     // Start is called before the first frame update
-  
+
+    public void Awake()
+    {
+        textName.font = AssetLoader.font;
+        textName.fontSharedMaterial = AssetLoader.font_mat;
+    }
 
     public void OnClick()
     {

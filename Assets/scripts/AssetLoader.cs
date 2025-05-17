@@ -177,6 +177,8 @@ public class AssetLoader : MonoBehaviour
             if (unloadNum == 0)
             {
                 assetLoadSuccessful = true;
+
+
             }
         }
         catch (OperationCanceledException)
