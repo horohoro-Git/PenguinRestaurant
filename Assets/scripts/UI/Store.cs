@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using static AssetLoader;
 
 public class Store : MonoBehaviour
 {
@@ -16,15 +17,29 @@ public class Store : MonoBehaviour
     Dictionary<int, GoodsStruct> goodsStructs = new Dictionary<int, GoodsStruct>();
    // Dictionary<WorkSpaceType, StoreGoods> goodsDic = new Dictionary<WorkSpaceType, StoreGoods>();
     List<StoreGoods> goodsList = new List<StoreGoods>();
+
+    public Dictionary<int, PlaceController> goodsPreviewDic = new Dictionary<int, PlaceController>();
+    public Dictionary<int, GameObject> goodsDic = new Dictionary<int, GameObject>();
+    public PlaceController currentPreview; 
     private void Awake()
     {
         GameInstance.GameIns.store = this;
+
+        foreach (var v in AssetLoader.goods)
+        {
+            GameObject g = Instantiate(loadedAssets[itemAssetKeys[v.Key].ID]);
+            PlaceController preview = Instantiate(loadedAssets[itemAssetKeys[v.Key + 1000].ID]).GetComponent<PlaceController>();
+            g.SetActive(false);
+            preview.gameObject.SetActive(false);   
+            goodsDic[v.Key] = g;
+            goodsPreviewDic[v.Key + 1000] = preview;
+        }
     }
 
     public void NewGoods(Dictionary<int, GoodsStruct> goodsStruct)
     {
         goodsStructs = goodsStruct;
-       
+        
       
         foreach (var d in goodsStruct)
         {

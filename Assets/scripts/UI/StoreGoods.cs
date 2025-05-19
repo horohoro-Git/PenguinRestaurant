@@ -12,7 +12,7 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
 {
     public GameObject furniture;
     public GameObject furniture_Preview;
-    public GameObject currnet;
+    public PlaceController currnet;
     public RectTransform rect;
     public RectTransform itemImage;
 
@@ -24,26 +24,37 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
     [NonSerialized]
     public GoodsStruct goods;
 
+
+   
     void Awake()
     {
         rect = GetComponent<RectTransform>();
+      
     }
     public void Setup(GoodsStruct goods)
     {
+  
         image_name.font = font;
         image_name.fontMaterial = font_mat;
         this.goods = goods;
         image_name.text = goods.name;
         itemImage.GetComponent<Image>().sprite = loadedAtlases["Furnitures"].GetSprite(spriteAssetKeys[goods.id].ID);
+        instaceImage = Instantiate(GameIns.store.instanceImage, GameIns.store.subCanvas.transform);
+        instaceImage.gameObject.SetActive(false);
         //instaceImage.GetComponent<Image>().sprite = loadedAtlases["Furnitures"].GetSprite(spriteAssetKeys[goods.id].ID);
-        furniture = loadedAssets[itemAssetKeys[goods.id].ID];
-        if(itemAssetKeys.ContainsKey(goods.id + 1000)) furniture_Preview = loadedAssets[itemAssetKeys[goods.id + 1000].ID];
+        // furniture = GameIns.store.goodsDic[goods.id];
+        // /   
+        //   if(itemAssetKeys.ContainsKey(goods.id + 1000)) furniture_Preview = loadedAssets[itemAssetKeys[goods.id + 1000].ID];
     }
     public void OnBeginDrag(PointerEventData eventData)
     {
         currentCheckArea = false;
         GameIns.inputManager.inputDisAble = true;
      
+        if(GameIns.store.currentPreview != null)
+        {
+            GameIns.store.currentPreview.Cancel();
+        }
         // origin = instaceImage.position;
         //     instaceImage = Instantiate(GameIns.store.instanceImage, GameIns.store.subCanvas.transform);
         //   instaceImage.GetComponent<Image>().sprite = itemImage.GetComponent<Image>().sprite;
@@ -52,11 +63,11 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (GameIns.inputManager.CheckClickedUI())
+        if (GameIns.inputManager.CheckClickedUI(1 << 14))
         {
-            if(instaceImage == null)
+            if(!instaceImage.gameObject.activeSelf)
             {
-                instaceImage = Instantiate(GameIns.store.instanceImage, GameIns.store.subCanvas.transform);
+                instaceImage.gameObject.SetActive(true);
                 instaceImage.GetComponent<Image>().sprite = itemImage.GetComponent<Image>().sprite;
                 instaceImage.gameObject.layer = 14;
                 instaceImage.GetComponent<Image>().raycastTarget = true;
@@ -68,15 +79,17 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
         }
         else
         {
-            if (instaceImage != null)
+            if (instaceImage.gameObject.activeSelf)
             {
-                Destroy(instaceImage.gameObject);
-                instaceImage = null;
+                instaceImage.gameObject.SetActive(false);
                 GameIns.store.CloseStore();
             }
             if(currnet == null)
             {
-                currnet = Instantiate(furniture_Preview);
+                currnet = GameIns.store.goodsPreviewDic[goods.ID + 1000];
+                currnet.gameObject.SetActive(true);
+                currnet.storeGoods = this;
+                GameIns.store.currentPreview = currnet;
             }
          //   instaceImage.SetParent(itemImage);
          //   instaceImage.position = itemImage.position;
@@ -94,7 +107,7 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
     public void OnEndDrag(PointerEventData eventData)
     {
         //  if (currnet != null) Destroy(currnet);
-        // currnet = null;
+        //currnet = null;
         if (currentCheckArea)
         {
             Debug.Log("Success");
@@ -107,10 +120,43 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
 
         if (instaceImage != null)
         {
-            Destroy(instaceImage.gameObject);
-            instaceImage = null;
+            instaceImage.gameObject.SetActive(false);
+          //  Destroy(instaceImage.gameObject);
+            //instaceImage = null;
         }
         GameIns.inputManager.inputDisAble = false;
+    }
+
+
+    public void RemoveGoodsPreview()
+    {
+        if (currnet != null)
+        {
+            currnet.gameObject.SetActive(false);
+            //Destroy(currnet.gameObject);
+        }
+        currnet = null;
+    }
+
+    public void PlaceGoods(Vector3 offset)
+    {
+        if(currnet)
+        {
+            GameObject go = GameIns.store.goodsDic[goods.ID]; //Instantiate(furniture);
+            go.SetActive(true);
+            Vector3 target = currnet.transform.position;
+            go.transform.position = target;
+            if (go.TryGetComponent<IObjectOffset>(out IObjectOffset offsets))
+            {
+                offsets.offset.localPosition = offset;
+                offsets.offset.rotation = currnet.offset.transform.rotation;
+            }
+            else
+            {
+                go.transform.rotation = currnet.offset.transform.rotation;
+            }
+         
+        }
     }
 
     public void Purchase()

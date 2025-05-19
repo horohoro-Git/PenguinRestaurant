@@ -244,7 +244,7 @@ public class InputManger : MonoBehaviour
     {
         camVelocity = Vector3.zero;
         if (cachingCamera == null) cachingCamera = Camera.main;
-        if (CheckClickedUI()) return;
+        if (CheckClickedUI(1 << 5 | 1 << 14)) return;
         if (Utility.IsInsideCameraViewport(currentPoint, cachingCamera))
         {
            
@@ -276,7 +276,7 @@ public class InputManger : MonoBehaviour
             buyer = null;
         }
          
-        if (CheckClickedUI()) return;
+        if (CheckClickedUI(1 << 5 | 1 << 14)) return;
         if (!isDragging)
         {
             //인게임 오브젝트 클릭
@@ -464,7 +464,7 @@ public class InputManger : MonoBehaviour
         checkingHirePos = Utility.CheckHirable(cameraRange.position, ref refX, ref refY, checkingHirePos);
         return checkingHirePos;
     }
-    public bool CheckClickedUI()
+    public bool CheckClickedUI(int layer)
     {
         results.Clear();
         if (pointerEventData == null) pointerEventData = new PointerEventData(EventSystem.current);
@@ -475,7 +475,8 @@ public class InputManger : MonoBehaviour
 
             for(int j = 0; j < results.Count; j++)
             {
-                if(results[j].gameObject.layer != 0)
+                int l = layer >> results[j].gameObject.layer;
+                if(results[j].gameObject.layer != 0 && l == 1)
                 {
                     return true;
                 }

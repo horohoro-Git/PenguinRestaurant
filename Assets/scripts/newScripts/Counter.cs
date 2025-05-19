@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using static Counter;
 //using TMPro.EditorUtilities;
-public class Counter : MonoBehaviour
+public class Counter : MonoBehaviour, IObjectOffset
 {
     public enum CounterType
     {
@@ -23,6 +23,9 @@ public class Counter : MonoBehaviour
         get { return customer; }
         set { customer = value;}
     }
+
+    [field: SerializeField]
+    public Transform offset { get; set; }
 
     public Transform workingSpot;
     public WorkingSpot[] workingSpot_SmallTables;
