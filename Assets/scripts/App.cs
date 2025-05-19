@@ -7,6 +7,7 @@ using System.Threading;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UIElements;
 //한글
 
 public enum SceneState
@@ -29,6 +30,8 @@ public class App : MonoBehaviour
     public Vector3 pos { get { return vector; } set { vector = value; Debug.Log(value); } }
     static Dictionary<string, Scene> scenes = new Dictionary<string, Scene>();
     Loading loading;
+
+    List<GameObject> loadedScenesRootUI = new List<GameObject>();
     private void Awake()
     {
         //Resources.UnloadUnusedAssets();
@@ -169,17 +172,40 @@ public class App : MonoBehaviour
         try
         {
             loading.ChangeText("글꼴 준비중");
-            TMP_Text[] texts = FindObjectsOfType<TMP_Text>(true);
+
+            while (loadedScenesRootUI.Count > 0)
+            {
+                GameObject ui = loadedScenesRootUI[loadedScenesRootUI.Count - 1];
+                loadedScenesRootUI.RemoveAt(loadedScenesRootUI.Count - 1);
+                List<TMP_Text> texts = new List<TMP_Text>();
+                ui.GetComponentsInChildren(true, texts);
+
+                for (int i = texts.Count - 1; i >= 0; i--)
+                {
+                    GameObject g = texts[i].gameObject;
+
+                    if (g.CompareTag("BMD"))
+                    {
+                        texts[i].font = AssetLoader.font;
+                        texts[i].fontSharedMaterial = AssetLoader.font_mat;
+                    }
+                    texts.RemoveAt(i);
+                    await UniTask.NextFrame(cancellationToken: cancellationToken);
+                }
+            }
+
+
+        /*    TMP_Text[] texts = FindObjectsOfType<TMP_Text>(true);
 
             foreach (TMP_Text text in texts)
             {
-                if(text.CompareTag("BMD"))
+                if (text.CompareTag("BMD"))
                 {
                     text.font = AssetLoader.font;
                     text.fontSharedMaterial = AssetLoader.font_mat;
                 }
                 await UniTask.NextFrame(cancellationToken: cancellationToken);
-            }
+            }*/
 
         }
         catch (OperationCanceledException)
@@ -188,6 +214,10 @@ public class App : MonoBehaviour
         }
     }
 
+    public void GetSceneUI(GameObject go)
+    {
+        loadedScenesRootUI.Add(go);
+    }
     private void OnApplicationQuit()
     {
         if(GameInstance.GameIns != null)

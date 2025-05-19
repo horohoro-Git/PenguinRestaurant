@@ -395,4 +395,8 @@ public interface ITableID<K>
     K ID { get; }
     public string Name { get; }
 }
+public interface IObjectOffset
+{
+    public Transform offset { get; set; }
+}
 

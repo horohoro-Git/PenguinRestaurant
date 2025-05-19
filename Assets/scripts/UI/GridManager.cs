@@ -22,16 +22,15 @@ public class GridManager : MonoBehaviour
     float x;
     float y;
 
-    bool[] grids = new bool[400];
-    List<BoxCollider> colliders = new List<BoxCollider>(100);
-   
+    bool[] grids = new bool[250 * 250];
+    float cellSize = 2.5f;
+    Vector2 gridOffsets = new Vector2(0.75f, 1.25f);
     private void Awake()
     {
         GameInstance.GameIns.gridManager = this;
     }
     private void Start()
     {
-        CreateLines();
         CreateCells();
 
        // Debug.Log(worldPoint);
@@ -106,16 +105,16 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    public bool SelectLine(Vector3 startPos, GameObject go, bool checkArea)
+    public bool SelectLine(Vector3 startPos, PlaceController go, bool checkArea)
     {
        
-        float cellSize = 2.5f;
-        Vector2 gridOffset = new Vector2(1.2f, 1.7f);
-        int cellX = Mathf.FloorToInt((startPos.x - gridOffset.x -4.5f + cellSize * 0.5f) / cellSize);
-        int cellY = Mathf.FloorToInt((startPos.z - gridOffset.y - 4.5f + cellSize * 0.5f) / cellSize);
+       
+        Vector2 gridOffset = new Vector2(0.75f, 1.25f);
+        int cellX = Mathf.FloorToInt((startPos.x - gridOffset.x + cellSize * 0.5f) / cellSize);
+        int cellY = Mathf.FloorToInt((startPos.z - gridOffset.y + cellSize * 0.5f) / cellSize);
       
     
-        Vector3[] corners = new Vector3[5];
+       
 
         float halfSize = cellSize * 0.5f;
         float centerX = cellX * cellSize + gridOffset.x;
@@ -123,14 +122,11 @@ public class GridManager : MonoBehaviour
         if (x == centerX && y == centerZ) return checkArea;
         x = centerX; y = centerZ;
 
-
-
-
-        if (currentLineRender != null)
+    /*    if (currentLineRender != null)
             RemoveLine(currentLineRender);
 
         currentLineRender = GetLine();
-
+        Vector3[] corners = new Vector3[5];
         corners[0] = new Vector3(centerX - halfSize , 11.2f, centerZ - halfSize); 
         corners[1] = new Vector3(centerX + halfSize, 11.2f, centerZ - halfSize); 
         corners[2] = new Vector3(centerX + halfSize , 11.2f, centerZ + halfSize);
@@ -140,178 +136,105 @@ public class GridManager : MonoBehaviour
         currentLineRender.positionCount = 5;
         currentLineRender.SetPositions(corners);
         currentLineRender.startWidth = currentLineRender.endWidth = 0.2f;
-        currentLineRender.useWorldSpace = true;
+        currentLineRender.useWorldSpace = true;*/
 
 
-        Vector2 gridOffsets = new Vector2(0.7f, 1.2f);
-        int floorCellX = Mathf.FloorToInt((startPos.x - gridOffsets.x + cellSize * 0.5f) / cellSize);
-        int floorCellY = Mathf.FloorToInt((startPos.z - gridOffsets.y + cellSize * 0.5f) / cellSize);
+       
+       // int floorCellX = Mathf.FloorToInt((startPos.x - gridOffsets.x + (cellSize + 4.6f) * 0.5f) / cellSize);
+      //  int floorCellY = Mathf.FloorToInt((startPos.z - gridOffsets.y + (4.6f + cellSize) * 0.5f) / cellSize);
 
-        go.transform.position = new Vector3(floorCellX * cellSize + 0.4f, 0, floorCellY * cellSize + 1.25f);
+       // go.transform.position = new Vector3(floorCellX * cellSize + 0.6f, 0, floorCellY * cellSize + 1.25f);
+        go.transform.position = new Vector3(cellX * cellSize + go.offsetVector.x , 0, cellY * cellSize + go.offsetVector.y);
         //        bool[] blocks = new bool[MoveCalculator.GetBlocks.Length];
         // Array.Copy(MoveCalculator.GetBlocks, blocks, blocks.Length);
 
-        RemoveCell();
-        bool[] blockArea = MoveCalculator.GetBlocks;
-        CalculatorScale calculatorScale = GameIns.calculatorScale;
-        int ch = 0;
-
-        colliders.Clear();
-        go.GetComponentsInChildren(true, colliders);
-        foreach (BoxCollider boxCollider in colliders)
-        {
-            if(boxCollider.gameObject.layer == 17)
-            {
-                Vector3 size = GameInstance.GetVector3(calculatorScale.distanceSize * 3f, calculatorScale.distanceSize * 3f, calculatorScale.distanceSize * 3f);
-                bool check = Physics.CheckBox(boxCollider.gameObject.transform.position, size, Quaternion.Euler(0, 0, 0), 1 << 6 | 1<< 7 | 1 <<8 | 1 << 16);
-            
-                float x = Mathf.FloorToInt(boxCollider.transform.position.x / cellSize) * cellSize;
-                float z = Mathf.FloorToInt(boxCollider.transform.position.z / cellSize) * cellSize;
-          
-                Vector2 vector2 = new Vector2(x, z);
-                if (!cellDic.ContainsKey(vector2))
-                {
-                  //  Debug.Log(boxCollider.name + " " + x + " " + z);
-                    MaterialBlockController cell_GO = GetCell();
-
-                    cell_GO.transform.position = new Vector3(x + gridOffsets.x, 0.2f, z + gridOffsets.y);
-                    if (check)
-                    {
-                        cell_GO.Set(1);
-                        ch++;
-                    }
-                    else
-                    {
-                        cell_GO.Set(0);
-                    
-                    }
-                    cellDic[vector2] = cell_GO;
-                }
-                else
-                {
-                    if (check) cellDic[vector2].Set(1);
-                  
-                }
-            }
-        }
-     //   Debug.Log(ch);
-        if(ch == 0)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-        /*for (int i = 0; i < calculatorScale.sizeX; i++)
-        {
-            for (int j = 0; j < calculatorScale.sizeY; j++)
-            {
-                float r = calculatorScale.minY + j * calculatorScale.distanceSize;
-                float c = calculatorScale.minX + i * calculatorScale.distanceSize;
-
-                //실제 좌표
-                Vector3 worldPoint = (Vector3.right * (c) + Vector3.forward * (r));
-
-                Vector3 size = GameInstance.GetVector3(calculatorScale.distanceSize * 2f, calculatorScale.distanceSize * 2f, calculatorScale.distanceSize * 2f);
-                Debug.DrawLine(worldPoint - size, worldPoint + size, Color.red, 1f);
-                bool check = Physics.CheckBox(worldPoint, size, Quaternion.Euler(0, 0, 0), 1 << 17);
-                //bool isWall = Physics.CheckBox(worldPoint,vector, Quaternion.Euler(0, 0, 0), LayerMask.GetMask("wall"));
-                if (check)
-                {
-                    Debug.Log(worldPoint);
-                    int x = Mathf.FloorToInt((c - calculatorScale.minX) / calculatorScale.distanceSize);
-                    int y = Mathf.FloorToInt((r - calculatorScale.minY) / calculatorScale.distanceSize);
-                      int gridCellX = Mathf.FloorToInt((c - gridOffsets.x + cellSize * 0.5f));
-                      int gridCellY = Mathf.FloorToInt((r - gridOffsets.y + cellSize * 0.5f));
-                   // int gridCellX = Mathf.FloorToInt((c - gridOffsets.x));
-                  //  int gridCellY = Mathf.FloorToInt((r - gridOffsets.y));
-
-                    Vector2 vector2 = new Vector2(gridCellX, gridCellY);
-                    if (!cellDic.ContainsKey(vector2))
-                    {
-                        ch++;
-                        MaterialPropertyBlock _propBlock = new MaterialPropertyBlock();
-                        GameObject cell_GO = GetCell();
-                        Renderer renderer = cell_GO.GetComponent<Renderer>();
-                       
-                        cell_GO.transform.position = new Vector3(gridCellX, 0.1f, gridCellY);
-                        if (!Utility.ValidCheckWithCharacterSize(x, y, MoveCalculator.moveX, MoveCalculator.moveY))
-                        {
-                            //실패 붉은 색 표시
-                            renderer.GetPropertyBlock(_propBlock);
-                            _propBlock.SetFloat("_ColorBlend", 1);
-                            renderer.SetPropertyBlock(_propBlock);
-
-                        }
-                        else
-                        {
-                            //성공 초록색 표시
-                            renderer.GetPropertyBlock(_propBlock);
-                            _propBlock.SetFloat("_ColorBlend", 0);
-                            renderer.SetPropertyBlock(_propBlock);
-
-                        }
-
-                        cellDic[vector2] = cell_GO;
-                    }
-
-                }
-            }
-        }*/
-
-
+        return CheckObject(go);
     }
 
 
-    public bool CheckObject(GameObject go)
+    public bool CheckObject(PlaceController go)
     {
         RemoveCell();
-        colliders.Clear();
         CalculatorScale calculatorScale = GameIns.calculatorScale;
-        Vector2 gridOffsets = new Vector2(0.7f, 1.2f);
-        float cellSize = 2.5f;
-        go.GetComponentsInChildren(true, colliders);
+        int ch = 0;
 
-        foreach (BoxCollider boxCollider in colliders)
+        //   colliders.Clear();
+        if (go.colliders.Count == 0) go.GetComponentsInChildren(true, go.colliders);
+        foreach (BoxCollider boxCollider in go.colliders)
         {
             if (boxCollider.gameObject.layer == 17)
             {
                 Vector3 size = GameInstance.GetVector3(calculatorScale.distanceSize * 3f, calculatorScale.distanceSize * 3f, calculatorScale.distanceSize * 3f);
-                bool check = Physics.CheckBox(boxCollider.gameObject.transform.position, size, Quaternion.Euler(0, 0, 0), 1 << 6 | 1 << 7 | 1 << 8 | 1 << 16);
 
                 float x = Mathf.FloorToInt(boxCollider.transform.position.x / cellSize) * cellSize;
                 float z = Mathf.FloorToInt(boxCollider.transform.position.z / cellSize) * cellSize;
 
                 Vector2 vector2 = new Vector2(x, z);
+                int gridX = Mathf.FloorToInt((x - calculatorScale.minX) / 2.5f);
+                int gridY = Mathf.FloorToInt((z - calculatorScale.minY) / 2.5f);
                 if (!cellDic.ContainsKey(vector2))
                 {
-                    //  Debug.Log(boxCollider.name + " " + x + " " + z);
                     MaterialBlockController cell_GO = GetCell();
 
-                    cell_GO.transform.position = new Vector3(x + gridOffsets.x, 0.2f, z + gridOffsets.y);
-                    if (check)
+                    if ((gridX + gridY * GameIns.calculatorScale.sizeX) < grids.Length && !grids[MoveCalculator.GetIndex(gridX, gridY)])
                     {
-                        cell_GO.Set(1);
-              //          ch++;
+                        bool check = Physics.CheckBox(boxCollider.gameObject.transform.position, size, Quaternion.Euler(0, 0, 0), 1 << 6 | 1 << 7 | 1 << 8 | 1 << 16);
+
+                        cell_GO.transform.position = new Vector3(x + gridOffsets.x, 0.2f, z + gridOffsets.y);
+                        if (check)
+                        {
+                            cell_GO.Set(1);
+                            ch++;
+                        }
+                        else
+                        {
+                            cell_GO.Set(0);
+
+                        }
+                        cellDic[vector2] = cell_GO;
                     }
                     else
                     {
-                        cell_GO.Set(0);
-
+                        cell_GO.transform.position = new Vector3(x + gridOffsets.x, 0.2f, z + gridOffsets.y);
+                        cell_GO.Set(1);
+                        cellDic[vector2] = cell_GO;
+                        ch++;
                     }
-                    cellDic[vector2] = cell_GO;
                 }
                 else
                 {
-                    if (check) cellDic[vector2].Set(1);
-
+                    if (cellDic[vector2].GetColorParam() == 0)
+                    {
+                        if ((gridX + gridY * GameIns.calculatorScale.sizeX) < grids.Length && !grids[MoveCalculator.GetIndex(gridX, gridY)])
+                        {
+                            bool check = Physics.CheckBox(boxCollider.gameObject.transform.position, size, Quaternion.Euler(0, 0, 0), 1 << 6 | 1 << 7 | 1 << 8 | 1 << 16);
+                            if (check)
+                            {
+                                cellDic[vector2].Set(1);
+                                ch++;
+                            }
+                        }
+                        else
+                        {
+                            cellDic[vector2].Set(1);
+                            ch++;
+                        }
+                    }
                 }
             }
         }
-
-        return true;
+        if (ch == 0)
+        {
+            go.canPlace = true;
+            return true;
+        }
+        else
+        {
+            go.canPlace = false;
+            return false;
+        }
     }
+
     public Vector3 FurniturePreview(Vector3 startPos)
     {
         float cellSize = 2.5f;
@@ -323,12 +246,27 @@ public class GridManager : MonoBehaviour
 
         return new Vector3(x * cellSize, 0, y * cellSize);
     }
+
     void RemoveLine(LineRenderer line)
     {
         line.gameObject.SetActive(false);
         lineQueue.Enqueue(line);
     }
-    void RemoveCell()
+
+    public void ApplyGird()
+    {
+        foreach (var c in cellDic)
+        {
+            int gridX = Mathf.FloorToInt((c.Key.x - GameIns.calculatorScale.minX) / 2.5f);
+            int gridY = Mathf.FloorToInt((c.Key.y - GameIns.calculatorScale.minY) / 2.5f);
+            int index = MoveCalculator.GetIndex(gridX, gridY);
+            if (index < grids.Length) grids[index] = true;
+            c.Value.gameObject.SetActive(false);
+            cellQueue.Enqueue(c.Value);
+        }
+        cellDic.Clear();
+    }
+    public void RemoveCell()
     {
         foreach (var c in cellDic)
         {

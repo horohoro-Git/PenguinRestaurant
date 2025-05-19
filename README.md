@@ -18,3 +18,4 @@ Animal Restaurant Tycoon Game
 05/15 Grid-Based Building System (In Progress)
 05/16 Added a grid-based placement system and shop UI to improve user interaction
 05/17 Integrate the placement feature with the shop system
+05/18 Improve loading speed, add placeable furniture items, save grid-based placement data and add an “undo placement” function, keep furniture objects draggable until they’re fully placed

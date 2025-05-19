@@ -4,7 +4,7 @@ public class TableScaleUp : MonoBehaviour
 {
     public float duration = 0.3f; // 애니메이션 지속 시간
     public float bounceIntensity = 0.3f; // 진동 강도
-    private Vector3 initialScale; // 초기 스케일
+    private Vector3 initialScale = new Vector3(3,1,3); // 초기 스케일
     private float elapsedTime = 0f; // 경과 시간
     private int bounceCount = 2; // 반복 횟수
     private int currentBounce = 0; // 현재 반복 카운터

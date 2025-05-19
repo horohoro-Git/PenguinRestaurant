@@ -7,6 +7,7 @@ public class MaterialBlockController : MonoBehaviour
     Renderer renderer;
     public Material red;
     public Material green;
+    int colorParam = 0;
     private void Awake()
     {
         renderer = GetComponent<Renderer>();
@@ -15,8 +16,10 @@ public class MaterialBlockController : MonoBehaviour
 
     public void Set(int colorParam)
     {
+        this.colorParam = colorParam;
         if(colorParam == 1)
         {
+          
             renderer.sharedMaterial = red;
         }
         else
@@ -24,5 +27,8 @@ public class MaterialBlockController : MonoBehaviour
             renderer.sharedMaterial = green;
         }
     }
-  
+    public int GetColorParam()
+    {
+        return colorParam;
+    }
 }
