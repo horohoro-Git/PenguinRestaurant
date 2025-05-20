@@ -162,9 +162,9 @@ public class AssetLoader : MonoBehaviour
                          font_mat = font.material;
  */
                     }
-
                     SpriteAtlasManager.atlasRequested += (tag, callback) =>
                     {
+                        Debug.Log($"[TAG]: {tag}");
                         callback(loadedAtlases[tag]);
                       
                     };

@@ -244,7 +244,7 @@ public class InputManger : MonoBehaviour
     {
         camVelocity = Vector3.zero;
         if (cachingCamera == null) cachingCamera = Camera.main;
-        if (CheckClickedUI(1 << 5 | 1 << 14)) return;
+        if (CheckClickedUI(1 << 5 | 1 << 14 | 1 << 18)) return;
         if (Utility.IsInsideCameraViewport(currentPoint, cachingCamera))
         {
            
@@ -276,7 +276,7 @@ public class InputManger : MonoBehaviour
             buyer = null;
         }
          
-        if (CheckClickedUI(1 << 5 | 1 << 14)) return;
+        if (CheckClickedUI(1 << 5 | 1 << 14 | 1 << 18)) return;
         if (!isDragging)
         {
             //인게임 오브젝트 클릭
@@ -336,9 +336,9 @@ public class InputManger : MonoBehaviour
         if(Physics.Raycast(ray, out hit, Mathf.Infinity, 1<<13))
         {
             GameObject go = hit.collider.gameObject;
-            if(Utility.TryGetComponentInParent<FoodMachine>(go, out FoodMachine foodMachine))
+            if(Utility.TryGetComponentInParent<Furniture>(go, out Furniture furniture))
             {
-                GameInstance.GameIns.applianceUIManager.ShowApplianceInfo(foodMachine);
+                GameInstance.GameIns.applianceUIManager.ShowApplianceInfo(furniture);
             }
         }
     }
@@ -476,6 +476,7 @@ public class InputManger : MonoBehaviour
             for(int j = 0; j < results.Count; j++)
             {
                 int l = layer >> results[j].gameObject.layer;
+                l &= 1;
                 if(results[j].gameObject.layer != 0 && l == 1)
                 {
                     return true;

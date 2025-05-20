@@ -6,10 +6,7 @@ using Unity.VisualScripting;
 using System.Collections.Generic;
 using UnityEngine.EventSystems;
 using System;
-using UnityEngine.InputSystem.EnhancedTouch;
-using UnityEngine.UIElements.Experimental;
-using UnityEngine.InputSystem.HID;
-
+using static AssetLoader;
 public class ApplianceUIManager : MonoBehaviour
 {
     public TMP_Text text;
@@ -27,6 +24,8 @@ public class ApplianceUIManager : MonoBehaviour
     public GameObject rewardChest;
     public GameObject rewardChest_Fill;
     public GameObject otherUI;
+    public Store shopUI;
+    public FurnitureInfo furnitureUI;
 
     public Button upgradeButton;
     FoodMachine foodMachine;
@@ -72,10 +71,10 @@ public class ApplianceUIManager : MonoBehaviour
         // rewardsBox = GetComponentInChildren<RewardsBox>();
 
         GameInstance.GameIns.applianceUIManager = this;
-        upgradeButton.onClick.AddListener(() =>
+      /*  upgradeButton.onClick.AddListener(() =>
         {
             Upgrade();
-        });
+        });*/
         hireBtn.onClick.AddListener(() =>
         {
             GameInstance.GameIns.restaurantManager.HireEmployee();
@@ -148,21 +147,21 @@ public class ApplianceUIManager : MonoBehaviour
     }
 
     Coroutine infoCoroutine;
-    public void ShowApplianceInfo(FoodMachine foodMachine)
+    public void ShowApplianceInfo(Furniture furniture)
     {
         if (scheduleCoroutine == null)
         {
             animalController = null;
-            this.foodMachine = foodMachine;
+
+            furnitureUI.UpdateInfo(furniture);
             appliancePanel.SetActive(true);
             //UnlockHire(false);
             otherUI.SetActive(false);
+            shopUI.gameObject.SetActive(false);
          /*   if (infoCoroutine != null) StopCoroutine(infoCoroutine);
             if (Application.platform == RuntimePlatform.Android) infoCoroutine = StartCoroutine(InputInfos_A(false));
             else infoCoroutine = StartCoroutine(InputInfos(false));*/
-            applianceImage.sprite = machines[(int)foodMachine.machineLevelStruct.type - 1];
-            upgradeCostText.text = $"업그레이드 비용 : {foodMachine.machineLevelStruct.price}원";
-            upgradeInfoText.text = $"레벨 : {foodMachine.machineLevelStruct.level}\n음식 판매가격 : {foodMachine.machineLevelStruct.sale_proceed}원\n생산 속도 : {foodMachine.machineLevelStruct.cooking_time}/s\n최대 생산량: {foodMachine.machineLevelStruct.max_height}개";
+     
         }
     }
 
@@ -410,7 +409,7 @@ public class ApplianceUIManager : MonoBehaviour
                                 float test2 = (GameInstance.GameIns.inputManager.preLoc - GameInstance.GameIns.inputManager.curLoc).magnitude;
                                 if (test2 < 0.05f)
                                 {
-                                    ShowApplianceInfo(foodMachine);
+                               //     ShowApplianceInfo(foodMachine);
 
                                     //   yield break;
                                     yield break;
@@ -491,6 +490,11 @@ public class ApplianceUIManager : MonoBehaviour
         text.text = $"레벨 {level}";
     }
 
+    public void ActtiveSubUI(bool isactive)
+    {
+        hireBtn.gameObject.SetActive(isactive);
+        rewardChestBtn.gameObject.SetActive(isactive);
+    }
 
     void Upgrade()
     {
@@ -615,10 +619,12 @@ public class ApplianceUIManager : MonoBehaviour
     }
 
     //이벤트 4
-    void StopInfo()
+    public void StopInfo()
     {
         HideApplianceInfo();
         otherUI.SetActive(true);
+        shopUI.gameObject.SetActive(true);
+        shopUI.scrolling.Shut();
     }
     IEnumerator EmployeeScheduleWork_A()
     {

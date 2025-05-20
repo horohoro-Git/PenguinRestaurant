@@ -9,7 +9,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
 
-public class Table : MonoBehaviour
+public class Table : Furniture
 {
     //  public Transform Transforms;
     public Transform Transforms;
