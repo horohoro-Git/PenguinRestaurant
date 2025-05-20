@@ -2,10 +2,11 @@ using Cysharp.Threading.Tasks;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class FoodMachine : MonoBehaviour
+public class FoodMachine : Furniture
 {
 
     public MachineType machineType;
@@ -22,7 +23,6 @@ public class FoodMachine : MonoBehaviour
     //  public PlayData playData;
     public RestaurantParam restaurantParam;
     public LevelData levelData;
-    public int id;
     public int level=1;
     public MachineData mData;
     public MachineLevelStruct machineLevelStruct;
@@ -35,14 +35,39 @@ public class FoodMachine : MonoBehaviour
         //    level = mData.level;
         }
     }
-
+    private static bool isQuitting = false;
     private float foodHight;
+
+    public float trayOffset;
     [NonSerialized]
     public int getNum;
+
+    [NonSerialized]
+    public GameObject tray;
     private void Awake()
     {
         transforms = transform;
      //   foodStack.foodStack.Capacity = 40000;
+    }
+    private void OnEnable()
+    {
+        if (spawned && App.GlobalToken != null)
+        {
+            PlaceTray();
+        }
+       /* tray = GameInstance.GameIns.restaurantManager.GetTray();
+        Vector3 target = new Vector3(transforms.position.x, transforms.position.y, transforms.position.z) + transforms.forward * 3;
+        tray.transform.position = target;*/
+    }
+
+    private void OnDisable()
+    {
+        if (isQuitting) return;
+        if (!Application.isPlaying) return;
+        if (tray != null && GameInstance.GameIns.app != null && App.GlobalToken != null)
+        {
+            DespawnTray(App.GlobalToken).Forget();
+        }
     }
     // Start is called before the first frame update
     void Start()
@@ -54,12 +79,90 @@ public class FoodMachine : MonoBehaviour
         //for(int i=0; i<200; i++) FoodManager.NewFood(Instantiate(food));
        
     }
+
+    public void PlaceTray()
+    {
+        if(tray == null) tray = GameInstance.GameIns.restaurantManager.GetTray();
+        tray.transform.rotation = transforms.rotation;
+        Vector3 target = new Vector3(transforms.position.x, 10, transforms.position.z) + transforms.forward * 3;
+        tray.transform.position = target;
+        tray.transform.localScale = new Vector3(1, 1, 1);
+        SpawnTray(App.GlobalToken).Forget();
+    }
+
+    async UniTask SpawnTray(CancellationToken cancellationToken = default)
+    {
+       
+        try
+        {
+
+            Vector3 targetLoc = new Vector3(transforms.position.x, 10, transforms.position.z) + transforms.forward * 3;
+            tray.transform.position = targetLoc;
+            float origin = 10;
+            float t = 0;
+            float f = 0;
+            while (f < 0.2f)
+            {
+                float r = Mathf.Lerp(origin, t, f * 5);
+                Vector3 v = new Vector3(targetLoc.x, r, targetLoc.z);
+                tray.transform.position = v;
+                f += Time.unscaledDeltaTime;
+                await UniTask.NextFrame(cancellationToken: cancellationToken);
+            }
+            tray.transform.position = new Vector3(transforms.position.x, transforms.position.y, transforms.position.z) + transforms.forward * 3;
+            Vector3 target = new Vector3(2.4f,2.4f,2.4f);
+            Vector3 tt = new Vector3(2f,2f,2f);
+
+            Vector3 current = tray.transform.localScale;
+            f = 0;
+            while (f < 0.2f)
+            {
+                tray.transform.localScale = Vector3.Lerp(current, target, f * 5);
+                f += Time.unscaledDeltaTime;
+                await UniTask.NextFrame(cancellationToken: cancellationToken);
+            }
+            f = 0;
+            Vector3 cur = tray.transform.localScale;
+            while (f < 0.1f)
+            {
+                tray.transform.localScale = Vector3.Lerp(cur, tt, f * 10);
+                f += Time.unscaledDeltaTime;
+                await UniTask.NextFrame(cancellationToken: cancellationToken);
+            }
+            tray.transform.localScale = tt;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogException(ex);
+        }
+    }
+    async UniTask DespawnTray(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            Vector3 target = Vector3.zero;
+
+            Vector3 current = tray.transform.localScale;
+            float f = 0;
+            while (f < 0.2f)
+            {
+                tray.transform.localScale = Vector3.Lerp(current, target, f * 5);
+                f += Time.unscaledDeltaTime;
+                await UniTask.NextFrame(cancellationToken: cancellationToken);
+            }
+            tray.transform.localScale = Vector3.zero;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogException(ex);
+        }
+    }
+
+
     public void Set(int id)
     {
-        Debug.Log("FoodMachine" + id);
-        this.id = id;
-        restaurantParam = GameInstance.GameIns.restaurantManager.restaurantparams[id + 1];
-        levelData = GameInstance.GameIns.restaurantManager.levelData[id + 1];
+     //   restaurantParam = GameInstance.GameIns.restaurantManager.restaurantparams[id + 1];
+ //       levelData = GameInstance.GameIns.restaurantManager.levelData[id + 1];
         machineLevelStruct = GameInstance.GameIns.restaurantManager.machineLevelData[machineType][levelData.level];
     }
 
@@ -196,5 +299,11 @@ public class FoodMachine : MonoBehaviour
             
 
         }
-    }    
+
+
+    }
+    private void OnApplicationQuit()
+    {
+        isQuitting = true;
+    }
 }

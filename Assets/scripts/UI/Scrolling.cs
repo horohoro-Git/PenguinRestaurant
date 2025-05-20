@@ -158,6 +158,7 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
 
     public void Shut()
     {
+        if (!isSpread && isDown) return; 
         if (scrollCoroutine != null) StopCoroutine(scrollCoroutine);
       
         scrollCoroutine = StartCoroutine(Down());

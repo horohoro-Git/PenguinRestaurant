@@ -2,9 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static Counter;
 //using TMPro.EditorUtilities;
-public class Counter : MonoBehaviour, IObjectOffset
+public class Counter : Furniture, IObjectOffset
 {
     public enum CounterType
     {

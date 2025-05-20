@@ -47,9 +47,15 @@ public class RestaurantManager : MonoBehaviour
 
     public Dictionary<int, GoodsStruct> goodsStruct = new Dictionary<int, GoodsStruct>();
 
+    public static GameObject trayObjects;
+    public Queue<GameObject> trays = new Queue<GameObject>();
+
     // Start is called before the first frame update
     private void Awake()
     {
+        trayObjects = new GameObject();
+        trayObjects.name = "trayObjects";
+        trayObjects.transform.position = Vector3.zero;
         GameInstance.GameIns.restaurantManager = this;
         /*   var burgerupgrade_resources = Resources.Load<TextAsset>("burger_upgrade_table");
 
@@ -83,10 +89,10 @@ public class RestaurantManager : MonoBehaviour
 
         goodsStruct = AssetLoader.goods;
         // playerData = combineDatas.playerData;
-
+        NewTrays();
       
         //   UpgradePenguin(combineDatas.playerData.level, true, null);
-
+        
 
     }
     void Start()
@@ -851,5 +857,27 @@ public class RestaurantManager : MonoBehaviour
         {
             SaveLoadManager.Save(SaveState.ALL_SAVES);
         }
+    }
+
+    public void NewTrays()
+    {
+        for(int i=0; i < 20; i++)
+        {
+            GameObject tray = Instantiate(AssetLoader.loadedAssets[AssetLoader.itemAssetKeys[1000].ID], trayObjects.transform);
+            tray.SetActive(false);
+            trays.Enqueue(tray);
+        }
+    }
+    public GameObject GetTray()
+    { 
+        GameObject tray = trays.Count > 0 ? trays.Dequeue() : Instantiate(AssetLoader.loadedAssets[AssetLoader.itemAssetKeys[1000].ID], trayObjects.transform);
+        tray.SetActive(true);
+        return tray;
+    }
+
+    public void TrayPool(GameObject tray)
+    {
+        tray.SetActive(false);
+        trays.Enqueue(tray);
     }
 }

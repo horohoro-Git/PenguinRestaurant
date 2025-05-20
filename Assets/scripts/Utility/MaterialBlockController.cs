@@ -5,27 +5,20 @@ using UnityEngine;
 public class MaterialBlockController : MonoBehaviour
 {
     Renderer renderer;
-    public Material red;
-    public Material green;
-    int colorParam = 0;
+    public int colorParam = 0;
+   // MaterialPropertyBlock propBlock;
     private void Awake()
     {
         renderer = GetComponent<Renderer>();
-        
+    //    propBlock = new MaterialPropertyBlock();
     }
 
-    public void Set(int colorParam)
+    public void Set(int colorParam, Material m)
     {
         this.colorParam = colorParam;
-        if(colorParam == 1)
-        {
-          
-            renderer.sharedMaterial = red;
-        }
-        else
-        {
-            renderer.sharedMaterial = green;
-        }
+        renderer.sharedMaterial = m;
+       // propBlock.SetFloat("_ColorBlend", colorParam);
+        //renderer.SetPropertyBlock(propBlock);
     }
     public int GetColorParam()
     {

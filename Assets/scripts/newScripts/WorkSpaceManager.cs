@@ -41,4 +41,23 @@ public class WorkSpaceManager : MonoBehaviour
 
 
     }
+
+
+    public void AddWorkSpace(Furniture newWork)
+    {
+        newWork.spawned = true;
+        switch(newWork.spaceType)
+        {
+            case WorkSpaceType.None:
+                break;
+            case WorkSpaceType.Counter:
+                break;
+            case WorkSpaceType.Table:
+                break;
+            case WorkSpaceType.FoodMachine:
+           //     newWork.GetComponent<FoodMachine>().PlaceTray();
+                break;
+        }
+       // if(newWork.TryGetComponent<>)
+    }
 }

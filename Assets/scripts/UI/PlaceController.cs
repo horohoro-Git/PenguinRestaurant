@@ -20,6 +20,10 @@ public class PlaceController : MonoBehaviour
     static readonly Color gray = new Color32(128, 128, 128, 255);
     static readonly Color normal = new Color32(255, 255, 255, 255);
     bool isDragging;
+    public bool purchasedObject;
+    public Furniture currentFurniture { get; set; }
+
+    public List<Vector2> temp = new List<Vector2>();
     public bool canPlace { get { return place; }  set { 
         
             place = value;
@@ -57,6 +61,7 @@ public class PlaceController : MonoBehaviour
     {
         if(InputManger.cachingCamera != null)
         {
+            if (GameInstance.GameIns.inputManager.CheckClickedUI(1 << 5 | 1 << 14 | 1 << 18)) return;
             if(Input.GetMouseButton(0) && isDragging)
             {
                 Ray r = InputManger.cachingCamera.ScreenPointToRay(Input.mousePosition);
@@ -101,16 +106,22 @@ public class PlaceController : MonoBehaviour
         if (canPlace)
         {
             GameInstance.GameIns.gridManager.ApplyGird();
+            if(purchasedObject) GameInstance.GameIns.gridManager.RemoveCell();
+            GameInstance.GameIns.gridManager.RemoveLine();
             storeGoods.PlaceGoods(rotateOffsets[level]);
             // GameInstance.GameIns.gridManager.RemoveCell();
             storeGoods.RemoveGoodsPreview();
+            GameInstance.GameIns.gridManager.VisibleGrid(false);
         }
     }
 
     public void Cancel()
     {
+        if (purchasedObject) GameInstance.GameIns.gridManager.Revert(this);
         GameInstance.GameIns.gridManager.RemoveCell();
+        GameInstance.GameIns.gridManager.RemoveLine();
         storeGoods.RemoveGoodsPreview();
+        GameInstance.GameIns.gridManager.VisibleGrid(false);
     }
 
     public Vector3 GetLocation()
