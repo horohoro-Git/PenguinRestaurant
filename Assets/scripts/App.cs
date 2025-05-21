@@ -24,7 +24,6 @@ public class App : MonoBehaviour
     public static CancellationToken GlobalToken => globalCts.Token;
 
     public SceneState currentScene;
-    GetWaitTimer getWaitTimer = new GetWaitTimer();
 
     Vector3 vector;
     public Vector3 pos { get { return vector; } set { vector = value; Debug.Log(value); } }
@@ -274,8 +273,6 @@ public class App : MonoBehaviour
       //  GameInstance.GameIns.inputManager.DragScreen_WindowEditor(true);
         GameInstance.GameIns.inputManager.inputDisAble = false;
         GameInstance.GameIns.applianceUIManager.UIClearAll(true);
-        int i = 100;
-        int j = 100;
 
 
      //   Utility.CheckHirable(GameInstance.GameIns.inputManager.cameraRange.position, ref i, ref j);

@@ -759,7 +759,6 @@ public class ApplianceUIManager : MonoBehaviour
             yield return null;
         }
 
-        bool falling = false;
         // while (gameInstance.GameIns.inputManager.inputDisAble)
    /*     while (true)
         {

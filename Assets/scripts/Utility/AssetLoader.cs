@@ -144,10 +144,16 @@ public class AssetLoader : MonoBehaviour
                     foreach (KeyValuePair<int, ItemStruct> keyValuePair in sprites) spriteAssetKeys[keyValuePair.Key] = new StringStruct(keyValuePair.Value.asset_name);
                     foreach (KeyValuePair<int, ItemStruct> keyValuePair in atlases) atlasesKeys[keyValuePair.Key] = new StringStruct(keyValuePair.Value.asset_name);
 
+                    SpriteAtlasManager.atlasRequested += (tag, callback) =>
+                    {
+                        Debug.Log($"[TAG]: {tag}");
+                        callback(loadedAtlases[tag]);
 
+                    };
+
+                    await LoadAsync<SpriteAtlas, StringStruct, string>(atlasesKeys, loadedAtlases);
                     await LoadAsync<GameObject, StringStruct, string>(itemAssetKeys, loadedAssets);
                     await LoadAsync<Sprite, StringStruct, string>(spriteAssetKeys, loadedSprites);
-                    await LoadAsync<SpriteAtlas, StringStruct, string>(atlasesKeys, loadedAtlases);
 
                     AssetBundleRequest assetRequest = bundle.LoadAssetAsync<TMP_FontAsset>("BMDOHYEON_ttf");
                     await assetRequest;
@@ -158,17 +164,7 @@ public class AssetLoader : MonoBehaviour
                             font = castedAsset;
                             font_mat = font.material;
                         }
-                        /* font = assetRequest.asset.GetComponent<TMP_FontAsset>();
-                         font_mat = font.material;
- */
                     }
-                    SpriteAtlasManager.atlasRequested += (tag, callback) =>
-                    {
-                        Debug.Log($"[TAG]: {tag}");
-                        callback(loadedAtlases[tag]);
-                      
-                    };
-            
                 }
             }
             else

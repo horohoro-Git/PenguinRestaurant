@@ -5,14 +5,6 @@ using UnityEngine;
 //using TMPro.EditorUtilities;
 public class Counter : Furniture, IObjectOffset
 {
-    public enum CounterType
-    {
-        None,
-        FastFood,
-        Donuts,
-        Delivery,
-        TakeOut
-    }
 
     public Employee employee;
     public Customer customer;
@@ -86,5 +78,30 @@ public class Counter : Furniture, IObjectOffset
                     
                 }
         }
+
+        Door door = GameInstance.GameIns.restaurantManager.door;
+
+        if(!door.setup)
+        {
+            RaycastHit[] hits = Physics.RaycastAll(transforms.position + Vector3.up, offset.forward, float.MaxValue, 1 << 16);
+            Debug.DrawLine(transforms.position + Vector3.up, transforms.position - transforms.forward * float.MaxValue, Color.red, 5);
+            for (int i = 0; i < hits.Length; i++)
+            {
+
+                door.gameObject.SetActive(true);
+                door.setup = true;
+                GameObject h = hits[i].collider.gameObject;
+                door.transform.localScale = Vector3.zero;
+                door.removeWall = h;
+                h.SetActive(false);
+                door.transform.position = h.transform.position - Vector3.up * h.transform.position.y;
+                door.transform.rotation = h.transform.rotation * Quaternion.Euler(0,90,0);
+                StartCoroutine(door.OpenDoor());
+                return;
+            }
+        }
+
+
+        GameInstance.GameIns.workSpaceManager.unlockCounter[(int)counterType - 1] = true;
     }
 }

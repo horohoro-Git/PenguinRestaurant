@@ -47,7 +47,7 @@ public class Table : Furniture
         plateLoc = trashPlate.transforms;
         foodStacks.Add(new FoodStack());
 
-
+        GameInstance.GameIns.workSpaceManager.unlockTable = true;
         //test
        /* numberOfGarbage = 8;
         for (int i = 0; i < numberOfGarbage; i++)

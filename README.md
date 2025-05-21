@@ -20,3 +20,4 @@ Animal Restaurant Tycoon Game
 05/17 Integrate the placement feature with the shop system
 05/18 Improve loading speed, add placeable furniture items, save grid-based placement data and add an “undo placement” function, keep furniture objects draggable until they’re fully placed
 05/19 Added repositioning, improved UI-placement sync, and tray animation on appliance activation
+05/20 Polish cooking animations, clean up scripts, and add door opposite first counter

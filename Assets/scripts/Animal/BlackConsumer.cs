@@ -7,7 +7,7 @@ using static GameInstance;
 public class BlackConsumer : AnimalController
 {
     bool bRunaway;
-    public AnimalStruct animalStruct { get; set; }
+   // public AnimalStruct animalStruct { get; set; }
     void CauseTrouble()
     {
         if (!bRunaway)

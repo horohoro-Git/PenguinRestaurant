@@ -330,45 +330,7 @@ public class AnimalManager : MonoBehaviour
         }
     }
 
-    IEnumerator AnimalRoutine()
-    {
-      //  Debug.Log("AnimalRoutineStart");
-        while (true)
-        {
-            //   Debug.Log("KK");
-            yield return GetWaitTimer.WaitTimer.GetTimer(500);
-            //yield return new WaitForSecondsRealtime(0.5f);
-            for (int i=0; i<employeeControllers.Count; i++)
-            {
-                
-                if (!employeeControllers[i].busy)
-                {
-                    employeeControllers[i].busy = true;
-                    employeeControllers[i].Work();
-                  //  employeeControllers[i].FindEmployeeWorks();
-                }
-                //else if (employeeControllers[i].success == 1)
-                //{
-                //    employeeControllers[i].StopC();
-                //}
-                //else if (employeeControllers[i].success == 2)
-                //{
-                //    employeeControllers[i].Release();
-                //}
-            }
-           // new WaitForSeconds(0.1f);
-
-            //for (int i = 0; i < customerControllers.Count; i++)
-            //{
-            //    if (!customerControllers[i].busy && customerControllers[i].foodsAnimalsWant.spawnerType != AnimalSpawner.SpawnerType.Delivery)
-            //    {
-            //        customerControllers[i].busy = true;
-            //        customerControllers[i].FindCustomerActions();
-            //    }
-            //}
-        }
-    }
-
+ 
     public Employee SpawnEmployee()
     {
         int type = 10;

@@ -3,7 +3,7 @@ using DG.Tweening;
 #endif
 using UnityEngine;
 
-public class Door : MonoBehaviour
+public class Doors : MonoBehaviour
 {
     [SerializeField] private Transform doorTransform;
     [SerializeField] private float openDuration = 0.4f;

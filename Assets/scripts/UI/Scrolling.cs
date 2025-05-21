@@ -19,9 +19,7 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
             if (border.color.a == 0) border.raycastTarget = false;
             else border.raycastTarget = true;
         } }
-    float originY = 0;
     Vector2 latestVector = Vector3.zero;
-    bool isDragging = false;
     bool isSpread = false;
     Coroutine scrollCoroutine;
     bool isDown = false;
@@ -33,7 +31,14 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
     }
     void Start()
     {
-        originY = parentRect.anchoredPosition.y;
+    }
+    private void OnEnable()
+    {
+        animator.enabled = true;
+    }
+    private void OnDisable()
+    {
+        animator.enabled = false;
     }
     public void OnDrag(PointerEventData eventData)
     {
@@ -123,8 +128,6 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
     {
         Vector3 pos = Input.mousePosition;
         latestVector = pos;
-        isDragging = true;
-     
     }
 
     public void OnPointerUp(PointerEventData eventData)

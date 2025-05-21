@@ -33,7 +33,7 @@ public class Customer : AnimalController
     [NonSerialized]
     public FoodsAnimalsWant foodsAnimalsWant;
 
-    int currentWaypointIndex;
+ //   int currentWaypointIndex;
     bool hasMoney;
     float eatingTimer;
 
@@ -42,20 +42,14 @@ public class Customer : AnimalController
     private int minOrder;
     private int maxOrder;
 
-    string animalWaitActions;
-
+ 
     private int likeFood;
     private int hateFood;
     List<Node> nodes = new List<Node>();
 
-    bool bStart = false;
-    int moveStart = 0;
+  //  bool bStart = false;
 
-    bool animalMove = false;
-    float actionTimer = 0;
-    Node moveNode;
-    bool doOnce = false;
-    CustomerAction customerAction = CustomerAction.NONE;
+ //   CustomerAction customerAction = CustomerAction.NONE;
     QueuePoint[] Qpositions;
     Counter ct;
     Table tb;
@@ -77,7 +71,7 @@ public class Customer : AnimalController
     private void Awake()
     {
         transforms = transform;
-        currentWaypointIndex = 5;
+   //     currentWaypointIndex = 5;
         nodes.Capacity = 100;
         //openCoords.Capacity = 200;
         //closedCoords.Capacity = 200;
@@ -92,12 +86,12 @@ public class Customer : AnimalController
     public void Setup(FoodsAnimalsWant foodsAnimals)
     {
         int r = UnityEngine.Random.Range(0, 3);
-        if (r == 0) animalWaitActions = "Idle_A";
+      /*  if (r == 0) animalWaitActions = "Idle_A";
         else if (r == 1) animalWaitActions = "Bounce";
-        else animalWaitActions = "LookAround";
+        else animalWaitActions = "LookAround";*/
 
         hasMoney = true;
-        currentWaypointIndex = 5;
+  //      currentWaypointIndex = 5;
  
         if (foodsAnimals.spawnerType == AnimalSpawner.SpawnerType.Delivery)
         {
@@ -105,7 +99,7 @@ public class Customer : AnimalController
 
             for (int i = 0; i < workSpaceManager.counters.Count; i++)
             {
-                if (workSpaceManager.counters[i].counterType == Counter.CounterType.Delivery)
+                if (workSpaceManager.counters[i].counterType == CounterType.Delivery)
                 {
                     workSpaceManager.counters[i].customer = this;
                     transforms.position = workSpaceManager.counters[i].transforms.position;
@@ -115,7 +109,7 @@ public class Customer : AnimalController
                     foodStack.needFoodNum = 8;
                     foodStack.type = MachineType.PackingTable;
                     foodStacks.Add(foodStack);
-                    GameInstance.GameIns.uiManager.UpdateOrder(this, Counter.CounterType.Delivery);
+                    GameInstance.GameIns.uiManager.UpdateOrder(this, CounterType.Delivery);
                 }
             }
         }
@@ -393,7 +387,7 @@ public class Customer : AnimalController
     {
      /*   Qpositions = position;*/
         ct = counter;
-        customerAction = CustomerAction.CustomerCounter;
+       // customerAction = CustomerAction.CustomerCounter;
         Customer_Counter(position, counter, App.GlobalToken).Forget();
         //StartCoroutine(CustomerWalkToCounter(position, counter));
     }
@@ -472,7 +466,7 @@ public class Customer : AnimalController
                
 
                 //요구 사항 표시
-                counter.customer = this;
+            counter.customer = this;
             animator.SetInteger("state", 0);
             // PlayAnim(animal.animationDic["Idle_A"], "Idle_A");
             animal.PlayAnimation(AnimationKeys.Idle);
@@ -720,7 +714,7 @@ public class Customer : AnimalController
 
                     seatIndex = index;
                     tb = table;
-                    customerAction = CustomerAction.CustomerTable;
+                    //customerAction = CustomerAction.CustomerTable;
                     await UniTask.Delay(200, cancellationToken: cancellationToken);
 
                     for (int i = VisualizingFoodStack.Count - 1; i >= 0; i--)
@@ -825,7 +819,7 @@ public class Customer : AnimalController
                 else
                 {
                     Debug.Log("Wait" + position);
-                    customerAction = CustomerAction.ProcessWait;
+                    //customerAction = CustomerAction.ProcessWait;
                 }
                 return;
             }
@@ -861,7 +855,7 @@ public class Customer : AnimalController
                     }
                     else
                     {
-                        customerAction = CustomerAction.CustomerGoToHome;
+                    //    customerAction = CustomerAction.CustomerGoToHome;
                         await Customer_Move(moveTargets, position, cancellationToken: cancellationToken);
                         if (reCalculate)
                         {
@@ -871,9 +865,9 @@ public class Customer : AnimalController
                         }
                     }
 
-                    bStart = false;
+             //       bStart = false;
                     busy = false;
-                    customerAction = CustomerAction.NONE;
+              //      customerAction = CustomerAction.NONE;
                     GameInstance.GameIns.animalManager.DespawnCustomer(this);
                 }
 
@@ -902,7 +896,7 @@ public class Customer : AnimalController
         else
         {
             waitTimer = 0;
-            customerAction = CustomerAction.NONE;
+            //customerAction = CustomerAction.NONE;
             GameInstance.GameIns.animalManager.AttacCustomerTask(this);
         }
     }
