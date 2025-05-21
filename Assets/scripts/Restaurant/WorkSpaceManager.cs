@@ -13,9 +13,10 @@ public class WorkSpaceManager : MonoBehaviour
     public List<EndPoint> endPoints = new List<EndPoint>();
     public List<PackingTable> packingTables = new List<PackingTable>();
     public List<AnimalSpawner> spwaners = new List<AnimalSpawner>();
-
+    public bool[] unlockFoods = new bool[4];
+    public bool[] unlockCounter = new bool[2];
     public int[] unlocks = new int[4];
-
+    public bool unlockTable;
     //직원에게 주는 보상 관리
 
 
@@ -29,15 +30,15 @@ public class WorkSpaceManager : MonoBehaviour
     {
        // food = loadedAssets[itemAssetKeys[1000].Name].GetComponent<Food>();
         FoodManager.NewFood(food, 200);
-        FoodManager.NewFood(food, 100, true);
-        FoodManager.NewPackageBox(box, 30);
+    //    FoodManager.NewFood(food, 100, true);
+     //   FoodManager.NewPackageBox(box, 30);
         GarbageManager.NewGarbage(garbage, 50);
         for (int i = 0; i < particle.Length; i++)
         {
             ParticleManager.NewParticle(particle[i], 50);
         }
 
-        FoodManager.NewRewardsBox(rewardsBox, 5);
+      //  FoodManager.NewRewardsBox(rewardsBox, 5);
 
 
     }

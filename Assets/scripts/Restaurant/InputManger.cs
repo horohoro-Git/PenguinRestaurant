@@ -440,10 +440,9 @@ public class InputManger : MonoBehaviour
             Vector3 direction = (target - origin).normalized;
             float distance = Vector3.Distance(origin, target);
    
-            RaycastHit hit;
             Debug.DrawRay(origin, direction * distance, Color.red, 1f);
           //  bool hitBlock = Physics.Raycast(origin, direction, out hit, distance, 1 << 7 | 1 << 8);
-            bool hitBlock = Physics.CheckSphere(origin + direction * distance, 0.2f, 1 << 7 | 1 << 8);
+            bool hitBlock = Physics.CheckSphere(origin + direction * distance, 0.2f, 1 << 7 | 1 << 8 | 1 << 16);
             if (hitBlock)
             {
                 followPosition = cameraTrans.position;

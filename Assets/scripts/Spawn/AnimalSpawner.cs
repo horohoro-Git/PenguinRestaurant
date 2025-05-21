@@ -73,10 +73,11 @@ public class AnimalSpawner : MonoBehaviour
                         case SpawnerType.FastFood:
                             {
                                 // yield break;
-                                bool burger = false;
-                                bool coke = false;
+                                if (!workSpaceManager.unlockCounter[(int)CounterType.FastFood - 1] || !workSpaceManager.unlockTable) break;
+                                bool burger = workSpaceManager.unlockFoods[(int)MachineType.BurgerMachine - 1]; //false;
+                                bool coke = workSpaceManager.unlockFoods[(int)MachineType.CokeMachine - 1];//false;
 
-                                GetFoodUnlock(out burger, out coke, 0);
+                                //  GetFoodUnlock(out burger, out coke, 0);
 
                                 if (burger || coke)
                                 {
@@ -103,10 +104,11 @@ public class AnimalSpawner : MonoBehaviour
                         case SpawnerType.DonutShop:
                             {
                                 //  yield break;
-                                bool coffee = false;
-                                bool donut = false;
+                                if (!workSpaceManager.unlockCounter[(int)CounterType.Donuts - 1] || !workSpaceManager.unlockTable) break;
+                                bool coffee = workSpaceManager.unlockFoods[(int)MachineType.CoffeeMachine - 1];
+                                bool donut = workSpaceManager.unlockFoods[(int)MachineType.DonutMachine - 1];
 
-                                GetFoodUnlock(out coffee, out donut, 1);
+                                // GetFoodUnlock(out coffee, out donut, 1);
 
                                 if (coffee || donut)
                                 {
@@ -181,7 +183,7 @@ public class AnimalSpawner : MonoBehaviour
                                         }
                                         coroutineTimer2 = 0;
                                     }
-                                    GameInstance.GameIns.uiManager.UpdateOrder(deliveryCustomer, Counter.CounterType.Delivery);
+                                    GameInstance.GameIns.uiManager.UpdateOrder(deliveryCustomer, CounterType.Delivery);
                                     GameInstance.GameIns.animalManager.DespawnCustomer(deliveryCustomer, true);
                                     deliveryCustomer = null;
                                 }
@@ -199,7 +201,7 @@ public class AnimalSpawner : MonoBehaviour
                                         deliveryCustomer = animalManager.SpawnCustomer(foodsAnimalsWant, true);
                                         for (int i = 0; i < workSpaceManager.packingTables.Count; i++)
                                         {
-                                            if (workSpaceManager.packingTables[i].counterType == Counter.CounterType.Delivery)
+                                            if (workSpaceManager.packingTables[i].counterType == CounterType.Delivery)
                                             {
                                                 FoodStack foodStack = new FoodStack();
                                                 foodStack.needFoodNum = UnityEngine.Random.Range(1, 2);
@@ -209,7 +211,7 @@ public class AnimalSpawner : MonoBehaviour
                                                 workSpaceManager.packingTables[i].customer = deliveryCustomer;
                                                 deliveryCustomer.transform.position = new Vector3(workSpaceManager.packingTables[i].transform.position.x, 0, workSpaceManager.packingTables[i].transform.position.z - 10);
 
-                                                GameInstance.GameIns.uiManager.UpdateOrder(deliveryCustomer, Counter.CounterType.Delivery);
+                                                GameInstance.GameIns.uiManager.UpdateOrder(deliveryCustomer, CounterType.Delivery);
                                                 break;
                                             }
                                         }

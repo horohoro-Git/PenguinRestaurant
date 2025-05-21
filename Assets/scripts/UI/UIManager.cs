@@ -230,12 +230,12 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    public void UpdateOrder(AnimalController customer, Counter.CounterType counterType)
+    public void UpdateOrder(AnimalController customer, CounterType counterType)
     {
         Customer cs = customer.GetComponent<Customer>();
         List<Counter> c = GameInstance.GameIns.workSpaceManager.counters;
         List<PackingTable> p = GameInstance.GameIns.workSpaceManager.packingTables;
-        if (counterType == Counter.CounterType.Delivery)
+        if (counterType == CounterType.Delivery)
         {
             int count = 0;
             for (int i=0; i<p.Count; i++)
@@ -279,13 +279,13 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    void ClearOrder(Counter.CounterType counterType)
+    void ClearOrder(CounterType counterType)
     {
         order[(int)counterType - 1].gameObject.SetActive(false);
         order[(int)counterType - 1].transform.SetParent(null);
     }
 
-    void PrintOrder(AnimalController customer, MachineType type, int num, int count, Counter.CounterType counterType)
+    void PrintOrder(AnimalController customer, MachineType type, int num, int count, CounterType counterType)
     {
 
         order[(int)counterType - 1].animalController = customer;

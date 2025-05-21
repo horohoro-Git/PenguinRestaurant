@@ -13,8 +13,8 @@ public class CoroutineTest : MonoBehaviour
 
     }
 
-    private void Update()
+  /*  private void Update()
     {
         text.text = GameInstance.GameIns.coroutneManager.GetCoroutines().ToString();
-    }
+    }*/
 }

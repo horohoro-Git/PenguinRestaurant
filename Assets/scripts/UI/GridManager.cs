@@ -23,7 +23,7 @@ public class GridManager : MonoBehaviour
     float x;
     float y;
 
-    bool[] grids = new bool[250 * 250];
+    bool[] grids = new bool[400 * 400];
     float cellSize = 2.5f;
     Vector2 gridOffsets = new Vector2(0.75f, 1.25f);
 
@@ -169,7 +169,36 @@ public class GridManager : MonoBehaviour
     {
         RemoveCell();
         RemoveLine();
-        int ch = 0;
+        Vector2 gridOffset = new Vector2(0.75f, 1.25f);
+        int cellX = Mathf.FloorToInt((go.transform.position.x - gridOffset.x + cellSize * 0.5f) / cellSize);
+        int cellY = Mathf.FloorToInt((go.transform.position.z - gridOffset.y + cellSize * 0.5f) / cellSize);
+
+
+
+
+        float halfSize = cellSize * 0.5f;
+        float centerX = cellX * cellSize + gridOffset.x;
+        float centerZ = cellY * cellSize + gridOffset.y;
+
+
+
+        currentLineRender = GetLine();
+        Vector3[] corners = new Vector3[5];
+        float offsetX = centerX - 4.5f;
+        float offsetY = centerZ - 4.5f;
+        corners[0] = new Vector3(offsetX - halfSize, 11.2f, offsetY - halfSize);
+        corners[1] = new Vector3(offsetX + halfSize, 11.2f, offsetY - halfSize);
+        corners[2] = new Vector3(offsetX + halfSize, 11.2f, offsetY + halfSize);
+        corners[3] = new Vector3(offsetX - halfSize, 11.2f, offsetY + halfSize);
+        corners[4] = corners[0];
+
+        currentLineRender.positionCount = 5;
+        currentLineRender.SetPositions(corners);
+        currentLineRender.startWidth = currentLineRender.endWidth = 0.2f;
+        currentLineRender.useWorldSpace = true;
+
+
+
         CalculatorScale calculatorScale = GameIns.calculatorScale;
         if (go.colliders.Count == 0) go.GetComponentsInChildren(true, go.colliders);
         foreach (BoxCollider boxCollider in go.colliders)
@@ -247,7 +276,7 @@ public class GridManager : MonoBehaviour
                 {
                     MaterialBlockController cell_GO = GetCell();
 
-                    if ((gridX + gridY * GameIns.calculatorScale.sizeX) < grids.Length && !grids[MoveCalculator.GetIndex(gridX, gridY)])
+                    if ((gridX + gridY * GameIns.calculatorScale.sizeX) < grids.Length && (gridX + gridY * GameIns.calculatorScale.sizeX) >= 0 && !grids[MoveCalculator.GetIndex(gridX, gridY)])
                     {
                         bool check = Physics.CheckBox(boxCollider.gameObject.transform.position, size, Quaternion.Euler(0, 0, 0), 1 << 6 | 1 << 7 | 1 << 8 | 1 << 16);
 
@@ -277,7 +306,7 @@ public class GridManager : MonoBehaviour
                 {
                     if (cellDic[vector2].GetColorParam() == 0)
                     {
-                        if ((gridX + gridY * GameIns.calculatorScale.sizeX) < grids.Length && !grids[MoveCalculator.GetIndex(gridX, gridY)])
+                        if ((gridX + gridY * GameIns.calculatorScale.sizeX) < grids.Length && (gridX + gridY * GameIns.calculatorScale.sizeX) >= 0 && !grids[MoveCalculator.GetIndex(gridX, gridY)])
                         {
                             bool check = Physics.CheckBox(boxCollider.gameObject.transform.position, size, Quaternion.Euler(0, 0, 0), 1 << 6 | 1 << 7 | 1 << 8 | 1 << 16);
                             if (check)

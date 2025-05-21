@@ -49,10 +49,13 @@ public class RestaurantManager : MonoBehaviour
 
     public static GameObject trayObjects;
     public Queue<GameObject> trays = new Queue<GameObject>();
+    public Door door;
 
     // Start is called before the first frame update
     private void Awake()
     {
+        door = Instantiate(door);
+        door.gameObject.SetActive(false);
         trayObjects = new GameObject();
         trayObjects.name = "trayObjects";
         trayObjects.transform.position = Vector3.zero;

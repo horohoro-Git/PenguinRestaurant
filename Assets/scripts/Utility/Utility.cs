@@ -3,6 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using static GameInstance;
 
+
+public enum CounterType
+{
+    None,
+    FastFood,
+    Donuts,
+    Delivery,
+    TakeOut
+}
+
 public enum WorkSpaceType
 {
     None,

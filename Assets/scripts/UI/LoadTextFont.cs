@@ -6,6 +6,6 @@ public class LoadTextFont : MonoBehaviour
 {
     private void Awake()
     {
-        GameInstance.GameIns.app.GetSceneUI(gameObject);
+        if(GameInstance.GameIns.app) GameInstance.GameIns.app.GetSceneUI(gameObject);
     }
 }

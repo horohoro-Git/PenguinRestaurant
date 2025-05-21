@@ -37,7 +37,7 @@ public class Employee : AnimalController
 
     }
 
-    EmployeeActions employeeActions = EmployeeActions.NONE;
+//    EmployeeActions employeeActions = EmployeeActions.NONE;
 
     public Dictionary<MachineType, FoodStack> foodStacks = new Dictionary<MachineType, FoodStack>();
 
@@ -78,9 +78,6 @@ public class Employee : AnimalController
     }
 
     // 직원 고용
-    float x = 0;
-    float z = 0;
-    float length = 0;
     float elapsedTime = 0;
     Vector3 startPoint;
     Vector3 endPoint;
@@ -89,7 +86,7 @@ public class Employee : AnimalController
 
     Counter deliveryCounter;
     public bool debuging;
-    int step = 0;
+   // int step = 0;
 
     Vector3 target = new Vector3();
     List<FoodStack> stacks = new List<FoodStack>();
@@ -106,16 +103,8 @@ public class Employee : AnimalController
 
     List<Node> nodes = new List<Node>();
 
-    bool bStart = false;
-    int moveStart = 0;
-
-    bool animalMove = false;
-    float actionTimer = 0;
-    Node moveNode;
-    bool doOnce = false;
     Table tb;
     TrashCan tc;
-    bool gettingRewards;
     Vector3 lastPos;
     [NonSerialized]
     public bool falling = false;
@@ -352,11 +341,6 @@ public class Employee : AnimalController
     {
         falling = true;
         elapsedTime = 0f;
-
-        x = 0;
-        z = 0;
-        length = 0;
-
         /* Vector3 loc = GameIns.inputManager.cameraRange.position;
          int playerX = (int)((loc.x - GameIns.calculatorScale.minX) / GameIns.calculatorScale.distanceSize);
          int playerY = (int)((loc.z - GameIns.calculatorScale.minY) / GameIns.calculatorScale.distanceSize);
@@ -871,7 +855,7 @@ public class Employee : AnimalController
                 //음식을 서빙
                 for (int i = 0; i < counterList.Count; i++)
                 {
-                    if (counterList[i].customer && (counterList[i].employee == null || counterList[i].employee == this) && counterList[i].counterType != Counter.CounterType.Delivery)
+                    if (counterList[i].customer && (counterList[i].employee == null || counterList[i].employee == this) && counterList[i].counterType != CounterType.Delivery)
                     {
                         int tmp = 0;
                         for (int j = 0; j < counterList[i].customer.foodStacks.Count; j++)
@@ -905,7 +889,7 @@ public class Employee : AnimalController
                 for (int i = 0; i < workSpaceManager.packingTables.Count; i++)
                 {
                     int d = i;
-                    if (workSpaceManager.packingTables[i].counterType == Counter.CounterType.Delivery && (workSpaceManager.packingTables[i].employee == null || workSpaceManager.packingTables[i].employee == this) && workSpaceManager.packingTables[i].customer != null)
+                    if (workSpaceManager.packingTables[i].counterType == CounterType.Delivery && (workSpaceManager.packingTables[i].employee == null || workSpaceManager.packingTables[i].employee == this) && workSpaceManager.packingTables[i].customer != null)
                     {
                         if (workSpaceManager.packingTables[i].packageStack.foodStack.Count >= workSpaceManager.packingTables[i].customer.foodStacks[0].needFoodNum)
                         {
@@ -957,7 +941,7 @@ public class Employee : AnimalController
                 // 손님 우선 조달
                 for (int i = 0; i < counterList.Count; i++)
                 {
-                    if (counterList[i].customer && counterList[i].counterType != Counter.CounterType.Delivery)
+                    if (counterList[i].customer && counterList[i].counterType != CounterType.Delivery)
                     {
                         for (int j = 0; j < counterList[i].customer.foodStacks.Count; j++)
                         {
@@ -1021,11 +1005,11 @@ public class Employee : AnimalController
                 //포장된 음식을 배달 테이블로 이동
                 for (int i = 0; i < packingTables.Count; i++)
                 {
-                    if (packingTables[i].counterType == Counter.CounterType.None && packingTables[i].packageStack.foodStack.Count > 0 && (packingTables[i].employeeAssistant == null || packingTables[i].employeeAssistant == this))
+                    if (packingTables[i].counterType == CounterType.None && packingTables[i].packageStack.foodStack.Count > 0 && (packingTables[i].employeeAssistant == null || packingTables[i].employeeAssistant == this))
                     {
                         for (int j = 0; j < packingTables.Count; j++)
                         {
-                            if (i != j && packingTables[j].counterType == Counter.CounterType.Delivery && packingTables[j].employee == null)
+                            if (i != j && packingTables[j].counterType == CounterType.Delivery && packingTables[j].employee == null)
                             {
                                 packingTables[i].employeeAssistant = this;
                                 packingTables[j].employee = this;
@@ -1046,7 +1030,7 @@ public class Employee : AnimalController
 
                 for (int i = 0; i < packingTables.Count; i++)
                 {
-                    if ((packingTables[i].employee == null || packingTables[i].employee == this) && packingTables[i].counterType == Counter.CounterType.None)
+                    if ((packingTables[i].employee == null || packingTables[i].employee == this) && packingTables[i].counterType ==CounterType.None)
                     {
                         int n = 0;
                         for (int j = 0; j < packingTables[i].foodStacks.Count; j++)
@@ -1244,7 +1228,7 @@ public class Employee : AnimalController
     }
 
     static WaitForSeconds zerodotfive = new WaitForSeconds(0.5f);
-    float coroutineTimer2 = 0;
+ //   float coroutineTimer2 = 0;
     public int success;
     public Coroutine employeeCoroutine;
 
@@ -1257,7 +1241,7 @@ public class Employee : AnimalController
         else
         {
             waitTimer = 0f;
-            employeeActions = EmployeeActions.NONE;
+            //employeeActions = EmployeeActions.NONE;
             GameInstance.GameIns.animalManager.AttachEmployeeTask(this);
         }
     }
@@ -1406,7 +1390,7 @@ public class Employee : AnimalController
                     }
                     else
                     {
-                        employeeActions = EmployeeActions.EmployeeFoodMachine;
+                        //employeeActions = EmployeeActions.EmployeeFoodMachine;
                         await Employee_Move(moveTargets, position, cancellationToken);
 
                         if (reCalculate)
@@ -1492,7 +1476,7 @@ public class Employee : AnimalController
                         modelTrans.rotation = counter.workingSpot.rotation;
 
                     }
-                    employeeActions = EmployeeActions.EmployeeCounter;
+                    //employeeActions = EmployeeActions.EmployeeCounter;
 
 
                     if (debuging) Debug.Log("직원 카운터에 음식을 내려놓는 중");
@@ -1596,7 +1580,7 @@ public class Employee : AnimalController
                         modelTrans.rotation = counter.workingSpot.rotation;
                       
                     }
-                    employeeActions = EmployeeActions.EmployeeCounter;
+                    //employeeActions = EmployeeActions.EmployeeCounter;
 
 
                     if (debuging) Debug.Log("직원 카운터에 음식을 내려놓는 중");
@@ -1686,7 +1670,7 @@ public class Employee : AnimalController
                     
                     }
 
-                    employeeActions = EmployeeActions.EmployeeServing;
+                    //employeeActions = EmployeeActions.EmployeeServing;
 
                     int index = 0;
 
@@ -1765,7 +1749,7 @@ public class Employee : AnimalController
                 {
                     table.isDirty = false;
                     tb = table;
-                    employeeActions = EmployeeActions.EmployeeTable;
+                    //employeeActions = EmployeeActions.EmployeeTable;
                     table.employeeContoller = null;
                     employeeState = EmployeeState.TrashCan;
                     busy = false;
@@ -1830,7 +1814,7 @@ public class Employee : AnimalController
 
                     table.isDirty = false;
                     tb = table;
-                    employeeActions = EmployeeActions.EmployeeTable;
+                    //employeeActions = EmployeeActions.EmployeeTable;
                     table.employeeContoller = null;
                     employeeState = EmployeeState.TrashCan;
                     busy = false;
@@ -2663,16 +2647,7 @@ public class Employee : AnimalController
     }
 
 
-    float timerY = 0;
-    float timerXZ = 0;
-    float coroutineTimer3 = 0;
    // float coroutineTimer4 = 0;
-    float X = 0;
-    float Z = 0;
-    int foodA = -1;
-    int foodNum = 0;
-
-
  
     void Reward(Vector3 position)
     {

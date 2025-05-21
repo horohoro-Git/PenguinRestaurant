@@ -9,25 +9,8 @@ public class PlayerCamera : MonoBehaviour
     public float bounceForce = 3f;
 
 
-   
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-    private void FixedUpdate()
-    {
-        
-    }
-
-    void OnCollisionEnter(Collision collision)
+  /*  void OnCollisionEnter(Collision collision)
     {
         if (collision.contacts.Length > 0)
         {
@@ -47,5 +30,5 @@ public class PlayerCamera : MonoBehaviour
             // 본인은 원래 자리로 되돌림 (안 하면 계속 충돌)
             transform.localPosition = Vector3.zero;
         }
-    }
+    }*/
 }

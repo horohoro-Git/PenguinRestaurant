@@ -44,6 +44,11 @@ public class FoodMachine : Furniture
 
     [NonSerialized]
     public GameObject tray;
+
+    Action<float> cookingAction;
+    Action cookingFinishAction;
+    public Func<UniTask> cookingFinishFunc;
+
     private void Awake()
     {
         transforms = transform;
@@ -70,21 +75,21 @@ public class FoodMachine : Furniture
         }
     }
     // Start is called before the first frame update
-    void Start()
-    {        
+    public virtual void Start()
+    {
+        GameInstance.GameIns.workSpaceManager.unlockFoods[(int)machineType - 1] = true;
         audioSource = GetComponent<AudioSource>();
        
         foodStack.type = machineType;
         Cooking();
         //for(int i=0; i<200; i++) FoodManager.NewFood(Instantiate(food));
-       
     }
 
     public void PlaceTray()
     {
         if(tray == null) tray = GameInstance.GameIns.restaurantManager.GetTray();
         tray.transform.rotation = transforms.rotation;
-        Vector3 target = new Vector3(transforms.position.x, 10, transforms.position.z) + transforms.forward * 3;
+        Vector3 target = new Vector3(transforms.position.x, 10, transforms.position.z) + transforms.forward * (3 + trayOffset);
         tray.transform.position = target;
         tray.transform.localScale = new Vector3(1, 1, 1);
         SpawnTray(App.GlobalToken).Forget();
@@ -96,7 +101,7 @@ public class FoodMachine : Furniture
         try
         {
 
-            Vector3 targetLoc = new Vector3(transforms.position.x, 10, transforms.position.z) + transforms.forward * 3;
+            Vector3 targetLoc = new Vector3(transforms.position.x, 10, transforms.position.z) + transforms.forward * (3 + trayOffset);
             tray.transform.position = targetLoc;
             float origin = 10;
             float t = 0;
@@ -109,7 +114,7 @@ public class FoodMachine : Furniture
                 f += Time.unscaledDeltaTime;
                 await UniTask.NextFrame(cancellationToken: cancellationToken);
             }
-            tray.transform.position = new Vector3(transforms.position.x, transforms.position.y, transforms.position.z) + transforms.forward * 3;
+            tray.transform.position = new Vector3(transforms.position.x, transforms.position.y, transforms.position.z) + transforms.forward * (3 + trayOffset);
             Vector3 target = new Vector3(2.4f,2.4f,2.4f);
             Vector3 tt = new Vector3(2f,2f,2f);
 
@@ -168,6 +173,28 @@ public class FoodMachine : Furniture
 
     public void Cooking()
     {
+        switch(machineType)
+        {
+            case MachineType.None:
+                break;
+            case MachineType.BurgerMachine:
+                cookingAction += GetComponent<BurgerMachine>().GetPatty;
+                cookingFinishAction += GetComponent<BurgerMachine>().Done;
+                break;
+            case MachineType.CokeMachine:
+                cookingAction += GetComponent<CokeMachine>().Shake;
+                cookingFinishAction += GetComponent<CokeMachine>().Done;
+                break;
+            case MachineType.CoffeeMachine:
+                cookingAction += GetComponent<CoffeeMachine>().Shake;
+                cookingFinishAction += GetComponent<CoffeeMachine>().Done;
+                break;
+            case MachineType.DonutMachine:
+                cookingAction += GetComponent<DonutMachine>().FryDonut;
+                cookingFinishAction += GetComponent<DonutMachine>().Done;
+                break;
+        }
+
         CookingFood().Forget();
       // StartCoroutine(Cook());
     }
@@ -177,6 +204,9 @@ public class FoodMachine : Furniture
     {
         await UniTask.Delay(500);
 
+        machineLevelStruct = new MachineLevelStruct();
+        machineLevelStruct.max_height = 5;
+        machineLevelStruct.cooking_time = 3;
         while (true)
         {
             if (foodStack.foodStack.Count >= machineLevelStruct.max_height)
@@ -185,21 +215,27 @@ public class FoodMachine : Furniture
                 continue;
             }
 
-            for(int i =0; i<100; i++)
-            {
-                int timer = (int)(machineLevelStruct.cooking_time * 10);
-                await UniTask.Delay(timer);
-            }
-            Food f = FoodManager.GetFood(foodMesh, machineType);
-            f.parentType = machineType;
-            if (machineType == MachineType.BurgerMachine) foodHight = 0.7f;
-            else if (machineType == MachineType.CokeMachine) foodHight = 1f;
-            else if (machineType == MachineType.CoffeeMachine) foodHight = 1.2f;
-            else if (machineType == MachineType.DonutMachine) foodHight = 0.5f;
-            Vector3 addheight = GameInstance.GetVector3(0, (foodStack.foodStack.Count) * foodHight, 0);
-            f.transforms.position = foodTransform.position + addheight;
-            f.foodPrice = machineLevelStruct.sale_proceed;
-            foodStack.foodStack.Push(f);
+            float cookingTimer = machineLevelStruct.cooking_time;
+
+            cookingAction?.Invoke(cookingTimer);
+         
+            await UniTask.Delay((int)(cookingTimer * 1000));
+      
+            cookingFinishAction?.Invoke();
+
+            await UniTask.Delay(600);
+
+            
+            /*   Food f = FoodManager.GetFood(foodMesh, machineType);
+               f.parentType = machineType;
+               if (machineType == MachineType.BurgerMachine) foodHight = 0.7f;
+               else if (machineType == MachineType.CokeMachine) foodHight = 1f;
+               else if (machineType == MachineType.CoffeeMachine) foodHight = 1.2f;
+               else if (machineType == MachineType.DonutMachine) foodHight = 0.5f;
+               Vector3 addheight = GameInstance.GetVector3(0, (foodStack.foodStack.Count) * foodHight, 0);
+               f.transforms.position = foodTransform.position + addheight;
+               f.foodPrice = machineLevelStruct.sale_proceed;
+               foodStack.foodStack.Push(f);*/
         }
     }
 
