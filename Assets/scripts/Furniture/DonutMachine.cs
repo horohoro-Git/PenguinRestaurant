@@ -120,7 +120,6 @@ public class DonutMachine : FoodMachine
     public void Done()
     {
         StartCoroutine(CreateDonutDone());
-        Debug.Log("AAA");
     }
 
     IEnumerator FryingDonut(float timer)

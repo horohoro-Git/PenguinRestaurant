@@ -168,6 +168,8 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
             }
 
             go.SetActive(true);
+
+            GameIns.restaurantManager.ApplyPlaced(f);
         }
     }
 

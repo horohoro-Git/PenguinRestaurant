@@ -79,29 +79,32 @@ public class Counter : Furniture, IObjectOffset
                 }
         }
 
+        GameInstance.GameIns.workSpaceManager.unlockCounter[(int)counterType - 1] = true;
+        GameInstance.GameIns.workSpaceManager.counters.Add(this);
+
         Door door = GameInstance.GameIns.restaurantManager.door;
 
         if(!door.setup)
         {
-            RaycastHit[] hits = Physics.RaycastAll(transforms.position + Vector3.up, offset.forward, float.MaxValue, 1 << 16);
-            Debug.DrawLine(transforms.position + Vector3.up, transforms.position - transforms.forward * float.MaxValue, Color.red, 5);
-            for (int i = 0; i < hits.Length; i++)
+            if (Physics.Raycast(transforms.position + Vector3.up, offset.forward, out RaycastHit hits, float.MaxValue, 1 << 16 | 1 << 19))
             {
-
+                Debug.DrawLine(transforms.position + Vector3.up, transforms.position - transforms.forward * float.MaxValue, Color.red, 5);
                 door.gameObject.SetActive(true);
+
                 door.setup = true;
-                GameObject h = hits[i].collider.gameObject;
+                GameObject h = hits.collider.gameObject;
                 door.transform.localScale = Vector3.zero;
                 door.removeWall = h;
+                MoveCalculator.CheckAreaWithBounds(GameInstance.GameIns.calculatorScale, h.GetComponentInChildren<Collider>(), false);
                 h.SetActive(false);
                 door.transform.position = h.transform.position - Vector3.up * h.transform.position.y;
-                door.transform.rotation = h.transform.rotation * Quaternion.Euler(0,90,0);
+                door.transform.rotation = h.transform.rotation * Quaternion.Euler(0, -90, 0);
                 StartCoroutine(door.OpenDoor());
                 return;
             }
         }
 
 
-        GameInstance.GameIns.workSpaceManager.unlockCounter[(int)counterType - 1] = true;
+        
     }
 }

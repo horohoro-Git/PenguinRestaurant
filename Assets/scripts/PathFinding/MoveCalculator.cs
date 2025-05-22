@@ -7,9 +7,10 @@ using System.Linq;
 using System.Net;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
+using TMPro;
 using Unity.Collections;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
+using static GameInstance;
 using static Utility;
 //한글
 
@@ -94,6 +95,38 @@ public class MoveCalculator
 
     }
 
+    public static void CheckAreaWithBounds(CalculatorScale calculatorScale, Collider collider, bool update)
+    {
+        if(collider != null)
+        {
+            float minX = calculatorScale.minX;
+            float minY = calculatorScale.minY;
+            float distanceSize = calculatorScale.distanceSize;
+     
+            Bounds bounds = collider.bounds;
+            Vector3 center = bounds.center;
+            Vector3 extents = bounds.extents;
+
+            float tMinX = center.x - extents.x;
+            float tMinY = center.z - extents.z;
+            float tMaxX = center.x + extents.x;
+            float tMaxY = center.z + extents.z;
+            int minIndexX = Mathf.FloorToInt((tMinX - minX) / distanceSize) - 1;
+            int maxIndexX = Mathf.FloorToInt((tMaxX - minX) / distanceSize) + 2;
+            int minIndexY = Mathf.FloorToInt((tMinY - minY) / distanceSize) - 1;
+            int maxIndexY = Mathf.FloorToInt((tMaxY - minY) / distanceSize) + 2;
+
+            for( int i = minIndexX; i <= maxIndexX; i++)
+            {
+                for( int j = minIndexY; j <= maxIndexY; j++)
+                {
+                    blockedAreas[GetIndex(i, j)] = update;
+                }
+            }
+        }
+    }
+
+
     public static void CheckArea(CalculatorScale calculatorScale)
     {
         float maxX = calculatorScale.maxX;
@@ -111,7 +144,7 @@ public class MoveCalculator
         {
             for (int j = 0; j < calculateScaleX; j++)
             {
-                blockedAreas[GetIndex(j, i)] = false;
+            //    blockedAreas[GetIndex(j, i)] = false;
               //  blockedAreas[i, j] = false;
             }
         }
@@ -125,10 +158,11 @@ public class MoveCalculator
 
                 Vector3 size = GameInstance.GetVector3(distanceSize * 2f, distanceSize * 2f, distanceSize * 2f);
 
-                bool check = Physics.CheckBox(worldPoint, size, Quaternion.Euler(0, 0, 0), 1 << 6 | 1 << 7 | 1 << 16);
+                bool check = Physics.CheckBox(worldPoint, size, Quaternion.Euler(0, 0, 0), 1 << 7 | 1 << 16 | 1 << 19);
                 //bool isWall = Physics.CheckBox(worldPoint,vector, Quaternion.Euler(0, 0, 0), LayerMask.GetMask("wall"));
                 if (check)
                 {
+                    Debug.Log(r + " " + c);
                     // blockedAreas[i, j] = true;
                     blockedAreas[GetIndex(j,i)] = true;
                 }
@@ -297,10 +331,10 @@ public class MoveCalculator
         try
         {
             cancellation.ThrowIfCancellationRequested();
-            int playerX = Mathf.RoundToInt((startVector.x - gameInstance.calculatorScale.minX) / gameInstance.calculatorScale.distanceSize);
-            int playerY = Mathf.RoundToInt((startVector.z - gameInstance.calculatorScale.minY) / gameInstance.calculatorScale.distanceSize);
-            int targetX = Mathf.RoundToInt((endVector.x - gameInstance.calculatorScale.minX) / gameInstance.calculatorScale.distanceSize);
-            int targetY = Mathf.RoundToInt((endVector.z - gameInstance.calculatorScale.minY) / gameInstance.calculatorScale.distanceSize);
+            int playerX = Mathf.FloorToInt((startVector.x - gameInstance.calculatorScale.minX) / gameInstance.calculatorScale.distanceSize);
+            int playerY = Mathf.FloorToInt((startVector.z - gameInstance.calculatorScale.minY) / gameInstance.calculatorScale.distanceSize);
+            int targetX = Mathf.FloorToInt((endVector.x - gameInstance.calculatorScale.minX) / gameInstance.calculatorScale.distanceSize);
+            int targetY = Mathf.FloorToInt((endVector.z - gameInstance.calculatorScale.minY) / gameInstance.calculatorScale.distanceSize);
             /*  int playerX = (int)((startVector.x - gameInstance.calculatorScale.minX) / gameInstance.calculatorScale.distanceSize);
               int playerY = (int)((startVector.z - gameInstance.calculatorScale.minY) / gameInstance.calculatorScale.distanceSize);
               int targetX = (int)((endVector.x - gameInstance.calculatorScale.minX) / gameInstance.calculatorScale.distanceSize);

@@ -26,6 +26,9 @@ public class AnimalSpawner : MonoBehaviour
     GameInstance gameInstance;
     AnimalManager animalManager;
     public int maxCustomer = 6;
+    private static System.Random rng = new  System.Random();
+
+    public List<SpawnPoint> spawnPoints = new List<SpawnPoint>();
     public enum SpawnerType
     {
         None = -1,
@@ -87,7 +90,25 @@ public class AnimalSpawner : MonoBehaviour
                                     foodsAnimalsWant.spawnerType = SpawnerType.FastFood;
                                     Customer ac = animalManager.SpawnCustomer(foodsAnimalsWant);
                                     ac.animalSpawner = this;
-                                    ac.trans.position = transform.position;
+
+
+                                    int selectedIndex = UnityEngine.Random.Range(0, 2);
+                                    int another = 1 - selectedIndex;
+
+                                    SpawnPoint temp = spawnPoints[another];
+                                    spawnPoints[another] = spawnPoints[selectedIndex];
+                                    spawnPoints[selectedIndex] = temp;
+                                    
+                                    for(int i = 0; i< spawnPoints.Count; i++)
+                                    {
+                                        if (spawnPoints[i].SpawnTarget())
+                                        {
+                                            ac.trans.position = spawnPoints[i].transform.position;
+                                            break;
+                                        }
+                                    }
+
+                                   // ac.trans.position = //transform.position;
                                     if(!waitingCustomers.ContainsKey(ac.customerIndex)) waitingCustomers[ac.customerIndex] = ac;
                                     await UniTask.Delay(100, cancellationToken: cancellationToken);
                                     GameInstance.GameIns.animalManager.AttacCustomerTask(ac);
@@ -118,7 +139,24 @@ public class AnimalSpawner : MonoBehaviour
                                     foodsAnimalsWant.spawnerType = SpawnerType.DonutShop;
                                     Customer ac = animalManager.SpawnCustomer(foodsAnimalsWant);
                                     ac.animalSpawner = this;
-                                    ac.trans.position = transform.position;
+
+                                    int selectedIndex = UnityEngine.Random.Range(0, 2);
+                                    int another = 1 - selectedIndex;
+
+                                    SpawnPoint temp = spawnPoints[another];
+                                    spawnPoints[another] = spawnPoints[selectedIndex];
+                                    spawnPoints[selectedIndex] = temp;
+
+                                    for (int i = 0; i < spawnPoints.Count; i++)
+                                    {
+                                        if (spawnPoints[i].SpawnTarget())
+                                        {
+                                            ac.trans.position = spawnPoints[i].transform.position;
+                                            break;
+                                        }
+                                    }
+
+                                    // ac.trans.position = transform.position;
                                     if (!waitingCustomers.ContainsKey(ac.customerIndex)) waitingCustomers[ac.customerIndex] = ac;
                                     GameInstance.GameIns.animalManager.AttacCustomerTask(ac);
 

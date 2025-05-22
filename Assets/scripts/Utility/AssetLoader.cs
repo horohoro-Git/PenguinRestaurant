@@ -54,7 +54,7 @@ public class AssetLoader : MonoBehaviour
     {
         try
         {
-            string homeUrl = Path.Combine(SaveLoadSystem.LoadServerURL(), "restaurant_scene");
+           string homeUrl = Path.Combine(SaveLoadSystem.LoadServerURL(), "restaurant_scene");
             Debug.Log(homeUrl);
             Hash128 bundleHash = SaveLoadSystem.ComputeHash128(System.Text.Encoding.UTF8.GetBytes(homeUrl));
             if (Caching.IsVersionCached(homeUrl, bundleHash))
@@ -103,7 +103,7 @@ public class AssetLoader : MonoBehaviour
     {
         try
         {
-            string homeUrl = SaveLoadSystem.LoadServerURL() + "/restaurant";
+            string homeUrl = Path.Combine(SaveLoadSystem.LoadServerURL(), "restaurant");
             Hash128 bundleHash = SaveLoadSystem.ComputeHash128(System.Text.Encoding.UTF8.GetBytes(homeUrl));
             if (Caching.IsVersionCached(homeUrl, bundleHash))
             {

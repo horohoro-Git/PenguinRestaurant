@@ -47,7 +47,7 @@ public class SliderController : MonoBehaviour
         // targetValue = slider.value;
         //  level = 1; // ***** 초기 레벨 설정 *****
         UpdateLevelText(); // ***** 텍스트 초기화 *****
-        currentCoroutine = StartCoroutine(SmoothIncrease());
+     //   currentCoroutine = StartCoroutine(SmoothIncrease());
 
      //   StartCoroutine(t());
        // Bar.position = 
@@ -136,7 +136,7 @@ public class SliderController : MonoBehaviour
         }
 
         // 새로운 Coroutine 실행
-        currentCoroutine = StartCoroutine(SmoothIncrease());
+     //   currentCoroutine = StartCoroutine(SmoothIncrease());
     }
 
    
