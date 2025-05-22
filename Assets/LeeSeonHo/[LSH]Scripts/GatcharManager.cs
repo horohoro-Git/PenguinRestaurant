@@ -13,6 +13,7 @@ public class GatcharManager : MonoBehaviour
     public GameObject popup_NewCustomer;
     public GameObject popup_TierUp;
     public Image backGlow;
+    public Transform penguinPoint;
 
     public float price;
     public Sprite[] sprites;
@@ -40,6 +41,7 @@ public class GatcharManager : MonoBehaviour
 
         Debug.Log("GatchaScene Loaded");
     }
+
     private void OnEnable()
     {
         isSpawning = false;
@@ -47,6 +49,9 @@ public class GatcharManager : MonoBehaviour
     }
     private void Start()
     {
+
+
+
         GameInstance.GameIns.animalManager.NewGatchaAnimals();
         playerAnimalDataManager = GameInstance.GameIns.playerAnimalDataManager;
 

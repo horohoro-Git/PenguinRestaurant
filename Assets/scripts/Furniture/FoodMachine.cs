@@ -1,3 +1,4 @@
+using CryingSnow.FastFoodRush;
 using Cysharp.Threading.Tasks;
 using System;
 using System.Collections;
@@ -77,11 +78,14 @@ public class FoodMachine : Furniture
     // Start is called before the first frame update
     public virtual void Start()
     {
+        Set(1);
         GameInstance.GameIns.workSpaceManager.unlockFoods[(int)machineType - 1] = true;
-        audioSource = GetComponent<AudioSource>();
+        GameInstance.GameIns.workSpaceManager.foodMachines.Add(this);
+       audioSource = GetComponent<AudioSource>();
        
         foodStack.type = machineType;
         Cooking();
+
         //for(int i=0; i<200; i++) FoodManager.NewFood(Instantiate(food));
     }
 
@@ -168,7 +172,8 @@ public class FoodMachine : Furniture
     {
      //   restaurantParam = GameInstance.GameIns.restaurantManager.restaurantparams[id + 1];
  //       levelData = GameInstance.GameIns.restaurantManager.levelData[id + 1];
-        machineLevelStruct = GameInstance.GameIns.restaurantManager.machineLevelData[machineType][levelData.level];
+        machineLevelStruct = GameInstance.GameIns.restaurantManager.machineLevelData[machineType][level];
+        Debug.Log(machineLevelStruct.level);
     }
 
     public void Cooking()
@@ -204,9 +209,6 @@ public class FoodMachine : Furniture
     {
         await UniTask.Delay(500);
 
-        machineLevelStruct = new MachineLevelStruct();
-        machineLevelStruct.max_height = 5;
-        machineLevelStruct.cooking_time = 3;
         while (true)
         {
             if (foodStack.foodStack.Count >= machineLevelStruct.max_height)

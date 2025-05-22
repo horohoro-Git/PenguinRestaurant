@@ -16,4 +16,8 @@ public class TrashCan : Furniture, IObjectOffset
     {
         transforms = transform;
     }
+    void Start()
+    {
+        GameInstance.GameIns.workSpaceManager.trashCans.Add(this);
+    }
 }

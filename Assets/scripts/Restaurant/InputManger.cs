@@ -138,7 +138,7 @@ public class InputManger : MonoBehaviour
 
     void Update()
     {
-    //    Utility.CheckHirable(cameraRange.position, ref refX, ref refY, true, true);
+       // Utility.CheckHirable(cameraRange.position, ref refX, ref refY, true, true);
         if (Input.GetKey(KeyCode.O))
         {
            // for (int i = 0; i < 1; i++)
@@ -440,7 +440,7 @@ public class InputManger : MonoBehaviour
             Vector3 direction = (target - origin).normalized;
             float distance = Vector3.Distance(origin, target);
    
-            Debug.DrawRay(origin, direction * distance, Color.red, 1f);
+          //  Debug.DrawRay(origin, direction * distance, Color.red, 1f);
           //  bool hitBlock = Physics.Raycast(origin, direction, out hit, distance, 1 << 7 | 1 << 8);
             bool hitBlock = Physics.CheckSphere(origin + direction * distance, 0.2f, 1 << 7 | 1 << 8 | 1 << 16);
             if (hitBlock)

@@ -352,7 +352,6 @@ public class Utility
         int maxX = Mathf.CeilToInt(cameraPosX + radiusInGrid);
         int minY = Mathf.FloorToInt(cameraPosZ - radiusInGrid);
         int maxY = Mathf.CeilToInt(cameraPosZ + radiusInGrid);
-        Debug.Log(minX + " " + maxX + " " + minY + " " + maxY + " " + cameraPosX + " " + cameraPosZ);
         for (int xx = minX; xx <= maxX; xx++)
         {
             for (int yy = minY; yy <= maxY; yy++)
@@ -370,8 +369,8 @@ public class Utility
                     float worldZ = GameIns.calculatorScale.minY + yy * tileSize;
                     Vector3 worldPos = new Vector3(worldX, 0, worldZ);
 
-               //     Color debugColor = isBlocked ? Color.red : Color.green;
-                  //  Debug.DrawRay(worldPos, Vector3.up * 0.5f, debugColor, 0.1f);
+                 //   Color debugColor = isBlocked ? Color.red : Color.green;
+                 //   Debug.DrawRay(worldPos, Vector3.up * 0.5f, debugColor, 0.1f);
                     if (!isBlocked) InputManger.spawnDetects.Add(worldPos);
                 }
             }
@@ -398,6 +397,9 @@ public class Utility
         // GetComponentsInChildren은 자기 자신도 포함하므로 필요에 따라 제외 가능
         targetGO.GetComponentsInChildren(true, values); // 비활성 포함 true
     }
+
+
+  
 }
 
 public interface ITableID<K>

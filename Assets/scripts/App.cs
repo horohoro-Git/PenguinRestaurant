@@ -6,6 +6,7 @@ using System.IO;
 using System.Threading;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 //한글
@@ -33,19 +34,24 @@ public class App : MonoBehaviour
     List<GameObject> loadedScenesRootUI = new List<GameObject>();
     private void Awake()
     {
-        //Resources.UnloadUnusedAssets();
-        //SRDebug.Instance.HideDebugPanel();
         currentScene = SceneState.Restaurant;
         GameInstance.GameIns.app = this;
         DontDestroyOnLoad(this);
-        //    AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("LoadingScene", LoadSceneMode.Additive);
-        /*   SceneManager.LoadSceneAsync("InteractionScene", LoadSceneMode.Additive);
-           SceneManager.LoadSceneAsync("RestaurantScene", LoadSceneMode.Additive);
-          // SceneManager.LoadSceneAsync("RestaurantScene(BackUp)", LoadSceneMode.Additive);
-           SceneManager.LoadSceneAsync("GatCharScene_Town", LoadSceneMode.Additive);*/
-
-        //   SceneManager.sceneCount
+    
+        //JustTest().Forget();
         if (!scenes.ContainsKey("LoadingScene")) LoadLoadingScene(GlobalToken).Forget();
+    }
+
+
+    async UniTask JustTest()
+    {
+        string token = "restaurant";
+        string url = "https://script.google.com/macros/s/AKfycbxraLqZIPuYKDq9cpAczT-ksozgOV_pLp4VMwvqb-MME4Uibj9dc404m9IH_h3NhxWo/exec" + token;
+        UnityWebRequest request = UnityWebRequest.Get(url);
+
+        await request.SendWebRequest();
+
+        Debug.Log(request.result);
     }
 
     async UniTask LoadLoadingScene(CancellationToken cancellationToken = default)

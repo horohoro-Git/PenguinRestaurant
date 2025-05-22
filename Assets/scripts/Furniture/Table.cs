@@ -48,20 +48,21 @@ public class Table : Furniture
         foodStacks.Add(new FoodStack());
 
         GameInstance.GameIns.workSpaceManager.unlockTable = true;
+        GameInstance.GameIns.workSpaceManager.tables.Add(this);
         //test
-       /* numberOfGarbage = 8;
-        for (int i = 0; i < numberOfGarbage; i++)
-        {
-            Garbage go = GarbageManager.CreateGarbage();
-            go.transforms.SetParent(trashPlate.transforms);
-            garbageList.Add(go);
+        /* numberOfGarbage = 8;
+         for (int i = 0; i < numberOfGarbage; i++)
+         {
+             Garbage go = GarbageManager.CreateGarbage();
+             go.transforms.SetParent(trashPlate.transforms);
+             garbageList.Add(go);
 
-            float x = UnityEngine.Random.Range(-1f, 1f);
-            float z = UnityEngine.Random.Range(-1f, 1f);
-            go.transforms.position = up.position + GameInstance.GetVector3(x, 0, z);
-        }
-        interacting = false;
-        isDirty = true;*/
+             float x = UnityEngine.Random.Range(-1f, 1f);
+             float z = UnityEngine.Random.Range(-1f, 1f);
+             go.transforms.position = up.position + GameInstance.GetVector3(x, 0, z);
+         }
+         interacting = false;
+         isDirty = true;*/
     }
 
     private void OnMouseEnter()
