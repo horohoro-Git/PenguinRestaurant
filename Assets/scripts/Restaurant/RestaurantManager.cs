@@ -587,7 +587,7 @@ public class RestaurantManager : MonoBehaviour
 
     public void EmployeeNum()
     {
-        for (int i = 0; i < 8; i++)
+     //   for (int i = 0; i < 8; i++)
         {
             Employee animal = GameInstance.GameIns.animalManager.SpawnEmployee();
 

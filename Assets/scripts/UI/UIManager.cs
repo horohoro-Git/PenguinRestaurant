@@ -60,7 +60,6 @@ public class UIManager : MonoBehaviour
         {
             if (bGuideOn)
             {
-                Debug.Log("W");
                 animalGuideImage.sprite = loadedSprites[spriteAssetKeys[10001].ID];
                 bGuideOn = false;
             }
@@ -69,11 +68,9 @@ public class UIManager : MonoBehaviour
                 switch (GameIns.app.currentScene)
                 {
                     case SceneState.Restaurant:
-                        Debug.Log("s");
                         animalGuideImage.sprite = loadedSprites[spriteAssetKeys[10002].ID];
                         break;
                     case SceneState.Draw:
-                        Debug.Log("s");
                         animalGuideImage.sprite = loadedSprites[spriteAssetKeys[10003].ID];
                         break;
                 }

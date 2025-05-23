@@ -23,6 +23,7 @@ public class GameInstance
     public AssetLoader assetLoader;
     public GridManager gridManager;
     public Store store;
+    public LODManager lodManager;
 
     public static GameInstance GameIns { get { return gameInstance; }  }
     private static Queue<Vector3> pool = new Queue<Vector3>();

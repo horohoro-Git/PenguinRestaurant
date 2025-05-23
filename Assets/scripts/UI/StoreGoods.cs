@@ -58,6 +58,7 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
             GameIns.store.currentPreview.Cancel();
             GameIns.gridManager.VisibleGrid(false);
         }
+        InputManger.cachingCamera.GetComponent<OrthographicCamera>().ZoomOut();
     }
 
     public void OnDrag(PointerEventData eventData)

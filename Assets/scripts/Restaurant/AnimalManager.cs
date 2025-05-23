@@ -354,6 +354,7 @@ public class AnimalManager : MonoBehaviour
             slider.gameObject.SetActive(true);
             slider.Activate(true);
             slider.transform.SetParent(GameInstance.GameIns.applianceUIManager.EmployeeStatusUI.transform);
+            slider.targetEmployee = employee;
             slider.model = animal.trans;
             employee.ui = slider;
 
@@ -459,9 +460,15 @@ public class AnimalManager : MonoBehaviour
         activateShadows.Add(shadow);
         shadow.gameObject.SetActive(true);
         //shadow.transform.SetParent(GameInstance.GameIns.applianceUIManager.AnimalShadowUI.transform);
-        shadow.SetSize(animal.transform.localScale,0,0);
+        AnimalStruct animalStruct = AssetLoader.animals[type];
+        shadow.SetSize(new Vector2(animalStruct.size_width, animalStruct.size_height), animalStruct.offset_x, animalStruct.offset_z);
         shadow.model = animal.modelTrans;
         controller.shadow = shadow;
+        if(animal.lodController == null) animal.lodController =GetComponentInChildren<LODController>();
+        if(animal.lodController != null) animal.lodGroup = animal.lodGroup.GetComponent<LODGroup>();
+        //LOD추가
+        if (animal.lodGroup != null) GameInstance.GameIns.lodManager.AddLODGroup(animal.ID, animal.lodGroup);
+        GameInstance.GameIns.lodManager.AddInstancedAnimal(animal.ID, animal);
         return animal;
     }
 
@@ -569,7 +576,9 @@ public class AnimalManager : MonoBehaviour
         s.gameObject.SetActive(false);
         activateShadows.Remove(s);
         deactivateShadows.Enqueue(s);
-      
+
+        GameInstance.GameIns.lodManager.RemoveLODGroup(al.ID);
+        GameInstance.GameIns.lodManager.RemoveInstancedAnimal(al.ID);
         //Destroy(this);
     }
 
@@ -593,23 +602,29 @@ public class AnimalManager : MonoBehaviour
     {
         //도박용 동물들
         GatcharManager gatcharManager = GameInstance.GameIns.gatcharManager;
-        for (int i = 0; i < gatcharManager.gameObjects.Length; i++)
+       
+
+        foreach(var v in AssetLoader.animals)
         {
-            for (int j = 0; j < 6; j++)
+            if(v.Value.is_customer)
             {
-                Rolling rolling = Instantiate(gatcharManager.gameObjects[i], animalParent.transform).GetComponent<Rolling>();
-                rolling.gameObject.SetActive(false);
-                if (gatchStack.ContainsKey(rolling.type))
+                for (int j = 0; j < 6; j++)
                 {
-                    gatchStack[rolling.type].Enqueue(rolling);
+                    Rolling rolling = Instantiate(loadedAssets[itemAssetKeys[v.Key + 500].ID], animalParent.transform).GetComponent<Rolling>();
+                    rolling.gameObject.SetActive(false);
+                    if (gatchStack.ContainsKey(rolling.type))
+                    {
+                        gatchStack[rolling.type].Enqueue(rolling);
+                    }
+                    else
+                    {
+                        gatchStack[rolling.type] = new Queue<Rolling>();
+                    }
+                    // Debug.Log(rolling.type);
                 }
-                else
-                {
-                    gatchStack[rolling.type] = new Queue<Rolling>();
-                }
-           // Debug.Log(rolling.type);
             }
         }
+        
     }
     public Rolling GetGatchaAnimal(MapType type)
     {

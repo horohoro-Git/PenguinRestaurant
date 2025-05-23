@@ -162,7 +162,7 @@ public class MoveCalculator
                 //bool isWall = Physics.CheckBox(worldPoint,vector, Quaternion.Euler(0, 0, 0), LayerMask.GetMask("wall"));
                 if (check)
                 {
-                    Debug.Log(r + " " + c);
+                 //   Debug.Log(r + " " + c);
                     // blockedAreas[i, j] = true;
                     blockedAreas[GetIndex(j,i)] = true;
                 }

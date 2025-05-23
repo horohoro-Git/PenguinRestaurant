@@ -63,17 +63,9 @@ public class Employee : AnimalController
         get { return exp; }
         set
         {
-            if (value != 0)
-            {
-                int a = Mathf.Abs(exp - value);
-                exp = value;
-                if (ui != null) ui.UpdateEXP(a);
-            }
-            else
-            {
-                exp = 0;
-                if (ui != null) ui.ClearEXP();
-            }
+            exp = value;
+            ui.EXPChanged();
+       
         }
     }
 
@@ -1253,7 +1245,7 @@ public class Employee : AnimalController
         try
         {
             cancellationToken.ThrowIfCancellationRequested();
-            r = 1;
+            r = 2;
             if (r == 2)
             {
                 animator.SetInteger("state", 2);
@@ -1513,6 +1505,8 @@ public class Employee : AnimalController
                             if (debuging) Debug.Log(counter.foodStacks[i].getNum);
 
                             await UniTask.Delay(300, cancellationToken: cancellationToken);
+
+                            EXP += 1;
                             if(pause) goto Escape;
                         }
                     }
@@ -1700,6 +1694,7 @@ public class Employee : AnimalController
                                         counter.customer.VisualizingFoodStack.Add(f);
                                         index++;
                                         await UniTask.Delay(300, cancellationToken: cancellationToken);
+                                        EXP += 2;
                                         if (debuging) Debug.Log("Find");
                                         if (pause) goto Escape;
                                     }
@@ -1887,6 +1882,8 @@ public class Employee : AnimalController
                         OnGarbageClearComplete(garbage, audioSource));
 #endif
                         await UniTask.Delay(300, cancellationToken: cancellationToken);
+                        EXP += 2;
+                       
                         if (pause) goto Escape;
                     }
                     busy = false;

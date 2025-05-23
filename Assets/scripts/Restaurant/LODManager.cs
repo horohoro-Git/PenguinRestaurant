@@ -12,6 +12,10 @@ public class LODManager : MonoBehaviour
     public Dictionary<int, Animal> animals = new Dictionary<int, Animal>();
 
     public static LOD_Type lod_type = LOD_Type.LOD0;
+    private void Awake()
+    {
+        GameInstance.GameIns.lodManager = this;
+    }
     private void Start()
     {
 
@@ -56,18 +60,23 @@ public class LODManager : MonoBehaviour
 
         if (cachingCamera.orthographicSize <= 10)
         {
-            if (lod_type == LOD_Type.LOD0) return;
+       //     if (lod_type == LOD_Type.LOD0) return;
 
             lod_type = LOD_Type.LOD0;
         }
         else
         {
-            if (lod_type == LOD_Type.LOD1) return;
+      //      if (lod_type == LOD_Type.LOD1) return;
             lod_type = LOD_Type.LOD1;
         }
-
+        //Debug.Log(lod_type);
         foreach (var group in groups) group.Value.ForceLOD((int)lod_type);
         foreach (var animal in animals) animal.Value.InstancingLOD((int)lod_type);
 
+    }
+    private void OnApplicationQuit()
+    {
+        groups.Clear();
+        animals.Clear();
     }
 }

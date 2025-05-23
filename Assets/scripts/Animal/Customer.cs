@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Runtime.ConstrainedExecution;
 using System.Threading;
 using UnityEngine;
+using UnityEngine.InputSystem.XR;
 using UnityEngine.UIElements;
 
 // 한글
@@ -809,6 +810,9 @@ public class Customer : AnimalController
                     customerState = CustomerState.Table;
                     await UniTask.Delay(500, cancellationToken: cancellationToken);
                     ParticleManager.ClearParticle(particle);
+
+                    EmoteTimer(5000, App.GlobalToken).Forget();
+                    await UniTask.Delay(3000, cancellationToken: cancellationToken);
                     animator.SetInteger("state", 0);
                     animal.PlayAnimation(AnimationKeys.Idle);
                     //PlayAnim(animal.animationDic["Idle_A"], "Idle_A");
@@ -899,6 +903,28 @@ public class Customer : AnimalController
             //customerAction = CustomerAction.NONE;
             GameInstance.GameIns.animalManager.AttacCustomerTask(this);
         }
+    }
+
+    async UniTask EmoteTimer(int delay, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            Emote(true);
+            await UniTask.Delay(delay, cancellationToken: cancellationToken);
+            Emote(false);
+        }
+        catch (Exception ex)
+        {
+            Debug.Log(ex);
+        }
+    }
+    void Emote(bool bStart)
+    {
+        animal.CheckVisible(!bStart, true);
+        // meshRenderer.enabled = true;
+        animal.lodController.GetRenderer(1).enabled = bStart;
+        animal.lodController.GetRenderer(2).enabled = bStart;
+        animal.lodController.animator.SetInteger(AnimationKeys.emotion, 1);
     }
 
     public override void SetDefault()
