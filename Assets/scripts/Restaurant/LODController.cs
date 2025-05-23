@@ -9,7 +9,10 @@ public class LODController : MonoBehaviour
 
 
     public Animator animator;
-  //  public Animator DummyAnimator { get { if(animator == null) animator = GetComponent<Animator>(); return animator; } }
+    //  public Animator DummyAnimator { get { if(animator == null) animator = GetComponent<Animator>(); return animator; } }
+
+
+   
     private void Start()
     {
         for (int i = 0; i < renderers.Count; i++)

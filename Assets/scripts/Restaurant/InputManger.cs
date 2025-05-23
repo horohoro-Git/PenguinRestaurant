@@ -480,6 +480,10 @@ public class InputManger : MonoBehaviour
                 {
                     return true;
                 }
+                else
+                {
+                    return false;
+                }
             }
            
         }

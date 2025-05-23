@@ -27,4 +27,7 @@ public static class AnimationKeys
     public const string emotion = "emotion";
 
     public const string popup_close = "popup_close";
+    public const string scrolling = "scrolling";
+
+
 }

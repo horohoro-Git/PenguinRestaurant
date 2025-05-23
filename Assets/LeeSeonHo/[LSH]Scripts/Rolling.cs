@@ -9,13 +9,17 @@ public class Rolling : MonoBehaviour
     public float moveSpeed; // 이동 속도
     public int type;
 
-
+    public Shadow shadow;
+    private void Awake()
+    {
+        animator = GetComponent<Animator>();
+    }
     public void Roll()
     {
         targetPosition = Vector3.zero + new Vector3(this.transform.position.x, 0, -1000);
-        animator = GetComponentInChildren<Animator>();
         isMoving = true; // 이동 시작
-        animator.SetTrigger("Roll"); // Roll 애니메이션 시작
+       // animator.SetTrigger("Roll"); // Roll 애니메이션 시작
+        animator.SetInteger(AnimationKeys.state, 1);
         moveSpeed = GameInstance.GameIns.gatcharManager.rollingSpeed;
     }
 
@@ -31,7 +35,8 @@ public class Rolling : MonoBehaviour
             {
                 transform.position = targetPosition;
                 isMoving = false; // 이동 중지
-                animator.SetTrigger("Idle A"); // Idle A 애니메이션 실행
+                                  // animator.SetTrigger("Idle A"); // Idle A 애니메이션 실행
+                animator.SetInteger(AnimationKeys.state, 0);
             }
         }
     }

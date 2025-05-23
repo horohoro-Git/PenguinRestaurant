@@ -14,6 +14,8 @@ using AnimIns = AnimationInstancing.AnimationInstancing;
 
 public class Animal : MonoBehaviour
 {
+    public LODGroup lodGroup;
+    public LODController lodController;
     int id = 0;
     public int ID { get { if (id == 0) id = GetInstanceID(); return id; } }
 

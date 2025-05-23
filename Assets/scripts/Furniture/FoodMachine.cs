@@ -59,6 +59,7 @@ public class FoodMachine : Furniture
     {
         if (spawned && App.GlobalToken != null)
         {
+            Debug.Log("OnEnable");
             PlaceTray();
         }
        /* tray = GameInstance.GameIns.restaurantManager.GetTray();

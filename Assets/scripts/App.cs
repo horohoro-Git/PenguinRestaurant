@@ -279,7 +279,7 @@ public class App : MonoBehaviour
       //  GameInstance.GameIns.inputManager.DragScreen_WindowEditor(true);
         GameInstance.GameIns.inputManager.inputDisAble = false;
         GameInstance.GameIns.applianceUIManager.UIClearAll(true);
-
+        GameInstance.GameIns.gatcharManager.ClearRollings();
 
      //   Utility.CheckHirable(GameInstance.GameIns.inputManager.cameraRange.position, ref i, ref j);
         Time.timeScale = 1;
@@ -295,7 +295,6 @@ public class App : MonoBehaviour
         pos = GameInstance.GameIns.inputManager.cameraTrans.position;
         Time.timeScale = 0;
         Time.fixedDeltaTime = 0f;
-        Debug.LogWarning(pos);
         GameInstance.GameIns.inputManager.cameraTrans.position = GameInstance.GetVector3(-80.35f, 0, -1080.7f);
         GameInstance.GameIns.uiManager.drawBtn.gameObject.SetActive(true);
         GameInstance.GameIns.uiManager.drawSpeedUpBtn.gameObject.SetActive(true);

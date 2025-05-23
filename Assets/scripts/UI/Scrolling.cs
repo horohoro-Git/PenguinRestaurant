@@ -34,10 +34,12 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
     }
     private void OnEnable()
     {
-        animator.enabled = true;
+      //  animator.enabled = true;
+    //    animator.SetInteger(AnimationKeys.scrolling, 0);
     }
     private void OnDisable()
     {
+       // animator.SetInteger(AnimationKeys.scrolling, 0);
         animator.enabled = false;
     }
     public void OnDrag(PointerEventData eventData)
@@ -58,8 +60,8 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
             }
             else
             {
-                
-                animator.SetInteger("scrolling", 1);
+               animator.enabled = true;
+               animator.SetInteger(AnimationKeys.scrolling, 1);
             }
             SetParentVector = curPos; 
         }
@@ -73,7 +75,8 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
             }
             else
             {
-                animator.SetInteger("scrolling", 2);
+                animator.enabled = true;
+                animator.SetInteger(AnimationKeys.scrolling, 2);
             }
             SetParentVector = curPos;
         }
@@ -165,6 +168,9 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
         if (scrollCoroutine != null) StopCoroutine(scrollCoroutine);
       
         scrollCoroutine = StartCoroutine(Down());
-        animator.SetInteger("scrolling", 2);
+        animator.enabled = true;
+        animator.SetInteger(AnimationKeys.scrolling, 2);
+        isSpread = false;
+        isDown = true;
     }
 }
