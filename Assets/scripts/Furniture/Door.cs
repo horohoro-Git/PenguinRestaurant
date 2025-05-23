@@ -29,7 +29,7 @@ public class Door : MonoBehaviour
             yield return null;
         }
         transform.localScale = target;
-        MoveCalculator.CheckArea(GameInstance.GameIns.calculatorScale);
+        MoveCalculator.CheckArea(GameInstance.GameIns.calculatorScale, true);
        // MoveCalculator.CheckAreaWithBounds(GameInstance.GameIns.calculatorScale, GetComponentInChildren<Collider>(), true);
         Debug.Log("AAA");
     }

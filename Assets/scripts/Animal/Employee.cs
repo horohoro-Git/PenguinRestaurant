@@ -459,6 +459,7 @@ public class Employee : AnimalController
             }
         }
         await UniTask.NextFrame(cancellationToken: cancellationToken);
+        await UniTask.Delay(100,cancellationToken: cancellationToken);
         animal.PlayAnimation(AnimationKeys.Idle);
        // PlayAnim(animal.animationDic["Idle_A"], "Idle_A");
         animator.SetInteger("state", 0);
@@ -467,13 +468,14 @@ public class Employee : AnimalController
         elapsedTime = 0;
         if (!pause)
         {
-            GameIns.animalManager.AttachEmployeeTask(this);
+            employeeCallback?.Invoke(this);
+            //GameIns.animalManager.AttachEmployeeTask(this);
         }
         else
         {
             pause = false;
             reCalculate = true;
-            if(!busy) GameIns.animalManager.AttachEmployeeTask(this);
+            if(!busy) employeeCallback?.Invoke(this);
         }
     }
 
@@ -538,7 +540,7 @@ public class Employee : AnimalController
     {
         WorkSpaceManager workSpaceManager = GameInstance.GameIns.workSpaceManager;
 
-        if (employeeState != EmployeeState.TrashCan)
+        if (garbageList.Count == 0)
         {
             bool isPackaged = false;
             int foodNum = 0;
@@ -1142,33 +1144,18 @@ public class Employee : AnimalController
                  Work(c.throwPos.position, c);
                  return;
              }*/
+            trashCanList.Clear();
             trashCanList = workSpaceManager.trashCans;
-            for (int i = 0; i < trashCanList.Count - 1; i++)
-            {
-                int min = i;
-                for (int j = i + 1; j < trashCanList.Count - 1; j++)
-                {
-                    float m1 = (trashCanList[j].transforms.position - trans.position).magnitude;
-                    float m2 = (trashCanList[min].transforms.position - trans.position).magnitude;
-                    if (m1 < m2)
-                    {
-                        min = j;
-                    }
-                }
-                if (min != i)
-                {
-                    TrashCan temp = trashCanList[min];
-                    trashCanList[min] = trashCanList[i];
-                    trashCanList[i] = temp;
-                }
-            }
-
-
-            //  for(int i=0; i<trashCanList.Count; i++)
+            trashCanList = trashCanList.OrderBy(trashcan => (trashcan.transforms.position - trans.position).magnitude).ToList();
+            if(trashCanList.Count > 0)
             {
                 Work(trashCanList[0].throwPos.position, trashCanList[0]);
                 return;
+
             }
+
+            //쓰레기 통이 없음
+            Work();
         }
     }
     // = EmployeeWait;

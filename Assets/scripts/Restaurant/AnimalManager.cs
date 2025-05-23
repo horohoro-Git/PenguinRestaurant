@@ -204,7 +204,7 @@ public class AnimalManager : MonoBehaviour
     private void Start()
     {
         GameInstance.GameIns.calculatorScale.distanceSize = 0.4f;
-        MoveCalculator.CheckArea(GameInstance.GameIns.calculatorScale);
+        MoveCalculator.CheckArea(GameInstance.GameIns.calculatorScale, true);
 
         animalStructs = SaveLoadSystem.LoadAnimalsData();
         gatchaTiers = SaveLoadSystem.LoadTier();

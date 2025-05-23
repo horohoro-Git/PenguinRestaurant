@@ -21,6 +21,6 @@ public class LevelUpExpant : MonoBehaviour
         {
             visibleObject[i].SetActive(true);
         }
-        MoveCalculator.CheckArea(GameInstance.GameIns.calculatorScale);
+        MoveCalculator.CheckArea(GameInstance.GameIns.calculatorScale, true);
     }
 }

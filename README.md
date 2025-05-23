@@ -23,3 +23,4 @@ Animal Restaurant Tycoon Game
 05/20 Polish cooking animations, clean up scripts, and add door opposite first counter
 05/21 Furniture layout improves pathfinding efficiency, Guests begin to gather around the generated doorway once the conditions are met
 05/22 Minor bug fixes and changed the background map's ground to a texture
+05/23 Background buildings converted to textures. Fixed staff path deviation on spawn
