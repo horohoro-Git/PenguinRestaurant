@@ -225,7 +225,7 @@ public class RestaurantManager : MonoBehaviour
         if (levelGuides.Length > level) levelGuides[level].gameObject.SetActive(true);
         if (checkArea)
         {
-            MoveCalculator.CheckArea(GameInstance.GameIns.calculatorScale);
+            MoveCalculator.CheckArea(GameInstance.GameIns.calculatorScale, true);
 
             for (int i = 0; i < GameInstance.GameIns.animalManager.employeeControllers.Count; i++)
             {

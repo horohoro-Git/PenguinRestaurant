@@ -8,7 +8,6 @@ public class OrthographicCamera : MonoBehaviour
 
     public void ZoomOut()
     {
-        Debug.Log("AA");
         if (!isChangingCameraZoom)
         {
             isChangingCameraZoom = true;
