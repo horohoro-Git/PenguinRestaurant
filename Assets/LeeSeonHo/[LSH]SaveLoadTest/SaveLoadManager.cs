@@ -127,7 +127,7 @@ public class SaveLoadManager
         }
         else
         {
-            PlayerData playerData = GameInstance.GameIns.restaurantManager.playerData;
+         /*   PlayerData playerData = GameInstance.GameIns.restaurantManager.playerData;
             using (MemoryStream ms = new MemoryStream())
             {
                 using (BinaryWriter writer = new BinaryWriter(ms))
@@ -141,7 +141,7 @@ public class SaveLoadManager
                 }
                 EncryptData.SaveBinaryData(ms.ToArray(), key, path_state);
 
-            }
+            }*/
 
 
             /*  if(EncryptData.VerifyFileIntegrity(path_state, key))
@@ -349,12 +349,12 @@ public class SaveLoadManager
         bool saveStatePathExist = File.Exists(saveStatePath);
         if (saveStatePathExist)
         {
-            PlayerData pd = PlayerStateLoad();
+         /*   PlayerData pd = PlayerStateLoad();
 
             GameInstance.GameIns.restaurantManager.playerData = pd; 
             Save(SaveState.ONLY_SAVE_PLAYERDATA);
 
-            returnPD = GameInstance.GameIns.restaurantManager.playerData;
+            returnPD = GameInstance.GameIns.restaurantManager.playerData;*/
         }
         else
         {
@@ -363,7 +363,7 @@ public class SaveLoadManager
 
             PlayerData pd = PlayerStateLoad();       
             
-            returnPD = GameInstance.GameIns.restaurantManager.playerData;
+         //   returnPD = GameInstance.GameIns.restaurantManager.playerData;
         }
 
 

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.InputSystem.XR;
 using static AssetLoader;
 
 public class AllAnimals
@@ -455,21 +456,36 @@ public class AnimalManager : MonoBehaviour
        // controller.animatedAnimal = animal.GetComponentInChildren<AnimatedAnimal>();
         controller.headPoint = animal.GetComponentInChildren<Head>().transform;
         allAnimals[type].activateAnimals.Add(animal);
-        
+
         Shadow shadow = deactivateShadows.Dequeue();
         activateShadows.Add(shadow);
-        shadow.gameObject.SetActive(true);
+        shadow.gameObject.SetActive(false);
         //shadow.transform.SetParent(GameInstance.GameIns.applianceUIManager.AnimalShadowUI.transform);
         AnimalStruct animalStruct = AssetLoader.animals[type];
         shadow.SetSize(new Vector2(animalStruct.size_width, animalStruct.size_height), animalStruct.offset_x, animalStruct.offset_z);
         shadow.model = animal.modelTrans;
         controller.shadow = shadow;
-        if(animal.lodController == null) animal.lodController =GetComponentInChildren<LODController>();
+        if (animal.lodController == null) animal.lodController =GetComponentInChildren<LODController>();
         if(animal.lodController != null) animal.lodGroup = animal.lodGroup.GetComponent<LODGroup>();
         //LODÃß°¡
         if (animal.lodGroup != null) GameInstance.GameIns.lodManager.AddLODGroup(animal.ID, animal.lodGroup);
         GameInstance.GameIns.lodManager.AddInstancedAnimal(animal.ID, animal);
         return animal;
+    }
+
+    public Shadow AttackShadow(Animal animal)
+    {
+        Shadow shadow = deactivateShadows.Dequeue();
+        activateShadows.Add(shadow);
+        shadow.gameObject.SetActive(true);
+        AnimalController controller = GetComponentInChildren<AnimalController>();
+        //shadow.transform.SetParent(GameInstance.GameIns.applianceUIManager.AnimalShadowUI.transform);
+        AnimalStruct animalStruct = AssetLoader.animals[controller.animalStruct.ID];
+        shadow.SetSize(new Vector2(animalStruct.size_width, animalStruct.size_height), animalStruct.offset_x, animalStruct.offset_z);
+        shadow.model = animal.modelTrans;
+        controller.shadow = shadow;
+
+        return shadow;
     }
 
     Vector3 localScale = new Vector3(1.5f, 1.5f, 1.5f);
@@ -566,6 +582,7 @@ public class AnimalManager : MonoBehaviour
     {
         Animal al = controller.GetComponentInParent<Animal>();
         allAnimals[type].activateAnimals.Remove(al);
+        al.shadow = null;
         al.gameObject.SetActive(false);
         controller.transform.SetParent(animalParent.transform);
         allAnimals[type].deactivateAnimals.Enqueue(al);

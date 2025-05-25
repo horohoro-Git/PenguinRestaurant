@@ -469,7 +469,7 @@ public class ApplianceUIManager : MonoBehaviour
 
     public void HideApplianceInfo()
     {
-        appliancePanel.SetActive(false);
+        if(appliancePanel.activeSelf) appliancePanel.SetActive(false);
        /* // UnlockHire(true);
         if (infoCoroutine != null)
         {
@@ -501,7 +501,7 @@ public class ApplianceUIManager : MonoBehaviour
         if (foodMachine) GameInstance.GameIns.restaurantManager.UpgradeFoodMachine(foodMachine);
         else
         {
-            if (GameInstance.GameIns.restaurantManager.playerData.fishesNum > 0 && animalController.reward == null)
+            if (GameInstance.GameIns.restaurantManager.restaurantCurrency.fishes > 0 && animalController.reward == null)
                 Feed();
         }
     }
@@ -622,8 +622,8 @@ public class ApplianceUIManager : MonoBehaviour
     public void StopInfo()
     {
         HideApplianceInfo();
-        otherUI.SetActive(true);
-        shopUI.gameObject.SetActive(true);
+        if(!otherUI.activeSelf) otherUI.SetActive(true);
+        if(!shopUI.gameObject.activeSelf) shopUI.gameObject.SetActive(true);
         shopUI.scrolling.Shut();
     }
     IEnumerator EmployeeScheduleWork_A()
@@ -1182,7 +1182,7 @@ public class ApplianceUIManager : MonoBehaviour
         if (unlock)
         {
             RestaurantManager restaurantManager = GameInstance.GameIns.restaurantManager;
-            int num = restaurantManager.playerData.employeeNum;
+            int num = restaurantManager.employees.num;
             if (num < 8 && restaurantManager.employeeHire[num] <= restaurantManager.GetRestaurantValue())
             {
                 //Debug.Log(num + " " + restaurantManager.employeeHire[num] + " " + restaurantManager.GetRestaurantValue());

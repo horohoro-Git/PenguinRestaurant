@@ -7,8 +7,30 @@ public class CoffeeMachine : FoodMachine
 {
     public Transform coffeeTrans;
     Food food;
+    Food createdFood;
+    public override void Start()
+    {
+        base.Start();
+        height = 0.9f;
+    }
+    public override void OnDisable()
+    {
+        if (isQuitting) return;
+        base.OnDisable();
+        if (food)
+        {
+            FoodManager.EatFood(food);
+            food = null;
+        }
+        if(createdFood)
+        {
+            createdFood.transform.position = foodTransform.position + Vector3.up * (foodStack.foodStack.Count - 1) * height;
+            createdFood = null;
+        }
+    }
     public void Shake(float timer)
     {
+        createdFood = null;
         food = FoodManager.GetFood(foodMesh, machineType);
         food.transform.SetParent(coffeeTrans);
         food.transform.position = coffeeTrans.position;
@@ -28,14 +50,14 @@ public class CoffeeMachine : FoodMachine
         Vector3 v2 = new Vector3(1, 1, 1);
         Vector3 v3 = new Vector3(1.2f, 1.2f, 1.2f);
         float f = 0;
-        while (f < 0.2f)
+        while (f <= 0.2f)
         {
             food.transform.localScale = Vector3.Lerp(v1, v3, f * 5);
             f += Time.deltaTime;
             yield return null;
         }
         f = 0;
-        while (f < 0.1f)
+        while (f <= 0.1f)
         {
             food.transform.localScale = Vector3.Lerp(v3, v2, f * 10);
             f += Time.deltaTime;
@@ -58,7 +80,7 @@ public class CoffeeMachine : FoodMachine
         timer = (timer - 0.8f);
         Vector3 cur = transform.position;
         float f = 0;
-        while (f < timer)
+        while (f <= timer)
         {
             Vector3 v2 = cur + transform.right * UnityEngine.Random.Range(-0.1f, 0.1f);
             transform.position = v2;
@@ -73,8 +95,11 @@ public class CoffeeMachine : FoodMachine
         food.transform.SetParent(FoodManager.foodCollects.transform);
         yield return CoroutneManager.waitForzerothree;
 
-        foodStack.foodStack.Push(food);
+        createdFood = food;
+        food = null;
 
-        food.transform.DOJump(foodTransform.position + Vector3.up * (foodStack.foodStack.Count - 1) * 0.7f, 2, 1, 0.4f);
+        foodStack.foodStack.Push(createdFood);
+
+        createdFood.transform.DOJump(foodTransform.position + Vector3.up * (foodStack.foodStack.Count - 1) * height, 2, 1, 0.4f);
     }
 }

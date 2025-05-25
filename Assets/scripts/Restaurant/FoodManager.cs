@@ -85,6 +85,7 @@ public static class FoodManager
         food.Resets();
         Queue<Food> targetPool = rewards ? rewardsPooling : foodsPooling;
         food.gameObject.SetActive(false);
+        if (food.transforms.parent != foodCollects) food.transforms.SetParent(foodCollects.transform);
         targetPool.Enqueue(food);
     }
 

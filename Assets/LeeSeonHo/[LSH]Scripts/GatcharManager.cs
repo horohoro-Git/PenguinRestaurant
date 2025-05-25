@@ -5,7 +5,6 @@ using System.Threading;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using Cysharp.Threading.Tasks;
 using Cysharp.Threading.Tasks.Triggers;
 using System;
 public class GatcharManager : MonoBehaviour
@@ -19,7 +18,7 @@ public class GatcharManager : MonoBehaviour
     public Image backGlow;
     public Transform penguinPoint;
 
-    public float price;
+    public int price;
     public Sprite[] sprites;
     public Image NewAnimalImage;
     public Image TierUpAnimalImage;
@@ -120,10 +119,10 @@ public class GatcharManager : MonoBehaviour
 
     public bool Purchase()
     {
-        if (GameInstance.GameIns.restaurantManager.playerData.money >= price)
+        if (GameInstance.GameIns.restaurantManager.restaurantCurrency.money >= price)
         {
-            GameInstance.GameIns.restaurantManager.playerData.money -= price;
-            GameInstance.GameIns.uiManager.UpdateMoneyText(GameInstance.GameIns.restaurantManager.playerData.money);
+            GameInstance.GameIns.restaurantManager.restaurantCurrency.money -= (int)price;
+            GameInstance.GameIns.uiManager.UpdateMoneyText(GameInstance.GameIns.restaurantManager.restaurantCurrency.money);
            // SaveLoadManager.Save(SaveLoadManager.SaveState.ONLY_SAVE_PLAYERDATA);
             return true;
         }

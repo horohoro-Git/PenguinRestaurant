@@ -36,8 +36,9 @@ public class Counter : Furniture, IObjectOffset
     {
         transforms = transform;
     }
-    void Start()
+    public override void Start()
     {
+        
         switch (counterType)
         {
 
@@ -82,28 +83,60 @@ public class Counter : Furniture, IObjectOffset
         GameInstance.GameIns.workSpaceManager.unlockCounter[(int)counterType - 1] = true;
         GameInstance.GameIns.workSpaceManager.counters.Add(this);
 
+        base.Start();
         Door door = GameInstance.GameIns.restaurantManager.door;
 
         if(!door.setup)
         {
+            door.gameObject.SetActive(true);
+            door.setup = true;
+            door.transform.localScale = Vector3.zero;
             if (Physics.Raycast(transforms.position + Vector3.up, offset.forward, out RaycastHit hits, float.MaxValue, 1 << 16 | 1 << 19))
             {
                 Debug.DrawLine(transforms.position + Vector3.up, transforms.position - transforms.forward * float.MaxValue, Color.red, 5);
-                door.gameObject.SetActive(true);
-
-                door.setup = true;
+              
                 GameObject h = hits.collider.gameObject;
-                door.transform.localScale = Vector3.zero;
                 door.removeWall = h;
                 MoveCalculator.CheckAreaWithBounds(GameInstance.GameIns.calculatorScale, h.GetComponentInChildren<Collider>(), false);
                 h.SetActive(false);
                 door.transform.position = h.transform.position - Vector3.up * h.transform.position.y;
                 door.transform.rotation = h.transform.rotation * Quaternion.Euler(0, -90, 0);
+                door.transform.SetParent(h.transform.parent);
+                StartCoroutine(door.OpenDoor());
+                return;
+            }
+            float angle = 30f;
+            Vector3 leftDir = Quaternion.AngleAxis(-angle, offset.up) * offset.forward;
+            if (Physics.Raycast(transforms.position + Vector3.up, leftDir, out RaycastHit hit2, float.MaxValue, 1 << 16 | 1 << 19))
+            {
+                Debug.DrawLine(transforms.position + Vector3.up, leftDir * float.MaxValue, Color.red, 5);
+              
+                GameObject h = hit2.collider.gameObject;
+                door.removeWall = h;
+                MoveCalculator.CheckAreaWithBounds(GameInstance.GameIns.calculatorScale, h.GetComponentInChildren<Collider>(), false);
+                h.SetActive(false);
+                door.transform.position = h.transform.position - Vector3.up * h.transform.position.y;
+                door.transform.rotation = h.transform.rotation * Quaternion.Euler(0, -90, 0);
+                door.transform.SetParent(h.transform.parent);
+                StartCoroutine(door.OpenDoor());
+                return;
+            }
+            Vector3 rightDir = Quaternion.AngleAxis(angle, offset.up) * offset.forward;
+            if (Physics.Raycast(transforms.position + Vector3.up, rightDir, out RaycastHit hit3, float.MaxValue, 1 << 16 | 1 << 19))
+            {
+                Debug.DrawLine(transforms.position + Vector3.up, rightDir * float.MaxValue, Color.red, 5);
+
+                GameObject h = hit3.collider.gameObject;
+                door.removeWall = h;
+                MoveCalculator.CheckAreaWithBounds(GameInstance.GameIns.calculatorScale, h.GetComponentInChildren<Collider>(), false);
+                h.SetActive(false);
+                door.transform.position = h.transform.position - Vector3.up * h.transform.position.y;
+                door.transform.rotation = h.transform.rotation * Quaternion.Euler(0, -90, 0);
+                door.transform.SetParent(h.transform.parent);
                 StartCoroutine(door.OpenDoor());
                 return;
             }
         }
-
 
         
     }

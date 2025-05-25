@@ -34,7 +34,7 @@ public class Shadow : MonoBehaviour
 
         if(model !=null)
         {
-            Vector3 rectPosition = GameInstance.GetVector3(model.position.x + offsetX, 0.1f + model.position.y, model.position.z + offsetZ);
+            Vector3 rectPosition = GameInstance.GetVector3(model.position.x - offsetX, 0.1f + model.position.y, model.position.z - offsetZ);
             Vector3 rectEuler = GameInstance.GetVector3(90, 0, -model.rotation.eulerAngles.y);
 
             GetRectTransform.position = rectPosition;//new Vector3(model.position.x, 0.1f + model.position.y, model.position.z);

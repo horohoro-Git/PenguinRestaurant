@@ -30,7 +30,7 @@ public class App : MonoBehaviour
     public Vector3 pos { get { return vector; } set { vector = value; Debug.Log(value); } }
     static Dictionary<string, Scene> scenes = new Dictionary<string, Scene>();
     Loading loading;
-
+    public static bool loadedAllAssets;
     List<GameObject> loadedScenesRootUI = new List<GameObject>();
     private void Awake()
     {
@@ -164,6 +164,7 @@ public class App : MonoBehaviour
 
             currentScene = SceneState.Restaurant;
             await LoadFont(cancellationToken);
+            loadedAllAssets = true;
             loading.LoadingComplete();
         }
         catch (OperationCanceledException)

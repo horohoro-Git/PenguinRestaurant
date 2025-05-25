@@ -171,8 +171,8 @@ public class InputManger : MonoBehaviour
     {
         playerInput.actions["PointerPosition"].performed -= ScreenPoint;
         playerInput.actions["PointerPosition"].performed += ScreenPoint;
-        playerInput.actions["ClickPosition"].performed -= StartClick;
-        playerInput.actions["ClickPosition"].performed += StartClick;
+        playerInput.actions["ClickPosition"].started -= StartClick;
+        playerInput.actions["ClickPosition"].started += StartClick;
         playerInput.actions["ClickPosition"].canceled -= EndClick;
         playerInput.actions["ClickPosition"].canceled += EndClick;
 
@@ -181,7 +181,7 @@ public class InputManger : MonoBehaviour
     private void OnDisable()
     {
         playerInput.actions["PointerPosition"].performed -= ScreenPoint;
-        playerInput.actions["ClickPosition"].performed -= StartClick;
+        playerInput.actions["ClickPosition"].started -= StartClick;
         playerInput.actions["ClickPosition"].canceled -= EndClick;
         cts.Cancel();
     }

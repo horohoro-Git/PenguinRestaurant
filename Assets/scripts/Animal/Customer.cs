@@ -69,6 +69,8 @@ public class Customer : AnimalController
     public int customerIndex;
 
     public Animal currentAnimal;
+
+    public GameObject endPoint;
     private void Awake()
     {
         transforms = transform;
@@ -294,8 +296,6 @@ public class Customer : AnimalController
             {
                 busy = true;
 
-          
-
                 CustomerPlayAction(
                     workSpaceManager.counters[(int)foodsAnimalsWant.spawnerType].queuePoints,
                     workSpaceManager.counters[(int)foodsAnimalsWant.spawnerType]
@@ -359,7 +359,7 @@ public class Customer : AnimalController
         }
         else
         {
-            endList = workSpaceManager.endPoints;
+           /* endList = workSpaceManager.endPoints;
             int n = 0;
             float min = float.MaxValue;
             for(int i=0;i<endList.Count; i++)
@@ -371,10 +371,10 @@ public class Customer : AnimalController
                     min = other;
                     n = i;
                 }
-            }
+            }*/
             busy = true;
-           
-            CustomerPlayAction(endList[n].transforms.position);
+
+            CustomerPlayAction(endPoint.transform.position);//endList[n].transforms.position);
         }
     }
 
@@ -433,7 +433,7 @@ public class Customer : AnimalController
 
             int currentPoint = position.Length - 1;
             position[position.Length - 1].controller = this;
-            Stack<Vector3> moveTargets = await CalculateNodes_Async(pos, cancellationToken);
+            Stack<Vector3> moveTargets = await CalculateNodes_Async(pos, false, cancellationToken);
 
             await Customer_Move(moveTargets, pos, true, cancellationToken: cancellationToken);
             modelTrans.rotation = position[currentPoint].transforms.rotation;
@@ -512,9 +512,9 @@ public class Customer : AnimalController
 
             if (hasMoney)
             {
-                GameInstance.GameIns.restaurantManager.playerData.money += foodPrices;
-                GameInstance.GameIns.restaurantManager.playerData.fishesNum += tipNum;
-                GameInstance.GameIns.uiManager.UpdateMoneyText(GameInstance.GameIns.restaurantManager.playerData.money);
+                GameInstance.GameIns.restaurantManager.restaurantCurrency.money += (int)foodPrices;
+                GameInstance.GameIns.restaurantManager.restaurantCurrency.fishes += tipNum;
+                GameInstance.GameIns.uiManager.UpdateMoneyText(GameInstance.GameIns.restaurantManager.restaurantCurrency.money);
 
                 SaveLoadManager.Save(SaveLoadManager.SaveState.ONLY_SAVE_PLAYERDATA);
                 hasMoney = false;
@@ -690,7 +690,7 @@ public class Customer : AnimalController
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                Stack<Vector3> moveTargets = await CalculateNodes_Async(position, cancellationToken);
+                Stack<Vector3> moveTargets = await CalculateNodes_Async(position, false, cancellationToken);
                 if (moveTargets != null && moveTargets.Count > 0)
                 // if (moveNode != null)
                 {
@@ -848,7 +848,7 @@ public class Customer : AnimalController
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                Stack<Vector3> moveTargets = await CalculateNodes_Async(position, cancellationToken);
+                Stack<Vector3> moveTargets = await CalculateNodes_Async(position, false, cancellationToken);
                 if (moveTargets != null && moveTargets.Count > 0)
                 //    if (moveNode != null)
                 {
