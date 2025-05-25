@@ -22,6 +22,7 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
     bool currentCheckArea = false;
     public TMP_Text image_name;
     public TMP_Text price_text;
+    public TMP_Text soldout_text;
     [NonSerialized]
     public GoodsStruct goods;
 
@@ -40,13 +41,13 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
         this.goods = goods;
         image_name.text = goods.name;
         itemImage.GetComponent<Image>().sprite = loadedAtlases["Furnitures"].GetSprite(spriteAssetKeys[goods.id].ID);
-       // instaceImage = Instantiate(GameIns.store.instanceImage, GameIns.store.subCanvas.transform);
-      //  instaceImage.gameObject.SetActive(false);
-        //instaceImage.GetComponent<Image>().sprite = loadedAtlases["Furnitures"].GetSprite(spriteAssetKeys[goods.id].ID);
-        // furniture = GameIns.store.goodsDic[goods.id];
-        // /   
-        //   if(itemAssetKeys.ContainsKey(goods.id + 1000)) furniture_Preview = loadedAssets[itemAssetKeys[goods.id + 1000].ID];
-        
+
+        if (goods.type != WorkSpaceType.None && GameIns.store.goodsDic[goods.id].Count == 0)
+        {
+            this.goods.soldout = true;
+            soldout_text.gameObject.SetActive(true);
+        }
+
     }
     public void OnBeginDrag(PointerEventData eventData)
     {
@@ -58,51 +59,71 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
             GameIns.store.currentPreview.Cancel();
             GameIns.gridManager.VisibleGrid(false);
         }
-        InputManger.cachingCamera.GetComponent<OrthographicCamera>().ZoomOut();
+        if(!goods.soldout) InputManger.cachingCamera.GetComponent<OrthographicCamera>().ZoomOut();
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (GameIns.inputManager.CheckClickedUI(1 << 18))
+        if(!goods.soldout)
         {
-            if(!instancingImage.gameObject.activeSelf)
+            if (GameIns.inputManager.CheckClickedUI(1 << 18))
             {
-                instancingImage.gameObject.SetActive(true);
-                instancingImage.GetComponent<Image>().sprite = itemImage.GetComponent<Image>().sprite;
-                instancingImage.gameObject.layer = 14;
-                instancingImage.GetComponent<Image>().raycastTarget = true;
-                instancingImage.position = Input.mousePosition;
-            }
-            else instancingImage.position = Input.mousePosition;
-          //  currnet.transform.position = InputManger.cachingCamera.ScreenToWorldPoint(Input.mousePosition);
+                if (!instancingImage.gameObject.activeSelf)
+                {
+                    instancingImage.gameObject.SetActive(true);
+                    instancingImage.GetComponent<Image>().sprite = itemImage.GetComponent<Image>().sprite;
+                    instancingImage.gameObject.layer = 14;
+                    instancingImage.GetComponent<Image>().raycastTarget = true;
+                    instancingImage.position = Input.mousePosition;
+                }
+                else instancingImage.position = Input.mousePosition;
+                //  currnet.transform.position = InputManger.cachingCamera.ScreenToWorldPoint(Input.mousePosition);
 
-        }
-        else
-        {
-            if (instancingImage.gameObject.activeSelf)
-            {
-                instancingImage.gameObject.SetActive(false);
-                GameIns.store.CloseStore();
             }
-            if(currnet == null)
+            else
             {
-                currnet = GameIns.store.goodsPreviewDic[goods.ID + 1000];
-                currnet.gameObject.SetActive(true);
-                currnet.storeGoods = this;
-                GameIns.store.currentPreview = currnet;
 
-                GameIns.gridManager.VisibleGrid(true);
+                if (goods.type != WorkSpaceType.None)
+                {
+                    if (instancingImage.gameObject.activeSelf)
+                    {
+                        instancingImage.gameObject.SetActive(false);
+                        GameIns.store.CloseStore();
+                    }
+                    if (currnet == null)
+                    {
+                        currnet = GameIns.store.goodsPreviewDic[goods.ID + 1000];
+                        currnet.gameObject.SetActive(true);
+                        currnet.storeGoods = this;
+                        GameIns.store.currentPreview = currnet;
+
+                        GameIns.gridManager.VisibleGrid(true);
+                    }
+                    //   instaceImage.SetParent(itemImage);
+                    //   instaceImage.position = itemImage.position;
+                    Ray r = InputManger.cachingCamera.ScreenPointToRay(Input.mousePosition);
+                    if (Physics.Raycast(r, out RaycastHit hit, float.MaxValue, 1))
+                    {
+                        //    currnet.transform.position = hit.point;
+                        currentCheckArea = GameIns.gridManager.SelectLine(hit.point, currnet, currentCheckArea);
+                    }
+                }
+                else
+                {
+                    if (instancingImage.gameObject.activeSelf)
+                    {
+                        instancingImage.gameObject.SetActive(false);
+                        GameIns.restaurantManager.Extension();
+
+                        goods.soldout = true;
+                        soldout_text.gameObject.SetActive(true);
+                        itemImage.GetComponent<Image>().raycastTarget = false;
+                        GameIns.store.require.Add(goods.ID);
+                        GameIns.store.Refresh();
+                    }
+                }
+
             }
-         //   instaceImage.SetParent(itemImage);
-         //   instaceImage.position = itemImage.position;
-            Ray r = InputManger.cachingCamera.ScreenPointToRay(Input.mousePosition);
-            if(Physics.Raycast(r, out RaycastHit hit, float.MaxValue, 1))
-            {
-                //    currnet.transform.position = hit.point;
-                currentCheckArea = GameIns.gridManager.SelectLine(hit.point, currnet, currentCheckArea);
-            }
-        //    currnet.transform.position = InputManger.cachingCamera.ScreenToWorldPoint(Input.mousePosition);
-        
         }
     }
 
@@ -146,31 +167,46 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
         currnet = null;
     }
 
-    public void PlaceGoods(Vector3 offset)
+    public void PlaceGoods(Vector3 offset, int level, Furniture currentFurniture)
     {
         if(currnet)
         {
-            GameObject go = GameIns.store.goodsDic[goods.ID]; //Instantiate(furniture);
-            Furniture f = go.GetComponent<Furniture>();
-            f.spawned = true;
+            //GameObject go =  //GameIns.store.goodsDic[goods.ID].Dequeue(); //Instantiate(furniture);
+            Furniture f = currentFurniture; //go.GetComponent<Furniture>();
+            if(f == null) f = GameIns.store.goodsDic[goods.ID].Dequeue().GetComponent<Furniture>();
+            bool firstPlaced = !f.spawned;
+
+        //    f.spawned = true;
           //  GameInstance.GameIns.workSpaceManager.AddWorkSpace(f);
            
+            f.rotateLevel = level;
             Vector3 target = currnet.transform.position;
-            go.transform.position = target;
+            f.transform.position = target;
             f.id = goods.ID;
-            if (go.TryGetComponent<IObjectOffset>(out IObjectOffset offsets))
+            if (f.TryGetComponent<IObjectOffset>(out IObjectOffset offsets))
             {
+             //   f.offsetPoint = 
                 offsets.offset.localPosition = offset;
                 offsets.offset.rotation = currnet.offset.transform.rotation;
             }
             else
             {
-                go.transform.rotation = currnet.offset.transform.rotation;
+                f.transform.rotation = currnet.offset.transform.rotation;
             }
 
-            go.SetActive(true);
+            f.gameObject.SetActive(true);
 
             GameIns.restaurantManager.ApplyPlaced(f);
+
+            if(!firstPlaced) SaveLoadSystem.SaveRestaurantData();
+
+            if (GameIns.store.goodsDic[goods.ID].Count == 0)
+            {
+                goods.soldout = true;
+                soldout_text.gameObject.SetActive(true);
+            }
+            GameIns.store.require.Add(goods.ID);
+            GameIns.store.Refresh();
         }
     }
 

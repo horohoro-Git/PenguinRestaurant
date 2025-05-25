@@ -51,6 +51,7 @@ public class FurnitureInfo : MonoBehaviour
                 placeController.offset.transform.rotation = currentFurniture.transform.rotation;
                 placeController.transform.position = currentFurniture.transform.position;
             }
+            placeController.SetLevel(currentFurniture.rotateLevel);
             GameInstance.GameIns.gridManager.ReCalculate(placeController);
             placeController.purchasedObject = true;
             placeController.currentFurniture = currentFurniture;

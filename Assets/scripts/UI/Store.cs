@@ -19,12 +19,16 @@ public class Store : MonoBehaviour
     Dictionary<int, StoreGoods> goodsList = new Dictionary<int, StoreGoods>();
 
     public Dictionary<int, PlaceController> goodsPreviewDic = new Dictionary<int, PlaceController>();
-    public Dictionary<int, GameObject> goodsDic = new Dictionary<int, GameObject>();
+    public Dictionary<int, Queue<GameObject>> goodsDic = new Dictionary<int, Queue<GameObject>>();
     
     public PlaceController currentPreview;
 
     public static RectTransform instancingImage;
     public static GameObject storeObjects;
+
+    WorkSpaceType spaceType;
+
+    public HashSet<int> require = new HashSet<int>();
     private void Awake()
     {
         storeObjects = new GameObject();
@@ -36,16 +40,23 @@ public class Store : MonoBehaviour
         instancingImage.gameObject.SetActive(false);
         foreach (var v in AssetLoader.goods)
         {
-            GameObject g = Instantiate(loadedAssets[itemAssetKeys[v.Key].ID], storeObjects.transform);
-            g.transform.position = Vector3.zero;
-            PlaceController preview = Instantiate(loadedAssets[itemAssetKeys[v.Key + 1000].ID], storeObjects.transform).GetComponent<PlaceController>();
-            preview.transform.position = Vector3.zero;
-            g.SetActive(false);
-            preview.gameObject.SetActive(false);   
-            goodsDic[v.Key] = g;
-            goodsPreviewDic[v.Key + 1000] = preview;
+            if (v.Value.type != WorkSpaceType.None)
+            {
+                Debug.Log(v.Key);
+                goodsDic[v.Key] = new Queue<GameObject>();
+                for (int i = 0; i < v.Value.num; i++)
+                {
+                    GameObject g = Instantiate(loadedAssets[itemAssetKeys[v.Key].ID], storeObjects.transform);
+                    g.transform.position = Vector3.zero;
+                    g.SetActive(false);
+                    goodsDic[v.Key].Enqueue(g);
+                }
+                PlaceController preview = Instantiate(loadedAssets[itemAssetKeys[v.Key + 1000].ID], storeObjects.transform).GetComponent<PlaceController>();
+                preview.gameObject.SetActive(false);
+                preview.transform.position = Vector3.zero;
+                goodsPreviewDic[v.Key + 1000] = preview;
 
-            
+            }
         }
     }
 
@@ -59,8 +70,12 @@ public class Store : MonoBehaviour
             StoreGoods g = Instantiate(goods, content);
             goodsList[d.Key] = g;
             g.Setup(d.Value);
-            if(d.Value.type == WorkSpaceType.Counter) g.gameObject.SetActive(true);
-            else g.gameObject.SetActive(false); 
+            if (d.Value.type == WorkSpaceType.Counter) g.gameObject.SetActive(true);
+            else g.gameObject.SetActive(false);
+            if (d.Value.type != WorkSpaceType.None)
+            {
+                goodsPreviewDic[d.Key + 1000].storeGoods = g;
+            }
         }
     }
 
@@ -92,19 +107,28 @@ public class Store : MonoBehaviour
     }
     public void ChangeCounterList()
     {
+        spaceType = WorkSpaceType.Counter;
         ChangeList(WorkSpaceType.Counter);
     }
     public void ChangeMachineList()
     {
+        spaceType = WorkSpaceType.FoodMachine;
         ChangeList(WorkSpaceType.FoodMachine);
     }
     public void ChangeTableList()
     {
-
+        spaceType = WorkSpaceType.Table;
         ChangeList(WorkSpaceType.Table);
+    }
+
+    public void ChangeTrashcanList()
+    {
+        spaceType = WorkSpaceType.Trashcan;
+        ChangeList(WorkSpaceType.Trashcan);
     }
     public void ChangeExpands()
     {
+        spaceType = WorkSpaceType.None;
         ChangeList(WorkSpaceType.None);
     }
     public void ChangeList(WorkSpaceType type)
@@ -114,7 +138,14 @@ public class Store : MonoBehaviour
         {
             if (g.Value.goods.type == type)
             {
-                g.Value.gameObject.SetActive(true);
+                if(g.Value.goods.require == 0 || require.Contains(g.Value.goods.require))
+                {
+                    g.Value.gameObject.SetActive(true);
+                }
+                else
+                {
+                    g.Value.gameObject.SetActive(false);
+                }
             }
             else
             {
@@ -124,5 +155,10 @@ public class Store : MonoBehaviour
         }
      
         scrollbar.value = 0;
+    }
+
+    public void Refresh()
+    {
+        ChangeList(spaceType);
     }
 }

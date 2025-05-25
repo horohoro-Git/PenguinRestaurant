@@ -10,5 +10,16 @@ public class Furniture : MonoBehaviour
     public WorkSpaceType spaceType { get; set; }
 
     public bool spawned;
+    public Vector3 offsetPoint;
 
+    public int rotateLevel;
+
+    public virtual void Start()
+    {
+        if(!spawned)
+        {
+            SaveLoadSystem.SaveRestaurantData();
+            spawned = true;
+        }
+    }
 }

@@ -107,6 +107,7 @@ public class AnimalController : MonoBehaviour
     public Vector3 kockbackVector;
     public bool reCalculate = false;
     public bool bWait = false;
+    public bool bResearch = false;
     [HideInInspector]
     public float waitTimer;
 
@@ -1801,19 +1802,19 @@ public class AnimalController : MonoBehaviour
 
  
     MoveCalculator moveCalculator = new MoveCalculator();
-    protected Node CalculateNodes(Vector3 position)
+    protected Node CalculateNodes(Vector3 position, bool isEmployee)
     {
         moveCalculator.Init();
         openLists.Clear();
         closedLists.Clear();
      
-        Node node = moveCalculator.AStarAlgorithm(trans.position, position, openLists, closedLists);
+    //    Node node = moveCalculator.AStarAlgorithm(trans.position, position, openLists, isEmployee, closedLists);
 
-        if (node != null)
+      //  if (node != null)
         {
-           return node;
+     //      return node;
         }
-        else
+   //     else
         {
             //
             Debug.Log("XX" + position);
@@ -1821,7 +1822,7 @@ public class AnimalController : MonoBehaviour
         }
     }
 
-    protected async UniTask<Stack<Vector3>> CalculateNodes_Async(Vector3 position, CancellationToken cancellationToken = default)
+    protected async UniTask<Stack<Vector3>> CalculateNodes_Async(Vector3 position, bool isEmployee, CancellationToken cancellationToken = default)
     {
         moveCalculator.Init();
         openLists.Clear();
@@ -1837,7 +1838,7 @@ public class AnimalController : MonoBehaviour
                 return null;    
             }
 
-            Stack<Vector3> node = await moveCalculator.AStarAlgorithm_Async(trans.position, position, openLists, closedLists, cancellationToken);
+            Stack<Vector3> node = await moveCalculator.AStarAlgorithm_Async(trans.position, position, openLists, closedLists, isEmployee, cancellationToken);
             if (node != null)
             {
                 return node;

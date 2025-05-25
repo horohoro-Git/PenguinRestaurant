@@ -59,9 +59,9 @@ public class MoveCalculator
   //  static BitArray blockedAreas = new BitArray(400 * 400);
     public static int GetIndex(int x, int y) => y * GameInstance.GameIns.calculatorScale.sizeX + x;
     static bool[] blockedAreas = new bool[400 * 400];
+    static bool[] blockedAreas_Employee = new bool[400 * 400];
     NativeArray<NodeStruct> nodeStructs; //= new NativeArray<NodeStruct>(40000, Allocator.Persistent);
     
-    Queue<Node> usingNodes = new Queue<Node>(1000);
     public MoveCalculator()
     {
        /* for (int i = 0; i < 200; i++)
@@ -121,6 +121,7 @@ public class MoveCalculator
                 for( int j = minIndexY; j <= maxIndexY; j++)
                 {
                     blockedAreas[GetIndex(i, j)] = update;
+                    blockedAreas_Employee[GetIndex(i, j)] = update;
                 }
             }
         }
@@ -140,12 +141,17 @@ public class MoveCalculator
         GameInstance.GameIns.calculatorScale.sizeX = calculateScaleX;
         GameInstance.GameIns.calculatorScale.sizeY = calculateScaleY;
         //  blockedAreas = new bool[calculateScaleY ,calculateScaleX];
-        for (int i = 0; i < calculateScaleY; i++)
+
+        if (withBlock)
         {
-            for (int j = 0; j < calculateScaleX; j++)
+            for (int i = 0; i < calculateScaleY; i++)
             {
-            //    blockedAreas[GetIndex(j, i)] = false;
-              //  blockedAreas[i, j] = false;
+                for (int j = 0; j < calculateScaleX; j++)
+                {
+                    blockedAreas[GetIndex(j, i)] = false;
+                    blockedAreas_Employee[GetIndex(j,i)] = false;
+               //       blockedAreas[i, j] = false;
+                }
             }
         }
         for (int i = 0; i < calculateScaleY; i++)
@@ -159,8 +165,19 @@ public class MoveCalculator
                 Vector3 size = GameInstance.GetVector3(distanceSize * 2f, distanceSize * 2f, distanceSize * 2f);
 
                 bool check = false;
-                if(withBlock) check = Physics.CheckBox(worldPoint, size, Quaternion.Euler(0, 0, 0), 1 << 6 | 1 << 7 | 1 << 16 | 1 << 19);
-                else check = Physics.CheckBox(worldPoint, size, Quaternion.Euler(0, 0, 0), 1 << 7 | 1 << 16 | 1 << 19);
+                bool check2 = false;
+                if (withBlock)
+                {
+                    check = Physics.CheckBox(worldPoint, size, Quaternion.Euler(0, 0, 0), 1 << 6 | 1 << 7 | 1 << 16 | 1 << 19);
+                    if (check) check2 = true;
+                    else check2 = Physics.CheckBox(worldPoint, size, Quaternion.Euler(0, 0, 0), 1 << 6 | 1 << 7 | 1 << 16 | 1 << 19 | 1 << 21);
+                }
+                else
+                {
+                    check = Physics.CheckBox(worldPoint, size, Quaternion.Euler(0, 0, 0), 1 << 7 | 1 << 16 | 1 << 19);
+                    if (check) check2 = true;
+                    else check2 = Physics.CheckBox(worldPoint, size, Quaternion.Euler(0, 0, 0), 1 << 7 | 1 << 16 | 1 << 19 | 1 << 21);
+                }
                 //bool isWall = Physics.CheckBox(worldPoint,vector, Quaternion.Euler(0, 0, 0), LayerMask.GetMask("wall"));
                 if (check)
                 {
@@ -168,6 +185,7 @@ public class MoveCalculator
                     // blockedAreas[i, j] = true;
                     blockedAreas[GetIndex(j,i)] = true;
                 }
+                if(check2) blockedAreas_Employee[GetIndex(j,i)] = true;
             }
         }
        int xx = 0;
@@ -177,161 +195,24 @@ public class MoveCalculator
 
     void ResetNodes()
     {
-        while(usingNodes.Count > 0)
+       /* while(usingNodes.Count > 0)
         {
             Node node = usingNodes.Dequeue();
 
             NodePool.ReturnNode(node);  
-        }
+        }*/
     }
     // static Node returnCoord100 = new Node(100, 100);
-    public Node AStarAlgorithm(Vector3 startVector, Vector3 endVector, MinHeap<Node> openList, HashSet<Node> closedList) //(Coord start, Coord end)
-    {
-        ResetNodes();
-       /* nodeStructs = new NativeArray<NodeStruct>(40000, Allocator.Persistent);
-
-        for (int i = 0; i < 200; i++)
-        {
-            for (int j = 0; j < 200; j++)
-            {
-                int index = i * 200 + j;
-                nodeStructs[index] = new NodeStruct(j, i);
-                // nodeStructs[i, j] = new NodeStruct(j,i);
-                //nodes[i, j] = new Node(i, j);
-                //  defaultCoords[i,j] = new Coord(i,j);
-            }
-        }*/
-
-
-        int playerX = (int)((startVector.x - gameInstance.calculatorScale.minX) / gameInstance.calculatorScale.distanceSize);
-        int playerY = (int)((startVector.z - gameInstance.calculatorScale.minY) / gameInstance.calculatorScale.distanceSize);
-        int targetX = (int)((endVector.x - gameInstance.calculatorScale.minX) / gameInstance.calculatorScale.distanceSize);
-        int targetY = (int)((endVector.z - gameInstance.calculatorScale.minY) / gameInstance.calculatorScale.distanceSize);
-
-        bool playerValidCheck = ValidCheck(playerX, playerY);
-        bool targetValidCheck = ValidCheck(targetX, targetY);
-        if (!(playerValidCheck && targetValidCheck))
-        {
-          //  if (!playerValidCheck) Debug.Log("PlayerInvalid");
-        //    if (!targetValidCheck) Debug.Log("targetInvalid");
-            return null;
-        }
-
-       /* int indexStart = playerY * 200 + playerX;
-        int indexEnd = targetY * 200 + targetX;
-        NodeStruct startNode = nodeStructs[indexStart];
-        NodeStruct endNode = nodeStructs[indexEnd];
-*/
-        //  Node start = nodes[playerY, playerX];
-        //  Node end = nodes[targetY, targetX];
-
-        Node start = NodePool.GetNode(playerY, playerX);
-        usingNodes.Enqueue(start);
-        Node end = NodePool.GetNode(targetY, targetX);
-        usingNodes.Enqueue(end);
-        if (playerY == targetY && playerX == targetX)
-        {
-            //   Node already = returnCoord100;// new Coord(100, 100);
-            Node already = NodePool.GetNode(100,100);
-            usingNodes.Enqueue(already);
-          //     Debug.Log("alreadyEnd");
-            return already;
-        }
-        
-        if (blockedAreas[GetIndex(targetX, targetY)])
-        {
-            //Debug.Log("EndBlocked");
-            return null;
-        }
-
-
-        openList.Add(start);
-        while (openList.Count > 0)
-        {
-            Node node = openList.PopMin(); //F가 최소인 값 추출
-            
-            closedList.Add(node);
-
-            for (int i = 0; i < 8; i++)  //현재 노드 기준 8방향
-            {
-                int r = node.r + moveY[i];
-                int c = node.c + moveX[i];
-
-                if (ValidCheck(r, c))   //크기 체크
-                {
-                    Node neighbor = NodePool.GetNode(r,c);// nodes[r, c];
-                    usingNodes.Enqueue(neighbor);
-                    if (closedList.Contains(neighbor) == false && !blockedAreas[GetIndex(c, r)])
-                    {
-                        if (end.r == r && end.c == c)
-                        {
-
-                            end.parentNode = node;  //목적지 탐색 완료
-                            return end;
-                        }
-
-
-                        //A*
-                        /*bool containedInOpenList = openList.Contains(neighbor);
-                        int g = node.parentNode.G + GetDistance(node.parentNode, neighbor);
-                        if(g <neighbor.G || !containedInOpenList)
-                        {
-                            neighbor.G = g;
-                            neighbor.parentNode = node;
-                            neighbor.H = GetDistance(neighbor, end);
-                            neighbor.ResetF();
-                            if (!containedInOpenList)
-                            {
-                                openList.Add(neighbor);
-                            }
-                        }*/
-
-
-
-                        //Theta*
-                        bool hasLineOfSight = LineOfSight(node.parentNode, neighbor, 0.5f);  //직선 거리 확인
-                        bool containedInOpenList = openList.Contains(neighbor);
-                        if (hasLineOfSight)
-                        {
-                            int g = node.parentNode.G + GetDistance(node.parentNode, neighbor);
-                            if (g < neighbor.G || !containedInOpenList)
-                            {
-                                neighbor.G = g;
-
-                                neighbor.parentNode = node.parentNode;
-                            }
-                        }
-                        else
-                        {
-                            int g = node.G + GetDistance(node, neighbor);
-                            if (g < neighbor.G || !containedInOpenList)
-                            {
-                                neighbor.G = g;
-
-                                neighbor.parentNode = node;
-                            }
-                        }
-                        neighbor.H = GetDistance(neighbor, end);
-                       // neighbor.ResetF();
-                        if (!containedInOpenList)
-                        {
-                            openList.Add(neighbor);
-                        }
-                    }
-                }
-
-            }
-        }
-        Debug.Log("NotFound");
-        return null;
-    }
+   
     CancellationTokenSource cts = new();
 
-    public async UniTask<Stack<Vector3>> AStarAlgorithm_Async(Vector3 startVector, Vector3 endVector, MinHeap<Node> openList, HashSet<Node> closedList, CancellationToken cancellation = default) //(Coord start, Coord end)
+    public async UniTask<Stack<Vector3>> AStarAlgorithm_Async(Vector3 startVector, Vector3 endVector, MinHeap<Node> openList, HashSet<Node> closedList, bool isEmployee, CancellationToken cancellation = default) //(Coord start, Coord end)
     {
 
         try
         {
+            bool[] block = isEmployee == true ? blockedAreas_Employee : blockedAreas;
+
             cancellation.ThrowIfCancellationRequested();
             int playerX = Mathf.FloorToInt((startVector.x - gameInstance.calculatorScale.minX) / gameInstance.calculatorScale.distanceSize);
             int playerY = Mathf.FloorToInt((startVector.z - gameInstance.calculatorScale.minY) / gameInstance.calculatorScale.distanceSize);
@@ -342,8 +223,8 @@ public class MoveCalculator
               int targetX = (int)((endVector.x - gameInstance.calculatorScale.minX) / gameInstance.calculatorScale.distanceSize);
               int targetY = (int)((endVector.z - gameInstance.calculatorScale.minY) / gameInstance.calculatorScale.distanceSize);*/
 
-            bool playerValidCheck = ValidCheck(playerX, playerY);
-            bool targetValidCheck = ValidCheck(targetX, targetY);
+            bool playerValidCheck = ValidCheck(playerY, playerX);
+            bool targetValidCheck = ValidCheck(targetY, targetX);
 
             if (!(playerValidCheck && targetValidCheck))
             {
@@ -383,7 +264,7 @@ public class MoveCalculator
                     return returnVectors;
                 }
 
-                if (blockedAreas[GetIndex(targetX, targetY)])
+                if (ValidCheck(targetY, targetX) && block[GetIndex(targetX, targetY)])
                 {
                     //Debug.Log("EndBlocked");
                     return null;
@@ -407,13 +288,13 @@ public class MoveCalculator
                         float worldX = minX + c * cellSize;
                         float worldZ = minY + r * cellSize;*/
                          //  if (ValidCheck(r, c))   //크기 체크
-                         if(ValidCheck(c, r))
+                         if(ValidCheck(r, c))
                         //  if (ValidCheckWithCharacterSize(c,r, moveX, moveY) && ValidCheck(c,r))
                         //  if(Utility.ValidCheckWithSize(r,c, gameInstance.calculatorScale.distanceSize))
                         {
                             Node neighbor = new Node(r, c); //NodePool.GetNode(r, c);// nodes[r, c];
                                                             // usingNodes.Enqueue(neighbor);
-                            if (closedList.Contains(neighbor) == false && !blockedAreas[GetIndex(c, r)])
+                            if (closedList.Contains(neighbor) == false && !block[GetIndex(c, r)])
                             {
                                 if (end.r == r && end.c == c)
                                 {
@@ -465,7 +346,7 @@ public class MoveCalculator
 
 
                                 //Theta*
-                                bool hasLineOfSight = LineOfSight(node.parentNode, neighbor, 0.5f);  //직선 거리 확인
+                                bool hasLineOfSight = LineOfSight(node.parentNode, neighbor, 0.5f, block);  //직선 거리 확인
                                 bool containedInOpenList = openList.Contains(neighbor);
                                 if (hasLineOfSight)
                                 {
@@ -546,7 +427,7 @@ public class MoveCalculator
 
    
     Vector3 vSize= new Vector3(0.6f,0.6f,0.6f);
-    bool LineOfSight(Node start, Node end, float radius)
+    bool LineOfSight(Node start, Node end, float radius, bool[] blocks)
     {
         if (start == null || end == null) return false;
 
@@ -598,7 +479,7 @@ public class MoveCalculator
             if (ValidCheck(s2,s1))
             {
                
-                if (blockedAreas[GetIndex(s1, s2)])
+                if (blocks[GetIndex(s1, s2)])
                     return false; // 장애물 있음
 
                 if (s1 == e1 && s2 == e2)
@@ -631,10 +512,10 @@ public class MoveCalculator
 
     public void ResetThisGrids()
     {
-        while (usingNodes.Count > 0)
+   /*     while (usingNodes.Count > 0)
         {
             NodePool.ReturnNode(usingNodes.Dequeue());
-        }
+        }*/
       //  if (nodeStructs.IsCreated) nodeStructs.Dispose();
     }
     
@@ -644,7 +525,7 @@ public class MoveCalculator
     }
 
     public static bool[] GetBlocks => blockedAreas;
-    
+    public static bool[] GetBlockEmployee => blockedAreas_Employee;
 }
 
 

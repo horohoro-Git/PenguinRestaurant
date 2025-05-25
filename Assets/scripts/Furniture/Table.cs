@@ -40,7 +40,7 @@ public class Table : Furniture
         //transforms = transform;
         // plateLoc = trashPlate.gameObject.transform.position;
     }
-    private void Start()
+    public override void Start()
     {
         weight = 2;
         height = 40;
@@ -49,6 +49,7 @@ public class Table : Furniture
 
         GameInstance.GameIns.workSpaceManager.unlockTable = true;
         GameInstance.GameIns.workSpaceManager.tables.Add(this);
+        base.Start();
         //test
         /* numberOfGarbage = 8;
          for (int i = 0; i < numberOfGarbage; i++)

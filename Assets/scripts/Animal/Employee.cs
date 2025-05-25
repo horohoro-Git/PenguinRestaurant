@@ -56,18 +56,23 @@ public class Employee : AnimalController
     EmployeeLevelStruct LevelStruct;
     public EmployeeLevelStruct employeeLevel { get { return LevelStruct; } set { LevelStruct = value; if (ui != null) ui.UpdateLevel(LevelStruct.level); } }
     int exp;
-
     public bool pause;
     public int EXP
     {
         get { return exp; }
         set
         {
+            if(employeeLevelData != null)
+            {
+                employeeLevelData.exp = value;
+                GameIns.restaurantManager.employees.changed = true;
+            }
             exp = value;
             ui.EXPChanged();
        
         }
     }
+    public EmployeeLevelData employeeLevelData;
 
     // 직원 고용
     float elapsedTime = 0;
@@ -134,6 +139,10 @@ public class Employee : AnimalController
     // Update is called once per frame
     void Update()
     {
+     /*   if(Input.GetMouseButtonDown(0))
+        {
+            EXP += 20;
+        }*/
         if(pause && !falling)
         {
             Ray ray = InputManger.cachingCamera.ScreenPointToRay(Input.mousePosition);
@@ -319,7 +328,10 @@ public class Employee : AnimalController
     }
 
     //WaitForFixedUpdate fix = new WaitForFixedUpdate();
-   
+
+
+
+
     public void StartFalling(bool onlyFirst)
     {
         if (onlyFirst)
@@ -459,11 +471,11 @@ public class Employee : AnimalController
             }
         }
         await UniTask.NextFrame(cancellationToken: cancellationToken);
-        await UniTask.Delay(100,cancellationToken: cancellationToken);
+        await UniTask.Delay(200,cancellationToken: cancellationToken);
         animal.PlayAnimation(AnimationKeys.Idle);
        // PlayAnim(animal.animationDic["Idle_A"], "Idle_A");
         animator.SetInteger("state", 0);
-        await UniTask.Delay(100,cancellationToken: cancellationToken);
+        await UniTask.Delay(200,cancellationToken: cancellationToken);
         falling = false;    // 낙하 종료
         elapsedTime = 0;
         if (!pause)
@@ -1086,6 +1098,7 @@ public class Employee : AnimalController
                                         foodMachineList[j].getNum += tmp;
                                         Vector3 t = counterList[k].workingSpot_SmallTables[l].transform.position;
                                         Work(target, foodMachineList[j], t, counterList[k]);
+                                       
                                         return;
                                     }
                                 }
@@ -1292,7 +1305,7 @@ public class Employee : AnimalController
                 if (validCheck && !interruptCheck)
                 {
                     await UniTask.NextFrame(cancellationToken: cancellationToken);
-                    Stack<Vector3> moveTargets = await CalculateNodes_Async(target, cancellationToken);
+                    Stack<Vector3> moveTargets = await CalculateNodes_Async(target, true, cancellationToken);
                     await UniTask.SwitchToMainThread(cancellationToken: cancellationToken);
                     if (moveTargets != null && moveTargets.Count >0)
                     {
@@ -1359,13 +1372,13 @@ public class Employee : AnimalController
                 while(pause) await UniTask.Delay(100, cancellationToken: cancellationToken);
                
                 lastPos = position;
-                Stack<Vector3> moveTargets = await CalculateNodes_Async(position, cancellationToken);
+                Stack<Vector3> moveTargets = await CalculateNodes_Async(position, true, cancellationToken);
                 if (moveTargets != null && moveTargets.Count > 0)
                 {
                     Vector3 test = moveTargets.Peek();
                     if (test.z == 100 && test.x == 100)
                     {
-                        // moveNode = null;
+                        Debug.Log("Find");
                     }
                     else
                     {
@@ -1376,7 +1389,17 @@ public class Employee : AnimalController
                         {
                             while (bWait) await UniTask.NextFrame(cancellationToken: cancellationToken);
                             reCalculate = false;
-
+                            if(bResearch)
+                            {
+                                animator.SetInteger("state", 0);
+                                animal.PlayAnimation(AnimationKeys.Idle);
+                                await UniTask.Delay(300, cancellationToken: cancellationToken);
+                                bResearch = false;
+                           
+                                busy = false;
+                                employeeCallback?.Invoke(this);
+                                return;
+                            }
                             continue;
                         }
 
@@ -1435,7 +1458,7 @@ public class Employee : AnimalController
                 cancellationToken.ThrowIfCancellationRequested();
                 while (pause) await UniTask.Delay(100, cancellationToken: cancellationToken);
                 lastPos = counterPosition;
-                Stack<Vector3> moveTargets = await CalculateNodes_Async(counterPosition, cancellationToken);
+                Stack<Vector3> moveTargets = await CalculateNodes_Async(counterPosition, true, cancellationToken);
                 if (moveTargets != null && moveTargets.Count > 0)
                 {
                     Vector3 test = moveTargets.Peek();
@@ -1541,7 +1564,7 @@ public class Employee : AnimalController
             {
                 lastPos = position;
                 cancellationToken.ThrowIfCancellationRequested();
-                Stack<Vector3> moveTargets = await CalculateNodes_Async(position, cancellationToken);
+                Stack<Vector3> moveTargets = await CalculateNodes_Async(position, true, cancellationToken);
                 if (moveTargets != null && moveTargets.Count > 0)
                 {
                     Vector3 test = moveTargets.Peek();
@@ -1630,7 +1653,7 @@ public class Employee : AnimalController
                 cancellationToken.ThrowIfCancellationRequested();
                 while (pause) await UniTask.Delay(100, cancellationToken: cancellationToken);
                 lastPos = position;
-                Stack<Vector3> moveTargets = await CalculateNodes_Async(position, cancellationToken);
+                Stack<Vector3> moveTargets = await CalculateNodes_Async(position, true, cancellationToken);
                 if (moveTargets != null && moveTargets.Count > 0)
                 {
                     Vector3 test = moveTargets.Peek();
@@ -1740,7 +1763,7 @@ public class Employee : AnimalController
                     return;
                 }
                 lastPos = position;
-                Stack<Vector3> moveTargets = await CalculateNodes_Async(position, cancellationToken);
+                Stack<Vector3> moveTargets = await CalculateNodes_Async(position, true, cancellationToken);
                 if (moveTargets != null && moveTargets.Count > 0)
                 {
                     Vector3 test = moveTargets.Peek();
@@ -1832,7 +1855,7 @@ public class Employee : AnimalController
             while (true)
             {
                 while (pause) await UniTask.Delay(100, cancellationToken: cancellationToken);
-                Stack<Vector3> moveTargets = await CalculateNodes_Async(position, cancellationToken);
+                Stack<Vector3> moveTargets = await CalculateNodes_Async(position, true, cancellationToken);
                 if (moveTargets != null && moveTargets.Count > 0)
                 {
                     Vector3 test = moveTargets.Peek();
@@ -1906,7 +1929,7 @@ public class Employee : AnimalController
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                Stack<Vector3> moveTargets = await CalculateNodes_Async(position, cancellationToken);
+                Stack<Vector3> moveTargets = await CalculateNodes_Async(position, true, cancellationToken);
 
                 if (moveTargets != null && moveTargets.Count > 0)
                 {
@@ -1940,7 +1963,7 @@ public class Employee : AnimalController
                         Food go = reward.foods.Pop();
                         reward.EatFish(go);
                         EXP += 20;
-                        GameInstance.GameIns.restaurantManager.playerData.fishesNum_InBox--;
+                     //   GameInstance.GameIns.restaurantManager.restaurantCurrency.fishesNum_InBox--;
 
                         ui.GainExperience(); //경험치바 채워주기
                                              //yield return new WaitForSeconds(0.5f);
@@ -1979,7 +2002,7 @@ public class Employee : AnimalController
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 while(pause) await UniTask.Delay(100, cancellationToken:  cancellationToken);
-                Stack<Vector3> moveTargets = await CalculateNodes_Async(position, cancellationToken);
+                Stack<Vector3> moveTargets = await CalculateNodes_Async(position, true, cancellationToken);
                 if (moveTargets != null && moveTargets.Count > 0)
                 {
                     Vector3 test = moveTargets.Peek();
@@ -2134,7 +2157,7 @@ public class Employee : AnimalController
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 while(pause) await UniTask.Delay(100, cancellationToken: cancellationToken);
-                Stack<Vector3> moveTargets = await CalculateNodes_Async(position, cancellationToken);
+                Stack<Vector3> moveTargets = await CalculateNodes_Async(position, true, cancellationToken);
 
                 if (moveTargets != null && moveTargets.Count > 0)
                 {
@@ -2182,7 +2205,7 @@ public class Employee : AnimalController
                     while (true)
                     {
                         while (pause) await UniTask.Delay(100, cancellationToken: cancellationToken);
-                        Stack<Vector3> moveTargetss = await CalculateNodes_Async(targetPos, cancellationToken);
+                        Stack<Vector3> moveTargetss = await CalculateNodes_Async(targetPos, true, cancellationToken);
                         if (moveTargetss != null && moveTargetss.Count > 0)
                         {
                             Vector3 tests = moveTargetss.Peek();
@@ -2326,7 +2349,7 @@ public class Employee : AnimalController
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 while(pause) await UniTask.Delay(100, cancellationToken: cancellationToken);    
-                Stack<Vector3> moveTargets = await CalculateNodes_Async(position, cancellationToken);
+                Stack<Vector3> moveTargets = await CalculateNodes_Async(position, true, cancellationToken);
                 if (moveTargets != null && moveTargets.Count > 0)
                 {
                     Vector3 test = moveTargets.Peek();
@@ -2640,14 +2663,17 @@ public class Employee : AnimalController
 
     }
 
-    void LevelUp()
+    public void LevelUp()
     {
+       
+        employeeLevelData.level++;
         EXP = 0;
-        Animal animal = GetComponentInParent<Animal>();
-        Employee animalController = animal.GetComponentInChildren<Employee>();
+        employeeLevel = AssetLoader.employees_levels[employeeLevelData.level];
+        //Animal animal = GetComponentInParent<Animal>();
+       // Employee animalController = animal.GetComponentInChildren<Employee>();
 
-        GameInstance.GameIns.restaurantManager.UpgradePenguin(GameInstance.GameIns.restaurantManager.combineDatas.employeeData[animalController.id - 1].level, false, animalController);
-        SliderController sliderController = animal.GetComponentInChildren<SliderController>();
+       // GameInstance.GameIns.restaurantManager.UpgradePenguin(GameInstance.GameIns.restaurantManager.combineDatas.employeeData[animalController.id - 1].level, false, animalController);
+        //SliderController sliderController = animal.GetComponentInChildren<SliderController>();
         // sliderController.
     }
 

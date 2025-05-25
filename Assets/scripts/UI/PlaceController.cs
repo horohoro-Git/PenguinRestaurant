@@ -108,7 +108,7 @@ public class PlaceController : MonoBehaviour
             GameInstance.GameIns.gridManager.ApplyGird();
             if(purchasedObject) GameInstance.GameIns.gridManager.RemoveCell();
             GameInstance.GameIns.gridManager.RemoveLine();
-            storeGoods.PlaceGoods(rotateOffsets[level]);
+            storeGoods.PlaceGoods(rotateOffsets[level], level, currentFurniture);
             storeGoods.RemoveGoodsPreview();
             GameInstance.GameIns.gridManager.VisibleGrid(false);
         }
@@ -130,5 +130,12 @@ public class PlaceController : MonoBehaviour
 
 
         return returnVector;
+    }
+
+    public void SetLevel(int level)
+    {
+        this.level = level;
+        offset.transform.rotation = Quaternion.Euler(0, rotates[level], 0);
+        offset.transform.localPosition = rotateOffsets[level];
     }
 }

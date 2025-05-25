@@ -180,9 +180,16 @@ public class SliderController : MonoBehaviour
             }
             if(GetEXP >= targetEXP)
             {
+
+              
                 
                 float f = 0;
                 GetEXP -= targetEXP;
+
+                //레벨 업
+                targetEmployee.LevelUp();
+
+
                 int least1 = progress;
                 int least2 = 0;
                // progress = 0;
@@ -228,7 +235,10 @@ public class SliderController : MonoBehaviour
         sliderBorder = Border.GetComponent<Image>();
         sliderBar = Bar.GetComponent<Image>();
         levelTextTrans = levelText.GetComponent<RectTransform>();
-
+        BG.transform.position = new Vector3(100, 100, 100);
+        Border.transform.position = new Vector3(100, 100, 100);
+        Bar.transform.position = new Vector3(100, 100, 100);
+        levelText.transform.position = new Vector3(100, 100, 100);
        // if(levelText.fontMaterial != null) levelText.fontMaterial = null;
         levelText.font = AssetLoader.font;
         levelText.fontSharedMaterial = AssetLoader.font_mat;
@@ -292,7 +302,7 @@ public class SliderController : MonoBehaviour
 
     private void LevelUp(float overflowValue)
     {
-        level++; // ***** 레벨 증가 *****
+//level++; // ***** 레벨 증가 *****
         slider.value = 0; // ***** 슬라이더 초기화 *****
         targetValue = overflowValue; // ***** 초과된 값을 새로운 목표값으로 설정 *****
         UpdateLevelText(); // ***** 텍스트 업데이트 *****

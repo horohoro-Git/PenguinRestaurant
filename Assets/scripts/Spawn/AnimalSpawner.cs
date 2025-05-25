@@ -104,6 +104,7 @@ public class AnimalSpawner : MonoBehaviour
                                         if (spawnPoints[i].SpawnTarget())
                                         {
                                             ac.trans.position = spawnPoints[i].transform.position;
+                                            ac.endPoint = spawnPoints[i].gameObject;
                                             break;
                                         }
                                     }

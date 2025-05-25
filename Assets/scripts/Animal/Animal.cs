@@ -43,6 +43,7 @@ public class Animal : MonoBehaviour
 #endif
     // public AnimationClip clip;
     public Dictionary<string, int> animationDic = new Dictionary<string, int>();
+    public Shadow shadow;
     private void Start()
     {
         GetAnimationInstancing();
@@ -79,6 +80,13 @@ public class Animal : MonoBehaviour
     }
     public void PlayAnimation(string str)
     {
+        if(shadow == null)
+        {
+            shadow = GetComponentInChildren<AnimalController>().shadow;
+            shadow.gameObject.SetActive(true);
+            //GetComponentInChildren<Shadow>();
+           //shadow = GameInstance.GameIns.animalManager.AttackShadow(this);
+        }
 #if HAS_ANIMATION_INSTANCING
         InstancingCharacter.PlayAnim(animationDic[str], str);
       //  GetAnimIns(2).PlayAnim(animationDic[str], str);

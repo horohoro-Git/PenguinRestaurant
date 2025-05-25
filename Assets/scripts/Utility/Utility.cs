@@ -18,7 +18,8 @@ public enum WorkSpaceType
     None,
     Counter,
     Table,
-    FoodMachine
+    FoodMachine,
+    Trashcan
 }
 public enum MachineType
 {
@@ -43,39 +44,26 @@ public enum LOD_Type
 public class RestaurantParam
 {
     public int id;
-    public int type;
-    public bool unlock;
+    public WorkSpaceType type;
+    public int level;
+    public Vector3 position;
+    public Vector3 localPos;
+    public Quaternion rotation;
 
-    public RestaurantParam()
-    {
-
-    }
-    public RestaurantParam(int id, int type, bool unlock)
+    
+    public RestaurantParam(int id, WorkSpaceType type, int level, Vector3 position, Vector3 localPos, Quaternion rotation)
     {
         this.id = id;
         this.type = type;
-        this.unlock = unlock;
+        this.level = level;
+        this.position = position;
+        this.localPos = localPos;
+        this.rotation = rotation;
     }
-
-    public RestaurantParam(RestaurantParam restaurantParam)
-    {
-        this.id = restaurantParam.id;
-        this.type = restaurantParam.type;
-        this.unlock = restaurantParam.unlock;
-    }
-    /* public void Set(int id, int type, bool unlock)
-     {
-         this.id = id;
-         this.type = type;
-         this.unlock = unlock;
-     }
-     public RestaurantParam(RestaurantParam restaurantParam)
-     {
-         this.id = restaurantParam.id;
-         this.type = restaurantParam.type;
-         this.unlock = restaurantParam.unlock;
-     }*/
 }
+
+
+
 [System.Serializable]
 public class PlayerData
 {
@@ -207,6 +195,7 @@ public struct GoodsStruct : ITableID<int>
     public int price;
     public int num;
     public int require;
+    public bool soldout;
 
     public readonly int ID => id;
 
@@ -363,13 +352,13 @@ public class Utility
                 {
                     if (!ValidCheck(yy, xx)) continue;
 
-                    bool isBlocked = MoveCalculator.GetBlocks[MoveCalculator.GetIndex(xx, yy)];
+                    bool isBlocked = MoveCalculator.GetBlockEmployee[MoveCalculator.GetIndex(xx, yy)];
 
                     float worldX = GameIns.calculatorScale.minX + xx * tileSize;
                     float worldZ = GameIns.calculatorScale.minY + yy * tileSize;
                     Vector3 worldPos = new Vector3(worldX, 0, worldZ);
 
-                   // Color debugColor = isBlocked ? Color.red : Color.green;
+                 //   Color debugColor = isBlocked ? Color.red : Color.green;
                    // Debug.DrawRay(worldPos, Vector3.up * 0.5f, debugColor, 0.1f);
                     if (!isBlocked) InputManger.spawnDetects.Add(worldPos);
                 }
@@ -400,6 +389,47 @@ public class Utility
 
 
   
+}
+
+public class RestaurantCurrency
+{
+    public int money;
+    public int fishes;
+    public int affinity;
+    public int extension_level;
+    public bool changed;
+    public RestaurantCurrency(int money, int fishes, int affinity, int extension_level)
+    {
+        this.money = money;
+        this.fishes = fishes;
+        this.affinity = affinity;
+        this.extension_level = extension_level;
+    }
+}
+
+public class Employees
+{
+    public int num;
+    public List<EmployeeLevelData> employeeLevelDatas;
+    public bool changed;
+    public Employees(List<EmployeeLevelData> employeeLevelDatas)
+    {
+        this.employeeLevelDatas = employeeLevelDatas;
+        this.num = employeeLevelDatas.Count;
+    }
+}
+
+public class EmployeeLevelData
+{
+    public int level;
+    public int exp;
+    public int targetEXP;
+    public EmployeeLevelData(int level, int exp, int targetEXP)
+    {
+        this.level = level;
+        this.exp = exp;
+        this.targetEXP = targetEXP;
+    }
 }
 
 public interface ITableID<K>
