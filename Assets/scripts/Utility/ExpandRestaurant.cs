@@ -20,10 +20,10 @@ public class ExpandRestaurant : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+      /*  if (Input.GetMouseButtonDown(0))
         {
             Expand();
-        }
+        }*/
     }
 
     void Expand()

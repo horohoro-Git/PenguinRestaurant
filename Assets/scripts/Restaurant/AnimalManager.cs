@@ -346,7 +346,7 @@ public class AnimalManager : MonoBehaviour
             employee.id = employeeControllers.Count;
           //  employee.ui =  //animal.GetComponentInChildren<SliderController>();
             //employee.headPoint = animal.GetComponentInChildren<Head>().gameObject.transform;
-            employee.mousePoint = animal.GetComponentInChildren<Mouse>().gameObject.transform;
+            employee.mousePoint = animal.GetComponentInChildren<ModelMouse>().gameObject.transform;
 
             //employee.animator = animal.GetComponentInChildren<Animator>();
 
@@ -394,7 +394,7 @@ public class AnimalManager : MonoBehaviour
             {
                 Animal animal = SpawnAnimal(customer, res); //SpawnAnimal(customer, res);
                 
-                customer.mousePoint = animal.GetComponentInChildren<Mouse>().gameObject.transform;
+                customer.mousePoint = animal.GetComponentInChildren<ModelMouse>().gameObject.transform;
 
                 customer.eatParticle = eatParticle;
                 customer.animal = animal;

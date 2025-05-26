@@ -45,16 +45,29 @@ public class AssetLoader : MonoBehaviour
     };
     Dictionary<string, string> tableContents = new Dictionary<string, string>();
 
-
+    public static string serverUrl;
     private void Awake()
     {
         GameInstance.GameIns.assetLoader = this;
+    }
+    
+    public static async UniTask GetServerUrl()
+    {
+        serverUrl = await SaveLoadSystem.LoadServerURL();
+        serverUrl = Path.Combine(serverUrl, "town");
+#if UNITY_IOS || UNITY_ANDROID
+        serverUrl = Path.Combine(serverUrl, "android");
+#else
+        serverUrl = Path.Combine(serverUrl, "pc");
+#endif
+        Debug.Log(serverUrl);
     }
     public async UniTask DownloadAsset_SceneBundle(CancellationToken cancellationToken = default)
     {
         try
         {
-           string homeUrl = Path.Combine(SaveLoadSystem.LoadServerURL(), "restaurant_scene");
+           // string serverUrl = await SaveLoadSystem.LoadServerURL();
+            string homeUrl = Path.Combine(serverUrl, "restaurant_scene");
             Debug.Log(homeUrl);
             Hash128 bundleHash = SaveLoadSystem.ComputeHash128(System.Text.Encoding.UTF8.GetBytes(homeUrl));
             if (Caching.IsVersionCached(homeUrl, bundleHash))
@@ -103,7 +116,8 @@ public class AssetLoader : MonoBehaviour
     {
         try
         {
-            string homeUrl = Path.Combine(SaveLoadSystem.LoadServerURL(), "restaurant");
+          //  string serverUrl = await SaveLoadSystem.LoadServerURL();
+            string homeUrl = Path.Combine(serverUrl, "restaurant");
             Hash128 bundleHash = SaveLoadSystem.ComputeHash128(System.Text.Encoding.UTF8.GetBytes(homeUrl));
             if (Caching.IsVersionCached(homeUrl, bundleHash))
             {

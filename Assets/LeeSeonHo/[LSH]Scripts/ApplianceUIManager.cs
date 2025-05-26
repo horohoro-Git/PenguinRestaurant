@@ -308,12 +308,12 @@ public class ApplianceUIManager : MonoBehaviour
         {
             if (!bHidden)
             {
-                if (Input.GetMouseButtonDown(0))
+          //      if (Input.GetMouseButtonDown(0))
                 {
                     GraphicRaycaster ggr2 = GameInstance.GameIns.uiManager.GetComponent<GraphicRaycaster>();
 
                     PointerEventData ped2 = new PointerEventData(es);
-                    ped2.position = Input.mousePosition;
+                //    ped2.position = Input.mousePosition;
                     List<RaycastResult> raycastResults2 = new List<RaycastResult>();
                     ggr2.Raycast(ped2, raycastResults2);
                     //  bool chck2 = false;
@@ -330,7 +330,7 @@ public class ApplianceUIManager : MonoBehaviour
 
 
                     PointerEventData ped = new PointerEventData(es);
-                    ped.position = Input.mousePosition;
+              //      ped.position = Input.mousePosition;
                     List<RaycastResult> raycastResults = new List<RaycastResult>();
                     gr.Raycast(ped, raycastResults);
                     bool chck = false;
@@ -344,8 +344,8 @@ public class ApplianceUIManager : MonoBehaviour
                         }
                     }
 
-                    Ray rayGround = Camera.main.ScreenPointToRay(Input.mousePosition);
-                    bool checkGround = Physics.Raycast(rayGround, out RaycastHit hit3, Mathf.Infinity, 1);
+              //      Ray rayGround = Camera.main.ScreenPointToRay(Input.mousePosition);
+                //    bool checkGround = Physics.Raycast(rayGround, out RaycastHit hit3, Mathf.Infinity, 1);
                     if (!chck)
                     {
                         GameInstance.GameIns.inputManager.inputDisAble = false;
@@ -359,10 +359,10 @@ public class ApplianceUIManager : MonoBehaviour
                         GameInstance.GameIns.inputManager.DragScreen_WindowEditor(true);
                     }
                 }
-                if (Input.GetMouseButtonUp(0))
+             //   if (Input.GetMouseButtonUp(0))
                 {
                     PointerEventData ped = new PointerEventData(es);
-                    ped.position = Input.mousePosition;
+                //    ped.position = Input.mousePosition;
                     List<RaycastResult> raycastResults = new List<RaycastResult>();
                     gr.Raycast(ped, raycastResults);
                     bool chck = false;
@@ -378,18 +378,18 @@ public class ApplianceUIManager : MonoBehaviour
                     if (!chck)
                     {
                         GameInstance.GameIns.inputManager.inputDisAble = false;
-                        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                        if (Physics.Raycast(ray, out RaycastHit hit2, Mathf.Infinity, LayerMask.GetMask("Animal")))
+                     //   Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                     //   if (Physics.Raycast(ray, out RaycastHit hit2, Mathf.Infinity, LayerMask.GetMask("Animal")))
                         {
-                            if (hit2.collider.GetComponentInParent<Animal>())
+                      //      if (hit2.collider.GetComponentInParent<Animal>())
                             {
-                                Employee newAnimal = hit2.collider.GetComponentInParent<Animal>().GetComponentInChildren<Employee>();
+                        //        Employee newAnimal = hit2.collider.GetComponentInParent<Animal>().GetComponentInChildren<Employee>();
 
                                 infoCoroutine = null;
                                 float test1 = (GameInstance.GameIns.inputManager.preLoc - GameInstance.GameIns.inputManager.curLoc).magnitude;
                                 if (test1 < 0.05f)
                                 {
-                                    ShowPenguinUpgradeInfo(newAnimal, true);
+                              //      ShowPenguinUpgradeInfo(newAnimal, true);
 
                                     //   yield break;
                                     yield break;
@@ -398,16 +398,16 @@ public class ApplianceUIManager : MonoBehaviour
                             }
                         }
 
-                        Ray ray2 = Camera.main.ScreenPointToRay(Input.mousePosition);
-                        if (Physics.Raycast(ray2, out RaycastHit hit3, Mathf.Infinity, 1 << 13))
+                   //     Ray ray2 = Camera.main.ScreenPointToRay(Input.mousePosition);
+                       // if (Physics.Raycast(ray2, out RaycastHit hit3, Mathf.Infinity, 1 << 13))
                         {
-                            if (hit3.collider.GetComponentInParent<FoodMachine>())
+                      //      if (hit3.collider.GetComponentInParent<FoodMachine>())
                             {
-                                FoodMachine foodMachine = hit3.collider.GetComponentInParent<FoodMachine>();
+                       //         FoodMachine foodMachine = hit3.collider.GetComponentInParent<FoodMachine>();
 
                                 infoCoroutine = null;
-                                float test2 = (GameInstance.GameIns.inputManager.preLoc - GameInstance.GameIns.inputManager.curLoc).magnitude;
-                                if (test2 < 0.05f)
+                       //         float test2 = (GameInstance.GameIns.inputManager.preLoc - GameInstance.GameIns.inputManager.curLoc).magnitude;
+                      //          if (test2 < 0.05f)
                                 {
                                //     ShowApplianceInfo(foodMachine);
 
@@ -418,9 +418,9 @@ public class ApplianceUIManager : MonoBehaviour
                             }
 
                         }
-                        float test = (GameInstance.GameIns.inputManager.preLoc - GameInstance.GameIns.inputManager.curLoc).magnitude;
-                        if (test < 0.05f)
-                            break;
+                     //   float test = (GameInstance.GameIns.inputManager.preLoc - GameInstance.GameIns.inputManager.curLoc).magnitude;
+                   //     if (test < 0.05f)
+                  //          break;
                     }
                 }
             }
@@ -686,12 +686,12 @@ public class ApplianceUIManager : MonoBehaviour
         {
             float test = (GameInstance.GameIns.inputManager.preLoc - GameInstance.GameIns.inputManager.curLoc).magnitude;
             GameInstance.GameIns.inputManager.inputDisAble = false;
-            if (Input.GetMouseButtonUp(0))
+        //    if (Input.GetMouseButtonUp(0))
             {
-                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                if(Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, LayerMask.GetMask("Default")))
+             //   Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+             //   if(Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, LayerMask.GetMask("Default")))
                 {
-                    if (!Physics.CheckBox(hit.point, new Vector3(1f, 1f, 1f), Quaternion.identity, 1 << 6 | 1 << 7))
+           //         if (!Physics.CheckBox(hit.point, new Vector3(1f, 1f, 1f), Quaternion.identity, 1 << 6 | 1 << 7))
                     {
                         //   float test = (gameInstance.GameIns.inputManager.preLoc - gameInstance.GameIns.inputManager.curLoc).magnitude;
                         if (test < 0.05f)

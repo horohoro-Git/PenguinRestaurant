@@ -25,3 +25,4 @@ Animal Restaurant Tycoon Game
 05/22 Minor bug fixes and changed the background map's ground to a texture
 05/23 Background buildings converted to textures. Fixed staff path deviation on spawn
 05/24 Added support for placing multiple furniture, shop-based building expansion, and auto-door placement on expansion overlap
+05/26 Fixing bugs in the mobile environment

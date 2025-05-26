@@ -8,6 +8,7 @@ using static AssetLoader;
 using static Store;
 using System;
 using TMPro;
+using UnityEngine.InputSystem;
 
 public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler
 {
@@ -59,7 +60,7 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
             GameIns.store.currentPreview.Cancel();
             GameIns.gridManager.VisibleGrid(false);
         }
-        if(!goods.soldout) InputManger.cachingCamera.GetComponent<OrthographicCamera>().ZoomOut();
+      //if(!goods.soldout) InputManger.cachingCamera.GetComponent<OrthographicCamera>().ZoomOut();
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -68,15 +69,21 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
         {
             if (GameIns.inputManager.CheckClickedUI(1 << 18))
             {
+                Vector3 screenPos;
+#if UNITY_ANDROID || UNITY_IOS
+                screenPos = Touchscreen.current.touches[0].position.ReadValue();
+#else
+                screenPos = Mouse.current.position.ReadValue();
+#endif
                 if (!instancingImage.gameObject.activeSelf)
                 {
                     instancingImage.gameObject.SetActive(true);
                     instancingImage.GetComponent<Image>().sprite = itemImage.GetComponent<Image>().sprite;
                     instancingImage.gameObject.layer = 14;
                     instancingImage.GetComponent<Image>().raycastTarget = true;
-                    instancingImage.position = Input.mousePosition;
+                    instancingImage.position = screenPos;
                 }
-                else instancingImage.position = Input.mousePosition;
+                else instancingImage.position = screenPos;
                 //  currnet.transform.position = InputManger.cachingCamera.ScreenToWorldPoint(Input.mousePosition);
 
             }
@@ -99,12 +106,17 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
 
                         GameIns.gridManager.VisibleGrid(true);
                     }
-                    //   instaceImage.SetParent(itemImage);
-                    //   instaceImage.position = itemImage.position;
-                    Ray r = InputManger.cachingCamera.ScreenPointToRay(Input.mousePosition);
+
+                    Vector3 screenPos;
+#if UNITY_ANDROID || UNITY_IOS
+                    screenPos = Touchscreen.current.touches[0].position.ReadValue();
+#else
+                screenPos = Mouse.current.position.ReadValue();
+#endif
+
+                    Ray r = InputManger.cachingCamera.ScreenPointToRay(screenPos);
                     if (Physics.Raycast(r, out RaycastHit hit, float.MaxValue, 1))
                     {
-                        //    currnet.transform.position = hit.point;
                         currentCheckArea = GameIns.gridManager.SelectLine(hit.point, currnet, currentCheckArea);
                     }
                 }

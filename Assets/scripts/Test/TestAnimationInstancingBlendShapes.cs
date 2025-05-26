@@ -19,7 +19,7 @@ public class TestAnimationInstancingBlendShapes : MonoBehaviour
     }
     public void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Alpha1))
+        //if(Input.GetKeyDown(KeyCode.Alpha1))
         {
          
             // animIns = GetComponentInChildren<AnimIns>();
@@ -27,14 +27,14 @@ public class TestAnimationInstancingBlendShapes : MonoBehaviour
             // animIns.PlayAnim(0, "Walk");
             animator.SetInteger("state",1);
         }
-        if (Input.GetKeyDown(KeyCode.Alpha2))
+     //   if (Input.GetKeyDown(KeyCode.Alpha2))
         {
             // animIns = GetComponentInChildren<AnimIns>();
             a.PlayAnimation("Idle_A");
             animator.SetInteger("state",0);
 
         }
-        if (Input.GetKeyDown(KeyCode.Alpha3))
+      //  if (Input.GetKeyDown(KeyCode.Alpha3))
         {
             //  animIns = GetComponentInChildren<AnimIns>();
           //  a.InstancingVisible(false);
@@ -44,7 +44,7 @@ public class TestAnimationInstancingBlendShapes : MonoBehaviour
             controller.GetRenderer(2).enabled = true;
             animator.SetInteger("emotion", 1);
         }
-        if (Input.GetKeyDown(KeyCode.Alpha4))
+      //  if (Input.GetKeyDown(KeyCode.Alpha4))
         {
             //  animIns = GetComponentInChildren<AnimIns>();
             //animIns.gameObject.SetActive(true);

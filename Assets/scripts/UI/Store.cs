@@ -26,7 +26,7 @@ public class Store : MonoBehaviour
     public static RectTransform instancingImage;
     public static GameObject storeObjects;
 
-    WorkSpaceType spaceType;
+    WorkSpaceType spaceType = WorkSpaceType.Counter;
 
     public HashSet<int> require = new HashSet<int>();
     private void Awake()
@@ -160,5 +160,29 @@ public class Store : MonoBehaviour
     public void Refresh()
     {
         ChangeList(spaceType);
+    }
+
+
+    public void StoreUpdate()
+    {
+        foreach(var g in goodsList)
+        {
+            if(g.Value.goods.type != 0)
+            {
+                if (goodsDic[g.Key].Count == 0)
+                {
+                    g.Value.goods.soldout = true;
+                    g.Value.soldout_text.gameObject.SetActive(true);
+                }
+            }
+        }
+        Refresh();
+    }
+
+    public void Extended(int id)
+    {
+        goodsList[id].goods.soldout = true;
+        goodsList[id].soldout_text.gameObject.SetActive(true);
+
     }
 }

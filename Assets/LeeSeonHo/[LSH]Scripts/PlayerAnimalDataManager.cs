@@ -193,38 +193,4 @@ public class PlayerAnimalDataManager : MonoBehaviour
         }
         
     }
-
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-        {
-            AddAnimal(0);
-            PlayerAnimalUpdate(false, 0);
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            AddAnimal(1);
-            PlayerAnimalUpdate(false, 1);
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha3))
-        {
-            AddAnimal(2);
-            PlayerAnimalUpdate(false, 2);
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha4))
-        {
-            AddAnimal(3);
-            PlayerAnimalUpdate(false, 3);
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha5))
-        {
-            AddAnimal(4);
-            PlayerAnimalUpdate(false, 4);
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha6))
-        {
-            AddAnimal(5);
-            PlayerAnimalUpdate(false, 5);
-        }
-    }
 }

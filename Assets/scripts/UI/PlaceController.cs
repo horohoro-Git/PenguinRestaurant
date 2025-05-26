@@ -3,8 +3,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.EnhancedTouch;
 using UnityEngine.UI;
-
+using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
 public class PlaceController : MonoBehaviour
 {
     public GameObject offset;
@@ -24,6 +27,8 @@ public class PlaceController : MonoBehaviour
     public Furniture currentFurniture { get; set; }
 
     public List<Vector2> temp = new List<Vector2>();
+    private Vector2 lastInputPosition;
+    bool hasInput;
     public bool canPlace { get { return place; }  set { 
         
             place = value;
@@ -43,6 +48,7 @@ public class PlaceController : MonoBehaviour
     public List<BoxCollider> colliders = new List<BoxCollider>();
     [NonSerialized] public StoreGoods storeGoods;
 
+    Mouse currentMouse;
     private void Start()
     {
         applyImage.gameObject.layer = 5;
@@ -50,19 +56,80 @@ public class PlaceController : MonoBehaviour
     }
     private void OnEnable()
     {
+#if UNITY_EDITOR || UNITY_STANDALONE_WIN
+        currentMouse = Mouse.current;
+#endif
         GameInstance.AddGraphicCaster(raycaster);
     }
     private void OnDisable()
     {
+#if UNITY_EDITOR || UNITY_STANDALONE_WIN
+        currentMouse = Mouse.current;
+#endif
         GameInstance.RemoveGraphicCaster(raycaster);
     }
 
     private void Update()
     {
-        if(InputManger.cachingCamera != null)
+        if (InputManger.cachingCamera != null)
         {
+
             if (GameInstance.GameIns.inputManager.CheckClickedUI(1 << 5 | 1 << 14 | 1 << 18)) return;
-            if(Input.GetMouseButton(0) && isDragging)
+
+#if UNITY_IOS || UNITY_ANDROID
+            if (Touch.activeTouches.Count == 0) return;
+
+            var touch = Touch.activeTouches[0];
+            lastInputPosition = touch.screenPosition;
+
+            switch (touch.phase)
+            {
+                case UnityEngine.InputSystem.TouchPhase.Began:
+                    HandleInputDown(lastInputPosition);
+                    break;
+
+                case UnityEngine.InputSystem.TouchPhase.Moved:
+                    if (isDragging)
+                    {
+                        HandleDrag(lastInputPosition);
+                    }
+                    break;
+
+                case UnityEngine.InputSystem.TouchPhase.Ended:
+                case UnityEngine.InputSystem.TouchPhase.Canceled:
+                    HandleInputUp();
+                    break;
+            }
+        
+#else
+            if (currentMouse.leftButton.isPressed && isDragging)
+            {
+                Ray r = InputManger.cachingCamera.ScreenPointToRay(currentMouse.position.ReadValue());
+                if (Physics.Raycast(r, out RaycastHit hit, float.MaxValue, 1))
+                {
+                    GameInstance.GameIns.gridManager.SelectLine(hit.point, this, canPlace);
+                }
+            }
+            if (currentMouse.leftButton.wasPressedThisFrame)
+            {
+                Ray ray = InputManger.cachingCamera.ScreenPointToRay(currentMouse.position.ReadValue());
+                if (Physics.Raycast(ray, out RaycastHit hit, float.MaxValue, 1 << 17))
+                {
+                    if (hit.collider.gameObject.GetComponentInParent<PlaceController>() == this)
+                    {
+                        GameInstance.GameIns.inputManager.inputDisAble = true;
+                        isDragging = true;
+                    }
+                }
+            }
+
+            if (currentMouse.leftButton.wasReleasedThisFrame)
+            {
+                isDragging = false;
+                GameInstance.GameIns.inputManager.inputDisAble = false;
+            }
+#endif
+            /*if (Input.GetMouseButton(0) && isDragging)
             {
                 Ray r = InputManger.cachingCamera.ScreenPointToRay(Input.mousePosition);
                 if (Physics.Raycast(r, out RaycastHit hit, float.MaxValue, 1))
@@ -72,7 +139,7 @@ public class PlaceController : MonoBehaviour
                 }
             }
 
-            if(Input.GetMouseButtonDown(0))
+            if (Input.GetMouseButtonDown(0))
             {
                 Ray ray = InputManger.cachingCamera.ScreenPointToRay(Input.mousePosition);
                 if (Physics.Raycast(ray, out RaycastHit hit, float.MaxValue, 1 << 17))
@@ -88,7 +155,8 @@ public class PlaceController : MonoBehaviour
             {
                 isDragging = false;
                 GameInstance.GameIns.inputManager.inputDisAble = false;
-            }
+            }*/
+
         }
     }
     public void Rotate()
@@ -137,5 +205,33 @@ public class PlaceController : MonoBehaviour
         this.level = level;
         offset.transform.rotation = Quaternion.Euler(0, rotates[level], 0);
         offset.transform.localPosition = rotateOffsets[level];
+    }
+
+    private void HandleInputDown(Vector2 inputPosition)
+    {
+        Ray ray = InputManger.cachingCamera.ScreenPointToRay(inputPosition);
+        if (Physics.Raycast(ray, out RaycastHit hit, float.MaxValue, 1 << 17))
+        {
+            if (hit.collider.gameObject.GetComponentInParent<PlaceController>() == this)
+            {
+                GameInstance.GameIns.inputManager.inputDisAble = true;
+                isDragging = true;
+            }
+        }
+    }
+
+    private void HandleDrag(Vector2 inputPosition)
+    {
+        Ray r = InputManger.cachingCamera.ScreenPointToRay(inputPosition);
+        if (Physics.Raycast(r, out RaycastHit hit, float.MaxValue, 1))
+        {
+            GameInstance.GameIns.gridManager.SelectLine(hit.point, this, canPlace);
+        }
+    }
+
+    private void HandleInputUp()
+    {
+        isDragging = false;
+        GameInstance.GameIns.inputManager.inputDisAble = false;
     }
 }

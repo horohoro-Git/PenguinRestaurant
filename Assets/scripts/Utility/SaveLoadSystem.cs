@@ -5,8 +5,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class SaveLoadSystem
 {
@@ -27,18 +29,30 @@ public class SaveLoadSystem
     }
 
     //서버 불러오기
-    public static string LoadServerURL()
+    public static async Task<string> LoadServerURL()
     {
-        string path = Path.Combine(Application.streamingAssetsPath, "servercommunication.bytes");
+        string path = System.IO.Path.Combine(Application.streamingAssetsPath, "servercommunication.bytes");
 
-        string content = File.ReadAllText(path);
+        using (UnityWebRequest www = UnityWebRequest.Get(path))
+        {
+            var operation = www.SendWebRequest();
 
-        string decryptedData = EncryptorDecryptor.Decyptor(content, "AAA");
-        Dictionary<string, object> data = JsonConvert.DeserializeObject<Dictionary<string, object>>(decryptedData);
-        string returnURL = data["server"].ToString();
+            while (!operation.isDone)
+                await Task.Yield();  // 비동기 대기
 
-        return returnURL;
+            if (www.result != UnityWebRequest.Result.Success)
+            {
+                Debug.LogError($"Failed to load server URL: {www.error}");
+                return null;
+            }
 
+            string content = System.Text.Encoding.UTF8.GetString(www.downloadHandler.data);
+            string decryptedData = EncryptorDecryptor.Decyptor(content, "AAA");
+            Dictionary<string, object> data = JsonConvert.DeserializeObject<Dictionary<string, object>>(decryptedData);
+            string returnURL = data["server"].ToString();
+
+            return returnURL;
+        }
     }
 
 

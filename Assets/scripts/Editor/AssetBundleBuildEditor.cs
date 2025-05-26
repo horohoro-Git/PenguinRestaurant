@@ -11,12 +11,14 @@ public class AssetBundleBuildEditor : EditorWindow
     {
         string directory = "./Bundle";
 
-        if (!Directory.Exists(directory))
-        {
-            Directory.CreateDirectory(directory);
-        }
+        string pcDir = Path.Combine(directory, "PC");
+        if (!Directory.Exists(pcDir)) Directory.CreateDirectory(pcDir);
+        BuildPipeline.BuildAssetBundles(pcDir, BuildAssetBundleOptions.None, BuildTarget.StandaloneWindows);
 
-        BuildPipeline.BuildAssetBundles(directory, BuildAssetBundleOptions.None, BuildTarget.StandaloneWindows);
+
+        string androidDir = Path.Combine(directory, "Android");
+        if (!Directory.Exists(androidDir)) Directory.CreateDirectory(androidDir);
+        BuildPipeline.BuildAssetBundles(androidDir, BuildAssetBundleOptions.None, BuildTarget.Android);
 
         EditorUtility.DisplayDialog("Asset Bundle Build", "Build Complete", "Succeeded");
     }
