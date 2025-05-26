@@ -12,6 +12,7 @@ using System.Reflection;
 using System.Threading;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.ProBuilder;
 using UnityEngine.UIElements;
 using static GameInstance;
@@ -145,9 +146,16 @@ public class Employee : AnimalController
         }*/
         if(pause && !falling)
         {
-            Ray ray = InputManger.cachingCamera.ScreenPointToRay(Input.mousePosition);
-           // Plane groundPlane = new Plane(Vector3.up, Vector3.zero);
+            Vector3 screenPos;
 
+#if UNITY_ANDROID || UNITY_IOS
+            screenPos = Touchscreen.current.touches[0].position.ReadValue();
+#else
+            screenPos = Mouse.current.position.ReadValue();
+            //screenPos = Mouse.current.position.ReadValue();
+#endif
+            Ray ray = InputManger.cachingCamera.ScreenPointToRay(screenPos);
+          
             if(Physics.Raycast(ray, out RaycastHit hit, float.MaxValue, 1 << 15))
             {
                 Vector3 pos = hit.point;
@@ -2745,12 +2753,12 @@ public class Employee : AnimalController
     IEnumerator Fall()
     {
         float timer = 0;
-        Vector3 target = Vector3.zero;
+      /*  Vector3 target = Vector3.zero;
         Ray r = InputManger.cachingCamera.ScreenPointToRay(Input.mousePosition);
-        if(Physics.Raycast(r, out RaycastHit hit, float.MaxValue, 1)) target = hit.point;
+        if(Physics.Raycast(r, out RaycastHit hit, float.MaxValue, 1)) target = hit.point;*/
         while (timer <= 0.2f)
         {
-            trans.position = Vector3.Lerp(trans.position, target, timer * 5);
+         //   trans.position = Vector3.Lerp(trans.position, target, timer * 5);
             //float l = Mathf.Lerp(trans.position.y, 0, timer * 5);
             //trans.position = new Vector3(trans.position.x, l, trans.position.z);
             timer += Time.deltaTime;

@@ -28,17 +28,7 @@ public class HamburgerDelivery : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            if (index < orderQuantity)
-            {
-                CreateAndMoveHamburgerSet();
-            }
-            else
-            {
-                DeliverHamburgerSets();
-            }
-        }
+       
     }
 
     void CreateAndMoveHamburgerSet()

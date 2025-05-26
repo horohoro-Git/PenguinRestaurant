@@ -58,6 +58,8 @@ public class App : MonoBehaviour
     {
         try
         {
+            await AssetLoader.GetServerUrl();
+
             cancellationToken.ThrowIfCancellationRequested();
             await LoadScene("LoadingScene", cancellationToken);
 
@@ -199,19 +201,17 @@ public class App : MonoBehaviour
                     await UniTask.NextFrame(cancellationToken: cancellationToken);
                 }
             }
+            /*    TMP_Text[] texts = FindObjectsOfType<TMP_Text>(true);
 
-
-        /*    TMP_Text[] texts = FindObjectsOfType<TMP_Text>(true);
-
-            foreach (TMP_Text text in texts)
-            {
-                if (text.CompareTag("BMD"))
+                foreach (TMP_Text text in texts)
                 {
-                    text.font = AssetLoader.font;
-                    text.fontSharedMaterial = AssetLoader.font_mat;
-                }
-                await UniTask.NextFrame(cancellationToken: cancellationToken);
-            }*/
+                    if (text.CompareTag("BMD"))
+                    {
+                        text.font = AssetLoader.font;
+                        text.fontSharedMaterial = AssetLoader.font_mat;
+                    }
+                    await UniTask.NextFrame(cancellationToken: cancellationToken);
+                }*/
 
         }
         catch (OperationCanceledException)

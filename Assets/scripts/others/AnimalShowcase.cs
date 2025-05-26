@@ -22,7 +22,7 @@ public class AnimalShowcase : MonoBehaviour
     }
     private void Update()
     {
-        if(Input.GetKeyDown(KeyCode.LeftArrow))
+     /*   if(Input.GetKeyDown(KeyCode.LeftArrow))
         {
             if(layer > 0)
             {
@@ -45,7 +45,7 @@ public class AnimalShowcase : MonoBehaviour
             string p = Application.persistentDataPath + "/" + animals[layer].name + ".png";
             showcaseCamera.ScreenShot(p);
            
-        }
+        }*/
     }
 
 

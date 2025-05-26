@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerCamera : MonoBehaviour
 {
@@ -8,27 +9,61 @@ public class PlayerCamera : MonoBehaviour
     private Vector3 moveDir = Vector3.zero;
     public float bounceForce = 3f;
 
+    public Camera cam;
+    public float zoomSpeed = 0.1f;
+    public float minZoom = 10f;
+    public float maxZoom = 30f;
 
+    private float previousDistance = 0f;
 
-  /*  void OnCollisionEnter(Collision collision)
+    void Update()
     {
-        if (collision.contacts.Length > 0)
+#if UNITY_ANDROID || UNITY_IOS
+        if (Touchscreen.current == null || Touchscreen.current.touches.Count < 2)
+            return;
+
+        var touch0 = Touchscreen.current.touches[0];
+        var touch1 = Touchscreen.current.touches[1];
+
+        if (!touch0.press.isPressed || !touch1.press.isPressed)
+            return;
+
+        Vector2 touch0Pos = touch0.position.ReadValue();
+        Vector2 touch1Pos = touch1.position.ReadValue();
+
+        float currentDistance = Vector2.Distance(touch0Pos, touch1Pos);
+
+        if (previousDistance == 0f)
         {
-            Debug.Log("AA");
-            Vector3 normal = collision.contacts[0].normal;
-
-            // 이동 방향을 반사 벡터로 조정
-            Vector3 bounce = Vector3.Reflect(moveDir, normal) * bounceForce;
-
-            // 부모(CameraRoot) 위치를 튕겨냄
-            Transform parent = transform.parent;
-            if (parent != null)
-            {
-                parent.position += bounce;
-            }
-
-            // 본인은 원래 자리로 되돌림 (안 하면 계속 충돌)
-            transform.localPosition = Vector3.zero;
+            previousDistance = currentDistance;
+            return;
         }
-    }*/
+
+        float delta = currentDistance - previousDistance;
+
+        if (cam.orthographic)
+        {
+            cam.orthographicSize -= delta * zoomSpeed;
+            cam.orthographicSize = Mathf.Clamp(cam.orthographicSize, minZoom, maxZoom);
+        }
+        else
+        {
+            cam.fieldOfView -= delta * zoomSpeed;
+            cam.fieldOfView = Mathf.Clamp(cam.fieldOfView, minZoom, maxZoom);
+        }
+
+        previousDistance = currentDistance;
+#endif
+    }
+
+    void LateUpdate()
+    {
+#if UNITY_ANDROID || UNITY_IOS
+        // 손이 떨어졌을 때 초기화
+        if (Touchscreen.current == null || Touchscreen.current.touches.Count < 2)
+        {
+            previousDistance = 0f;
+        }
+#endif
+    }
 }

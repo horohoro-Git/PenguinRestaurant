@@ -11,6 +11,7 @@ using Unity.VisualScripting;
 using Cysharp.Threading.Tasks;
 using System.Threading;
 using static UnityEngine.UI.Image;
+using UnityEngine.InputSystem;
 
 public class RestaurantManager : MonoBehaviour
 {
@@ -186,51 +187,56 @@ public class RestaurantManager : MonoBehaviour
         restaurantCurrency.extension_level++;
         restaurantCurrency.changed = true;
 
-        if (!door.transform.parent.gameObject.activeSelf)
+        if (door.removeWall != null)
         {
-            door.transform.SetParent(door.transform.parent.parent);
-            Transform doorTransform = door.transform;
-            Vector3 origin = doorTransform.position;
-            Vector3 forward = doorTransform.forward;
-            float angle = 30f;
-            Debug.DrawRay(origin + Vector3.up, -forward * float.MaxValue, Color.red, 5);
-            if(Physics.Raycast(origin + Vector3.up, -forward, out var hit0, float.MaxValue,  1 << 16 | 1 << 19))
+            if (!door.removeWall.gameObject.activeSelf)
             {
-                GameObject h = hit0.collider.gameObject;
-                h.SetActive(false);
-                door.transform.position = h.transform.position - Vector3.up * h.transform.position.y;
-                door.transform.rotation = h.transform.rotation * Quaternion.Euler(0, -90, 0);
-                door.transform.SetParent(h.transform.parent);
-                StartCoroutine(door.OpenDoor());
-                goto Escape;
-            }
-            Vector3 leftDir = Quaternion.AngleAxis(-angle, doorTransform.up) * forward;
-            Debug.DrawRay(origin + Vector3.up, -leftDir * float.MaxValue, Color.green, 5);
-            if(Physics.Raycast(origin + Vector3.up, -leftDir, out var hit1, float.MaxValue, 1 << 16 | 1<< 19))
-            {
-                GameObject h = hit1.collider.gameObject;
-                h.SetActive(false);
-                door.transform.position = h.transform.position - Vector3.up * h.transform.position.y;
-                door.transform.rotation = h.transform.rotation * Quaternion.Euler(0, -90, 0);
-                door.transform.SetParent(h.transform.parent);
-                StartCoroutine(door.OpenDoor());
-                goto Escape;
-            }
+                door.transform.SetParent(door.transform.parent.parent);
+                Transform doorTransform = door.transform;
+                Vector3 origin = doorTransform.position;
+                Vector3 forward = doorTransform.forward;
+                float angle = 30f;
+                Debug.DrawRay(origin + Vector3.up, -forward * float.MaxValue, Color.red, 5);
+                if (Physics.Raycast(origin + Vector3.up, -forward, out var hit0, float.MaxValue, 1 << 16 | 1 << 19))
+                {
+                    GameObject h = hit0.collider.gameObject;
+                    h.SetActive(false);
+                    door.transform.position = h.transform.position - Vector3.up * h.transform.position.y;
+                    door.transform.rotation = h.transform.rotation * Quaternion.Euler(0, -90, 0);
+                    door.transform.SetParent(h.transform.parent);
+                    door.removeWall = h;
+                    StartCoroutine(door.OpenDoor());
+                    goto Escape;
+                }
+                Vector3 leftDir = Quaternion.AngleAxis(-angle, doorTransform.up) * forward;
+                Debug.DrawRay(origin + Vector3.up, -leftDir * float.MaxValue, Color.green, 5);
+                if (Physics.Raycast(origin + Vector3.up, -leftDir, out var hit1, float.MaxValue, 1 << 16 | 1 << 19))
+                {
+                    GameObject h = hit1.collider.gameObject;
+                    h.SetActive(false);
+                    door.transform.position = h.transform.position - Vector3.up * h.transform.position.y;
+                    door.transform.rotation = h.transform.rotation * Quaternion.Euler(0, -90, 0);
+                    door.transform.SetParent(h.transform.parent);
+                    door.removeWall = h;
+                    StartCoroutine(door.OpenDoor());
+                    goto Escape;
+                }
 
-            Vector3 rightDir = Quaternion.AngleAxis(angle, doorTransform.up) * forward;
-            Debug.DrawRay(origin + Vector3.up, -rightDir * float.MaxValue, Color.blue, 5);
-            if(Physics.Raycast(origin + Vector3.up, -rightDir, out var hit2, float.MaxValue , 1<< 16 | 1<< 19))
-            {
-                GameObject h = hit2.collider.gameObject;
-                h.SetActive(false);
-                door.transform.position = h.transform.position - Vector3.up * h.transform.position.y;
-                door.transform.rotation = h.transform.rotation * Quaternion.Euler(0, -90, 0);
-                door.transform.SetParent(h.transform.parent);
-                StartCoroutine(door.OpenDoor());
-                goto Escape;
+                Vector3 rightDir = Quaternion.AngleAxis(angle, doorTransform.up) * forward;
+                Debug.DrawRay(origin + Vector3.up, -rightDir * float.MaxValue, Color.blue, 5);
+                if (Physics.Raycast(origin + Vector3.up, -rightDir, out var hit2, float.MaxValue, 1 << 16 | 1 << 19))
+                {
+                    GameObject h = hit2.collider.gameObject;
+                    h.SetActive(false);
+                    door.transform.position = h.transform.position - Vector3.up * h.transform.position.y;
+                    door.transform.rotation = h.transform.rotation * Quaternion.Euler(0, -90, 0);
+                    door.transform.SetParent(h.transform.parent);
+                    door.removeWall = h;
+                    StartCoroutine(door.OpenDoor());
+                    goto Escape;
+                }
             }
         }
-
         Escape: 
         MoveCalculator.CheckArea(GameIns.calculatorScale, true);
     }
@@ -521,15 +527,21 @@ public class RestaurantManager : MonoBehaviour
                         break;
                 }
 
+                GameIns.store.require.Add(restaurantparams[i].id);
             }
 
             for(int i = 0; i < restaurantCurrency.extension_level; i++)
             {
+                
                 expandables[i].SetActive(true);
                 removables[i].SetActive(false);
+                GameIns.store.require.Add(1101 + i);
+                GameIns.store.Extended(1101 + i);
             }
 
             MoveCalculator.CheckArea(GameIns.calculatorScale, true);
+
+            GameIns.store.StoreUpdate();
 
             Invoke("LoadEmployees", 0.5f);
         }
@@ -653,7 +665,13 @@ public class RestaurantManager : MonoBehaviour
             // animal.EmployeeData = new EmployeeData(1, 1, 1, 1, 1);
             //   Vector3 targetPos = GameInstance.GameIns.inputManager.cameraRange.position;
             //animal.busy = true;
-            animal.trans.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            Vector3 screenPos;
+#if UNITY_ANDROID || UNITY_IOS
+                screenPos = Touchscreen.current.touches[0].position.ReadValue();
+#else
+            screenPos = Mouse.current.position.ReadValue();
+#endif
+            animal.trans.position = Camera.main.ScreenToWorldPoint(screenPos);
 
             if ((employees.num < 8 && employeeHire[employees.num] <= GetRestaurantValue()))
             {

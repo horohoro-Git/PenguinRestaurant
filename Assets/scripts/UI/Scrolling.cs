@@ -2,8 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
-
 public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPointerUpHandler
 {
     Animator animator;
@@ -44,7 +44,15 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
     }
     public void OnDrag(PointerEventData eventData)
     {
-        Vector2 pos = Input.mousePosition;
+        //Vector2 pos = Input.mousePosition;
+        Vector2 pos;
+
+#if UNITY_ANDROID || UNITY_IOS
+                pos = Touchscreen.current.touches[0].position.ReadValue();
+#else
+        pos = Mouse.current.position.ReadValue();
+#endif
+
         float diff = pos.y - latestVector.y;
         diff /= GetCanvas.scaleFactor;
         Vector2 curPos = parentRect.anchoredPosition;
@@ -129,7 +137,13 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        Vector3 pos = Input.mousePosition;
+
+        Vector3 pos;// = Input.mousePosition;
+#if UNITY_ANDROID || UNITY_IOS
+                pos = Touchscreen.current.touches[0].position.ReadValue();
+#else
+        pos = Mouse.current.position.ReadValue();
+#endif
         latestVector = pos;
     }
 

@@ -61,10 +61,10 @@
                 {
                     "name": "",
                     "id": "7a5fd89e-22da-4fd4-b89a-c9635396a9b2",
-                    "path": "<Touchscreen>/primaryTouch/tap",
+                    "path": "<Pointer>/press",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "New control scheme",
                     "action": "ClickPosition",
                     "isComposite": false,
                     "isPartOfComposite": false
