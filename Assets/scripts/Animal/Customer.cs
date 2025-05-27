@@ -514,7 +514,7 @@ public class Customer : AnimalController
             {
                 GameInstance.GameIns.restaurantManager.restaurantCurrency.money += (int)foodPrices;
                 GameInstance.GameIns.restaurantManager.restaurantCurrency.fishes += tipNum;
-                GameInstance.GameIns.uiManager.UpdateMoneyText(GameInstance.GameIns.restaurantManager.restaurantCurrency.money);
+             //   GameInstance.GameIns.uiManager.UpdateMoneyText(GameInstance.GameIns.restaurantManager.restaurantCurrency.money);
 
                 SaveLoadManager.Save(SaveLoadManager.SaveState.ONLY_SAVE_PLAYERDATA);
                 hasMoney = false;

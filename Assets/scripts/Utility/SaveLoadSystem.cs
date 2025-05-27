@@ -4,11 +4,15 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Networking;
+using Vector2 = UnityEngine.Vector2;
+using Vector3 = UnityEngine.Vector3;
+using Quaternion = UnityEngine.Quaternion;
 
 public class SaveLoadSystem
 {
@@ -253,7 +257,7 @@ public class SaveLoadSystem
                         float ry = reader.ReadSingle();
                         float rz = reader.ReadSingle();
                         float rw = reader.ReadSingle();
-                        restaurantParams.Add(new RestaurantParam(id, type, level, new Vector3(x, y, z), new Vector3(xx,yy,zz), new Quaternion(rx, ry, rz, rw)));
+                        restaurantParams.Add(new RestaurantParam(id, type, level, new UnityEngine.Vector3(x, y, z), new Vector3(xx,yy,zz), new Quaternion(rx, ry, rz, rw)));
                     }
                     int foodMachineNum = reader.ReadInt32();
                     for (int i = 0; i < foodMachineNum; i++)
@@ -302,6 +306,25 @@ public class SaveLoadSystem
                         float rz = reader.ReadSingle();
                         float rw = reader.ReadSingle();
                         restaurantParams.Add(new RestaurantParam(id, type, level, new Vector3(x, y, z), new Vector3(xx,yy,zz), new Quaternion(rx, ry, rz, rw)));
+                    }
+
+                    bool hasDoor = reader.ReadBoolean();
+                    if(hasDoor)
+                    {
+                        Door door = GameInstance.GameIns.restaurantManager.door;
+                        float x = reader.ReadSingle();
+                        float y = reader.ReadSingle();
+                        float z = reader.ReadSingle();
+                        float rx = reader.ReadSingle();
+                        float ry = reader.ReadSingle();
+                        float rz = reader.ReadSingle();
+                        float rw = reader.ReadSingle();
+                        Vector3 pos = new Vector3(x, y, z);
+                        Quaternion rot = new Quaternion(rx, ry, rz, rw);
+                        door.transform.position = pos;
+                        door.transform.rotation = rot;
+                        door.setup = true;
+
                     }
                 }
             }
@@ -396,6 +419,33 @@ public class SaveLoadSystem
                     writer.Write(workSpaceManager.trashCans[i].offset.localRotation.z);
                     writer.Write(workSpaceManager.trashCans[i].offset.localRotation.w);
                 }
+
+                if(GameInstance.GameIns.restaurantManager.door != null)
+                {
+                  
+                    Door door = GameInstance.GameIns.restaurantManager.door;
+                    if(door.setup)
+                    {
+                        writer.Write(true);
+                        Vector3 pos = door.transform.position;
+                        Quaternion rot = door.transform.rotation;
+                        writer.Write(pos.x);
+                        writer.Write(pos.y);
+                        writer.Write(pos.z);
+                        writer.Write(rot.x);
+                        writer.Write(rot.y);
+                        writer.Write(rot.z);
+                        writer.Write(rot.w);
+                    }
+                    else
+                    {
+                        writer.Write(false);
+                    }
+                }
+                else
+                {
+                    writer.Write(false);
+                }
             }
 
             File.WriteAllBytes(p, ms.ToArray());
@@ -414,7 +464,7 @@ public class SaveLoadSystem
         {
             using (BinaryWriter writer = new BinaryWriter(ms))
             {
-                writer.Write(currency.money);
+                writer.Write(currency.money.ToString());
                 writer.Write(currency.fishes);
                 writer.Write(currency.affinity);
                 writer.Write(currency.extension_level);
@@ -438,7 +488,7 @@ public class SaveLoadSystem
 
                 using (BinaryReader reader = new BinaryReader(new MemoryStream(data)))
                 {
-                    int money = reader.ReadInt32();
+                    BigInteger money = BigInteger.Parse(reader.ReadString());
                     int fishes = reader.ReadInt32();
                     int affinity = reader.ReadInt32();
                     int extension_level = reader.ReadInt32();   
