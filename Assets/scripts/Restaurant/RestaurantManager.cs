@@ -141,9 +141,9 @@ public class RestaurantManager : MonoBehaviour
             }
         }
 
-        Invoke("LoadRestaurant", 1f);
+       // Invoke("LoadRestaurant", 1f);
 
-        GameInstance.GameIns.uiManager.UpdateMoneyText(restaurantCurrency.money);
+      //  GameInstance.GameIns.uiManager.UpdateMoneyText(restaurantCurrency.money);
         GameInstance.GameIns.uiManager.fishText.text = restaurantCurrency.fishes.ToString();
 
        // restaurantCurrency.money = 100000;
@@ -239,6 +239,7 @@ public class RestaurantManager : MonoBehaviour
         }
         Escape: 
         MoveCalculator.CheckArea(GameIns.calculatorScale, true);
+        SaveLoadSystem.SaveRestaurantData();
     }
 
     public void LevelUp(bool load = false, bool checkArea = true)
@@ -252,7 +253,7 @@ public class RestaurantManager : MonoBehaviour
                     restaurantCurrency.money -= levelGuides[level].money;
                 }
                 else return;
-                GameInstance.GameIns.uiManager.UpdateMoneyText(restaurantCurrency.money);
+               // GameInstance.GameIns.uiManager.UpdateMoneyText(restaurantCurrency.money);
                 purchase.Play();
             }
         }
@@ -494,12 +495,39 @@ public class RestaurantManager : MonoBehaviour
         go.layer = LayerMask.NameToLayer("RestaurantObject");
     }
 
-    void LoadRestaurant()
+    public async UniTask LoadRestaurant(CancellationToken cancellationToken = default)
     {
-        if(App.loadedAllAssets)
+        try
         {
+
+            await UniTask.NextFrame(cancellationToken: cancellationToken);
+
+            for (int i = 0; i < restaurantCurrency.extension_level; i++)
+            {
+                expandables[i].SetActive(true);
+                removables[i].SetActive(false);
+                GameIns.store.require.Add(1101 + i);
+                GameIns.store.Extended(1101 + i);
+            }
+
+            if(door.setup)
+            {
+                door.gameObject.SetActive(true);
+                Collider[] overlaps = Physics.OverlapBox(door.transform.position, new Vector3(0.1f, 1f, 0.1f), Quaternion.identity, (1 << 16) | (1 << 19));
+
+                if (overlaps.Length > 0)
+                {
+                    GameObject h = overlaps[0].gameObject;
+                    h.SetActive(false);
+                    door.removeWall = h;
+                    door.transform.SetParent(h.transform.parent);
+                }
+            }
+
+
             for (int i = 0; i < restaurantparams.Count; i++)
             {
+                PlaceController placeController = GameIns.store.goodsPreviewDic[restaurantparams[i].id + 1000];
                 Furniture furniture = GameIns.store.goodsDic[restaurantparams[i].id].Dequeue().GetComponent<Furniture>();
                 furniture.spawned = true;
                 furniture.gameObject.SetActive(true);
@@ -526,68 +554,77 @@ public class RestaurantManager : MonoBehaviour
                         furniture.transform.rotation = rot;
                         break;
                 }
+                placeController.transform.position = furniture.transform.position;
+                placeController.offset.transform.rotation = Quaternion.Euler(0, placeController.rotates[restaurantparams[i].level], 0);
+                placeController.offset.transform.localPosition = placeController.rotateOffsets[restaurantparams[i].level];
+                GameInstance.GameIns.gridManager.CheckObject(placeController);
+                GameInstance.GameIns.gridManager.ApplyGird();
 
                 GameIns.store.require.Add(restaurantparams[i].id);
+
+                await UniTask.NextFrame(cancellationToken: cancellationToken);  
             }
 
-            for(int i = 0; i < restaurantCurrency.extension_level; i++)
-            {
-                
-                expandables[i].SetActive(true);
-                removables[i].SetActive(false);
-                GameIns.store.require.Add(1101 + i);
-                GameIns.store.Extended(1101 + i);
-            }
-
+           
             MoveCalculator.CheckArea(GameIns.calculatorScale, true);
 
             GameIns.store.StoreUpdate();
 
-            Invoke("LoadEmployees", 0.5f);
+            await LoadEmployees(cancellationToken);
         }
-        else
+        catch (Exception e)
         {
-            Invoke("LoadRestaurant", 0.2f);
+            Debug.LogException(e);
         }
      
     }
 
-    void LoadEmployees()
+    async UniTask LoadEmployees(CancellationToken cancellationToken = default)
     {
-       int num = employees.employeeLevelDatas.Count;
-        for (int i = 0; i< num; i++)
+        try
         {
-            Employee animal = GameInstance.GameIns.animalManager.SpawnEmployee();
-            bool check = false;
-            float X = 0;
-            float Z = 0;
-            while (!check)
+            await UniTask.NextFrame(cancellationToken: cancellationToken);
+            int num = employees.employeeLevelDatas.Count;
+            for (int i = 0; i < num; i++)
             {
-                X = UnityEngine.Random.Range(-18, 22);
-                Z = UnityEngine.Random.Range(-22, 21);
-                Vector3 center = GameInstance.GetVector3(X, 0, Z);
-                Vector3 halfExtents = GameInstance.GetVector3(0.5f, 0.5f, 0.5f);
-                if (Physics.CheckBox(center, halfExtents, Quaternion.identity, 1 << 6 | 1 << 7 | 1 << 8 | 1 << 16 | 1 << 19 | 1 << 21))
+                Employee animal = GameInstance.GameIns.animalManager.SpawnEmployee();
+                bool check = false;
+                float X = 0;
+                float Z = 0;
+                while (!check)
                 {
-                    check = false;
+                    X = UnityEngine.Random.Range(-18, 22);
+                    Z = UnityEngine.Random.Range(-22, 21);
+                    Vector3 center = GameInstance.GetVector3(X, 0, Z);
+                    Vector3 halfExtents = GameInstance.GetVector3(0.5f, 0.5f, 0.5f);
+                    if (Physics.CheckBox(center, halfExtents, Quaternion.identity, 1 << 6 | 1 << 7 | 1 << 8 | 1 << 16 | 1 << 19 | 1 << 21))
+                    {
+                        check = false;
+                    }
+                    else
+                    {
+                        check = true;
+                    }
                 }
-                else
-                {
-                    check = true;
-                }
-            }
-            animal.employeeLevelData = employees.employeeLevelDatas[i];
-            animal.trans.position = GameInstance.GetVector3(X, 0, Z);
-            animal.EXP = employees.employeeLevelDatas[i].exp;
-            animal.employeeLevel = AssetLoader.employees_levels[employees.employeeLevelDatas[i].level];
-            animal.employeeCallback?.Invoke(animal);
-        }
+                animal.employeeLevelData = employees.employeeLevelDatas[i];
+                animal.trans.position = GameInstance.GetVector3(X, 0, Z);
+                animal.EXP = employees.employeeLevelDatas[i].exp;
+                animal.employeeLevel = AssetLoader.employees_levels[employees.employeeLevelDatas[i].level];
+                animal.employeeCallback?.Invoke(animal);
 
-        if ((num < 8 && employeeHire[num] <= GetRestaurantValue()))
-        {
-            GameInstance.GameIns.applianceUIManager.UnlockHire(true);
+                await UniTask.NextFrame(cancellationToken: cancellationToken);
+            }
+
+            if ((num < 8 && employeeHire[num] <= GetRestaurantValue()))
+            {
+                GameInstance.GameIns.applianceUIManager.UnlockHire(true);
+            }
+            else GameInstance.GameIns.applianceUIManager.UnlockHire(false);
         }
-        else GameInstance.GameIns.applianceUIManager.UnlockHire(false);
+        catch (Exception ex)
+        {
+            Debug.LogException(ex);
+        }
     }
 
     public void UpgradeMachine(FoodMachine foodMachine)
@@ -856,7 +893,7 @@ public class RestaurantManager : MonoBehaviour
         if (restaurantCurrency.money >= foodMachine.machineLevelStruct.price)
         {
             restaurantCurrency.money -= foodMachine.machineLevelStruct.price;
-            GameInstance.GameIns.uiManager.UpdateMoneyText(restaurantCurrency.money); 
+          //  GameInstance.GameIns.uiManager.UpdateMoneyText(restaurantCurrency.money); 
             MachineType type = foodMachine.machineType;
         
             int currentLevel = foodMachine.machineLevelStruct.level;

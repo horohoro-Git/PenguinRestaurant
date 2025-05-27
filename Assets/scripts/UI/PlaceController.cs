@@ -14,7 +14,8 @@ public class PlaceController : MonoBehaviour
     public Image applyImage;
     public Image applyborderImage;
     public GraphicRaycaster raycaster;
-    int[] rotates = new int[4] { 0, 270, 180, 90 };
+
+    [NonSerialized] public int[] rotates = new int[4] { 0, 270, 180, 90 };
     public Vector3[] rotateOffsets = new Vector3[4];
     int level = 0;
 

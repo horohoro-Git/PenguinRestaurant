@@ -1,8 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Numerics;
 using UnityEngine;
 using static GameInstance;
-
+using Vector3 = UnityEngine.Vector3;
+using Vector2 = UnityEngine.Vector2;
+using Quaternion = UnityEngine.Quaternion;
+using System.Linq;
+using UnityEngine.Windows;
+using Unity.VisualScripting;
 
 public enum CounterType
 {
@@ -46,9 +52,9 @@ public class RestaurantParam
     public int id;
     public WorkSpaceType type;
     public int level;
-    public Vector3 position;
-    public Vector3 localPos;
-    public Quaternion rotation;
+    public UnityEngine.Vector3 position;
+    public UnityEngine.Vector3 localPos;
+    public  Quaternion rotation;
 
     
     public RestaurantParam(int id, WorkSpaceType type, int level, Vector3 position, Vector3 localPos, Quaternion rotation)
@@ -268,6 +274,9 @@ public enum AssetType
 
 public class Utility
 {
+    public static string[] format = new string[5] {"", "K", "M", "B", "T"};
+    public static string[] alphabet = new string[26] {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l",
+                                                     "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
     public static bool IsInsideCameraViewport(Vector2 screenPosition, Camera cam)
     {
         Vector3 viewportPos = cam.ScreenToViewportPoint(screenPosition);
@@ -388,17 +397,115 @@ public class Utility
     }
 
 
-  
+    public static string GetFormattedMoney(BigInteger bigInteger)
+    {
+        string returnVal = "";
+        returnVal = bigInteger.ToString();  
+        int num = returnVal.Length;
+        int sliced = (num - 1) / 3;
+
+        int odd = (num - 1) % 3;
+
+        string result = "";
+        for(int i=0; i<= odd; i++) result += returnVal[i];
+        if(num > odd + 2)
+        {
+            if (returnVal[odd + 1] != '0' || returnVal[odd + 2] != '0')
+            {
+                result += "." + returnVal[odd + 1] + returnVal[odd + 2];
+            }
+        }
+        else if(num > odd + 1)
+        {
+            if (returnVal[odd + 1] != '0')
+            {
+                result += "." + returnVal[odd + 1];
+            }
+
+        }
+        if (sliced < format.Length) result += format[sliced];
+        else
+        {
+            int temp = sliced - 5; 
+            string t = "";
+            //  int test = temp % 26;
+            // temp -= test;
+            int test = temp;
+            bool odds = false;
+            while (true)
+            {
+
+                test = Mathf.RoundToInt((float)test / 26);
+                if (test == 0)
+                {
+                    odds = false;
+                    break;
+                }
+                if (test == 1)
+                {
+                    odds = true;
+                    break;
+                }
+            }
+            Debug.Log(temp);
+            while(temp > 0)
+            {
+               
+             
+                int p = temp % 26;
+                if (odds && temp == 1)
+                {
+                    Debug.Log("check");
+                    t = alphabet[p - 1] + t;
+                    odds = false;
+                }
+                else t = alphabet[p] + t;
+                temp -= p;
+                temp /= 26;
+               /* if(temp < 26)
+                {
+                    break;
+                }
+*/
+            }
+
+          //  t += alphabet[test];
+
+            result += t;
+        }
+
+        
+        return result;
+    }
+
+    public static string test(int input)
+    {
+        if (input < 0) return "";
+
+       // input += 1; 
+
+        string result = "";
+
+        while (input > 0)
+        {
+          //  input -= 1;
+            int mod = input % 26;
+            result = alphabet[mod] + result;
+            input /= 26;
+        }
+
+        return result;
+    }
 }
 
 public class RestaurantCurrency
 {
-    public int money;
+    public BigInteger money;
     public int fishes;
     public int affinity;
     public int extension_level;
     public bool changed;
-    public RestaurantCurrency(int money, int fishes, int affinity, int extension_level)
+    public RestaurantCurrency(BigInteger money, int fishes, int affinity, int extension_level)
     {
         this.money = money;
         this.fishes = fishes;

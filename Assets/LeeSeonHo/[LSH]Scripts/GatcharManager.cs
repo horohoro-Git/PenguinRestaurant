@@ -122,7 +122,7 @@ public class GatcharManager : MonoBehaviour
         if (GameInstance.GameIns.restaurantManager.restaurantCurrency.money >= price)
         {
             GameInstance.GameIns.restaurantManager.restaurantCurrency.money -= (int)price;
-            GameInstance.GameIns.uiManager.UpdateMoneyText(GameInstance.GameIns.restaurantManager.restaurantCurrency.money);
+            //GameInstance.GameIns.uiManager.UpdateMoneyText(GameInstance.GameIns.restaurantManager.restaurantCurrency.money);
            // SaveLoadManager.Save(SaveLoadManager.SaveState.ONLY_SAVE_PLAYERDATA);
             return true;
         }
