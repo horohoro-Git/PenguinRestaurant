@@ -28,3 +28,4 @@ Animal Restaurant Tycoon Game
 05/26 Fixing bugs in the mobile environment
 05/27 Enhanced resource value abbreviation system
 05/28 Bug fixes, added animation to currency abbreviation
+05/29 Refactored data table structure, implemented new fuel UI
