@@ -119,9 +119,9 @@ public class GatcharManager : MonoBehaviour
 
     public bool Purchase()
     {
-        if (GameInstance.GameIns.restaurantManager.restaurantCurrency.money >= price)
+        if (GameInstance.GameIns.restaurantManager.restaurantCurrency.Money >= price)
         {
-            GameInstance.GameIns.restaurantManager.restaurantCurrency.money -= (int)price;
+            GameInstance.GameIns.restaurantManager.restaurantCurrency.Money -= (int)price;
             //GameInstance.GameIns.uiManager.UpdateMoneyText(GameInstance.GameIns.restaurantManager.restaurantCurrency.money);
            // SaveLoadManager.Save(SaveLoadManager.SaveState.ONLY_SAVE_PLAYERDATA);
             return true;

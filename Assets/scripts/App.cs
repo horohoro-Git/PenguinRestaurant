@@ -34,12 +34,14 @@ public class App : MonoBehaviour
     Loading loading;
     public static bool loadedAllAssets;
     List<GameObject> loadedScenesRootUI = new List<GameObject>();
+    static int currentLevel;
+    public static int CurrentLevel { get { return currentLevel; } set { currentLevel = value; } }
     private void Awake()
     {
-        string test = "1";
-        for (int i = 0; i < 300000; i++) test += "0";
-        BigInteger bigInteger = BigInteger.Parse(test);
-        Debug.Log(Utility.GetFormattedMoney(bigInteger));
+      //  string test = "1";
+      //  for (int i = 0; i < 300000; i++) test += "0";
+      ///  BigInteger bigInteger = BigInteger.Parse(test);
+      //  Debug.Log(Utility.GetFormattedMoney(bigInteger));
         currentScene = SceneState.Restaurant;
         GameInstance.GameIns.app = this;
         DontDestroyOnLoad(this);
@@ -52,16 +54,29 @@ public class App : MonoBehaviour
     {
         try
         {
-            await AssetLoader.GetServerUrl();
+            await AssetLoader.GetServerUrl("Town");
 
             cancellationToken.ThrowIfCancellationRequested();
             await LoadScene("LoadingScene", cancellationToken);
+
+            await LoadRegulation(cancellationToken);
 
             await LoadGameAsset(cancellationToken);
         }
         catch (OperationCanceledException)
         {
 
+        }
+    }
+
+    async UniTask LoadRegulation(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            await GameInstance.GameIns.assetLoader.Download_Regulation(cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
         }
     }
 
@@ -155,8 +170,8 @@ public class App : MonoBehaviour
         {
             cancellationToken.ThrowIfCancellationRequested();
             await LoadScene(AssetLoader.loadedMap["InteractionScene"], cancellationToken);
-            await LoadScene(AssetLoader.loadedMap["RestaurantScene"], cancellationToken);
-            await LoadScene(AssetLoader.loadedMap["GatCharScene_Town"], cancellationToken);
+            await LoadScene(AssetLoader.loadedMap[GameInstance.GameIns.assetLoader.gameRegulation.map_name], cancellationToken);
+            await LoadScene(AssetLoader.loadedMap[GameInstance.GameIns.assetLoader.gameRegulation.map_name + "_gatcha"], cancellationToken);
 
             currentScene = SceneState.Restaurant;
             loading.ChangeText("식당을 불러오는 중");

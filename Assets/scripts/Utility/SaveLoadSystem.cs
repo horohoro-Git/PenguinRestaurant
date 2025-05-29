@@ -176,6 +176,113 @@ public class SaveLoadSystem
         return animalsDic;
     }
 
+
+    public static void SaveGameRegulation(GameRegulation gameRegulation)
+    {
+        string dir = Path.Combine(path, "Save");
+        if (!Directory.Exists(dir))
+        {
+            Directory.CreateDirectory(dir);
+        }
+
+        string p = Path.Combine(path, "Save/Regulation.dat");
+        using (MemoryStream ms = new MemoryStream())
+        {
+            using (BinaryWriter writer = new BinaryWriter(ms))
+            {
+                writer.Write(gameRegulation.id);
+                writer.Write(gameRegulation.map_name);
+            }
+        }
+    }
+
+    public static GameRegulation LoadGameRegulation()
+    {
+        GameRegulation regulation = null;
+        string p = Path.Combine(path, "Save/Regulation.dat");
+        byte[] data;
+        if (File.Exists(p))
+        {
+            using (FileStream fs = new FileStream(p, FileMode.Open))
+            {
+                data = new byte[fs.Length];
+                fs.Read(data, 0, data.Length);
+
+                using (BinaryReader reader = new BinaryReader(new MemoryStream(data)))
+                {
+                    int id = reader.ReadInt32();
+                    string map_name = reader.ReadString();
+
+                    regulation = new GameRegulation(id, map_name);
+
+                }
+            }
+        }
+        else
+        {
+            regulation = new GameRegulation(0, "town_01");
+            SaveGameRegulation(regulation);
+        }
+        return regulation;
+    }
+
+    //레스토랑 저장
+    public static void SaveRestaurantData(RestaurantData restaurantData)
+    {
+        string dir = Path.Combine(path, "Save");
+        if (!Directory.Exists(dir))
+        {
+            Directory.CreateDirectory(dir);
+        }
+
+        string p = Path.Combine(path, "Save/Restaurant.dat");
+        using (MemoryStream ms = new MemoryStream())
+        {
+            using (BinaryWriter writer = new BinaryWriter(ms))
+            {
+                writer.Write(restaurantData.id);
+                writer.Write(restaurantData.level_name);
+                writer.Write(restaurantData.extension_level);
+                writer.Write(DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+             
+                File.WriteAllBytes(p, ms.ToArray());
+                
+            }
+        }
+    }
+
+    //레스토랑 로드
+    public static RestaurantData LoadRestaurantData()
+    {
+        RestaurantData restaurant = null;
+        string p = Path.Combine(path, "Save/Restaurant.dat");
+        byte[] data;
+        if (File.Exists(p))
+        {
+            using (FileStream fs = new FileStream(p, FileMode.Open))
+            {
+                data = new byte[fs.Length];
+                fs.Read(data, 0, data.Length);
+
+                using (BinaryReader reader = new BinaryReader(new MemoryStream(data)))
+                {
+                    //BigInteger money = BigInteger.Parse(reader.ReadString());
+                    int id = reader.ReadInt32();
+                    string level_name = reader.ReadString();
+                    int extension_level = reader.ReadInt32();
+              
+                    restaurant = new RestaurantData(id, level_name, extension_level, DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+                }
+            }
+        }
+        else
+        {
+            restaurant = new RestaurantData(0, "", 0, DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+            SaveRestaurantData(restaurant);
+        }
+        return restaurant;
+    }
+
     //동물 데이터 저장
     public static void SaveAnimalsData(Dictionary<int, AnimalStruct> animals)
     {
@@ -225,9 +332,9 @@ public class SaveLoadSystem
 
 
     //레스토랑 건물 로드
-    public static List<RestaurantParam> LoadRestaurantData()
+    public static List<RestaurantParam> LoadRestaurantBuildingData()
     {
-        string p = Path.Combine(path, "Save/Restaurant.dat");
+        string p = Path.Combine(path, "Save/RestaurantBuilding.dat");
         byte[] data;
         List<RestaurantParam> restaurantParams = new List<RestaurantParam>();
        // restaurantParams.AddRange(AssetLoader.restaurantParams.Select(stat => new RestaurantParam(stat)));
@@ -331,14 +438,14 @@ public class SaveLoadSystem
         }
         else
         {
-            SaveRestaurantData();
+            SaveRestaurantBuildingData();
         }
 
         return restaurantParams;
     }
 
     //레스토랑 건물 저장
-    public static void SaveRestaurantData()
+    public static void SaveRestaurantBuildingData()
     {
         WorkSpaceManager workSpaceManager = GameInstance.GameIns.workSpaceManager;
         string dir = Path.Combine(path, "Save");
@@ -346,7 +453,7 @@ public class SaveLoadSystem
         {
             Directory.CreateDirectory(dir);
         }
-        string p = Path.Combine(path, "Save/Restaurant.dat");
+        string p = Path.Combine(path, "Save/RestaurantBuilding.dat");
         using (MemoryStream ms = new MemoryStream())
         {
             using (BinaryWriter writer = new BinaryWriter(ms))
@@ -464,10 +571,9 @@ public class SaveLoadSystem
         {
             using (BinaryWriter writer = new BinaryWriter(ms))
             {
-                writer.Write(currency.money.ToString());
+                writer.Write(currency.Money.ToString());
                 writer.Write(currency.fishes);
                 writer.Write(currency.affinity);
-                writer.Write(currency.extension_level);
             }
 
             File.WriteAllBytes(p, ms.ToArray());
@@ -488,18 +594,18 @@ public class SaveLoadSystem
 
                 using (BinaryReader reader = new BinaryReader(new MemoryStream(data)))
                 {
-                    BigInteger money = BigInteger.Parse(reader.ReadString());
+                    //BigInteger money = BigInteger.Parse(reader.ReadString());
+                    string money = reader.ReadString();
                     int fishes = reader.ReadInt32();
                     int affinity = reader.ReadInt32();
-                    int extension_level = reader.ReadInt32();   
 
-                    currency = new RestaurantCurrency(money, fishes, affinity, extension_level);
+                    currency = new RestaurantCurrency(money, fishes, affinity);
                 }
             }
         }
         else
         {
-            currency = new RestaurantCurrency(500, 0, 0, 0);
+            currency = new RestaurantCurrency("500", 0, 0);
             SaveRestaurantCurrency(currency);
         }
         return currency;

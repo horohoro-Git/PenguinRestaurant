@@ -10,6 +10,7 @@ using System.Threading;
 using UnityEngine.U2D;
 using Unity.Collections.LowLevel.Unsafe;
 using TMPro;
+using Newtonsoft.Json;
 public class AssetLoader : MonoBehaviour
 {
     [NonSerialized]
@@ -24,7 +25,8 @@ public class AssetLoader : MonoBehaviour
     public static Dictionary<int, ItemStruct> items = new Dictionary<int, ItemStruct>();
     public static Dictionary<int, ItemStruct> sprites = new Dictionary<int, ItemStruct>();
     public static Dictionary<int, ItemStruct> atlases = new Dictionary<int, ItemStruct>();
-    public static Dictionary<int, MachineLevelStruct> machines_levels = new Dictionary<int, MachineLevelStruct>();
+    public static Dictionary<int, MachineLevelData> machines_levels = new Dictionary<int, MachineLevelData>();
+
     public static Dictionary<int, EmployeeLevelStruct> employees_levels = new Dictionary<int, EmployeeLevelStruct>();
     public static Dictionary<int, AnimalStruct> animals = new Dictionary<int, AnimalStruct>();
     public static Dictionary<int, GoodsStruct> goods = new Dictionary<int, GoodsStruct>();
@@ -32,6 +34,7 @@ public class AssetLoader : MonoBehaviour
     public static Dictionary<int, StringStruct> spriteAssetKeys = new Dictionary<int, StringStruct>();
     public static Dictionary<int, StringStruct> atlasesKeys = new Dictionary<int, StringStruct>();
     public static Dictionary<int, LevelData> levelData = new Dictionary<int, LevelData>();
+    public static List<MapContent> maps = new List<MapContent>();
     public static List<RestaurantParam> restaurantParams = new List<RestaurantParam>();
 
     public static TMP_FontAsset font;
@@ -39,9 +42,13 @@ public class AssetLoader : MonoBehaviour
     int unloadNum;
     public bool assetLoadSuccessful;
     public bool sceneLoaded;
+    public string mapContents;
+
+    public GameRegulation gameRegulation;
+
     string[] tables = new string[9]
     {
-        "all", "employees", "machines", "animals", "level","furniture", "sprites", "atlases", "shop"
+       "all", "employees", "machines", "animals", "level","furniture", "sprites", "atlases", "shop"
     };
     Dictionary<string, string> tableContents = new Dictionary<string, string>();
 
@@ -50,25 +57,59 @@ public class AssetLoader : MonoBehaviour
     {
         GameInstance.GameIns.assetLoader = this;
     }
-    
-    public static async UniTask GetServerUrl()
+
+    public static async UniTask GetServerUrl(string addUrl)
     {
         serverUrl = await SaveLoadSystem.LoadServerURL();
-        serverUrl = Path.Combine(serverUrl, "town");
+        if(addUrl != "") serverUrl = Path.Combine(serverUrl, addUrl);
 #if UNITY_IOS || UNITY_ANDROID
         serverUrl = Path.Combine(serverUrl, "android");
 #else
         serverUrl = Path.Combine(serverUrl, "pc");
 #endif
-        Debug.Log(serverUrl);
     }
+
+    public async UniTask Download_Regulation(CancellationToken cancellationToken = default)
+    {
+        await GetServerUrl("");
+        string target = Path.Combine(serverUrl, "map");
+        Hash128 bundleHash = SaveLoadSystem.ComputeHash128(System.Text.Encoding.UTF8.GetBytes(target));
+        if (Caching.IsVersionCached(target, bundleHash))
+        {
+            Debug.Log("Asset Found");
+        }
+        else
+        {
+            Debug.Log("Asset Not Found");
+        }
+        UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle(target, bundleHash, 0);
+        await www.SendWebRequest().ToUniTask(cancellationToken: cancellationToken);
+
+        if (www.result == UnityWebRequest.Result.Success)
+        {
+            AssetBundle b = DownloadHandlerAssetBundle.GetContent(www);
+            if (Caching.IsVersionCached(target, bundleHash))
+            {
+                Debug.Log("AssetBundle Cached Successfully");
+            }
+            AssetBundleRequest assetRequest = b.LoadAssetAsync<TextAsset>("maps");
+            await assetRequest.ToUniTask(cancellationToken: cancellationToken);
+            if (assetRequest != null)
+            {
+                mapContents = assetRequest.asset.ToString();
+                maps = SaveLoadSystem.GetListData<MapContent>(mapContents);
+
+                gameRegulation = SaveLoadSystem.LoadGameRegulation();
+            }
+        }
+    }
+
     public async UniTask DownloadAsset_SceneBundle(CancellationToken cancellationToken = default)
     {
         try
         {
            // string serverUrl = await SaveLoadSystem.LoadServerURL();
-            string homeUrl = Path.Combine(serverUrl, "restaurant_scene");
-            Debug.Log(homeUrl);
+            string homeUrl = Path.Combine(serverUrl, gameRegulation.map_name + "_scene");
             Hash128 bundleHash = SaveLoadSystem.ComputeHash128(System.Text.Encoding.UTF8.GetBytes(homeUrl));
             if (Caching.IsVersionCached(homeUrl, bundleHash))
             {
@@ -79,7 +120,7 @@ public class AssetLoader : MonoBehaviour
                 Debug.Log("Asset Not Found");
             }
             UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle(homeUrl, bundleHash, 0);
-            await www.SendWebRequest();
+            await www.SendWebRequest().ToUniTask(cancellationToken: cancellationToken);
             
             if (www.result == UnityWebRequest.Result.Success)
             {
@@ -116,8 +157,8 @@ public class AssetLoader : MonoBehaviour
     {
         try
         {
-          //  string serverUrl = await SaveLoadSystem.LoadServerURL();
-            string homeUrl = Path.Combine(serverUrl, "restaurant");
+            await GetServerUrl(gameRegulation.map_name);
+            string homeUrl = Path.Combine(serverUrl, gameRegulation.map_name);
             Hash128 bundleHash = SaveLoadSystem.ComputeHash128(System.Text.Encoding.UTF8.GetBytes(homeUrl));
             if (Caching.IsVersionCached(homeUrl, bundleHash))
             {
@@ -128,7 +169,7 @@ public class AssetLoader : MonoBehaviour
                 Debug.Log("Asset Not Found");
             }
             UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle(homeUrl, bundleHash, 0);
-            await www.SendWebRequest();
+            await www.SendWebRequest().ToUniTask(cancellationToken: cancellationToken);
             if (www.result == UnityWebRequest.Result.Success)
             {
                 bundle = DownloadHandlerAssetBundle.GetContent(www);
@@ -140,19 +181,21 @@ public class AssetLoader : MonoBehaviour
 
                 if (!bundle.isStreamedSceneAssetBundle)
                 {
-                    await DatatableLoad();
+                    await DatatableLoad(cancellationToken);
 
                     await UniTask.RunOnThreadPool(() =>
                     {
+                    
                         items = SaveLoadSystem.GetDictionaryData<int, ItemStruct>(tableContents["all"]);
                         sprites = SaveLoadSystem.GetDictionaryData<int, ItemStruct>(tableContents["sprites"]);
                         atlases = SaveLoadSystem.GetDictionaryData<int, ItemStruct>(tableContents["atlases"]);
                         goods = SaveLoadSystem.GetDictionaryData<int, GoodsStruct>(tableContents["shop"]);
-                        machines_levels = SaveLoadSystem.GetDictionaryData<int, MachineLevelStruct>(tableContents["machines"]);
                         animals = SaveLoadSystem.GetDictionaryData<int, AnimalStruct>(tableContents["animals"]);
                         employees_levels = SaveLoadSystem.GetDictionaryData<int, EmployeeLevelStruct>(tableContents["employees"]);
+                        machines_levels = SaveLoadSystem.GetDictionaryDataClass<int, MachineLevelData>(tableContents["machines"]);
                         levelData = SaveLoadSystem.GetDictionaryDataClass<int, LevelData>(tableContents["level"]);
                         restaurantParams = SaveLoadSystem.GetListData<RestaurantParam>(tableContents["furniture"]);
+                       
                     });
                     foreach (KeyValuePair<int, ItemStruct> keyValuePair in items) itemAssetKeys[keyValuePair.Key] = new StringStruct(keyValuePair.Value.asset_name);
                     foreach (KeyValuePair<int, ItemStruct> keyValuePair in sprites) spriteAssetKeys[keyValuePair.Key] = new StringStruct(keyValuePair.Value.asset_name);
@@ -165,12 +208,12 @@ public class AssetLoader : MonoBehaviour
 
                     };
 
-                    await LoadAsync<SpriteAtlas, StringStruct, string>(atlasesKeys, loadedAtlases);
-                    await LoadAsync<GameObject, StringStruct, string>(itemAssetKeys, loadedAssets);
-                    await LoadAsync<Sprite, StringStruct, string>(spriteAssetKeys, loadedSprites);
+                    await LoadAsync<SpriteAtlas, StringStruct, string>(atlasesKeys, loadedAtlases, cacellationToken: cancellationToken);
+                    await LoadAsync<GameObject, StringStruct, string>(itemAssetKeys, loadedAssets, cacellationToken: cancellationToken);
+                    await LoadAsync<Sprite, StringStruct, string>(spriteAssetKeys, loadedSprites, cacellationToken: cancellationToken);
 
                     AssetBundleRequest assetRequest = bundle.LoadAssetAsync<TMP_FontAsset>("BMDOHYEON_ttf");
-                    await assetRequest;
+                    await assetRequest.ToUniTask(cancellationToken: cancellationToken);
                     if(assetRequest != null)
                     {
                         if (assetRequest.asset is TMP_FontAsset castedAsset)
@@ -200,28 +243,29 @@ public class AssetLoader : MonoBehaviour
     }
 
 
-    async UniTask DatatableLoad()
+    async UniTask DatatableLoad(CancellationToken cancellationToken = default)
     {
         for (int i = 0; i < tables.Length; i++)
         {
             AssetBundleRequest request = bundle.LoadAssetAsync<TextAsset>(tables[i]);
-            await request;
+            await request.ToUniTask(cancellationToken: cancellationToken);
 
             if (request != null)
             {
+                Debug.Log(tables[i]);
                 TextAsset itemTextAsset = (TextAsset)request.asset;
                 tableContents.Add(tables[i], itemTextAsset.text);
             }
         }
     }
-    async UniTask LoadAsync<T, K, V>(Dictionary<int, K> keyValues, Dictionary<string, T> outputs) where K : struct, ITableID<V>
+    async UniTask LoadAsync<T, K, V>(Dictionary<int, K> keyValues, Dictionary<string, T> outputs, CancellationToken cacellationToken = default) where K : struct, ITableID<V>
     {
         foreach (KeyValuePair<int, K> keyValue in keyValues)
         {
             if (bundle.Contains(keyValue.Value.Name))
             {
                 AssetBundleRequest assetRequest = bundle.LoadAssetAsync<T>(keyValue.Value.Name);
-                await assetRequest;
+                await assetRequest.ToUniTask(cancellationToken: cacellationToken);
                 if (assetRequest != null)
                 {
                     if (assetRequest.asset is T castedAsset)

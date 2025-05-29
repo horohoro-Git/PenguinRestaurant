@@ -18,7 +18,7 @@ public class Furniture : MonoBehaviour
     {
         if(!spawned)
         {
-            SaveLoadSystem.SaveRestaurantData();
+            SaveLoadSystem.SaveRestaurantBuildingData();
             spawned = true;
         }
     }
