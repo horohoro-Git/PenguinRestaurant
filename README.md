@@ -27,3 +27,4 @@ Animal Restaurant Tycoon Game
 05/24 Added support for placing multiple furniture, shop-based building expansion, and auto-door placement on expansion overlap
 05/26 Fixing bugs in the mobile environment
 05/27 Enhanced resource value abbreviation system
+05/28 Bug fixes, added animation to currency abbreviation

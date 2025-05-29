@@ -30,7 +30,7 @@ public class FoodMachine : Furniture
     public LevelData levelData;
     public int level=1;
     public MachineData mData;
-    public MachineLevelStruct machineLevelStruct;
+    public MachineLevelData machineLevelData;
     public Transform transforms;
     public Transform modelTrans;
     public MachineData machineData {
@@ -58,6 +58,8 @@ public class FoodMachine : Furniture
     protected  bool canCooking = false;
 
     CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+
+    FuelGage fuelGage;
     private void Awake()
     {
         transforms = transform;
@@ -69,16 +71,26 @@ public class FoodMachine : Furniture
         if (spawned && App.GlobalToken != null)
         {
             Invoke("LateStart", 0.5f);
-          /*  PlaceTray();
-        //    if (canCooking)
+            if (fuelGage == null)
             {
-                cancellationTokenSource = new CancellationTokenSource();
-                CookingFood(cancellationTokenSource.Token).Forget();
+                fuelGage = GameInstance.GameIns.restaurantManager.GetGage();
+                fuelGage.gameObject.SetActive(true);
+                fuelGage.foodMachine = this;
             }
-            if (GameInstance.GameIns.workSpaceManager)
+            else
             {
-                GameInstance.GameIns.workSpaceManager.foodMachines.Add(this);
-            }*/
+                fuelGage.gameObject.SetActive(true);
+            }
+            /*  PlaceTray();
+          //    if (canCooking)
+              {
+                  cancellationTokenSource = new CancellationTokenSource();
+                  CookingFood(cancellationTokenSource.Token).Forget();
+              }
+              if (GameInstance.GameIns.workSpaceManager)
+              {
+                  GameInstance.GameIns.workSpaceManager.foodMachines.Add(this);
+              }*/
         }
        /* tray = GameInstance.GameIns.restaurantManager.GetTray();
         Vector3 target = new Vector3(transforms.position.x, transforms.position.y, transforms.position.z) + transforms.forward * 3;
@@ -91,6 +103,11 @@ public class FoodMachine : Furniture
         if (!Application.isPlaying) return;
         cancellationTokenSource.Cancel();
         cancellationTokenSource.Dispose();
+
+        if(fuelGage != null)
+        {
+            fuelGage.gameObject.SetActive(false);
+        }
         if(GameInstance.GameIns.workSpaceManager)
         {
             if(GameInstance.GameIns.workSpaceManager.foodMachines.Contains(this))
@@ -110,8 +127,16 @@ public class FoodMachine : Furniture
         GameInstance.GameIns.workSpaceManager.unlockFoods[(int)machineType - 1] = true;
         GameInstance.GameIns.workSpaceManager.foodMachines.Add(this);
 
-        if (!spawned) Invoke("LateStart", 0.5f);
-     
+        if (!spawned)
+        {
+            Invoke("LateStart", 0.5f);
+            if (fuelGage == null)
+            {
+                fuelGage = GameInstance.GameIns.restaurantManager.GetGage();
+                fuelGage.gameObject.SetActive(true);
+                fuelGage.foodMachine = this;
+            }
+        }
         base.Start();
         audioSource = GetComponent<AudioSource>();
         
@@ -243,10 +268,11 @@ public class FoodMachine : Furniture
 
     public void Set(int id)
     {
-     //   restaurantParam = GameInstance.GameIns.restaurantManager.restaurantparams[id + 1];
- //       levelData = GameInstance.GameIns.restaurantManager.levelData[id + 1];
-        machineLevelStruct = GameInstance.GameIns.restaurantManager.machineLevelData[machineType][level];
-        Debug.Log(machineLevelStruct.level);
+        machineLevelData = AssetLoader.machines_levels[(int)machineType];
+     ///  restaurantParam = GameInstance.GameIns.restaurantManager.restaurantparams[id + 1];
+        //       levelData = GameInstance.GameIns.restaurantManager.levelData[id + 1];
+        //machineLevelData = GameInstance.GameIns.restaurantManager.machineLevelData[machineType];
+        // Debug.Log(machineLevelData.level);                     
     }
 
     public void Cooking()
@@ -287,13 +313,24 @@ public class FoodMachine : Furniture
 
             while (true)
             {
-                if (foodStack.foodStack.Count >= machineLevelStruct.max_height)
+                if (foodStack.foodStack.Count >= machineLevelData.max_height)
                 {
                     await UniTask.Delay(200, cancellationToken: cancellationToken);
                     continue;
                 }
 
-                float cookingTimer = machineLevelStruct.cooking_time;
+
+                if(machineLevelData.fishes >= 1)
+                {
+                    machineLevelData.fishes -= 1;
+                }
+                else
+                {
+                    await UniTask.Delay(200, cancellationToken: cancellationToken);
+                    continue;
+                }
+
+                float cookingTimer = machineLevelData.cooking_time;
 
                 cookingAction?.Invoke(cookingTimer);
 
@@ -352,7 +389,7 @@ public class FoodMachine : Furniture
                     else if (machineType == MachineType.DonutMachine) foodHight = 0.5f;
                     Vector3 addheight = GameInstance.GetVector3(0, (foodStack.foodStack.Count) * foodHight, 0);
                     f.transforms.position = foodTransform.position + addheight;
-                    f.foodPrice = machineLevelStruct.sale_proceed;
+                    f.foodPrice = machineLevelData.sale_proceed;
                     foodStack.foodStack.Push(f);
                   //  if(a==10) yield break;
                     //    if (foodStack.foodStack.Count == 10000) on = true;

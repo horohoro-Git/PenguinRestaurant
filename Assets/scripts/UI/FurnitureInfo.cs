@@ -65,7 +65,7 @@ public class FurnitureInfo : MonoBehaviour
 
     public void GetEnergy()
     {
-
+        if (currentFurniture == null) GameInstance.GameIns.restaurantManager.AddFuel(currentFurniture.GetComponent<FoodMachine>());
     }
 
     public void Upgrade()

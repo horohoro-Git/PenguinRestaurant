@@ -9,6 +9,9 @@ using Quaternion = UnityEngine.Quaternion;
 using System.Linq;
 using UnityEngine.Windows;
 using Unity.VisualScripting;
+using System.Text;
+using JetBrains.Annotations;
+using DG.Tweening;
 
 public enum CounterType
 {
@@ -113,7 +116,11 @@ public class LevelData : ITableID<int>
     }
 }
 
-
+public struct MapContent
+{
+    public int id;
+    public string map_name;
+}
 public struct PlayerStruct
 {
     public int level;
@@ -198,10 +205,13 @@ public struct GoodsStruct : ITableID<int>
     public string asset_name;
     public string name;
     public WorkSpaceType type;
-    public int price;
+    public string price;
     public int num;
     public int require;
     public bool soldout;
+    BigInteger? price_value;
+    public string Price { get { return price; } set { price = value; price_value = null; } } 
+    public BigInteger Price_Value { get { if(!price_value.HasValue) price_value = Utility.StringToBigInteger(price); return price_value.Value; } }
 
     public readonly int ID => id;
 
@@ -217,19 +227,6 @@ public struct ItemStruct : ITableID<int>
 
     public readonly string Name => asset_name;
 
-}
-public struct MachineLevelStruct : ITableID<int>
-{
-    public int id;
-    public int level;
-    public int price;
-    public int sale_proceed;
-    public float cooking_time;
-    public int max_height;
-    public int type;
-    public readonly int ID => id;
-
-    public readonly string Name => throw new System.NotImplementedException();
 }
 
 public struct EmployeeLevelStruct : ITableID<int>
@@ -395,122 +392,237 @@ public class Utility
         // GetComponentsInChildren은 자기 자신도 포함하므로 필요에 따라 제외 가능
         targetGO.GetComponentsInChildren(true, values); // 비활성 포함 true
     }
-
-
-    public static string GetFormattedMoney(BigInteger bigInteger)
+    public static BigInteger StringToBigInteger(string price)
     {
+        BigInteger result;
+        int num = price.Length;
+        int slicedNum = (num - 1) % 3;
+        StringBuilder sb = new StringBuilder();
+
+        sb.Append(price[0]);
+        for (int i = 1; i <= slicedNum; i++)
+        {
+            if (price[i] >= '0' && price[i] <= '9') sb.Append(price[i]);
+            else break;
+        }
+        int dotCount = 0;
+        int dotCheck = num > 4 ? 4 : num;
+        for (int i = 0; i < dotCheck; i++)
+        {
+          /*  if (price[i] >= '0' && price[i] <= '9')
+            {
+                sb.Append(price[i]);
+            }
+*/
+            if (price[i] == '.')
+            {
+                //  sb.Append(price[i]);
+                dotCount++;
+                sb.Append(price[i + 1]);
+                if (i + 2 < num && price[i + 2] >= '1' && price[i + 2] <= '9')
+                {
+                    dotCount++;
+                    sb.Append(price[i + 2]);
+                }
+                break;
+            }
+        }
+        int nCount = 0;
+        int count = 1;
+        int baseUnitOffset = 27;
+        int basicPrefixCount = format.Length;
+        //  int defaultOffet = 27;
+        int sum = 0;
+        for (int i = 0; i < format.Length; i++)
+        {
+            if (!string.IsNullOrEmpty(format[i]) && price[num - 1] == format[i][0])    
+            {
+                int n = i * 3;
+                if(dotCount > 0)
+                {
+                    n -= dotCount;
+                    dotCount = 0;
+                }
+                sb.Append('0', n);
+                result = BigInteger.Parse(sb.ToString());
+                return result;
+            }
+
+        }
+        for (int i = num - 1; i >= 0; i--)
+        {
+            if (price[i] >= '0' && price[i] <= '9') break;
+
+            for (int j = 0; j < alphabet.Length; j++)
+            {
+                if (alphabet[j][0] == price[i])
+                {
+                    count = j + 1;
+                }
+            }
+            if (nCount == 0) sum += count;
+            else
+            {
+                sum += count * nCount * 26;
+            }
+            nCount++;
+        }
+        if (nCount == 0)
+        {
+            result = BigInteger.Parse(sb.ToString());
+            return result;
+        }
+        else
+        {
+            sum += -baseUnitOffset + basicPrefixCount;
+            sum *= 3;
+            sum -= dotCount;
+            sb.Append('0', sum);
+            result = BigInteger.Parse(sb.ToString());
+            return result;
+        }
+    }
+
+    public static StringBuilder GetFormattedMoney(BigInteger bigInteger, StringBuilder result)
+    {
+        result.Clear();
         string returnVal = "";
         returnVal = bigInteger.ToString();  
         int num = returnVal.Length;
+        if (num < 4)
+        {
+            result.Append(returnVal);
+            return result;
+        }
         int sliced = (num - 1) / 3;
-
         int odd = (num - 1) % 3;
 
-        string result = "";
-        for(int i=0; i<= odd; i++) result += returnVal[i];
+        for(int i=0; i<= odd; i++) result.Append(returnVal[i]);
         if(num > odd + 2)
         {
-            if (returnVal[odd + 1] != '0' || returnVal[odd + 2] != '0')
+            if (returnVal[odd + 2] != '0')
             {
-                result += "." + returnVal[odd + 1] + returnVal[odd + 2];
+                result.Append(".");
+                result.Append(returnVal[odd + 1]);
+                result.Append(returnVal[odd + 2]);
             }
+            else if (returnVal[odd + 1] != '0')
+            {
+                result.Append(".");
+                result.Append(returnVal[odd + 1]);
+            }
+           
         }
         else if(num > odd + 1)
         {
             if (returnVal[odd + 1] != '0')
             {
-                result += "." + returnVal[odd + 1];
+                result.Append(".");
+                result.Append(returnVal[odd + 1]);
             }
 
         }
-        if (sliced < format.Length) result += format[sliced];
+        if (sliced < format.Length) result.Append(format[sliced]);
         else
         {
             int temp = sliced - 5; 
             string t = "";
-            //  int test = temp % 26;
-            // temp -= test;
+           
             int test = temp;
-            bool odds = false;
+            bool rounds = false;
+
+
+            if(temp < 26)
+            {
+                t += "a";
+                t += alphabet[temp % 26];
+                result.Append(t);
+                return result;
+            }
+
             while (true)
             {
 
                 test = Mathf.RoundToInt((float)test / 26);
                 if (test == 0)
                 {
-                    odds = false;
+                    rounds = false;
                     break;
                 }
                 if (test == 1)
                 {
-                    odds = true;
+                    rounds = true;
                     break;
                 }
             }
-            Debug.Log(temp);
+
             while(temp > 0)
             {
-               
-             
                 int p = temp % 26;
-                if (odds && temp == 1)
+                if (rounds && temp == 1)
                 {
-                    Debug.Log("check");
                     t = alphabet[p - 1] + t;
-                    odds = false;
+                    rounds = false;
                 }
                 else t = alphabet[p] + t;
                 temp -= p;
                 temp /= 26;
-               /* if(temp < 26)
-                {
-                    break;
-                }
-*/
             }
-
-          //  t += alphabet[test];
-
-            result += t;
+            result.Append(t);
         }
-
-        
         return result;
     }
 
-    public static string test(int input)
+}
+
+public class GameRegulation
+{
+    public int id;
+    public string map_name;
+    // 옵션 설정들 추가
+
+    //
+    public GameRegulation(int id, string map_name)
     {
-        if (input < 0) return "";
-
-       // input += 1; 
-
-        string result = "";
-
-        while (input > 0)
-        {
-          //  input -= 1;
-            int mod = input % 26;
-            result = alphabet[mod] + result;
-            input /= 26;
-        }
-
-        return result;
+        this.id = id;
+        this.map_name = map_name;
     }
 }
 
+
+public class RestaurantData
+{
+    public int id;
+    public string level_name;
+    public int extension_level;
+    public long latest_time;
+    public bool changed;
+
+    public RestaurantData(int id, string level_name, int extension_level, long latest_time)
+    {
+        this.id = id;
+        this.level_name = level_name;
+        this.extension_level = extension_level;
+        this.latest_time = latest_time;
+    }
+}
+
+
 public class RestaurantCurrency
 {
-    public BigInteger money;
+    public string money;
     public int fishes;
     public int affinity;
-    public int extension_level;
     public bool changed;
-    public RestaurantCurrency(BigInteger money, int fishes, int affinity, int extension_level)
+
+    BigInteger? m;
+    public BigInteger Money { get { if (!m.HasValue) m = BigInteger.Parse(money); return m.Value; } set { m = value; changed = true; } }
+
+    public RestaurantCurrency(string money, int fishes, int affinity)
     {
         this.money = money;
         this.fishes = fishes;
         this.affinity = affinity;
-        this.extension_level = extension_level;
     }
 }
 
@@ -538,6 +650,27 @@ public class EmployeeLevelData
         this.targetEXP = targetEXP;
     }
 }
+
+public class MachineLevelData : ITableID<int>
+{
+    public int id;
+    public int level;
+    public string price;
+    public int sale_proceed;
+    public float cooking_time;
+    public int max_height;
+    public int type;
+
+    public int fishes;
+
+    public string Price { get { return price; } set { price = value; price_value = null; } }
+    BigInteger? price_value;
+    public BigInteger Price_Value { get { if (!price_value.HasValue) price_value = Utility.StringToBigInteger(price); return price_value.Value; } set { price_value = value; } }
+    public int ID => id;
+
+    public string Name => throw new System.NotImplementedException();
+}
+
 
 public interface ITableID<K>
 {

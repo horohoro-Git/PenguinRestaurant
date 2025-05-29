@@ -12,6 +12,10 @@ using Cysharp.Threading.Tasks;
 using System.Threading;
 using static UnityEngine.UI.Image;
 using UnityEngine.InputSystem;
+using System.Text;
+using System.Numerics;
+using Vector3 = UnityEngine.Vector3;
+using Quaternion = UnityEngine.Quaternion;
 
 public class RestaurantManager : MonoBehaviour
 {
@@ -34,7 +38,7 @@ public class RestaurantManager : MonoBehaviour
 
     public Dictionary<int, LevelData> levelData = new Dictionary<int, LevelData>();
     public CombineDatas combineDatas;
-    public Dictionary<MachineType, Dictionary<int, MachineLevelStruct>> machineLevelData = new Dictionary<MachineType, Dictionary<int, MachineLevelStruct>>();
+  //  public Dictionary<MachineType, Dictionary<int, MachineLevelStruct>> machineLevelData = new Dictionary<MachineType, Dictionary<int, MachineLevelStruct>>();
 
     public List<EmployeeData> employeeDatas = new List<EmployeeData>();
     public EmployeeData currentEmployeeData;
@@ -53,18 +57,26 @@ public class RestaurantManager : MonoBehaviour
     public Queue<GameObject> trays = new Queue<GameObject>();
     public Door door;
     public RestaurantCurrency restaurantCurrency;
+    public RestaurantData restaurantData;
     public Employees employees;
 
     CancellationTokenSource cancellationTokenSource;
 
-
+    public Dictionary<MachineType, MachineLevelData> machineLevelData = new Dictionary<MachineType, MachineLevelData>();
     public List<GameObject> expandables = new List<GameObject>();
     public List<GameObject> removables = new List<GameObject>();
     public List<ParticleSystem> extensionParticles = new List<ParticleSystem>();
+    StringBuilder moneyString = new StringBuilder();
 
+    public FuelGage fuelGage;
+    public Queue<FuelGage> fuelGages = new Queue<FuelGage>();
+
+
+ //   public Dictionary<MachineType, MachineLevelStruct>
     // Start is called before the first frame update
     private void Awake()
     {
+      
         door = Instantiate(door);
         door.gameObject.SetActive(false);
         trayObjects = new GameObject();
@@ -103,37 +115,49 @@ public class RestaurantManager : MonoBehaviour
 
         goodsStruct = AssetLoader.goods;
         // playerData = combineDatas.playerData;
-        NewTrays();
+        //NewTrays();
       
         //   UpgradePenguin(combineDatas.playerData.level, true, null);
         
+        NewTrays();
 
     }
     void Start()
     {
-
-        restaurantCurrency = SaveLoadSystem.LoadRestaurantCurrency();
-        restaurantparams = SaveLoadSystem.LoadRestaurantData();
-        employees = SaveLoadSystem.LoadEmployees();
-        foreach (var data in AssetLoader.machines_levels)
+        for (int i = 0; i < 20; i++)
         {
-            if(!machineLevelData.ContainsKey((MachineType)data.Value.type)) machineLevelData[(MachineType)data.Value.type] = new Dictionary<int, MachineLevelStruct>();
-            machineLevelData[(MachineType)data.Value.type][data.Value.level] = data.Value;
-    //        Debug.Log((MachineType)data.Value.type + " " + data.Value.level);
+
+            FuelGage fg = Instantiate(fuelGage, AnimalManager.SubUIParent.transform);
+            fg.gameObject.SetActive(false);
+            fuelGages.Enqueue(fg);
         }
-        //levelData = SaveLoadSystem.LoadLevelData();
-        // if(GameInstance.GameIns.uiManager !=null) GameInstance.GameIns.uiManager.UpdateMoneyText(playerData.money);
-       /* for (int i = 0; i < 100; i++)
+        restaurantData = SaveLoadSystem.LoadRestaurantData();
+        restaurantCurrency = SaveLoadSystem.LoadRestaurantCurrency();
+        restaurantparams = SaveLoadSystem.LoadRestaurantBuildingData();
+        employees = SaveLoadSystem.LoadEmployees();
+     //   foreach (var data in AssetLoader.machines_levels)
         {
-            nextTargetDatas[i] = new NextTargetData();
-            nextTargetDatas[i].Price = 500;
-        }*/
+     //       if (!machineLevelData.ContainsKey((MachineType)data.Value.type)) machineLevelData[(MachineType)data.Value.type] = data.Value;
+        }
+            /*  foreach (var data in AssetLoader.machines_levels)
+              {
+                  if(!machineLevelData.ContainsKey((MachineType)data.Value.type)) machineLevelData[(MachineType)data.Value.type] = new Dictionary<int, MachineLevelStruct>();
+                  machineLevelData[(MachineType)data.Value.type][data.Value.level] = data.Value;
+          //        Debug.Log((MachineType)data.Value.type + " " + data.Value.level);
+              }*/
+            //levelData = SaveLoadSystem.LoadLevelData();
+            // if(GameInstance.GameIns.uiManager !=null) GameInstance.GameIns.uiManager.UpdateMoneyText(playerData.money);
+            /* for (int i = 0; i < 100; i++)
+             {
+                 nextTargetDatas[i] = new NextTargetData();
+                 nextTargetDatas[i].Price = 500;
+             }*/
 
-       /* for (int i = 0; i < levelGuides.Length; i++)
-        {
-            levelGuides[i].money = nextTargetDatas[i].Price;
-        }*/
-        if (allLevelUp)
+            /* for (int i = 0; i < levelGuides.Length; i++)
+             {
+                 levelGuides[i].money = nextTargetDatas[i].Price;
+             }*/
+            if (allLevelUp)
         {
             for (int i = 0; i < levelGuides.Length; i++)
             {
@@ -141,9 +165,12 @@ public class RestaurantManager : MonoBehaviour
             }
         }
 
-       // Invoke("LoadRestaurant", 1f);
+        // Invoke("LoadRestaurant", 1f);
 
-      //  GameInstance.GameIns.uiManager.UpdateMoneyText(restaurantCurrency.money);
+        //  GameInstance.GameIns.uiManager.UpdateMoneyText(restaurantCurrency.money);
+        Debug.Log(restaurantCurrency.money);
+        moneyString = Utility.GetFormattedMoney(restaurantCurrency.Money, moneyString);
+        GameInstance.GameIns.uiManager.moneyText.text = moneyString.ToString();
         GameInstance.GameIns.uiManager.fishText.text = restaurantCurrency.fishes.ToString();
 
        // restaurantCurrency.money = 100000;
@@ -173,19 +200,24 @@ public class RestaurantManager : MonoBehaviour
                 restaurantCurrency.changed = false;
                 SaveLoadSystem.SaveRestaurantCurrency(restaurantCurrency);
             }
+            if(restaurantData.changed)
+            {
+                restaurantData.changed = false;
+                SaveLoadSystem.SaveRestaurantData(restaurantData);
+            }
         }
     }
 
     public void Extension()
     {
-        int extensionLevel = restaurantCurrency.extension_level;
+        int extensionLevel = restaurantData.extension_level;
 
       
         expandables[extensionLevel].SetActive(true);
         removables[extensionLevel].SetActive(false);
         extensionParticles[extensionLevel].Play();
-        restaurantCurrency.extension_level++;
-        restaurantCurrency.changed = true;
+        restaurantData.extension_level++;
+        restaurantData.changed = true;
 
         if (door.removeWall != null)
         {
@@ -239,7 +271,7 @@ public class RestaurantManager : MonoBehaviour
         }
         Escape: 
         MoveCalculator.CheckArea(GameIns.calculatorScale, true);
-        SaveLoadSystem.SaveRestaurantData();
+        SaveLoadSystem.SaveRestaurantBuildingData();
     }
 
     public void LevelUp(bool load = false, bool checkArea = true)
@@ -248,9 +280,9 @@ public class RestaurantManager : MonoBehaviour
         {
             if (!load)
             {
-                if (restaurantCurrency.money >= levelGuides[level].money)
+                if (restaurantCurrency.Money >= levelGuides[level].money)
                 {
-                    restaurantCurrency.money -= levelGuides[level].money;
+                    restaurantCurrency.Money -= levelGuides[level].money;
                 }
                 else return;
                // GameInstance.GameIns.uiManager.UpdateMoneyText(restaurantCurrency.money);
@@ -502,15 +534,17 @@ public class RestaurantManager : MonoBehaviour
 
             await UniTask.NextFrame(cancellationToken: cancellationToken);
 
-            for (int i = 0; i < restaurantCurrency.extension_level; i++)
+
+            Debug.Log("LLLLLL");
+
+            for (int i = 0; i < restaurantData.extension_level; i++)
             {
                 expandables[i].SetActive(true);
                 removables[i].SetActive(false);
                 GameIns.store.require.Add(1101 + i);
                 GameIns.store.Extended(1101 + i);
             }
-
-            if(door.setup)
+            if (door.setup)
             {
                 door.gameObject.SetActive(true);
                 Collider[] overlaps = Physics.OverlapBox(door.transform.position, new Vector3(0.1f, 1f, 0.1f), Quaternion.identity, (1 << 16) | (1 << 19));
@@ -523,7 +557,6 @@ public class RestaurantManager : MonoBehaviour
                     door.transform.SetParent(h.transform.parent);
                 }
             }
-
 
             for (int i = 0; i < restaurantparams.Count; i++)
             {
@@ -629,9 +662,9 @@ public class RestaurantManager : MonoBehaviour
 
     public void UpgradeMachine(FoodMachine foodMachine)
     {
-        if (foodMachine.machineData.upgrade_cost <= restaurantCurrency.money)
+        if (foodMachine.machineData.upgrade_cost <= restaurantCurrency.Money)
         {
-            restaurantCurrency.money -= foodMachine.machineData.upgrade_cost;
+            restaurantCurrency.Money -= foodMachine.machineData.upgrade_cost;
             List<MachineData> machineUpgrades = upgradeMachineDic[foodMachine.machineType];
             foodMachine.machineData = machineUpgrades[foodMachine.level - 1];
 
@@ -890,15 +923,15 @@ public class RestaurantManager : MonoBehaviour
 
     public void UpgradeFoodMachine(FoodMachine foodMachine)
     {
-        if (restaurantCurrency.money >= foodMachine.machineLevelStruct.price)
+        if (restaurantCurrency.Money >= foodMachine.machineLevelData.Price_Value)
         {
-            restaurantCurrency.money -= foodMachine.machineLevelStruct.price;
-          //  GameInstance.GameIns.uiManager.UpdateMoneyText(restaurantCurrency.money); 
+            restaurantCurrency.Money -= foodMachine.machineLevelData.Price_Value;
+            GetMoney((-foodMachine.machineLevelData.Price_Value).ToSafeString()); 
             MachineType type = foodMachine.machineType;
         
-            int currentLevel = foodMachine.machineLevelStruct.level;
+            int currentLevel = foodMachine.machineLevelData.level;
 
-            foodMachine.machineLevelStruct = GameInstance.GameIns.restaurantManager.machineLevelData[type][currentLevel + 1];
+            //foodMachine.machineLevelStruct = //GameInstance.GameIns.restaurantManager.machineLevelData[type][currentLevel + 1];
 
             GameInstance.GameIns.applianceUIManager.ShowApplianceInfo(foodMachine);
 
@@ -914,6 +947,12 @@ public class RestaurantManager : MonoBehaviour
             //   SaveLoadManager.Save(SaveState.ONLY_SAVE_UPGRADE);//
             //  SaveLoadManager.Save(SaveState.ONLY_SAVE_PLAYERDATA);//
         }
+    }
+
+    public void AddFuel(FoodMachine foodMachine)
+    {
+        int test = 5;
+        foodMachine.machineLevelData.fishes += test;
     }
 
     public float GetRestaurantValue()
@@ -968,7 +1007,7 @@ public class RestaurantManager : MonoBehaviour
         for (int i=0; i < workSpaceManager.foodMachines.Count; i++)
         {
             MachineType machineType = workSpaceManager.foodMachines[i].machineType;
-            int l = workSpaceManager.foodMachines[i].machineLevelStruct.level;
+            int l = workSpaceManager.foodMachines[i].machineLevelData.level;
             //  List<MachineData> machindb = machineLevelData[machineType]; //upgradeMachineDic[machineType];
          //   Debug.Log(machineType + " " + l);
 
@@ -995,8 +1034,10 @@ public class RestaurantManager : MonoBehaviour
     private void OnApplicationQuit()
     {
         // SaveLoadManager.Save(SaveState.ALL_SAVES);
+        ///if (restaurantCurrency == null) Debug.Log("LL");
         if(restaurantCurrency.changed) SaveLoadSystem.SaveRestaurantCurrency(restaurantCurrency);
         if(employees.changed) SaveLoadSystem.SaveEmployees(employees);
+        SaveLoadSystem.SaveRestaurantData(restaurantData);
     }
 
     private void OnApplicationPause(bool pauseStatus)
@@ -1005,7 +1046,8 @@ public class RestaurantManager : MonoBehaviour
         {
             SaveLoadSystem.SaveRestaurantCurrency(restaurantCurrency);
             SaveLoadSystem.SaveEmployees(employees);
-       //     SaveLoadManager.Save(SaveState.ALL_SAVES);
+            SaveLoadSystem.SaveRestaurantData(restaurantData);
+            //     SaveLoadManager.Save(SaveState.ALL_SAVES);
         }
     }
 
@@ -1029,5 +1071,59 @@ public class RestaurantManager : MonoBehaviour
     {
         tray.SetActive(false);
         trays.Enqueue(tray);
+    }
+
+    public FuelGage GetGage()
+    {
+        FuelGage fuel = fuelGages.Dequeue();
+        return fuel;
+    }
+
+    public void GetMoney(string addMoney, bool animate = true)
+    {
+        BigInteger bigInteger = BigInteger.Parse(addMoney);
+        BigInteger before = restaurantCurrency.Money;
+        restaurantCurrency.money += bigInteger;
+
+        if(animate)
+        {
+            StartCoroutine(ChangingMoney(before, bigInteger));
+        }
+        else
+        {
+            moneyString = Utility.GetFormattedMoney(restaurantCurrency.Money, moneyString);
+            GameIns.uiManager.moneyText.text = moneyString.ToString();
+        }
+    }
+
+    IEnumerator ChangingMoney(BigInteger before, BigInteger chaged)
+    {
+        float f = 0;
+    //    Debug.LogWarning(restaurantCurrency.money);
+        if(chaged > 0)
+        {
+            while (f <= 0.5f)
+            {
+                BigInteger test = before + (chaged * (BigInteger)(f * 2 * 1000)) / 1000;
+                moneyString = Utility.GetFormattedMoney(test, moneyString);
+                GameIns.uiManager.moneyText.text = moneyString.ToString();
+                f += Time.unscaledDeltaTime;
+                yield return null;
+            }
+        }
+        else
+        {
+            while (f <= 0.5f)
+            {
+                BigInteger test = before - (chaged * (BigInteger)((0.5f - f) * 2 * 1000)) / 1000;
+                moneyString = Utility.GetFormattedMoney(test, moneyString);
+                GameIns.uiManager.moneyText.text = moneyString.ToString();
+                f += Time.unscaledDeltaTime;
+                yield return null;
+            }
+        }
+    
+        moneyString = Utility.GetFormattedMoney(restaurantCurrency.Money, moneyString);
+        GameIns.uiManager.moneyText.text = moneyString.ToString();
     }
 }

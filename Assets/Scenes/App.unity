@@ -182,6 +182,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   assetLoadSuccessful: 0
   sceneLoaded: 0
+  mapContents: 
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -72,9 +72,9 @@ public class PlaceController : MonoBehaviour
 
     private void Update()
     {
+        Debug.Log("!");
         if (InputManger.cachingCamera != null)
         {
-
             if (GameInstance.GameIns.inputManager.CheckClickedUI(1 << 5 | 1 << 14 | 1 << 18)) return;
 
 #if UNITY_IOS || UNITY_ANDROID
@@ -174,6 +174,13 @@ public class PlaceController : MonoBehaviour
     {
         if (canPlace)
         {
+            if(!purchasedObject)
+            {
+                //값을 지불
+                GameInstance.GameIns.restaurantManager.restaurantCurrency.Money -= storeGoods.goods.Price_Value;
+                GameInstance.GameIns.restaurantManager.GetMoney((-storeGoods.goods.Price_Value).ToString());
+                SaveLoadSystem.SaveRestaurantCurrency(GameInstance.GameIns.restaurantManager.restaurantCurrency);
+            }
             GameInstance.GameIns.gridManager.ApplyGird();
             if(purchasedObject) GameInstance.GameIns.gridManager.RemoveCell();
             GameInstance.GameIns.gridManager.RemoveLine();

@@ -41,6 +41,7 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
         image_name.fontMaterial = font_mat;
         this.goods = goods;
         image_name.text = goods.name;
+        price_text.text = goods.Price;
         itemImage.GetComponent<Image>().sprite = loadedAtlases["Furnitures"].GetSprite(spriteAssetKeys[goods.id].ID);
 
         if (goods.type != WorkSpaceType.None && GameIns.store.goodsDic[goods.id].Count == 0)
@@ -52,6 +53,8 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
     }
     public void OnBeginDrag(PointerEventData eventData)
     {
+        if(goods.Price_Value > GameIns.restaurantManager.restaurantCurrency.Money) return;
+      
         currentCheckArea = false;
         GameIns.inputManager.inputDisAble = true;
      
@@ -65,7 +68,8 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
 
     public void OnDrag(PointerEventData eventData)
     {
-        if(!goods.soldout)
+        if (goods.Price_Value > GameIns.restaurantManager.restaurantCurrency.Money) return;
+        if (!goods.soldout)
         {
             if (GameIns.inputManager.CheckClickedUI(1 << 18))
             {
@@ -210,7 +214,7 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
 
             GameIns.restaurantManager.ApplyPlaced(f);
 
-            if(!firstPlaced) SaveLoadSystem.SaveRestaurantData();
+            if(!firstPlaced) SaveLoadSystem.SaveRestaurantBuildingData();
 
             if (GameIns.store.goodsDic[goods.ID].Count == 0)
             {

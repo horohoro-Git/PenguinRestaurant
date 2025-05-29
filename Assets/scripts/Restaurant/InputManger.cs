@@ -17,6 +17,10 @@ using static GameInstance;
 using UnityEngine.InputSystem.EnhancedTouch;
 
 using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
+using System.Numerics;
+using System.Text;
+using Vector2 = UnityEngine.Vector2;
+using Vector3 = UnityEngine.Vector3;
 //using UnityEngine.InputSystem;
 //using UnityEditor.Experimental.GraphView;
 //using static DG.Tweening.DOTweenModuleUtils;
@@ -141,6 +145,7 @@ public class InputManger : MonoBehaviour
 
     void Update()
     {
+      
         // Utility.CheckHirable(cameraRange.position, ref refX, ref refY, true, true);
         /*  if (Input.GetKey(KeyCode.O))
           {
@@ -158,13 +163,13 @@ public class InputManger : MonoBehaviour
               // Camera.main.orthographicSize += 5f * Time.deltaTime;
           }*/
 
-      /*  if (!isDragging && bClick)
-        {
-            if (buyer == null)
-            {
-                StartClickIngameObject(currentPoint);
-            }
-        }*/
+        /*  if (!isDragging && bClick)
+          {
+              if (buyer == null)
+              {
+                  StartClickIngameObject(currentPoint);
+              }
+          }*/
 
 
     }
@@ -488,7 +493,16 @@ public class InputManger : MonoBehaviour
             pointerEventData.position = currentPoint;
             GameInstance.graphicRaycasters[i].Raycast(pointerEventData, results);
 
-            for (int j = 0; j < results.Count; j++)
+            if(results.Count > 0)
+            {
+                int l = layer >> results[0].gameObject.layer;
+                l &= 1;
+                if (l == 1) return true;
+                else return false;
+              
+            }
+
+      /*      for (int j = 0; j < results.Count; j++)
             {
                 int l = layer >> results[j].gameObject.layer;
                 l &= 1;
@@ -500,7 +514,7 @@ public class InputManger : MonoBehaviour
                 {
                     return false;
                 }
-            }
+            }*/
 
         }
         return false;
@@ -1240,7 +1254,7 @@ public class InputManger : MonoBehaviour
         //  if (Input.GetMouseButtonUp(0) && test < 0.01f)
         {
             //    Ray ray = cachingCamera.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
+          //  RaycastHit hit;
 
             //   if (Physics.Raycast(ray, out hit, Mathf.Infinity, 1 << 13))
             {
