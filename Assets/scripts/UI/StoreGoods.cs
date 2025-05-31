@@ -214,8 +214,14 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
 
             GameIns.restaurantManager.ApplyPlaced(f);
 
-            if(!firstPlaced) SaveLoadSystem.SaveRestaurantBuildingData();
-
+            if (firstPlaced)
+            {
+                if(f.TryGetComponent<FoodMachine>(out FoodMachine fm))
+                {
+                    fm.Set(false);
+                }
+                SaveLoadSystem.SaveRestaurantBuildingData();
+            }
             if (GameIns.store.goodsDic[goods.ID].Count == 0)
             {
                 goods.soldout = true;

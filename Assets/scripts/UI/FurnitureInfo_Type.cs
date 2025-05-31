@@ -15,15 +15,25 @@ public class FurnitureInfo_Type : MonoBehaviour
     public TMP_Text upgradablesStatus;
     public TMP_Text upgradeCost;
     public TMP_Text placedNum;
-
+    public Furniture currentFurniture;
 
     Color red = Color.red;
     Color green = Color.green;
     Color yellow = Color.yellow;
     Color yellowGreen = new Color(128, 255, 0);
 
+
+    private void Update()
+    {
+        if(gageBar != null && currentFurniture != null)
+        {
+            
+        }
+    }
+
     public void ApplyData(Furniture furniture, FoodMachine fm = null)
     {
+        currentFurniture = furniture;
         //  workSpaceType = WorkSpaceType.FoodMachine;
         furnitureImage.sprite = loadedAtlases["Furnitures"].GetSprite(spriteAssetKeys[furniture.id].ID); //machines[(int)foodMachine.machineLevelStruct.type - 1];
         if(fm != null)

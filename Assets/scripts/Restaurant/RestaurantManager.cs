@@ -62,6 +62,7 @@ public class RestaurantManager : MonoBehaviour
 
     CancellationTokenSource cancellationTokenSource;
 
+    [NonSerialized] public bool machineLevelDataChanged;
     public Dictionary<MachineType, MachineLevelData> machineLevelData = new Dictionary<MachineType, MachineLevelData>();
     public List<GameObject> expandables = new List<GameObject>();
     public List<GameObject> removables = new List<GameObject>();
@@ -121,6 +122,8 @@ public class RestaurantManager : MonoBehaviour
         
         NewTrays();
 
+
+        machineLevelData = SaveLoadSystem.LoadFoodMachineStats();
     }
     void Start()
     {
@@ -128,6 +131,7 @@ public class RestaurantManager : MonoBehaviour
         {
 
             FuelGage fg = Instantiate(fuelGage, AnimalManager.SubUIParent.transform);
+            fg.transform.position = new Vector3(100, 100, 100);
             fg.gameObject.SetActive(false);
             fuelGages.Enqueue(fg);
         }
@@ -204,6 +208,11 @@ public class RestaurantManager : MonoBehaviour
             {
                 restaurantData.changed = false;
                 SaveLoadSystem.SaveRestaurantData(restaurantData);
+            }
+            if(machineLevelDataChanged)
+            {
+                machineLevelDataChanged = false;
+                SaveLoadSystem.SaveFoodMachineStats(machineLevelData);
             }
         }
     }
@@ -318,7 +327,7 @@ public class RestaurantManager : MonoBehaviour
                         SetMachineLayer(foodMachine.modelTrans.gameObject).Forget();
                         workSpaceManager.foodMachines.Add(foodMachine);
                         foodMachine.restaurantParam = restaurantparams[level];
-                        foodMachine.Set(level);
+                     //   foodMachine.Set(level);
                        
 
                    /*     for (int i = 0; i < levelData.Count; i++)
@@ -531,11 +540,7 @@ public class RestaurantManager : MonoBehaviour
     {
         try
         {
-
             await UniTask.NextFrame(cancellationToken: cancellationToken);
-
-
-            Debug.Log("LLLLLL");
 
             for (int i = 0; i < restaurantData.extension_level; i++)
             {
@@ -583,6 +588,11 @@ public class RestaurantManager : MonoBehaviour
                         trashCanOffset.transform.localPosition = localPos;
                         trashCanOffset.transform.rotation = rot;
                         break;
+                    case WorkSpaceType.FoodMachine:
+                        FoodMachine fm = furniture.GetComponent<FoodMachine>();
+                        fm.Set(true);
+                        furniture.transform.rotation = rot;
+                        break;
                     default:
                         furniture.transform.rotation = rot;
                         break;
@@ -594,11 +604,10 @@ public class RestaurantManager : MonoBehaviour
                 GameInstance.GameIns.gridManager.ApplyGird();
 
                 GameIns.store.require.Add(restaurantparams[i].id);
-
                 await UniTask.NextFrame(cancellationToken: cancellationToken);  
             }
 
-           
+          
             MoveCalculator.CheckArea(GameIns.calculatorScale, true);
 
             GameIns.store.StoreUpdate();
@@ -1038,6 +1047,7 @@ public class RestaurantManager : MonoBehaviour
         if(restaurantCurrency.changed) SaveLoadSystem.SaveRestaurantCurrency(restaurantCurrency);
         if(employees.changed) SaveLoadSystem.SaveEmployees(employees);
         SaveLoadSystem.SaveRestaurantData(restaurantData);
+        SaveLoadSystem.SaveFoodMachineStats(machineLevelData);
     }
 
     private void OnApplicationPause(bool pauseStatus)

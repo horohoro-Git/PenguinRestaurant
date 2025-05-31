@@ -20,16 +20,16 @@ public class AssetBundleBuildEditor : EditorWindow
             if (!Directory.Exists(pcDir)) Directory.CreateDirectory(pcDir);
             BuildPipeline.BuildAssetBundles(pcDir, BuildAssetBundleOptions.None, BuildTarget.StandaloneWindows);
 
-            
 
 
-          /*  string pc = Path.Combine(sourceDir, "PC");
+
+            string pc = Path.Combine(sourceDir, "PC");
             string[] bundles = Directory.GetFiles(pc);
             Debug.Log(bundles.Length);
             foreach (var bundlePath in bundles)
             {
-        
-              
+
+
                 string fileName = Path.GetFileName(bundlePath);
                 if (fileName == "map")
                 {
@@ -53,14 +53,14 @@ public class AssetBundleBuildEditor : EditorWindow
                     File.Move(bundlePath, destPath);
                 }
 
-            }*/
+            }
 
             string androidDir = Path.Combine(directory, "Android");
             if (!Directory.Exists(androidDir)) Directory.CreateDirectory(androidDir);
             BuildPipeline.BuildAssetBundles(androidDir, BuildAssetBundleOptions.None, BuildTarget.Android);
 
 
-          /*  string android = Path.Combine(sourceDir, "Android");
+            string android = Path.Combine(sourceDir, "Android");
             string[] bundles2 = Directory.GetFiles(android);
             foreach (var bundlePath in bundles2)
             {
@@ -89,7 +89,7 @@ public class AssetBundleBuildEditor : EditorWindow
 
             }
 
-*/
+
             EditorUtility.DisplayDialog("Asset Bundle Build", "Build Complete", "Succeeded");
         }
         catch
