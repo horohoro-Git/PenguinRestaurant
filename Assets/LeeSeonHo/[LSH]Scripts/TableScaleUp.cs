@@ -35,11 +35,10 @@ public class TableScaleUp : MonoBehaviour
     }
     private void Update()
     {
-        // 애니메이션 진행 중이면
         if (currentBounce < bounceCount && !load)
         {
-            elapsedTime += Time.deltaTime; // 경과 시간 업데이트
-            float t = elapsedTime / duration; // 비율 계산
+            elapsedTime += Time.deltaTime;
+            float t = elapsedTime / duration;
 
             // 홀수번째: 가로로만 커짐, 짝수번째: 세로로만 커짐
             float scaleMultiplier = 1 + Mathf.Sin(t * Mathf.PI) * bounceIntensity; // 진동 효과

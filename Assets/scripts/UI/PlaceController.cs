@@ -10,6 +10,7 @@ using UnityEngine.UI;
 using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
 public class PlaceController : MonoBehaviour
 {
+    public GameObject model;
     public GameObject offset;
     public Image applyImage;
     public Image applyborderImage;
@@ -57,6 +58,7 @@ public class PlaceController : MonoBehaviour
     }
     private void OnEnable()
     {
+        StartCoroutine(ScaleAnimation());
 #if UNITY_EDITOR || UNITY_STANDALONE_WIN
         currentMouse = Mouse.current;
 #endif
@@ -72,7 +74,6 @@ public class PlaceController : MonoBehaviour
 
     private void Update()
     {
-        Debug.Log("!");
         if (InputManger.cachingCamera != null)
         {
             if (GameInstance.GameIns.inputManager.CheckClickedUI(1 << 5 | 1 << 14 | 1 << 18)) return;
@@ -241,5 +242,30 @@ public class PlaceController : MonoBehaviour
     {
         isDragging = false;
         GameInstance.GameIns.inputManager.inputDisAble = false;
+    }
+
+    IEnumerator ScaleAnimation()
+    {
+        float f = 0;
+        Vector3 start = new Vector3(0.5f, 0.5f, 0.5f);
+        Vector3 target1 = new Vector3(2.4f, 2.4f, 2.4f);
+        Vector3 target2 = new Vector3(2,2,2);
+;       while (f <= 0.25f)
+        {
+            Vector3 targetPos = Vector3.Lerp(start, target1, f / 0.25f);
+            model.transform.localScale = targetPos;
+            f += Time.unscaledDeltaTime;
+            yield return null;
+        }
+        model.transform.localScale = target1;
+        f = 0;
+        while (f <= 0.1f)
+        {
+            Vector3 targetPos = Vector3.Lerp(target1, target2, f / 0.1f);
+            model.transform.localScale = targetPos;
+            f += Time.unscaledDeltaTime;
+            yield return null;
+        }
+        model.transform.localScale = target2;
     }
 }

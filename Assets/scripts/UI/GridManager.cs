@@ -10,14 +10,18 @@ public class GridManager : MonoBehaviour
     public List<GridView> gridView = new List<GridView>();
     public MaterialBlockController cell;
     public LineRenderer lineRenderer;
+    public GameObject selectObject;
     public Material red;
     public Material green;
 
+    Queue<GameObject> selectQueue = new Queue<GameObject>();
+    Queue<GameObject> activateSelect = new Queue<GameObject>();
     Queue<LineRenderer> lineQueue = new Queue<LineRenderer>();
     Queue<LineRenderer> activatedLineQueue = new Queue<LineRenderer>();
     Queue<MaterialBlockController> cellQueue = new Queue<MaterialBlockController>();
   //  Queue<GameObject> activatedCellQueue = new Queue<GameObject>();
     LineRenderer currentLineRender;
+    GameObject currentSelector;
     Dictionary<Vector2, MaterialBlockController> cellDic = new Dictionary<Vector2, MaterialBlockController>();
     
     float x;
@@ -65,10 +69,10 @@ public class GridManager : MonoBehaviour
     {
         for (int i = 0; i < 10; i++)
         {
-            LineRenderer line = Instantiate(lineRenderer, gridObjects.transform);
-            line.transform.position = Vector3.zero;
-            line.gameObject.SetActive(false);
-            lineQueue.Enqueue(line);
+            GameObject select = Instantiate(selectObject, gridObjects.transform);
+            select.transform.position = Vector3.zero;
+            select.gameObject.SetActive(false);
+            selectQueue.Enqueue(select);
         }
     }
 
@@ -80,6 +84,21 @@ public class GridManager : MonoBehaviour
             c.transform.position = Vector3.zero;
             c.gameObject.SetActive(false);
             cellQueue.Enqueue(c);
+        }
+    }
+
+    GameObject GetSelect()
+    {
+        if (selectQueue.Count > 0)
+        {
+            GameObject select = selectQueue.Dequeue();
+            select.SetActive(true);
+            return select;
+        }
+        else
+        {
+            GameObject select = Instantiate(selectObject, gridObjects.transform);
+            return select;
         }
     }
 
@@ -134,25 +153,28 @@ public class GridManager : MonoBehaviour
         if (x == centerX && y == centerZ) return checkArea;
         x = centerX; y = centerZ;
 
-        
-        RemoveLine();
+        RemoveSelect();
+        //RemoveLine();
 
-        currentLineRender = GetLine();
-        Vector3[] corners = new Vector3[5];
+        currentSelector = GetSelect();
         float offsetX = centerX - 4.5f;
         float offsetY = centerZ - 4.5f;
-        corners[0] = new Vector3(offsetX - halfSize, 11.2f, offsetY - halfSize);
-        corners[1] = new Vector3(offsetX + halfSize, 11.2f, offsetY - halfSize);
-        corners[2] = new Vector3(offsetX + halfSize, 11.2f, offsetY + halfSize);
-        corners[3] = new Vector3(offsetX - halfSize, 11.2f, offsetY + halfSize);
-        corners[4] = corners[0];
+        // currentLineRender = GetLine();
+        /* Vector3[] corners = new Vector3[5];
+         float offsetX = centerX - 4.5f;
+         float offsetY = centerZ - 4.5f;
+         corners[0] = new Vector3(offsetX - halfSize, 11.2f, offsetY - halfSize);
+         corners[1] = new Vector3(offsetX + halfSize, 11.2f, offsetY - halfSize);
+         corners[2] = new Vector3(offsetX + halfSize, 11.2f, offsetY + halfSize);
+         corners[3] = new Vector3(offsetX - halfSize, 11.2f, offsetY + halfSize);
+         corners[4] = corners[0];*/
 
-        currentLineRender.positionCount = 5;
-        currentLineRender.SetPositions(corners);
-        currentLineRender.startWidth = currentLineRender.endWidth = 0.2f;
-        currentLineRender.useWorldSpace = true;
+        /*   currentLineRender.positionCount = 5;
+           currentLineRender.SetPositions(corners);
+           currentLineRender.startWidth = currentLineRender.endWidth = 0.2f;
+           currentLineRender.useWorldSpace = true;*/
 
-
+        currentSelector.transform.position = new Vector3(offsetX, 11.2f, offsetY);
 
         // int floorCellX = Mathf.FloorToInt((startPos.x - gridOffsets.x + (cellSize + 4.6f) * 0.5f) / cellSize);
         //  int floorCellY = Mathf.FloorToInt((startPos.z - gridOffsets.y + (4.6f + cellSize) * 0.5f) / cellSize);
@@ -347,7 +369,16 @@ public class GridManager : MonoBehaviour
 
         return new Vector3(x * cellSize, 0, y * cellSize);
     }
+    public void RemoveSelect()
+    {
+        if (currentSelector != null)
+        {
+            currentSelector.SetActive(false);
+            selectQueue.Enqueue(currentSelector);
+            currentSelector = null;
+        }
 
+    }
     public void RemoveLine()
     {
         if(currentLineRender != null)

@@ -29,3 +29,4 @@ Animal Restaurant Tycoon Game
 05/27 Enhanced resource value abbreviation system
 05/28 Bug fixes, added animation to currency abbreviation
 05/29 Refactored data table structure, implemented new fuel UI
+05/30 Change the grid selection from a Line Renderer to a sprite, enable fuel consumption for the cooking device and Display a UI warning when fuel is low

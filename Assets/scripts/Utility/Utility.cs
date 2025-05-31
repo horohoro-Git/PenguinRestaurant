@@ -55,8 +55,8 @@ public class RestaurantParam
     public int id;
     public WorkSpaceType type;
     public int level;
-    public UnityEngine.Vector3 position;
-    public UnityEngine.Vector3 localPos;
+    public Vector3 position;
+    public Vector3 localPos;
     public  Quaternion rotation;
 
     
@@ -69,6 +69,14 @@ public class RestaurantParam
         this.localPos = localPos;
         this.rotation = rotation;
     }
+}
+
+public class FoodMachineParam
+{
+    public MachineType type;
+    public int level;
+    public int fuel;
+    
 }
 
 
@@ -669,6 +677,18 @@ public class MachineLevelData : ITableID<int>
     public int ID => id;
 
     public string Name => throw new System.NotImplementedException();
+
+    public MachineLevelData(int id, int level, string price, int sale_proceed, float cooking_time, int max_height, int type, int fishes)
+    {
+        this.id = id;
+        this.level = level;
+        this.price = price;
+        this.sale_proceed = sale_proceed;
+        this.cooking_time = cooking_time;
+        this.max_height = max_height;
+        this.type = type;
+        this.fishes = fishes;
+    }
 }
 
 

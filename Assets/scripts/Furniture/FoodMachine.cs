@@ -59,7 +59,7 @@ public class FoodMachine : Furniture
 
     CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
-    FuelGage fuelGage;
+    [NonSerialized] public FuelGage fuelGage;
     private void Awake()
     {
         transforms = transform;
@@ -71,16 +71,11 @@ public class FoodMachine : Furniture
         if (spawned && App.GlobalToken != null)
         {
             Invoke("LateStart", 0.5f);
-            if (fuelGage == null)
-            {
-                fuelGage = GameInstance.GameIns.restaurantManager.GetGage();
-                fuelGage.gameObject.SetActive(true);
-                fuelGage.foodMachine = this;
-            }
-            else
+            if (fuelGage != null)
             {
                 fuelGage.gameObject.SetActive(true);
             }
+           
             /*  PlaceTray();
           //    if (canCooking)
               {
@@ -123,24 +118,19 @@ public class FoodMachine : Furniture
     // Start is called before the first frame update
     public override void Start()
     {
-        Set(1);
         GameInstance.GameIns.workSpaceManager.unlockFoods[(int)machineType - 1] = true;
         GameInstance.GameIns.workSpaceManager.foodMachines.Add(this);
 
         if (!spawned)
         {
             Invoke("LateStart", 0.5f);
-            if (fuelGage == null)
-            {
-                fuelGage = GameInstance.GameIns.restaurantManager.GetGage();
-                fuelGage.gameObject.SetActive(true);
-                fuelGage.foodMachine = this;
-            }
+        
         }
         base.Start();
         audioSource = GetComponent<AudioSource>();
         
         foodStack.type = machineType;
+        
       //  Cooking();
         //for(int i=0; i<200; i++) FoodManager.NewFood(Instantiate(food));
     }
@@ -266,13 +256,38 @@ public class FoodMachine : Furniture
     }
 
 
-    public void Set(int id)
+    public void Set(bool load)
     {
-        machineLevelData = AssetLoader.machines_levels[(int)machineType];
-     ///  restaurantParam = GameInstance.GameIns.restaurantManager.restaurantparams[id + 1];
-        //       levelData = GameInstance.GameIns.restaurantManager.levelData[id + 1];
-        //machineLevelData = GameInstance.GameIns.restaurantManager.machineLevelData[machineType];
-        // Debug.Log(machineLevelData.level);                     
+        Dictionary<MachineType, MachineLevelData> levelDatas = GameInstance.GameIns.restaurantManager.machineLevelData;
+
+        if (levelDatas.ContainsKey(machineType))
+        {
+            this.machineLevelData = levelDatas[machineType];
+        }
+        else
+        {
+            this.machineLevelData = AssetLoader.machines_levels[(int)machineType];
+            levelDatas[machineType] = this.machineLevelData;
+
+        }
+       /* if (!load)
+        {
+            this.machineLevelData.fishes += 10;
+        }*/
+        // foodStack = FoodStackManager.FM.GetFoodStack();
+        // foodStack.type = machineType;
+        if (fuelGage == null)
+        {
+            fuelGage = GameInstance.GameIns.restaurantManager.GetGage();
+            fuelGage.gameObject.SetActive(true);
+            fuelGage.foodMachine = this;
+            fuelGage.UpdateGage(this.machineLevelData.fishes, true);
+            //    fuelGage.foreground.fillAmount = (float)10 / 100;
+            //fuelGage.UpdateGage(machineLevelData.fishes);
+        }
+
+        GameInstance.GameIns.restaurantManager.machineLevelDataChanged = true;
+
     }
 
     public void Cooking()
@@ -313,16 +328,16 @@ public class FoodMachine : Furniture
 
             while (true)
             {
-                if (foodStack.foodStack.Count >= machineLevelData.max_height)
+                if (machineLevelData == null || foodStack.foodStack.Count >= machineLevelData.max_height)
                 {
                     await UniTask.Delay(200, cancellationToken: cancellationToken);
                     continue;
                 }
 
-
-                if(machineLevelData.fishes >= 1)
+                if (machineLevelData != null && machineLevelData.fishes >= 1 )
                 {
                     machineLevelData.fishes -= 1;
+                    fuelGage.UpdateGage(-1, false);
                 }
                 else
                 {

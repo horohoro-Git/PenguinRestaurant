@@ -558,6 +558,76 @@ public class SaveLoadSystem
             File.WriteAllBytes(p, ms.ToArray());
         }
     }
+    public static Dictionary<MachineType, MachineLevelData> LoadFoodMachineStats()
+    {
+        string p = Path.Combine(path, "Save/RestaurantMachines.dat");
+        byte[] data;
+        Dictionary<MachineType, MachineLevelData> machineStats = new Dictionary<MachineType, MachineLevelData>();
+        // restaurantParams.AddRange(AssetLoader.restaurantParams.Select(stat => new RestaurantParam(stat)));
+
+        if (File.Exists(p))
+        {
+            using (FileStream fs = new FileStream(p, FileMode.Open))
+            {
+                data = new byte[fs.Length];
+                fs.Read(data, 0, data.Length);
+
+                using (BinaryReader reader = new BinaryReader(new MemoryStream(data)))
+                {
+                    while (reader.BaseStream.Position < reader.BaseStream.Length)
+                    {
+                        int id = reader.ReadInt32();
+                        int level = reader.ReadInt32();
+                        string price = reader.ReadString();
+                        int sale_proceed = reader.ReadInt32();
+                        float cooking_time = reader.ReadSingle();
+                        int max_height = reader.ReadInt32();
+                        int type = reader.ReadInt32();
+                        int fishes = reader.ReadInt32();    
+                        if(!machineStats.ContainsKey((MachineType)type)) machineStats[(MachineType)type] = new MachineLevelData(id, level, price, sale_proceed, cooking_time, max_height, type, fishes);
+                    }
+                }
+            }
+        }
+      
+        return machineStats;
+    }
+    public static void SaveFoodMachineStats(Dictionary<MachineType, MachineLevelData> machines)
+    {
+        string dir = Path.Combine(path, "Save");
+        if (!Directory.Exists(dir))
+        {
+            Directory.CreateDirectory(dir);
+        }
+        string p = Path.Combine(path, "Save/RestaurantMachines.dat");
+        using (MemoryStream ms = new MemoryStream())
+        {
+            using (BinaryWriter writer = new BinaryWriter(ms))
+            {
+                foreach (var machine in machines)
+                {
+                    int id = machine.Value.id;
+                    int level = machine.Value.level;
+                    string price = machine.Value.price;
+                    int sale_proceed = machine.Value.sale_proceed;
+                    float cooking_time = machine.Value.cooking_time;
+                    int max_height = machine.Value.max_height;
+                    int type = (int)machine.Key;
+                    int fishes = machine.Value.fishes;
+                    writer.Write(id);
+                    writer.Write(level);
+                    writer.Write(price);
+                    writer.Write(sale_proceed);
+                    writer.Write(cooking_time);
+                    writer.Write(max_height);
+                    writer.Write(type);
+                    writer.Write(fishes);
+                  
+                }
+            }
+            File.WriteAllBytes(p, ms.ToArray());
+        }
+    }
 
     public static void SaveRestaurantCurrency(RestaurantCurrency currency)
     {
