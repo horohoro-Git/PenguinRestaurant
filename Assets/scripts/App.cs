@@ -57,11 +57,13 @@ public class App : MonoBehaviour
             await AssetLoader.GetServerUrl("Town");
 
             cancellationToken.ThrowIfCancellationRequested();
+           
             await LoadScene("LoadingScene", cancellationToken);
 
             await LoadRegulation(cancellationToken);
 
             await LoadGameAsset(cancellationToken);
+
         }
         catch (OperationCanceledException)
         {
@@ -132,7 +134,7 @@ public class App : MonoBehaviour
             else
             {
                 await UniTask.Delay(500, cancellationToken: cancellationToken);
-                await LoadAssetWithBundle(cancellationToken);
+                await LoadSceneWithBundle(cancellationToken);
             }
         }
         catch (OperationCanceledException)

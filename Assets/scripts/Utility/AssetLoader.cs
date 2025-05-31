@@ -56,6 +56,12 @@ public class AssetLoader : MonoBehaviour
     private void Awake()
     {
         GameInstance.GameIns.assetLoader = this;
+        SpriteAtlasManager.atlasRequested += (tag, callback) =>
+        {
+            Debug.Log($"[TAG]: {tag}");
+            callback(loadedAtlases[tag]);
+
+        };
     }
 
     public static async UniTask GetServerUrl(string addUrl)
@@ -201,12 +207,12 @@ public class AssetLoader : MonoBehaviour
                     foreach (KeyValuePair<int, ItemStruct> keyValuePair in sprites) spriteAssetKeys[keyValuePair.Key] = new StringStruct(keyValuePair.Value.asset_name);
                     foreach (KeyValuePair<int, ItemStruct> keyValuePair in atlases) atlasesKeys[keyValuePair.Key] = new StringStruct(keyValuePair.Value.asset_name);
 
-                    SpriteAtlasManager.atlasRequested += (tag, callback) =>
+                /*    SpriteAtlasManager.atlasRequested += (tag, callback) =>
                     {
                         Debug.Log($"[TAG]: {tag}");
                         callback(loadedAtlases[tag]);
 
-                    };
+                    };*/
 
                     await LoadAsync<SpriteAtlas, StringStruct, string>(atlasesKeys, loadedAtlases, cacellationToken: cancellationToken);
                     await LoadAsync<GameObject, StringStruct, string>(itemAssetKeys, loadedAssets, cacellationToken: cancellationToken);
