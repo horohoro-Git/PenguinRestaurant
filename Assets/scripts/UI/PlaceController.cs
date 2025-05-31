@@ -31,6 +31,7 @@ public class PlaceController : MonoBehaviour
     public List<Vector2> temp = new List<Vector2>();
     private Vector2 lastInputPosition;
     bool hasInput;
+    [NonSerialized] public bool spawnAnimation;
     public bool canPlace { get { return place; }  set { 
         
             place = value;
@@ -58,7 +59,11 @@ public class PlaceController : MonoBehaviour
     }
     private void OnEnable()
     {
-        StartCoroutine(ScaleAnimation());
+        if (spawnAnimation)
+        {
+            spawnAnimation = false;
+            StartCoroutine(ScaleAnimation());
+        }
 #if UNITY_EDITOR || UNITY_STANDALONE_WIN
         currentMouse = Mouse.current;
 #endif
@@ -184,7 +189,7 @@ public class PlaceController : MonoBehaviour
             }
             GameInstance.GameIns.gridManager.ApplyGird();
             if(purchasedObject) GameInstance.GameIns.gridManager.RemoveCell();
-            GameInstance.GameIns.gridManager.RemoveLine();
+            GameInstance.GameIns.gridManager.RemoveSelect();
             storeGoods.PlaceGoods(rotateOffsets[level], level, currentFurniture);
             storeGoods.RemoveGoodsPreview();
             GameInstance.GameIns.gridManager.VisibleGrid(false);
@@ -195,7 +200,7 @@ public class PlaceController : MonoBehaviour
     {
         if (purchasedObject) GameInstance.GameIns.gridManager.Revert(this);
         GameInstance.GameIns.gridManager.RemoveCell();
-        GameInstance.GameIns.gridManager.RemoveLine();
+        GameInstance.GameIns.gridManager.RemoveSelect();
         storeGoods.RemoveGoodsPreview();
         GameInstance.GameIns.gridManager.VisibleGrid(false);
     }
@@ -246,10 +251,11 @@ public class PlaceController : MonoBehaviour
 
     IEnumerator ScaleAnimation()
     {
+        Vector3 origin = model.transform.localScale;
         float f = 0;
-        Vector3 start = new Vector3(0.5f, 0.5f, 0.5f);
-        Vector3 target1 = new Vector3(2.4f, 2.4f, 2.4f);
-        Vector3 target2 = new Vector3(2,2,2);
+        Vector3 start = origin * 0.5f;
+        Vector3 target1 = origin * 1.2f;
+        Vector3 target2 = origin;
 ;       while (f <= 0.25f)
         {
             Vector3 targetPos = Vector3.Lerp(start, target1, f / 0.25f);

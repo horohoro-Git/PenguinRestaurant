@@ -72,7 +72,9 @@ public class RestaurantManager : MonoBehaviour
     public FuelGage fuelGage;
     public Queue<FuelGage> fuelGages = new Queue<FuelGage>();
 
+    public VendingMachineData vendingData;
 
+  //  public Dictionary<WorkSpaceType, int> workSpaces = new Dictionary<WorkSpaceType, int>(); 
  //   public Dictionary<MachineType, MachineLevelStruct>
     // Start is called before the first frame update
     private void Awake()
@@ -138,47 +140,18 @@ public class RestaurantManager : MonoBehaviour
         restaurantData = SaveLoadSystem.LoadRestaurantData();
         restaurantCurrency = SaveLoadSystem.LoadRestaurantCurrency();
         restaurantparams = SaveLoadSystem.LoadRestaurantBuildingData();
+        vendingData = SaveLoadSystem.LoadVendingMachineData();
         employees = SaveLoadSystem.LoadEmployees();
-     //   foreach (var data in AssetLoader.machines_levels)
-        {
-     //       if (!machineLevelData.ContainsKey((MachineType)data.Value.type)) machineLevelData[(MachineType)data.Value.type] = data.Value;
-        }
-            /*  foreach (var data in AssetLoader.machines_levels)
-              {
-                  if(!machineLevelData.ContainsKey((MachineType)data.Value.type)) machineLevelData[(MachineType)data.Value.type] = new Dictionary<int, MachineLevelStruct>();
-                  machineLevelData[(MachineType)data.Value.type][data.Value.level] = data.Value;
-          //        Debug.Log((MachineType)data.Value.type + " " + data.Value.level);
-              }*/
-            //levelData = SaveLoadSystem.LoadLevelData();
-            // if(GameInstance.GameIns.uiManager !=null) GameInstance.GameIns.uiManager.UpdateMoneyText(playerData.money);
-            /* for (int i = 0; i < 100; i++)
-             {
-                 nextTargetDatas[i] = new NextTargetData();
-                 nextTargetDatas[i].Price = 500;
-             }*/
 
-            /* for (int i = 0; i < levelGuides.Length; i++)
-             {
-                 levelGuides[i].money = nextTargetDatas[i].Price;
-             }*/
-            if (allLevelUp)
-        {
-            for (int i = 0; i < levelGuides.Length; i++)
-            {
-                //  LevelUp();
-            }
-        }
+        restaurantCurrency.fishes += 100;
+        restaurantCurrency.Money += BigInteger.Parse("10000");// 10000;
 
-        // Invoke("LoadRestaurant", 1f);
-
-        //  GameInstance.GameIns.uiManager.UpdateMoneyText(restaurantCurrency.money);
-        Debug.Log(restaurantCurrency.money);
         moneyString = Utility.GetFormattedMoney(restaurantCurrency.Money, moneyString);
         GameInstance.GameIns.uiManager.moneyText.text = moneyString.ToString();
         GameInstance.GameIns.uiManager.fishText.text = restaurantCurrency.fishes.ToString();
 
-       // restaurantCurrency.money = 100000;
-     //   restaurantCurrency.fishes = 1000;
+        // restaurantCurrency.money = 100000;
+        //   restaurantCurrency.fishes = 1000;
 
         customerDebug = true;
 
@@ -213,6 +186,11 @@ public class RestaurantManager : MonoBehaviour
             {
                 machineLevelDataChanged = false;
                 SaveLoadSystem.SaveFoodMachineStats(machineLevelData);
+            }
+            if (vendingData.changed)
+            {
+                vendingData.changed = false;
+                SaveLoadSystem.SaveVendingMachineData(vendingData);
             }
         }
     }
@@ -958,10 +936,12 @@ public class RestaurantManager : MonoBehaviour
         }
     }
 
-    public void AddFuel(FoodMachine foodMachine)
+    public void AddFuel(FoodMachine foodMachine, int amount)
     {
-        int test = 5;
-        foodMachine.machineLevelData.fishes += test;
+        restaurantCurrency.fishes -= amount;
+        restaurantCurrency.changed = true;
+        foodMachine.machineLevelData.fishes += amount;
+        machineLevelDataChanged = true; 
     }
 
     public float GetRestaurantValue()
@@ -1044,10 +1024,11 @@ public class RestaurantManager : MonoBehaviour
     {
         // SaveLoadManager.Save(SaveState.ALL_SAVES);
         ///if (restaurantCurrency == null) Debug.Log("LL");
-        if(restaurantCurrency.changed) SaveLoadSystem.SaveRestaurantCurrency(restaurantCurrency);
-        if(employees.changed) SaveLoadSystem.SaveEmployees(employees);
+        SaveLoadSystem.SaveRestaurantCurrency(restaurantCurrency);
+        SaveLoadSystem.SaveEmployees(employees);
         SaveLoadSystem.SaveRestaurantData(restaurantData);
         SaveLoadSystem.SaveFoodMachineStats(machineLevelData);
+        SaveLoadSystem.SaveVendingMachineData(vendingData);
     }
 
     private void OnApplicationPause(bool pauseStatus)
@@ -1058,6 +1039,7 @@ public class RestaurantManager : MonoBehaviour
             SaveLoadSystem.SaveEmployees(employees);
             SaveLoadSystem.SaveRestaurantData(restaurantData);
             //     SaveLoadManager.Save(SaveState.ALL_SAVES);
+            SaveLoadSystem.SaveVendingMachineData(vendingData);
         }
     }
 

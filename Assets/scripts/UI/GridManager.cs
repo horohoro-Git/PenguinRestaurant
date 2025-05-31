@@ -190,7 +190,8 @@ public class GridManager : MonoBehaviour
     public void ReCalculate(PlaceController go)
     {
         RemoveCell();
-        RemoveLine();
+        RemoveSelect();
+      //  RemoveLine();
         Vector2 gridOffset = new Vector2(0.75f, 1.25f);
         int cellX = Mathf.FloorToInt((go.transform.position.x - gridOffset.x + cellSize * 0.5f) / cellSize);
         int cellY = Mathf.FloorToInt((go.transform.position.z - gridOffset.y + cellSize * 0.5f) / cellSize);
@@ -202,24 +203,24 @@ public class GridManager : MonoBehaviour
         float centerX = cellX * cellSize + gridOffset.x;
         float centerZ = cellY * cellSize + gridOffset.y;
 
+        currentSelector = GetSelect();
 
-
-        currentLineRender = GetLine();
-        Vector3[] corners = new Vector3[5];
+    //    currentLineRender = GetLine();
+       // Vector3[] corners = new Vector3[5];
         float offsetX = centerX - 4.5f;
         float offsetY = centerZ - 4.5f;
-        corners[0] = new Vector3(offsetX - halfSize, 11.2f, offsetY - halfSize);
-        corners[1] = new Vector3(offsetX + halfSize, 11.2f, offsetY - halfSize);
-        corners[2] = new Vector3(offsetX + halfSize, 11.2f, offsetY + halfSize);
-        corners[3] = new Vector3(offsetX - halfSize, 11.2f, offsetY + halfSize);
-        corners[4] = corners[0];
+        /*   corners[0] = new Vector3(offsetX - halfSize, 11.2f, offsetY - halfSize);
+           corners[1] = new Vector3(offsetX + halfSize, 11.2f, offsetY - halfSize);
+           corners[2] = new Vector3(offsetX + halfSize, 11.2f, offsetY + halfSize);
+           corners[3] = new Vector3(offsetX - halfSize, 11.2f, offsetY + halfSize);
+           corners[4] = corners[0];
 
-        currentLineRender.positionCount = 5;
-        currentLineRender.SetPositions(corners);
-        currentLineRender.startWidth = currentLineRender.endWidth = 0.2f;
-        currentLineRender.useWorldSpace = true;
+           currentLineRender.positionCount = 5;
+           currentLineRender.SetPositions(corners);
+           currentLineRender.startWidth = currentLineRender.endWidth = 0.2f;
+           currentLineRender.useWorldSpace = true;*/
 
-
+        currentSelector.transform.position = new Vector3(offsetX, 11.2f, offsetY);
 
         CalculatorScale calculatorScale = GameIns.calculatorScale;
         if (go.colliders.Count == 0) go.GetComponentsInChildren(true, go.colliders);

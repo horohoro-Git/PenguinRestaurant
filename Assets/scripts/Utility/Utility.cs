@@ -659,6 +659,21 @@ public class EmployeeLevelData
     }
 }
 
+public class VendingMachineData
+{
+    public string money;
+    public bool unlocked;
+    BigInteger? m;
+    public BigInteger Money { get { if (!m.HasValue) m = BigInteger.Parse(money); return m.Value; } set { m = value; changed = true; } }
+    public bool changed;
+
+    public VendingMachineData(string money,  bool unlocked)
+    {
+        this.money = money;
+        this.unlocked = unlocked;
+    }
+}
+
 public class MachineLevelData : ITableID<int>
 {
     public int id;

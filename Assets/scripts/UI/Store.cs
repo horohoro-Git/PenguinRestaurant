@@ -14,6 +14,7 @@ public class Store : MonoBehaviour
     public RectTransform instanceImage;
     public Scrolling scrolling;
     public Scrollbar scrollbar;
+    public ScrollRect scrollRect;
     Dictionary<int, GoodsStruct> goodsStructs = new Dictionary<int, GoodsStruct>();
     // Dictionary<WorkSpaceType, StoreGoods> goodsDic = new Dictionary<WorkSpaceType, StoreGoods>();
     Dictionary<int, StoreGoods> goodsList = new Dictionary<int, StoreGoods>();
@@ -133,8 +134,8 @@ public class Store : MonoBehaviour
     }
     public void ChangeList(WorkSpaceType type)
     {
-
-        foreach(var g in goodsList)
+      
+        foreach (var g in goodsList)
         {
             if (g.Value.goods.type == type)
             {
@@ -153,8 +154,10 @@ public class Store : MonoBehaviour
 
             }
         }
-     
-        scrollbar.value = 0;
+        LayoutRebuilder.ForceRebuildLayoutImmediate(scrollRect.content);
+
+        // 위치 재설정
+        scrollRect.horizontalNormalizedPosition = 0f;
     }
 
     public void Refresh()

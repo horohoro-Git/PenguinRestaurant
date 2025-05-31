@@ -104,6 +104,7 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
                     if (currnet == null)
                     {
                         currnet = GameIns.store.goodsPreviewDic[goods.ID + 1000];
+                        currnet.spawnAnimation = true;
                         currnet.gameObject.SetActive(true);
                         currnet.storeGoods = this;
                         GameIns.store.currentPreview = currnet;

@@ -641,6 +641,7 @@ public class SaveLoadSystem
         {
             using (BinaryWriter writer = new BinaryWriter(ms))
             {
+                Debug.Log(currency.Money.ToString());
                 writer.Write(currency.Money.ToString());
                 writer.Write(currency.fishes);
                 writer.Write(currency.affinity);
@@ -649,6 +650,8 @@ public class SaveLoadSystem
             File.WriteAllBytes(p, ms.ToArray());
         }
     }
+
+
 
     public static RestaurantCurrency LoadRestaurantCurrency()
     {
@@ -668,7 +671,6 @@ public class SaveLoadSystem
                     string money = reader.ReadString();
                     int fishes = reader.ReadInt32();
                     int affinity = reader.ReadInt32();
-
                     currency = new RestaurantCurrency(money, fishes, affinity);
                 }
             }
@@ -680,7 +682,54 @@ public class SaveLoadSystem
         }
         return currency;
     }
+    public static void SaveVendingMachineData(VendingMachineData vendingData)
+    {
+        string dir = Path.Combine(path, "Save");
+        if (!Directory.Exists(dir))
+        {
+            Directory.CreateDirectory(dir);
+        }
+        string p = Path.Combine(path, "Save/VendingData.dat");
+        using (MemoryStream ms = new MemoryStream())
+        {
+            using (BinaryWriter writer = new BinaryWriter(ms))
+            {
+                writer.Write(vendingData.Money.ToString());
+                writer.Write(vendingData.unlocked);
+            }
 
+            File.WriteAllBytes(p, ms.ToArray());
+        }
+    }
+
+
+
+    public static VendingMachineData LoadVendingMachineData()
+    {
+        VendingMachineData vending = null;
+        string p = Path.Combine(path, "Save/VendingData.dat");
+        byte[] data;
+        if (File.Exists(p))
+        {
+            using (FileStream fs = new FileStream(p, FileMode.Open))
+            {
+                data = new byte[fs.Length];
+                fs.Read(data, 0, data.Length);
+
+                using (BinaryReader reader = new BinaryReader(new MemoryStream(data)))
+                {
+                    string money = reader.ReadString();
+                    vending = new VendingMachineData(money, reader.ReadBoolean());
+                }
+            }
+        }
+        else
+        {
+            vending = new VendingMachineData("0", false);
+            SaveVendingMachineData(vending);
+        }
+        return vending;
+    }
     public static Employees LoadEmployees()
     {
         Employees employees = null;
