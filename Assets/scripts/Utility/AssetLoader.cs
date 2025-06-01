@@ -17,6 +17,7 @@ public class AssetLoader : MonoBehaviour
     public AssetBundle bundle;
     [NonSerialized]
     public AssetBundle bundle_scene;
+    public static Dictionary<string, AudioClip> loadedSounds = new Dictionary<string, AudioClip>();
     public static Dictionary<string, string> loadedMap = new Dictionary<string, string>();
     public static Dictionary<string, GameObject> loadedAssets = new Dictionary<string, GameObject>();
     public static Dictionary<string, Sprite> loadedSprites = new Dictionary<string, Sprite>();
@@ -34,6 +35,7 @@ public class AssetLoader : MonoBehaviour
     public static Dictionary<int, StringStruct> spriteAssetKeys = new Dictionary<int, StringStruct>();
     public static Dictionary<int, StringStruct> atlasesKeys = new Dictionary<int, StringStruct>();
     public static Dictionary<int, LevelData> levelData = new Dictionary<int, LevelData>();
+    public static Dictionary<int, SoundsStruct> sounds = new Dictionary<int, SoundsStruct>();
     public static List<MapContent> maps = new List<MapContent>();
     public static List<RestaurantParam> restaurantParams = new List<RestaurantParam>();
 
@@ -43,6 +45,7 @@ public class AssetLoader : MonoBehaviour
     public bool assetLoadSuccessful;
     public bool sceneLoaded;
     public string mapContents;
+    public string soundContents;
 
     public GameRegulation gameRegulation;
 
@@ -106,6 +109,23 @@ public class AssetLoader : MonoBehaviour
                 maps = SaveLoadSystem.GetListData<MapContent>(mapContents);
 
                 gameRegulation = SaveLoadSystem.LoadGameRegulation();
+            }
+            AssetBundleRequest soundsRequest = b.LoadAssetAsync<TextAsset>("sounds");
+            await soundsRequest.ToUniTask(cancellationToken: cancellationToken);
+            if (soundsRequest != null)
+            {
+                soundContents = soundsRequest.asset.ToString();
+                sounds = SaveLoadSystem.GetDictionaryData<int, SoundsStruct>(soundContents);
+
+                foreach (var sound in sounds) 
+                {
+                    AssetBundleRequest soundAsset = b.LoadAssetAsync<AudioClip>(sound.Value.asset_name);
+                    await soundAsset.ToUniTask(cancellationToken: cancellationToken);
+                    if (soundAsset != null)
+                    {
+                        loadedSounds[sound.Value.asset_name] = (AudioClip)soundAsset.asset;
+                    }
+                }
             }
         }
     }

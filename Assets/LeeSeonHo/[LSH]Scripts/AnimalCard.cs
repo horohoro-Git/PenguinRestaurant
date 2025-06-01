@@ -36,6 +36,9 @@ public class AnimalCard : MonoBehaviour
 
     public void OnClick()
     {
+        GameInstance.GameIns.uiManager.audioSource.clip = GameInstance.GameIns.uISoundManager.UIClick();
+        GameInstance.GameIns.uiManager.audioSource.Play();
+
         customerInfoPopup.gameObject.SetActive(true);
 
         customerInfoPopup.id = id;

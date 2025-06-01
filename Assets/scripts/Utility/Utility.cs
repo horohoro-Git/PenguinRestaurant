@@ -263,7 +263,15 @@ public struct StringStruct : ITableID<string>
     }
 }
 
+public struct SoundsStruct : ITableID<int>
+{
+    public int id;
+    public string asset_name;
 
+    public readonly int ID => id;
+
+    public readonly string Name => asset_name;
+}
 
 
 public enum AssetType

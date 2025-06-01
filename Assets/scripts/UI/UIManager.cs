@@ -36,6 +36,8 @@ public class UIManager : MonoBehaviour
 
     private float cameraSize;
 
+    public AudioSource audioSource;
+
     // Start is called before the first frame update
     private void Awake()
     {
@@ -58,6 +60,8 @@ public class UIManager : MonoBehaviour
     {
         animalGuideButton.onClick.AddListener(() =>
         {
+            audioSource.clip = GameIns.uISoundManager.UIClick();
+            audioSource.Play();
             if (bGuideOn)
             {
                 animalGuideImage.sprite = loadedSprites[spriteAssetKeys[10001].ID];
@@ -102,6 +106,8 @@ public class UIManager : MonoBehaviour
 
         changeScene.onClick.AddListener(() =>
         {
+            audioSource.clip = GameIns.uISoundManager.UIClick();
+            audioSource.Play();
             switch (GameIns.app.currentScene)
             {
                 case SceneState.Restaurant:
@@ -129,19 +135,23 @@ public class UIManager : MonoBehaviour
         });
 
         menuOption.onClick.AddListener(() => {
-
+            audioSource.clip = GameIns.uISoundManager.UIClick();
+            audioSource.Play();
             option.SetActive(true);
             
         });
 
         drawBtn.onClick.AddListener(() =>
         {
-
+            audioSource.clip = GameIns.uISoundManager.UIClick();
+            audioSource.Play();
             GameIns.gatcharManager.StartGatcha();
         });
 
         drawSpeedUpBtn.onClick.AddListener(() =>
         {
+            audioSource.clip = GameIns.uISoundManager.UIClick();
+            audioSource.Play();
             GameIns.gatcharManager.GatcharSpeedUp();
         });
     }
@@ -304,6 +314,8 @@ public class UIManager : MonoBehaviour
     //게임 종료 (사용중)
     public void QuitGame()
     {
+        audioSource.clip = GameIns.uISoundManager.UIClick();
+        audioSource.Play();
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else
