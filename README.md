@@ -31,3 +31,4 @@ Animal Restaurant Tycoon Game
 05/29 Refactored data table structure, implemented new fuel UI
 05/30 Change the grid selection from a Line Renderer to a sprite, enable fuel consumption for the cooking device and Display a UI warning when fuel is low
 05/31 Add a vending machine that generates income even while the game is not running, update the UI to display upgrade costs in abbreviated format
+06/01 The UI button now plays a sound when clicked

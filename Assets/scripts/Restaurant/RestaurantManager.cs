@@ -144,7 +144,7 @@ public class RestaurantManager : MonoBehaviour
         employees = SaveLoadSystem.LoadEmployees();
 
         restaurantCurrency.fishes += 100;
-        restaurantCurrency.Money += BigInteger.Parse("10000");// 10000;
+        restaurantCurrency.Money += BigInteger.Parse("316000");// 10000;
 
         moneyString = Utility.GetFormattedMoney(restaurantCurrency.Money, moneyString);
         GameInstance.GameIns.uiManager.moneyText.text = moneyString.ToString();
@@ -1071,6 +1071,46 @@ public class RestaurantManager : MonoBehaviour
         return fuel;
     }
 
+    public void GetFish(int addFish, bool animate = true)
+    {
+        int before = restaurantCurrency.fishes;
+        restaurantCurrency.fishes += addFish;
+        if (animate)
+        {
+            StartCoroutine(ChangingFishes(before, addFish));
+        }
+        else
+        {
+            GameIns.uiManager.fishText.text = restaurantCurrency.fishes.ToString();
+        }
+    }
+
+    IEnumerator ChangingFishes(int before, int changed)
+    {
+        float f = 0;
+        if (changed > 0)
+        {
+            while(f <= 0.5f)
+            {
+                int test = before + (int)(changed * (f * 2 * 1000) / 1000);
+                GameIns.uiManager.fishText.text = test.ToString();
+                f += Time.unscaledDeltaTime;
+                yield return null;
+            }
+        }
+        else
+        {
+            while (f <= 0.5f)
+            {
+                int test = before - (int)(changed * ((0.5f - f) * 2 * 1000) / 1000);
+                GameIns.uiManager.fishText.text = test.ToString();
+                f += Time.unscaledDeltaTime;
+                yield return null;
+            }
+        }
+        GameIns.uiManager.fishText.text = restaurantCurrency.fishes.ToString();
+    }
+
     public void GetMoney(string addMoney, bool animate = true)
     {
         BigInteger bigInteger = BigInteger.Parse(addMoney);
@@ -1088,15 +1128,15 @@ public class RestaurantManager : MonoBehaviour
         }
     }
 
-    IEnumerator ChangingMoney(BigInteger before, BigInteger chaged)
+    IEnumerator ChangingMoney(BigInteger before, BigInteger changed)
     {
         float f = 0;
     //    Debug.LogWarning(restaurantCurrency.money);
-        if(chaged > 0)
+        if(changed > 0)
         {
             while (f <= 0.5f)
             {
-                BigInteger test = before + (chaged * (BigInteger)(f * 2 * 1000)) / 1000;
+                BigInteger test = before + (changed * (BigInteger)(f * 2 * 1000)) / 1000;
                 moneyString = Utility.GetFormattedMoney(test, moneyString);
                 GameIns.uiManager.moneyText.text = moneyString.ToString();
                 f += Time.unscaledDeltaTime;
@@ -1107,7 +1147,7 @@ public class RestaurantManager : MonoBehaviour
         {
             while (f <= 0.5f)
             {
-                BigInteger test = before - (chaged * (BigInteger)((0.5f - f) * 2 * 1000)) / 1000;
+                BigInteger test = before - (changed * (BigInteger)((0.5f - f) * 2 * 1000)) / 1000;
                 moneyString = Utility.GetFormattedMoney(test, moneyString);
                 GameIns.uiManager.moneyText.text = moneyString.ToString();
                 f += Time.unscaledDeltaTime;
