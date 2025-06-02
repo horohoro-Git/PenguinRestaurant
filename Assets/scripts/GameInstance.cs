@@ -25,6 +25,7 @@ public class GameInstance
     public Store store;
     public LODManager lodManager;
     public UISoundManager uISoundManager;
+    public GameSoundManager gameSoundManager;
     public static GameInstance GameIns { get { return gameInstance; }  }
     private static Queue<Vector3> pool = new Queue<Vector3>();
     public static List<GraphicRaycaster> graphicRaycasters = new List<GraphicRaycaster>();

@@ -553,6 +553,7 @@ public class RestaurantManager : MonoBehaviour
                 furniture.rotateLevel = restaurantparams[i].level;
                 furniture.id = restaurantparams[i].id;
                 furniture.transform.position = pos;
+                furniture.originPos = pos;
                 switch (furniture.spaceType)
                 {
                     case WorkSpaceType.Counter:
@@ -912,6 +913,8 @@ public class RestaurantManager : MonoBehaviour
     {
         if (restaurantCurrency.Money >= foodMachine.machineLevelData.Price_Value)
         {
+            GameIns.uiManager.audioSource.clip = GameIns.uISoundManager.Money();
+            GameIns.uiManager.audioSource.Play();
             restaurantCurrency.Money -= foodMachine.machineLevelData.Price_Value;
             GetMoney((-foodMachine.machineLevelData.Price_Value).ToSafeString()); 
             MachineType type = foodMachine.machineType;
@@ -920,7 +923,7 @@ public class RestaurantManager : MonoBehaviour
 
             //foodMachine.machineLevelStruct = //GameInstance.GameIns.restaurantManager.machineLevelData[type][currentLevel + 1];
 
-            GameInstance.GameIns.applianceUIManager.ShowApplianceInfo(foodMachine);
+           // GameInstance.GameIns.applianceUIManager.ShowApplianceInfo(foodMachine);
 
 
             if ((employees.num < 8 && employeeHire[employees.num] <= GetRestaurantValue()))
@@ -938,7 +941,9 @@ public class RestaurantManager : MonoBehaviour
 
     public void AddFuel(FoodMachine foodMachine, int amount)
     {
-        restaurantCurrency.fishes -= amount;
+        GameIns.uiManager.audioSource.clip = GameIns.uISoundManager.Fish();
+        GameIns.uiManager.audioSource.Play();
+        GetFish(-amount);
         restaurantCurrency.changed = true;
         foodMachine.machineLevelData.fishes += amount;
         machineLevelDataChanged = true; 
@@ -1102,13 +1107,17 @@ public class RestaurantManager : MonoBehaviour
         {
             while (f <= 0.5f)
             {
-                int test = before - (int)(changed * ((0.5f - f) * 2 * 1000) / 1000);
+                int test = (before) + (int)(changed * (f * 2 * 1000) / 1000);
                 GameIns.uiManager.fishText.text = test.ToString();
                 f += Time.unscaledDeltaTime;
                 yield return null;
             }
         }
         GameIns.uiManager.fishText.text = restaurantCurrency.fishes.ToString();
+        if (GameIns.uiManager.audioSource.clip == GameIns.uISoundManager.Fish())
+        {
+            GameIns.uiManager.audioSource.Stop();
+        }
     }
 
     public void GetMoney(string addMoney, bool animate = true)
@@ -1147,7 +1156,8 @@ public class RestaurantManager : MonoBehaviour
         {
             while (f <= 0.5f)
             {
-                BigInteger test = before - (changed * (BigInteger)((0.5f - f) * 2 * 1000)) / 1000;
+                BigInteger test = (before - changed) + (changed * (BigInteger)(f * 2 * 1000)) / 1000;
+                Debug.Log(test.ToString());
                 moneyString = Utility.GetFormattedMoney(test, moneyString);
                 GameIns.uiManager.moneyText.text = moneyString.ToString();
                 f += Time.unscaledDeltaTime;
@@ -1157,5 +1167,9 @@ public class RestaurantManager : MonoBehaviour
     
         moneyString = Utility.GetFormattedMoney(restaurantCurrency.Money, moneyString);
         GameIns.uiManager.moneyText.text = moneyString.ToString();
+        if(GameIns.uiManager.audioSource.clip == GameIns.uISoundManager.Money())
+        {
+            GameIns.uiManager.audioSource.Stop();
+        }
     }
 }

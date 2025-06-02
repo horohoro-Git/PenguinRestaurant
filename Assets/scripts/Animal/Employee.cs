@@ -1521,7 +1521,8 @@ public class Employee : AnimalController
                             counter.foodStacks[i].getNum = counter.foodStacks[i].getNum - 1 < 0 ? 0 : counter.foodStacks[i].getNum - 1;
 
                             if (debuging) Debug.Log(counter.foodStacks[i].getNum);
-
+                            animal.audioSource.clip = GameIns.gameSoundManager.ThrowSound();
+                            animal.audioSource.Play();
                             await UniTask.Delay(300, cancellationToken: cancellationToken);
 
                             EXP += 1;
@@ -2641,6 +2642,7 @@ public class Employee : AnimalController
             fs.foodStack.Push(food);
             food.transform.position = targetPoint;
             food.Setup(target, index);
+            audio.clip = GameIns.gameSoundManager.ThrowSound();
             audio.Play();
         }
     }
@@ -2651,6 +2653,7 @@ public class Employee : AnimalController
             gs.Push(garbage);
             garbage.transform.position = targetPoint;
             garbage.Setup(target, index);
+            audio.clip = GameIns.gameSoundManager.ThrowSound();
             audio.Play();
         }
     }
@@ -2658,6 +2661,7 @@ public class Employee : AnimalController
     void OnGarbageClearComplete(Garbage garbage, AudioSource audio)
     {
         GarbageManager.ClearGarbage(garbage);
+        audio.clip = GameIns.gameSoundManager.ThrowSound();
         audio.Play();
     }
 

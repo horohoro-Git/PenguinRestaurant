@@ -14,7 +14,6 @@ public class DonutMachine : FoodMachine
     WaitForSeconds waitForone = new WaitForSeconds(1f);*/
     Food current;
     Food createdFood;
-    
     // Start is called before the first frame update
     public override void Start()
     {
@@ -53,6 +52,7 @@ public class DonutMachine : FoodMachine
             createdFood.transform.position = foodTransform.position + Vector3.up * (foodStack.foodStack.Count - 1) * height;
             createdFood = null;
         }
+        audioSource.Stop();
     }
     IEnumerator AddDonuts()
     {
@@ -111,6 +111,8 @@ public class DonutMachine : FoodMachine
 
     IEnumerator DonutVitlity(Food food)
     {
+        foodCreateAudio.clip = GameInstance.GameIns.gameSoundManager.CreateFood();
+        foodCreateAudio.Play();
         Vector3 v1 = food.transform.localScale;
         Vector3 v2 = new Vector3(1, 1, 1);
         Vector3 v3 = new Vector3(1.2f, 1.2f, 1.2f);
@@ -150,6 +152,7 @@ public class DonutMachine : FoodMachine
     }
     public void Done()
     {
+        audioSource.Stop();
         StartCoroutine(CreateDonutDone());
     }
 

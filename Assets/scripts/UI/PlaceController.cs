@@ -183,6 +183,8 @@ public class PlaceController : MonoBehaviour
             if(!purchasedObject)
             {
                 //값을 지불
+                GameInstance.GameIns.uiManager.audioSource.clip = GameInstance.GameIns.uISoundManager.FurniturePurchase();
+                GameInstance.GameIns.uiManager.audioSource.Play();
                 GameInstance.GameIns.restaurantManager.restaurantCurrency.Money -= storeGoods.goods.Price_Value;
                 GameInstance.GameIns.restaurantManager.GetMoney((-storeGoods.goods.Price_Value).ToString());
                 SaveLoadSystem.SaveRestaurantCurrency(GameInstance.GameIns.restaurantManager.restaurantCurrency);

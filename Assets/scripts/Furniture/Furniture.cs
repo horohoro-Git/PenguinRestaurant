@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,6 +11,7 @@ public class Furniture : MonoBehaviour
     public WorkSpaceType spaceType { get; set; }
 
     public bool spawned;
+    [NonSerialized] public Vector3 originPos;
     public Vector3 offsetPoint;
 
     public int rotateLevel;
