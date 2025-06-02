@@ -37,6 +37,7 @@ public class BurgerMachine : FoodMachine
             createdBurger.transform.position = foodTransform.position + Vector3.up * (foodStack.foodStack.Count - 1) * height;
             createdBurger = null;
         }
+        audioSource.Stop();
     }
   
     public void GetPatty(float t)
@@ -52,13 +53,17 @@ public class BurgerMachine : FoodMachine
     {
         StopCoroutine(bake);
         Destroy(currentFood);
-        currentFood=null;
+        audioSource.Stop();
+        currentFood = null;
 
         Food f = FoodManager.GetFood(foodMesh, machineType);
         //currentFood = Instantiate(testPatty);
         f.transform.position = pattyTrans.position;
         f.transform.localScale = Vector3.zero;
         StartCoroutine(CreateBurger(f));
+
+        foodCreateAudio.clip = GameInstance.GameIns.gameSoundManager.CreateFood();
+        foodCreateAudio.Play();
     }
 
 

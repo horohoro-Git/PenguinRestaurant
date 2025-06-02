@@ -144,9 +144,6 @@ public class GridManager : MonoBehaviour
         int cellX = Mathf.FloorToInt((startPos.x - gridOffset.x + cellSize * 0.5f) / cellSize);
         int cellY = Mathf.FloorToInt((startPos.z - gridOffset.y + cellSize * 0.5f) / cellSize);
       
-    
-       
-
         float halfSize = cellSize * 0.5f;
         float centerX = cellX * cellSize + gridOffset.x;
         float centerZ = cellY * cellSize + gridOffset.y;
@@ -154,6 +151,9 @@ public class GridManager : MonoBehaviour
         x = centerX; y = centerZ;
 
         RemoveSelect();
+
+        GameIns.uiManager.audioSource.clip = GameIns.uISoundManager.FurniturePlace();
+        GameIns.uiManager.audioSource.Play();
         //RemoveLine();
 
         currentSelector = GetSelect();

@@ -151,8 +151,8 @@ public class ApplianceUIManager : MonoBehaviour
     {
         if (scheduleCoroutine == null)
         {
-            animalController = null;
-
+            GameInstance.GameIns.uiManager.audioSource.clip = GameInstance.GameIns.uISoundManager.FurnitureClick();
+            GameInstance.GameIns.uiManager.audioSource.Play();
             furnitureUI.UpdateInfo(furniture);
             appliancePanel.SetActive(true);
             //UnlockHire(false);

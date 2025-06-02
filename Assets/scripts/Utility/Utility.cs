@@ -697,7 +697,7 @@ public class MachineLevelData : ITableID<int>
     public string Price { get { return price; } set { price = value; price_value = null; } }
     BigInteger? price_value;
     public BigInteger Price_Value { get { if (!price_value.HasValue) price_value = Utility.StringToBigInteger(price); return price_value.Value; } set { price_value = value; } }
-    public int ID => id;
+    public int ID => type;
 
     public string Name => throw new System.NotImplementedException();
 

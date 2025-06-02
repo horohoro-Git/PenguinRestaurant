@@ -9,6 +9,7 @@ public class CokeMachine : FoodMachine
 
     Food food;
     Food createdFood;
+    Coroutine createCokeCoroutine;
     public override void Start()
     {
         base.Start();
@@ -30,6 +31,7 @@ public class CokeMachine : FoodMachine
             createdFood.transform.position = foodTransform.position + Vector3.up * (foodStack.foodStack.Count - 1) * height;
             createdFood = null;
         }
+        audioSource.Stop();
     }
     public void Shake(float timer)
     {
@@ -39,10 +41,8 @@ public class CokeMachine : FoodMachine
         food.transform.position = cokeTrans.position;
         food.transform.localScale = Vector3.zero;
 
-        StartCoroutine(CreateCoke(food, timer));
+        createCokeCoroutine = StartCoroutine(CreateCoke(food, timer));
     }
-
-
 
     public IEnumerator CreateCoke(Food food, float timer)
     {
@@ -77,7 +77,11 @@ public class CokeMachine : FoodMachine
 
     public void Done()
     {
+       // if(createCokeCoroutine != null) StopCoroutine(createCokeCoroutine);
+        audioSource.Stop();
         StartCoroutine(CreateCokeDone());
+        foodCreateAudio.clip = GameInstance.GameIns.gameSoundManager.CreateFood();
+        foodCreateAudio.Play();
     }
 
     public IEnumerator Shaking(float timer)

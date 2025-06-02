@@ -24,7 +24,8 @@ public class FoodMachine : Furniture
 
     Stack<Food> hiddenStack = new Stack<Food>();
 
-    AudioSource audioSource;
+    protected AudioSource audioSource;
+    public AudioSource foodCreateAudio;
     //  public PlayData playData;
     public RestaurantParam restaurantParam;
     public LevelData levelData;
@@ -60,10 +61,12 @@ public class FoodMachine : Furniture
     CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
     [NonSerialized] public FuelGage fuelGage;
+    public int soundClip;
+
     private void Awake()
     {
         transforms = transform;
-     //   foodStack.foodStack.Capacity = 40000;
+        audioSource = GetComponent<AudioSource>();
     }
 
     public virtual void OnEnable()
@@ -127,7 +130,6 @@ public class FoodMachine : Furniture
         
         }
         base.Start();
-        audioSource = GetComponent<AudioSource>();
         
         foodStack.type = machineType;
         
@@ -345,6 +347,10 @@ public class FoodMachine : Furniture
                     continue;
                 }
 
+                audioSource.clip = GameInstance.GameIns.gameSoundManager.MachineSound(soundClip);
+                audioSource.loop = true;
+                audioSource.Play();
+
                 float cookingTimer = machineLevelData.cooking_time;
 
                 cookingAction?.Invoke(cookingTimer);
@@ -354,17 +360,6 @@ public class FoodMachine : Furniture
                 cookingFinishAction?.Invoke();
                 await UniTask.Delay(600, cancellationToken: cancellationToken);
 
-
-                /*   Food f = FoodManager.GetFood(foodMesh, machineType);
-                   f.parentType = machineType;
-                   if (machineType == MachineType.BurgerMachine) foodHight = 0.7f;
-                   else if (machineType == MachineType.CokeMachine) foodHight = 1f;
-                   else if (machineType == MachineType.CoffeeMachine) foodHight = 1.2f;
-                   else if (machineType == MachineType.DonutMachine) foodHight = 0.5f;
-                   Vector3 addheight = GameInstance.GetVector3(0, (foodStack.foodStack.Count) * foodHight, 0);
-                   f.transforms.position = foodTransform.position + addheight;
-                   f.foodPrice = machineLevelStruct.sale_proceed;
-                   foodStack.foodStack.Push(f);*/
             }
         }
         catch (Exception ex)

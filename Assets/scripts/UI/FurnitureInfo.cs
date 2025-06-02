@@ -64,16 +64,14 @@ public class FurnitureInfo : MonoBehaviour
             PlaceController placeController = GameInstance.GameIns.store.GetGoods(currentFurniture.id);
            
 
-            placeController.transform.position = currentFurniture.transform.position;
+            placeController.transform.position = currentFurniture.originPos;
             if (currentFurniture.TryGetComponent(out IObjectOffset fm))
             {
                 placeController.offset.transform.rotation = fm.offset.rotation;
-                placeController.transform.position = currentFurniture.transform.position;
             }
             else
             {
                 placeController.offset.transform.rotation = currentFurniture.transform.rotation;
-                placeController.transform.position = currentFurniture.transform.position;
             }
             placeController.SetLevel(currentFurniture.rotateLevel);
             GameInstance.GameIns.gridManager.ReCalculate(placeController);

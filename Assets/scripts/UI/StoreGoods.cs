@@ -199,6 +199,7 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
             f.rotateLevel = level;
             Vector3 target = currnet.transform.position;
             f.transform.position = target;
+            f.originPos = target;
             f.id = goods.ID;
             if (f.TryGetComponent<IObjectOffset>(out IObjectOffset offsets))
             {

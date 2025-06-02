@@ -27,6 +27,7 @@ public class CoffeeMachine : FoodMachine
             createdFood.transform.position = foodTransform.position + Vector3.up * (foodStack.foodStack.Count - 1) * height;
             createdFood = null;
         }
+        audioSource.Stop();
     }
     public void Shake(float timer)
     {
@@ -41,7 +42,11 @@ public class CoffeeMachine : FoodMachine
 
     public void Done()
     {
+        audioSource.Stop();
         StartCoroutine(CreateCoffeeDone());
+
+        foodCreateAudio.clip = GameInstance.GameIns.gameSoundManager.CreateFood();
+        foodCreateAudio.Play();
     }
 
     public IEnumerator CreateCoffee(Food food, float timer)
