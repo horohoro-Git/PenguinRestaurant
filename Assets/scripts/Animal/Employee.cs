@@ -2697,6 +2697,8 @@ public class Employee : AnimalController
 
     public void Dragged()
     {
+        animal.audioSource.clip = GameIns.gameSoundManager.Quack();
+        animal.audioSource.Play();
         animator.SetInteger("state", 2);
         animal.PlayAnimation(AnimationKeys.Fly);
     }

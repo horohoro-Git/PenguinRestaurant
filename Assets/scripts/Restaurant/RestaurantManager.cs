@@ -720,6 +720,8 @@ public class RestaurantManager : MonoBehaviour
 
             //  animal.EmployeeData = employeeDatas[combineDatas.employeeData[animal.id - 1].level - 1];
             animal.employeeLevel = AssetLoader.employees_levels[1];
+            animal.animal.audioSource.clip = GameIns.gameSoundManager.Quack();
+            animal.animal.audioSource.Play();
             // animal.EmployeeData = new EmployeeData(1, 1, 1, 1, 1);
             //   Vector3 targetPos = GameInstance.GameIns.inputManager.cameraRange.position;
             //animal.busy = true;

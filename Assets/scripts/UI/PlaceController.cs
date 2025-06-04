@@ -170,7 +170,8 @@ public class PlaceController : MonoBehaviour
     {
         if(level < 3) level++;
         else level = 0;
-        
+        GameInstance.GameIns.uiManager.audioSource.clip = GameInstance.GameIns.uISoundManager.UIClick();
+        GameInstance.GameIns.uiManager.audioSource.Play();
         offset.transform.rotation = Quaternion.Euler(0, rotates[level], 0);
         offset.transform.localPosition = rotateOffsets[level];
         GameInstance.GameIns.gridManager.CheckObject(this);
@@ -180,7 +181,9 @@ public class PlaceController : MonoBehaviour
     {
         if (canPlace)
         {
-            if(!purchasedObject)
+            GameInstance.GameIns.uiManager.audioSource.clip = GameInstance.GameIns.uISoundManager.UIClick();
+            GameInstance.GameIns.uiManager.audioSource.Play();
+            if (!purchasedObject)
             {
                 //값을 지불
                 GameInstance.GameIns.uiManager.audioSource.clip = GameInstance.GameIns.uISoundManager.FurniturePurchase();
@@ -200,6 +203,8 @@ public class PlaceController : MonoBehaviour
 
     public void Cancel()
     {
+        GameInstance.GameIns.uiManager.audioSource.clip = GameInstance.GameIns.uISoundManager.UIClick();
+        GameInstance.GameIns.uiManager.audioSource.Play();
         if (purchasedObject) GameInstance.GameIns.gridManager.Revert(this);
         GameInstance.GameIns.gridManager.RemoveCell();
         GameInstance.GameIns.gridManager.RemoveSelect();

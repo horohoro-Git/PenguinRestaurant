@@ -760,16 +760,21 @@ public class Customer : AnimalController
                         float offset = index == 0 ? 1 : -1;
                         Vector3 t = new Vector3(tablePos.x, tablePos.y, tablePos.z + offset);
                         t.y = 0.5f;
+                        animal.audioSource.clip = GameInstance.GameIns.gameSoundManager.ThrowSound();
+                        animal.audioSource.Play();
                         f.transforms.DOJump(t, 1, 1, 0.2f);
                         await UniTask.Delay(300, cancellationToken: cancellationToken);
 
                         float tm = 0;
                         for (int i = 0; i < 100; i++)
                         {
-                            if (tm + 0.5f < Time.time)
+                            if (tm + 0.5f <= Time.time)
                             {
                                 tm = Time.time;
 
+                                animal.audioSource.clip = GameInstance.GameIns.gameSoundManager.Eat();
+                                animal.audioSource.volume = 0.05f;
+                                animal.audioSource.Play();
                                 animator.SetTrigger(AnimationKeys.eat);
                                 // animator.SetInteger("state", 2);
                                 animal.PlayTriggerAnimation(AnimationKeys.Eat);
@@ -811,6 +816,8 @@ public class Customer : AnimalController
                     await UniTask.Delay(500, cancellationToken: cancellationToken);
                     ParticleManager.ClearParticle(particle);
 
+                    animal.audioSource.clip = GameInstance.GameIns.gameSoundManager.Happy();
+                    animal.audioSource.Play();
                     EmoteTimer(5000, App.GlobalToken).Forget();
                     await UniTask.Delay(3000, cancellationToken: cancellationToken);
                     animator.SetInteger("state", 0);
