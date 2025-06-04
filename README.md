@@ -33,3 +33,4 @@ Animal Restaurant Tycoon Game
 05/31 Add a vending machine that generates income even while the game is not running, update the UI to display upgrade costs in abbreviated format
 06/01 The UI button now plays a sound when clicked
 06/02 Add sounds for food preparation, food movement, currency, and furniture placement
+06/03 Add sound licensing information, eating sounds, and emotional expression sounds

@@ -194,6 +194,11 @@ public class FoodMachine : Furniture
             Vector3 tt = new Vector3(2f,2f,2f);
 
             Vector3 current = tray.transform.localScale;
+
+            AudioSource audioSource = tray.GetComponent<AudioSource>();
+            audioSource.clip = GameInstance.GameIns.gameSoundManager.DropPlate();
+            audioSource.Play();
+
             f = 0;
             while (f <= 0.2f)
             {
