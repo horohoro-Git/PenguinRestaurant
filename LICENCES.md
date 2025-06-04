@@ -35,3 +35,15 @@ Source: https://freesound.org/people/bboz87/sounds/788241/
 "bite_3" by bboz87 on Freesound.org
 Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)  
 Source: https://freesound.org/people/bboz87/sounds/788242/
+
+"Cloth Bedding Brush Sweep 005" by mattruthsound on Freesound.org  
+Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)  
+Source: https://freesound.org/people/mattruthsound/sounds/561571/
+
+"Cloth Bedding Brush Sweep 013" by mattruthsound on Freesound.org  
+Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)  
+Source: https://freesound.org/people/mattruthsound/sounds/561572/
+
+"Cloth Bedding Brush Sweep 014" by mattruthsound on Freesound.org  
+Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)  
+Source: https://freesound.org/people/mattruthsound/sounds/561573/

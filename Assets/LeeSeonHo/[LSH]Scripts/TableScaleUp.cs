@@ -35,7 +35,7 @@ public class TableScaleUp : MonoBehaviour
     }
     private void Update()
     {
-        if (currentBounce < bounceCount && !load)
+       /* if (currentBounce < bounceCount && !load)
         {
             elapsedTime += Time.deltaTime;
             float t = elapsedTime / duration;
@@ -66,6 +66,6 @@ public class TableScaleUp : MonoBehaviour
         {
             // 모든 반복이 끝나면 원래 크기로 복원
             transform.localScale = initialScale;
-        }
+        }*/
     }
 }

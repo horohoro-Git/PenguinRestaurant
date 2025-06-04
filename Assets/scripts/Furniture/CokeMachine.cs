@@ -81,6 +81,7 @@ public class CokeMachine : FoodMachine
         audioSource.Stop();
         StartCoroutine(CreateCokeDone());
         foodCreateAudio.clip = GameInstance.GameIns.gameSoundManager.CreateFood();
+        foodCreateAudio.volume = 0.4f;
         foodCreateAudio.Play();
     }
 

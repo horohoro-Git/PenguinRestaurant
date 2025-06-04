@@ -59,11 +59,11 @@ public class PlaceController : MonoBehaviour
     }
     private void OnEnable()
     {
-        if (spawnAnimation)
+       /* if (spawnAnimation)
         {
             spawnAnimation = false;
             StartCoroutine(ScaleAnimation());
-        }
+        }*/
 #if UNITY_EDITOR || UNITY_STANDALONE_WIN
         currentMouse = Mouse.current;
 #endif
@@ -171,6 +171,7 @@ public class PlaceController : MonoBehaviour
         if(level < 3) level++;
         else level = 0;
         GameInstance.GameIns.uiManager.audioSource.clip = GameInstance.GameIns.uISoundManager.UIClick();
+        GameInstance.GameIns.uiManager.audioSource.volume = 0.2f;
         GameInstance.GameIns.uiManager.audioSource.Play();
         offset.transform.rotation = Quaternion.Euler(0, rotates[level], 0);
         offset.transform.localPosition = rotateOffsets[level];
@@ -182,11 +183,13 @@ public class PlaceController : MonoBehaviour
         if (canPlace)
         {
             GameInstance.GameIns.uiManager.audioSource.clip = GameInstance.GameIns.uISoundManager.UIClick();
+            GameInstance.GameIns.uiManager.audioSource.volume = 0.2f;
             GameInstance.GameIns.uiManager.audioSource.Play();
             if (!purchasedObject)
             {
                 //값을 지불
                 GameInstance.GameIns.uiManager.audioSource.clip = GameInstance.GameIns.uISoundManager.FurniturePurchase();
+                GameInstance.GameIns.uiManager.audioSource.volume = 0.2f;
                 GameInstance.GameIns.uiManager.audioSource.Play();
                 GameInstance.GameIns.restaurantManager.restaurantCurrency.Money -= storeGoods.goods.Price_Value;
                 GameInstance.GameIns.restaurantManager.GetMoney((-storeGoods.goods.Price_Value).ToString());
@@ -204,6 +207,7 @@ public class PlaceController : MonoBehaviour
     public void Cancel()
     {
         GameInstance.GameIns.uiManager.audioSource.clip = GameInstance.GameIns.uISoundManager.UIClick();
+        GameInstance.GameIns.uiManager.audioSource.volume = 0.2f;
         GameInstance.GameIns.uiManager.audioSource.Play();
         if (purchasedObject) GameInstance.GameIns.gridManager.Revert(this);
         GameInstance.GameIns.gridManager.RemoveCell();

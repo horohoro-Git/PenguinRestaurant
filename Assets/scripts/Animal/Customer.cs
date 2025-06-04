@@ -768,7 +768,8 @@ public class Customer : AnimalController
                         float tm = 0;
                         for (int i = 0; i < 100; i++)
                         {
-                            if (tm + 0.5f <= Time.time)
+                            int timer = (int)(10 * animalStruct.eat_speed);
+                            if (tm + animalStruct.eat_speed / 10 <= Time.time)
                             {
                                 tm = Time.time;
 
@@ -779,7 +780,6 @@ public class Customer : AnimalController
                                 // animator.SetInteger("state", 2);
                                 animal.PlayTriggerAnimation(AnimationKeys.Eat);
                             }
-                            int timer = (int)(10 * animalStruct.eat_speed);
                             await UniTask.Delay(timer);
                             //if (table.foodStacks[0].foodStack.Count == 0) break;
                         }
@@ -817,6 +817,7 @@ public class Customer : AnimalController
                     ParticleManager.ClearParticle(particle);
 
                     animal.audioSource.clip = GameInstance.GameIns.gameSoundManager.Happy();
+                    animal.audioSource.volume = 0.2f;
                     animal.audioSource.Play();
                     EmoteTimer(5000, App.GlobalToken).Forget();
                     await UniTask.Delay(3000, cancellationToken: cancellationToken);

@@ -10,6 +10,7 @@ public class Furniture : MonoBehaviour
     [field: SerializeField]
     public WorkSpaceType spaceType { get; set; }
 
+    public GameObject model;
     public bool spawned;
     [NonSerialized] public Vector3 originPos;
     public Vector3 offsetPoint;
@@ -22,7 +23,43 @@ public class Furniture : MonoBehaviour
         {
             SaveLoadSystem.SaveRestaurantBuildingData();
             spawned = true;
+            StartCoroutine(ScaleAnimation());
         }
     }
+    IEnumerator ScaleAnimation()
+    {
+        Vector3 origin = model.transform.localScale;
+        float f = 0;
+        Vector3 start = origin;
+        Vector3 target1 = origin * 1.2f;
+        Vector3 target2 = origin * 0.95f;
+        while (f <= 0.1f)
+        {
+            Vector3 targetPos = Vector3.Lerp(start, target1, f / 0.1f);
+            model.transform.localScale = targetPos;
+            f += Time.unscaledDeltaTime;
+            yield return null;
+        }
+        model.transform.localScale = target1;
+        f = 0;
+        while (f <= 0.15f)
+        {
+            Vector3 targetPos = Vector3.Lerp(target1, target2, f / 0.15f);
+            model.transform.localScale = targetPos;
+            f += Time.unscaledDeltaTime;
+            yield return null;
+        }
+        model.transform.localScale = target2;
 
+        f = 0;
+        while (f <= 0.05f)
+        {
+            Vector3 targetPos = Vector3.Lerp(target2, start, f / 0.05f);
+            model.transform.localScale = targetPos;
+            f += Time.unscaledDeltaTime;
+            yield return null;
+        }
+        model.transform.localScale = start;
+
+    }
 }

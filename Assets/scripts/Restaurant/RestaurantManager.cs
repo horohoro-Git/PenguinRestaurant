@@ -396,8 +396,14 @@ public class RestaurantManager : MonoBehaviour
 
     public void ApplyPlaced(Furniture furniture)
     {
+        StartCoroutine(ApplyPlacedNextFrame(furniture));    
+    }
+
+    IEnumerator ApplyPlacedNextFrame(Furniture furniture)
+    {
+        yield return null;
         MoveCalculator.CheckAreaWithBounds(GameInstance.GameIns.calculatorScale, furniture.GetComponentInChildren<Collider>(), true);
-      //  MoveCalculator.CheckArea(GameInstance.GameIns.calculatorScale);
+        //  MoveCalculator.CheckArea(GameInstance.GameIns.calculatorScale);
         for (int i = 0; i < GameInstance.GameIns.animalManager.employeeControllers.Count; i++)
         {
             Employee e = GameInstance.GameIns.animalManager.employeeControllers[i];
@@ -721,6 +727,7 @@ public class RestaurantManager : MonoBehaviour
             //  animal.EmployeeData = employeeDatas[combineDatas.employeeData[animal.id - 1].level - 1];
             animal.employeeLevel = AssetLoader.employees_levels[1];
             animal.animal.audioSource.clip = GameIns.gameSoundManager.Quack();
+            animal.animal.audioSource.volume = 0.2f;
             animal.animal.audioSource.Play();
             // animal.EmployeeData = new EmployeeData(1, 1, 1, 1, 1);
             //   Vector3 targetPos = GameInstance.GameIns.inputManager.cameraRange.position;
@@ -916,6 +923,7 @@ public class RestaurantManager : MonoBehaviour
         if (restaurantCurrency.Money >= foodMachine.machineLevelData.Price_Value)
         {
             GameIns.uiManager.audioSource.clip = GameIns.uISoundManager.Money();
+            GameIns.uiManager.audioSource.volume = 0.2f;
             GameIns.uiManager.audioSource.Play();
             restaurantCurrency.Money -= foodMachine.machineLevelData.Price_Value;
             GetMoney((-foodMachine.machineLevelData.Price_Value).ToSafeString()); 
@@ -944,6 +952,7 @@ public class RestaurantManager : MonoBehaviour
     public void AddFuel(FoodMachine foodMachine, int amount)
     {
         GameIns.uiManager.audioSource.clip = GameIns.uISoundManager.Fish();
+        GameIns.uiManager.audioSource.volume = 0.2f;
         GameIns.uiManager.audioSource.Play();
         GetFish(-amount);
         restaurantCurrency.changed = true;

@@ -21,8 +21,7 @@ public class Panel : MonoBehaviour
     {
         thisButton.onClick.AddListener(() =>
         {
-            GameInstance.GameIns.uiManager.audioSource.clip = GameInstance.GameIns.uISoundManager.UIClick();
-            GameInstance.GameIns.uiManager.audioSource.Play();
+            GameInstance.GameIns.uiManager.UIClick();
             Spread(spread);
         });
     }

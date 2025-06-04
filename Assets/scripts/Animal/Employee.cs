@@ -1443,7 +1443,10 @@ public class Employee : AnimalController
                             DOTween.Kill(f.transforms); //Tween Á¦°Å
                             f.transforms.DOJump(targetPosition, r, 1, 0.2f).OnComplete(() =>
                               OnFoodStackComplete(f, targetPosition, foodStack, audioSource, foodStack.foodStack.Count, headPoint));
-#endif
+                            audioSource.clip = GameIns.gameSoundManager.ThrowSound();
+                            audioSource.volume = 0.2f;
+                            audioSource.Play();
+#endif 
                             await UniTask.Delay(300, cancellationToken: cancellationToken);
                             if (pause) break;
                         }
@@ -1521,8 +1524,9 @@ public class Employee : AnimalController
                             counter.foodStacks[i].getNum = counter.foodStacks[i].getNum - 1 < 0 ? 0 : counter.foodStacks[i].getNum - 1;
 
                             if (debuging) Debug.Log(counter.foodStacks[i].getNum);
-                            animal.audioSource.clip = GameIns.gameSoundManager.ThrowSound();
-                            animal.audioSource.Play();
+                            audioSource.clip = GameIns.gameSoundManager.ThrowSound();
+                            audioSource.volume = 0.2f;
+                            audioSource.Play();
                             await UniTask.Delay(300, cancellationToken: cancellationToken);
 
                             EXP += 1;
@@ -1709,6 +1713,9 @@ public class Employee : AnimalController
                                         DOTween.Kill(f.transforms);
                                         f.transforms.DOJump(pos, r, 1, 0.2f).OnComplete(() =>
                                         OnFoodStackComplete(f, pos, counter.customer.foodStacks[j], audioSource, index, counter.customer.headPoint));
+                                        audioSource.clip = GameIns.gameSoundManager.ThrowSound();
+                                        audioSource.volume = 0.2f;
+                                        audioSource.Play();
 #endif
                                         counter.customer.VisualizingFoodStack.Add(f);
                                         index++;
@@ -1821,6 +1828,9 @@ public class Employee : AnimalController
                         DOTween.Kill(garbage.transforms);
                         garbage.transforms.DOJump(pos, r, 1, 0.2f).OnComplete(() =>
                         OnGarbageStackComplete(garbage, pos, garbageList, audioSource, index, headPoint));
+                        audioSource.clip = GameIns.gameSoundManager.ThrowSound();
+                        audioSource.volume = 0.2f;
+                        audioSource.Play();
 #endif
                         await UniTask.Delay(300, cancellationToken: cancellationToken);
                         if (pause) goto Escape;
@@ -1899,6 +1909,9 @@ public class Employee : AnimalController
                         DOTween.Kill(garbage.transforms);
                         garbage.transforms.DOJump(pos, r, 1, 0.2f).OnComplete(() =>
                         OnGarbageClearComplete(garbage, audioSource));
+                        audioSource.clip = GameIns.gameSoundManager.ThrowSound();
+                        audioSource.volume = 0.2f;
+                        audioSource.Play();
 #endif
                         await UniTask.Delay(300, cancellationToken: cancellationToken);
                         EXP += 2;
@@ -2642,8 +2655,7 @@ public class Employee : AnimalController
             fs.foodStack.Push(food);
             food.transform.position = targetPoint;
             food.Setup(target, index);
-            audio.clip = GameIns.gameSoundManager.ThrowSound();
-            audio.Play();
+           
         }
     }
     void OnGarbageStackComplete(Garbage garbage, Vector3 targetPoint, Stack<Garbage> gs, AudioSource audio, int index, Transform target)
@@ -2653,16 +2665,12 @@ public class Employee : AnimalController
             gs.Push(garbage);
             garbage.transform.position = targetPoint;
             garbage.Setup(target, index);
-            audio.clip = GameIns.gameSoundManager.ThrowSound();
-            audio.Play();
         }
     }
 
     void OnGarbageClearComplete(Garbage garbage, AudioSource audio)
     {
         GarbageManager.ClearGarbage(garbage);
-        audio.clip = GameIns.gameSoundManager.ThrowSound();
-        audio.Play();
     }
 
 
@@ -2698,6 +2706,7 @@ public class Employee : AnimalController
     public void Dragged()
     {
         animal.audioSource.clip = GameIns.gameSoundManager.Quack();
+        animal.audioSource.volume = 0.2f;
         animal.audioSource.Play();
         animator.SetInteger("state", 2);
         animal.PlayAnimation(AnimationKeys.Fly);
