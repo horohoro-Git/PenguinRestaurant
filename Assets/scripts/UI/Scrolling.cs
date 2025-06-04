@@ -60,7 +60,6 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
         if (diff > 0)
         {
        
-            isDown = false;
             curPos.y = curPos.y + diff;
             if (curPos.y > 400)
             {
@@ -68,14 +67,20 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
             }
             else
             {
-               animator.enabled = true;
-               animator.SetInteger(AnimationKeys.scrolling, 1);
+                if (isDown)
+                {
+                    GameInstance.GameIns.uiManager.audioSource.clip = GameInstance.GameIns.uISoundManager.Spread();
+                    GameInstance.GameIns.uiManager.audioSource.volume = 0.2f;
+                    GameInstance.GameIns.uiManager.audioSource.Play();
+                }
+                animator.enabled = true;
+                animator.SetInteger(AnimationKeys.scrolling, 1);
             }
+            isDown = false;
             SetParentVector = curPos; 
         }
         else if(diff < 0)
         {
-            isDown = true;
             curPos.y = curPos.y + diff;
             if (curPos.y < -270)
             {
@@ -83,9 +88,16 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
             }
             else
             {
+                if (!isDown)
+                {
+                    GameInstance.GameIns.uiManager.audioSource.clip = GameInstance.GameIns.uISoundManager.Fold();
+                    GameInstance.GameIns.uiManager.audioSource.volume = 0.2f;
+                    GameInstance.GameIns.uiManager.audioSource.Play();
+                }
                 animator.enabled = true;
                 animator.SetInteger(AnimationKeys.scrolling, 2);
             }
+            isDown = true;
             SetParentVector = curPos;
         }
         else
@@ -182,6 +194,9 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
         if (scrollCoroutine != null) StopCoroutine(scrollCoroutine);
       
         scrollCoroutine = StartCoroutine(Down());
+        GameInstance.GameIns.uiManager.audioSource.clip = GameInstance.GameIns.uISoundManager.Fold();
+        GameInstance.GameIns.uiManager.audioSource.volume = 0.2f;
+        GameInstance.GameIns.uiManager.audioSource.Play();
         animator.enabled = true;
         animator.SetInteger(AnimationKeys.scrolling, 2);
         isSpread = false;

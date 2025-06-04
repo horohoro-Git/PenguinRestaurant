@@ -60,8 +60,8 @@ public class UIManager : MonoBehaviour
     {
         animalGuideButton.onClick.AddListener(() =>
         {
-            audioSource.clip = GameIns.uISoundManager.UIClick();
-            audioSource.Play();
+            UIClick();
+          
             if (bGuideOn)
             {
                 animalGuideImage.sprite = loadedSprites[spriteAssetKeys[10001].ID];
@@ -106,8 +106,7 @@ public class UIManager : MonoBehaviour
 
         changeScene.onClick.AddListener(() =>
         {
-            audioSource.clip = GameIns.uISoundManager.UIClick();
-            audioSource.Play();
+            UIClick();
             switch (GameIns.app.currentScene)
             {
                 case SceneState.Restaurant:
@@ -135,23 +134,20 @@ public class UIManager : MonoBehaviour
         });
 
         menuOption.onClick.AddListener(() => {
-            audioSource.clip = GameIns.uISoundManager.UIClick();
-            audioSource.Play();
+            UIClick();
             option.SetActive(true);
             
         });
 
         drawBtn.onClick.AddListener(() =>
         {
-            audioSource.clip = GameIns.uISoundManager.UIClick();
-            audioSource.Play();
+            UIClick();
             GameIns.gatcharManager.StartGatcha();
         });
 
         drawSpeedUpBtn.onClick.AddListener(() =>
         {
-            audioSource.clip = GameIns.uISoundManager.UIClick();
-            audioSource.Play();
+            UIClick();
             GameIns.gatcharManager.GatcharSpeedUp();
         });
     }
@@ -315,6 +311,7 @@ public class UIManager : MonoBehaviour
     public void QuitGame()
     {
         audioSource.clip = GameIns.uISoundManager.UIClick();
+        audioSource.volume = 0.2f;
         audioSource.Play();
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
@@ -371,5 +368,12 @@ public class UIManager : MonoBehaviour
             // 1000 미만일 경우 일반 표시
             moneyText.text = currentMoney.ToString();
         }
+    }
+
+    public void UIClick()
+    {
+        audioSource.clip = GameIns.uISoundManager.UIClick();
+        audioSource.volume = 0.1f;
+        audioSource.Play();
     }
 }

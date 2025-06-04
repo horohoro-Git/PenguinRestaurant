@@ -197,6 +197,7 @@ public class FoodMachine : Furniture
 
             AudioSource audioSource = tray.GetComponent<AudioSource>();
             audioSource.clip = GameInstance.GameIns.gameSoundManager.DropPlate();
+            audioSource.volume = 0.2f;
             audioSource.Play();
 
             f = 0;
@@ -353,6 +354,7 @@ public class FoodMachine : Furniture
                 }
 
                 audioSource.clip = GameInstance.GameIns.gameSoundManager.MachineSound(soundClip);
+                audioSource.volume = 0.1f;
                 audioSource.loop = true;
                 audioSource.Play();
 

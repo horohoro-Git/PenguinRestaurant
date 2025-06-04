@@ -5,7 +5,6 @@ using UnityEngine;
 
 public class BurgerMachine : FoodMachine
 {
-
     public Transform pattyTrans;
 
     public GameObject testPatty;
@@ -63,6 +62,7 @@ public class BurgerMachine : FoodMachine
         StartCoroutine(CreateBurger(f));
 
         foodCreateAudio.clip = GameInstance.GameIns.gameSoundManager.CreateFood();
+        foodCreateAudio.volume = 0.4f;
         foodCreateAudio.Play();
     }
 

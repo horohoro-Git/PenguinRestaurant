@@ -152,6 +152,7 @@ public class ApplianceUIManager : MonoBehaviour
         if (scheduleCoroutine == null)
         {
             GameInstance.GameIns.uiManager.audioSource.clip = GameInstance.GameIns.uISoundManager.FurnitureClick();
+            GameInstance.GameIns.uiManager.audioSource.volume = 0.2f;
             GameInstance.GameIns.uiManager.audioSource.Play();
             furnitureUI.UpdateInfo(furniture);
             appliancePanel.SetActive(true);

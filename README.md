@@ -34,3 +34,4 @@ Animal Restaurant Tycoon Game
 06/01 The UI button now plays a sound when clicked
 06/02 Add sounds for food preparation, food movement, currency, and furniture placement
 06/03 Add sound licensing information, eating sounds, and emotional expression sounds
+06/04 Limited purchase scale animation to model only, added shop open/close sounds

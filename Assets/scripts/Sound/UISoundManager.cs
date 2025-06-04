@@ -14,6 +14,8 @@ public class UISoundManager : SoundManager
     public List<int> furniturePurchaseSoundKey = new List<int>();
     public List<int> moneySoundKey = new List<int>();
     public List<int> fishSoundKey = new List<int>();
+    public List<int> spreadSoundKey = new List<int>();
+    public List<int> foldSoundKey = new List<int>();
     [NonSerialized] public List<AudioClip> uiClickClips = new List<AudioClip>();
     [NonSerialized] public List<AudioClip> uiPopClips = new List<AudioClip>();
     [NonSerialized] public List<AudioClip> furnitureClickClips = new List<AudioClip>();
@@ -21,6 +23,8 @@ public class UISoundManager : SoundManager
     [NonSerialized] public List<AudioClip> furniturePurchaseClips = new List<AudioClip>();
     [NonSerialized] public List<AudioClip> moneyClips = new List<AudioClip>();
     [NonSerialized] public List<AudioClip> fishClips = new List<AudioClip>();
+    [NonSerialized] public List<AudioClip> spreadClips = new List<AudioClip>();
+    [NonSerialized] public List<AudioClip> foldClips = new List<AudioClip>();
     private void Awake()
     {
         GameInstance.GameIns.uISoundManager = this;
@@ -31,6 +35,8 @@ public class UISoundManager : SoundManager
         for (int i = 0; i < furniturePurchaseSoundKey.Count; i++) furniturePurchaseClips.Add(loadedSounds[sounds[furniturePurchaseSoundKey[i]].Name]);
         for (int i = 0; i < moneySoundKey.Count; i++) moneyClips.Add(loadedSounds[sounds[moneySoundKey[i]].Name]);
         for (int i = 0; i < fishSoundKey.Count; i++) fishClips.Add(loadedSounds[sounds[fishSoundKey[i]].Name]);
+        for (int i = 0; i < spreadSoundKey.Count; i++) spreadClips.Add(loadedSounds[sounds[spreadSoundKey[i]].Name]);
+        for (int i = 0; i < foldSoundKey.Count; i++) foldClips.Add(loadedSounds[sounds[foldSoundKey[i]].Name]);
     }
 
     public AudioClip UIClick()
@@ -69,5 +75,15 @@ public class UISoundManager : SoundManager
     {
         int r = Random.Range(0, fishClips.Count);
         return fishClips[r];
+    }
+    public AudioClip Spread()
+    {
+        int r = Random.Range(0, spreadClips.Count);
+        return spreadClips[r];
+    }
+    public AudioClip Fold()
+    {
+        int r = Random.Range(0, foldClips.Count);
+        return foldClips[r];
     }
 }
