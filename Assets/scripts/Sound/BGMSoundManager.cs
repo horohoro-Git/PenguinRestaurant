@@ -5,19 +5,53 @@ using UnityEngine;
 
 public class BGMSoundManager : SoundManager
 {
+    AudioSource audio;
     public List<int> bgmSoundKey = new List<int>();
-    public List<AudioClip> bgmClips = new List<AudioClip>();
+    public Dictionary<int, AudioClip> bgmClips = new Dictionary<int, AudioClip>();
+    Coroutine bgmCoroutine;
     private void Awake()
     {
-        for (int i = 0; i < bgmSoundKey.Count; i++)
-        {
-            bgmClips.Add(AssetLoader.loadedSounds[AssetLoader.sounds[bgmSoundKey[i]].Name]);
-        }
+        
+        DontDestroyOnLoad(this);
+        audio = GetComponent<AudioSource>();
+        GameInstance.GameIns.bgMSoundManager = this;
+     
     }
 
-    public AudioClip BGM()
+    public void Setup()
     {
-        int r = UnityEngine.Random.Range(0, bgmClips.Count);
-        return bgmClips[r];
+        for (int i = 0; i < bgmSoundKey.Count; i++) bgmClips[bgmSoundKey[i]] = AssetLoader.loadedSounds[AssetLoader.sounds[bgmSoundKey[i]].Name];
+       // BGM(910000, 0.4f);
+    }
+  
+    public void BGMChange(int index, float vol)
+    {
+        if(bgmCoroutine != null) StopCoroutine(bgmCoroutine);
+        bgmCoroutine = StartCoroutine(Changing(index, vol));
+       
+    }
+
+    IEnumerator Changing(int index, float vol)
+    {
+        float f = 0;
+        float volume = audio.volume;
+        while (f <= 0.2f)
+        {
+            audio.volume = volume * (0.2f - f) * 5;
+            f += Time.unscaledDeltaTime;
+            yield return null;
+        }
+
+
+        f = 0;
+        audio.clip = bgmClips[index];
+        audio.Play();
+        while (f <= 0.1f)
+        {
+            audio.volume = vol * (f) * 10f;
+            f += Time.unscaledDeltaTime;
+            yield return null;
+        }
+        audio.volume = vol;
     }
 }

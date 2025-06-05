@@ -680,4 +680,17 @@ public class AnimalManager : MonoBehaviour
             employee.FindEmployeeWorks();
         }
     }
+
+    public BlackConsumer NewBlackConsumer()
+    {
+        BlackConsumer blackConsumer = Instantiate(AssetLoader.loadedAssets[AssetLoader.itemAssetKeys[201].Name]).GetComponent<BlackConsumer>();
+        blackConsumer.consumerCallback -= BlackConsumerAction;
+        blackConsumer.consumerCallback += BlackConsumerAction;
+        return blackConsumer;   
+    }
+
+    public void BlackConsumerAction(BlackConsumer blackConsumer)
+    {
+        blackConsumer.CauseTrouble();
+    }
 }

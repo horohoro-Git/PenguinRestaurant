@@ -7,6 +7,7 @@ using UnityEngine.UI;
 
 public class Loading : MonoBehaviour
 {
+    public AudioListener audio;
     public Camera cam;
     public Image image;
     public TMP_Text text;
@@ -72,6 +73,9 @@ public class Loading : MonoBehaviour
 
         image.raycastTarget = false;
 
+        audio.enabled = false;
+        GameInstance.GameIns.playerCamera.audioListener.enabled = true;
+        GameInstance.GameIns.bgMSoundManager.BGMChange(901000, 0.4f);
         App.UnloadAsync("LoadingScene");
     }
 }

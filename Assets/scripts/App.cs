@@ -62,6 +62,8 @@ public class App : MonoBehaviour
 
             await LoadRegulation(cancellationToken);
 
+            GameInstance.GameIns.bgMSoundManager.Setup();
+
             await LoadGameAsset(cancellationToken);
 
         }
@@ -304,6 +306,7 @@ public class App : MonoBehaviour
     public void ChangeScene_Restaurant()
     {
         if (currentScene == SceneState.Restaurant) return;
+        GameInstance.GameIns.bgMSoundManager.BGMChange(901000, 0.4f);
         currentScene = SceneState.Restaurant; 
         GameInstance.GameIns.inputManager.cameraTrans.position = pos;
       //  GameInstance.GameIns.inputManager.DragScreen_WindowEditor(true);
@@ -320,6 +323,7 @@ public class App : MonoBehaviour
     {
         if (currentScene == SceneState.Draw) return;
         currentScene = SceneState.Draw;
+        GameInstance.GameIns.bgMSoundManager.BGMChange(900100, 0.2f);
       //  GameInstance.GameIns.inputManager.DragScreen_WindowEditor(true);
         GameInstance.GameIns.inputManager.inputDisAble = true;
         pos = GameInstance.GameIns.inputManager.cameraTrans.position;

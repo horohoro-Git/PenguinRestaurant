@@ -604,6 +604,7 @@ public class SaveLoadSystem
         {
             using (BinaryWriter writer = new BinaryWriter(ms))
             {
+                WorkSpaceManager workSpaceManager = GameInstance.GameIns.workSpaceManager;
                 foreach (var machine in machines)
                 {
                     int id = machine.Value.id;
@@ -614,6 +615,35 @@ public class SaveLoadSystem
                     int max_height = machine.Value.max_height;
                     int type = (int)machine.Key;
                     int fishes = machine.Value.fishes;
+                    for(int i = 0; i < workSpaceManager.counters.Count; i++)
+                    {
+                        List<FoodStack> foodStacks = workSpaceManager.counters[i].foodStacks;
+                        for(int j = 0; j < foodStacks.Count; j++)
+                        {
+                            if(foodStacks[j].type == machine.Key)
+                            {
+                                fishes += foodStacks[j].foodStack.Count;
+                            }
+                        }
+                    }
+
+                    for(int i = 0; i < workSpaceManager.foodMachines.Count; i++)
+                    {
+                        FoodMachine fm = workSpaceManager.foodMachines[i];
+                        if(fm.machineType == machine.Key)
+                        {
+                            fishes += fm.foodStack.foodStack.Count;
+                        }
+                    }
+
+                    AnimalManager am = GameInstance.GameIns.animalManager;
+                    for (int i = 0; i < am.employeeControllers.Count; i++)
+                    {
+                        Employee employee = am.employeeControllers[i];
+                        fishes += employee.foodStacks[machine.Key].foodStack.Count;
+                    }
+
+
                     writer.Write(id);
                     writer.Write(level);
                     writer.Write(price);
