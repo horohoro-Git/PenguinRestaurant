@@ -5,6 +5,7 @@ using UnityEngine.InputSystem;
 
 public class PlayerCamera : MonoBehaviour
 {
+    public AudioListener audioListener;
     public Transform GetTransform;
     private Vector3 moveDir = Vector3.zero;
     public float bounceForce = 3f;
@@ -16,6 +17,11 @@ public class PlayerCamera : MonoBehaviour
 
     private float previousDistance = 0f;
 
+    private void Awake()
+    {
+        GameInstance.GameIns.playerCamera = this;
+        audioListener = GetComponentInChildren<AudioListener>();    
+    }
     void Update()
     {
 #if UNITY_ANDROID || UNITY_IOS

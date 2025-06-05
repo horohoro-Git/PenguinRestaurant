@@ -47,3 +47,11 @@ Source: https://freesound.org/people/mattruthsound/sounds/561572/
 "Cloth Bedding Brush Sweep 014" by mattruthsound on Freesound.org  
 Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)  
 Source: https://freesound.org/people/mattruthsound/sounds/561573/
+
+"Pulse" by KiluaBoy  
+Licensed under CC BY 3.0  
+https://soundcloud.com/kilua-boy/pulse
+
+"Sleep Talking" by KiluaBoy
+Licensed under CC BY 3.0
+https://soundcloud.com/kilua-boy/sleep-talking

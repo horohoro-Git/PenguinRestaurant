@@ -9,6 +9,7 @@ public class GameInstance
     static GameInstance gameInstance = new GameInstance();
 
     public App app;
+    public PlayerCamera playerCamera;
     public CalculatorScale calculatorScale;
     public AnimalManager animalManager;
     public WorkSpaceManager workSpaceManager;
@@ -26,6 +27,7 @@ public class GameInstance
     public LODManager lodManager;
     public UISoundManager uISoundManager;
     public GameSoundManager gameSoundManager;
+    public BGMSoundManager bgMSoundManager;
     public static GameInstance GameIns { get { return gameInstance; }  }
     private static Queue<Vector3> pool = new Queue<Vector3>();
     public static List<GraphicRaycaster> graphicRaycasters = new List<GraphicRaycaster>();

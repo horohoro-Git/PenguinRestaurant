@@ -35,6 +35,8 @@ public class Table : Furniture
     public float weight;
     public float height;
 
+    public bool hasProblem;
+    public GameObject[] placedFoods = new GameObject[2];
     public void Awake()
     {
         //transforms = transform;

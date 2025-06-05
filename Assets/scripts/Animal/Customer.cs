@@ -535,21 +535,52 @@ public class Customer : AnimalController
                 {
                     if (t.isDirty == false)
                     {
-                        for (int j = 0; j < t.seats.Length; j++)
+                        int index = -1;
+                        int c = 0;
+                        for(int j = 0; j < t.seats.Length; j++)
                         {
-                            if ((t.seats[j].customer == null || t.seats[j].customer == this))
+                            if (t.seats[j].customer != null)
                             {
-                                counter.customer = null;
-                                position[0].controller = null;
-                                t.seats[j].customer = this;
-                                t.numberOfFoods += foodNum;
-                                customerState = CustomerState.Counter;
-                                busy = false;
-                                customerCallback?.Invoke(this);
-                               // GameInstance.GameIns.animalManager.AttacCustomerTask(this);
-                                return;
+                                index = j;
+                                c++;
                             }
                         }
+                        if (c >= 2) continue;
+
+                        counter.customer = null;
+                        position[0].controller = null;
+
+                        if (index == -1)
+                        {
+                            float min = 9999;
+                            Seat selectedSeat = null;
+                            for (int j = 0; j < t.seats.Length; j++)
+                            {
+                                float cur = Vector3.Distance(trans.position, t.seats[j].transform.position);
+                                if (min > cur)
+                                {
+                                    min = cur;
+                                    selectedSeat = t.seats[j];
+                                }
+                            }
+
+                            selectedSeat.customer = this;
+                            t.numberOfFoods += foodNum;
+                        }
+                        else
+                        {
+                            int nextIndex = index + 2;
+                            nextIndex = nextIndex > 3 ? nextIndex - 4 : nextIndex;
+                            t.seats[nextIndex].customer = this;
+                            t.numberOfFoods += foodNum;
+                         
+                        }
+
+                        customerState = CustomerState.Counter;
+                        busy = false;
+                        customerCallback?.Invoke(this);
+
+                        return;
                     }
                 }
             }
@@ -766,21 +797,36 @@ public class Customer : AnimalController
                         await UniTask.Delay(300, cancellationToken: cancellationToken);
 
                         float tm = 0;
+
+                        Escape:
+
                         for (int i = 0; i < 100; i++)
                         {
-                            int timer = (int)(10 * animalStruct.eat_speed);
-                            if (tm + animalStruct.eat_speed / 10 <= Time.time)
+                           
+                            if (!table.hasProblem)
                             {
-                                tm = Time.time;
+                                int timer = (int)(10 * animalStruct.eat_speed);
+                                if (tm + animalStruct.eat_speed / 10 <= Time.time)
+                                {
+                                    tm = Time.time;
 
-                                animal.audioSource.clip = GameInstance.GameIns.gameSoundManager.Eat();
-                                animal.audioSource.volume = 0.05f;
-                                animal.audioSource.Play();
-                                animator.SetTrigger(AnimationKeys.eat);
-                                // animator.SetInteger("state", 2);
-                                animal.PlayTriggerAnimation(AnimationKeys.Eat);
+                                    animal.audioSource.clip = GameInstance.GameIns.gameSoundManager.Eat();
+                                    animal.audioSource.volume = 0.05f;
+                                    animal.audioSource.Play();
+                                    animator.SetTrigger(AnimationKeys.eat);
+                                    // animator.SetInteger("state", 2);
+                                    animal.PlayTriggerAnimation(AnimationKeys.Eat);
+                                }
+                                await UniTask.Delay(timer);
                             }
-                            await UniTask.Delay(timer);
+                            else
+                            {
+                                while(table.hasProblem)
+                                {
+                                    await UniTask.Delay(100, cancellationToken: cancellationToken);
+                                }
+                                goto Escape;
+                            }
                             //if (table.foodStacks[0].foodStack.Count == 0) break;
                         }
 

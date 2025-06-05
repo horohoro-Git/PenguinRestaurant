@@ -50,6 +50,17 @@ public enum LOD_Type
     LOD0,
     LOD1
 }
+
+public enum BlackConsumerState
+{
+    None,
+    FindingTarget,
+    FoundTarget,
+    MoveToTarget,
+    Steal,
+    Kidding,
+    SubDue
+}
 public class RestaurantParam
 {
     public int id;
