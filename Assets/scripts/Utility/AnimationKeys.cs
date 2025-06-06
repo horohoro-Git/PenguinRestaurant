@@ -14,11 +14,12 @@ public static class AnimationKeys
     public const string Eat = "Eat";
 
     // Shape Keys
-    public const int Happy = 1;
-    public const int Excited = 2;
-    public const int Sad = 3;
-    public const int Trauma = 4;
-    public const int Dead = 5;
+    public const string Normal = "normal";
+    public const string Happy = "happy";
+    public const string Excited = "excited";
+    public const string Sad = "sad";
+    public const string Trauma = "trauma";
+    public const string Dead = "dead";
 
 
     // 애니메이터 파라미터

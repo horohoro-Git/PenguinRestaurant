@@ -13,6 +13,9 @@ public class GameSoundManager : SoundManager
     public List<int> quackSoundKeys = new List<int>();
     public List<int> happySoundKeys = new List<int>();
     public List<int> eatSoundKeys = new List<int>();
+    public List<int> laughAtSoundKeys = new List<int>();
+    public List<int> angryScreamSoundKeys = new List<int>();
+    public List<int> sadScreamScreamSoundKeys = new List<int>();
     public Dictionary<int, AudioClip> machinesSounds = new Dictionary<int, AudioClip>();
     [NonSerialized] public List<AudioClip> dropPlateSounds = new List<AudioClip>();
     [NonSerialized] public List<AudioClip> throwSounds = new List<AudioClip>();
@@ -20,6 +23,9 @@ public class GameSoundManager : SoundManager
     [NonSerialized] public List<AudioClip> quackSounds = new List<AudioClip>();
     [NonSerialized] public List<AudioClip> happySounds = new List<AudioClip>();
     [NonSerialized] public List<AudioClip> eatSounds = new List<AudioClip>();
+    [NonSerialized] public List<AudioClip> laughAtSounds = new List<AudioClip>();
+    [NonSerialized] public List<AudioClip> angryScreamSounds = new List<AudioClip>();
+    [NonSerialized] public List<AudioClip> sadScreamSounds = new List<AudioClip>();
 
 
 
@@ -35,6 +41,9 @@ public class GameSoundManager : SoundManager
         for (int i = 0; i < quackSoundKeys.Count; i++) quackSounds.Add(AssetLoader.loadedSounds[AssetLoader.sounds[quackSoundKeys[i]].Name]);
         for (int i = 0; i < happySoundKeys.Count; i++) happySounds.Add(AssetLoader.loadedSounds[AssetLoader.sounds[happySoundKeys[i]].Name]);
         for (int i = 0; i < eatSoundKeys.Count; i++) eatSounds.Add(AssetLoader.loadedSounds[AssetLoader.sounds[eatSoundKeys[i]].Name]);
+        for (int i = 0; i < laughAtSoundKeys.Count; i++) laughAtSounds.Add(AssetLoader.loadedSounds[AssetLoader.sounds[laughAtSoundKeys[i]].Name]);
+        for (int i = 0; i < angryScreamSoundKeys.Count; i++) angryScreamSounds.Add(AssetLoader.loadedSounds[AssetLoader.sounds[angryScreamSoundKeys[i]].Name]);
+        for (int i = 0; i < sadScreamScreamSoundKeys.Count; i++) sadScreamSounds.Add(AssetLoader.loadedSounds[AssetLoader.sounds[sadScreamScreamSoundKeys[i]].Name]);
     }
 
     public AudioClip DropPlate()
@@ -71,5 +80,22 @@ public class GameSoundManager : SoundManager
     {
         int r = UnityEngine.Random.Range(0, eatSounds.Count);
         return eatSounds[r];
+    }
+
+    public AudioClip LaughAt()
+    {
+        int r = UnityEngine.Random.Range(0, laughAtSounds.Count);
+        return laughAtSounds[r];
+    }
+
+    public AudioClip Angry()
+    {
+        int r = UnityEngine.Random.Range(0, angryScreamSounds.Count);
+        return angryScreamSounds[r];
+    }
+    public AudioClip Sad()
+    {
+        int r = UnityEngine.Random.Range(0, sadScreamSounds.Count);
+        return sadScreamSounds[r];
     }
 }

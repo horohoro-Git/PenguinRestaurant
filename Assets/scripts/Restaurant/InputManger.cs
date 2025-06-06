@@ -312,7 +312,7 @@ public class InputManger : MonoBehaviour
     {
         Ray ray = cachingCamera.ScreenPointToRay(pos);
         RaycastHit hit;
-        if (Physics.Raycast(ray, out hit, Mathf.Infinity, 1 << 3 | 1 << 11 | 1 << 10))
+        if (Physics.Raycast(ray, out hit, Mathf.Infinity, 1 << 3 | 1 << 11 | 1 << 10 | 1 << 22))
         {
             GameObject go = hit.collider.gameObject;
             if (go.TryGetComponent<UnlockableBuyer>(out UnlockableBuyer unlockableBuyer))
@@ -335,6 +335,10 @@ public class InputManger : MonoBehaviour
                     }
                     //GameInstance.GameIns.applianceUIManager.ShowPenguinUpgradeInfo(employee);
                 }
+            }
+            else if(go.TryGetComponent(out BlackConsumer blackConsumer))
+            {
+                blackConsumer.Caught();
             }
             else if (go.TryGetComponent<Table>(out Table table))
             {

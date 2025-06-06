@@ -35,8 +35,10 @@ public class Table : Furniture
     public float weight;
     public float height;
 
-    public bool hasProblem;
-    public GameObject[] placedFoods = new GameObject[2];
+    [NonSerialized] public bool hasProblem;
+    [NonSerialized] public bool stealing;
+    [NonSerialized] public bool stolen;
+    [NonSerialized] public GameObject[] placedFoods = new GameObject[4];
     public void Awake()
     {
         //transforms = transform;

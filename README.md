@@ -36,3 +36,4 @@ Animal Restaurant Tycoon Game
 06/03 Add sound licensing information, eating sounds, and emotional expression sounds
 06/04 Limited purchase scale animation to model only, added shop open/close sounds
 06/05 Add BGM (loading/in-game), Revise seating: pick between 2 zones, align toward nearest of 4 seat points, sit in a straight line
+06/06 Add a black consumer character who steals customers' food and interacts with guests eating at the table

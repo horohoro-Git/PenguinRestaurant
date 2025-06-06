@@ -282,11 +282,11 @@ public class AnimalManagerEditor : Editor
                             {
                                 for (int i = 0; i < t.seats.Length; i++)
                                 {
-                                    if (t.seats[i].customer == null)
+                                    if (t.seats[i].animal == null)
                                     {
                                         customer.busy = true;
                                         customer.customerState = CustomerState.Table;
-                                        t.seats[i].customer = customer;
+                                        t.seats[i].animal = customer;
                                         target = t.seats[i].transform.position;
                                         customer.CustomerPlayAction(target, t, i);
                                         return;
@@ -343,7 +343,7 @@ public class AnimalManagerEditor : Editor
                                 table.employeeContoller = em;
                                 em.employeeState = EmployeeState.Table;
                                 target = table.cleanSeat.position;
-                                em.Work(target, table);
+                            //    em.Work(target, table);
                                 return;
                             }
                         }
