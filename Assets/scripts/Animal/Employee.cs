@@ -16,6 +16,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.ProBuilder;
 using UnityEngine.UIElements;
 using static GameInstance;
+using static UnityEngine.Rendering.VolumeComponent;
 public class Employee : AnimalController
 {
     enum EmployeeActions
@@ -924,9 +925,27 @@ public class Employee : AnimalController
                     {
                         tableList[i].employeeContoller = this;
                         employeeState = EmployeeState.Table;
-                        target = tableList[i].cleanSeat.position;
 
-                        Work(target, tableList[i]);
+                        float min = 9999;
+                        Seat seat = null;
+                        int index = 0;
+                        for(int j = 0; j< tableList[i].seats.Length; j++)
+                        {
+                            float dif = Vector3.Distance(trans.position, tableList[i].seats[j].transform.position);
+                            if(dif < min)
+                            {
+                                index = j;
+                                min = dif;
+                                seat = tableList[i].seats[j];
+                            }
+                        }
+
+                        if (seat != null)
+                        {
+                            target = seat.transform.position;
+                            seat.animal = this;
+                            Work(target, tableList[i], index);
+                        }
                         return;
                     }
                 }
@@ -1217,9 +1236,9 @@ public class Employee : AnimalController
         else Employee_Serving(position, counter, App.GlobalToken).Forget();
     }
 
-    public void Work(Vector3 position, Table table)
+    public void Work(Vector3 position, Table table, int index)
     {
-        Employee_Table(position, table, App.GlobalToken).Forget();
+        Employee_Table(position, table, index, App.GlobalToken).Forget();
     }
 
     public void Work(Vector3 position, TrashCan trash)
@@ -1248,7 +1267,6 @@ public class Employee : AnimalController
 
     async UniTask Employee_Wait(int r, CancellationToken cancellationToken = default)
     {
-
         employeeState = EmployeeState.Wait;
         try
         {
@@ -1256,7 +1274,7 @@ public class Employee : AnimalController
             r = 2;
             if (r == 2)
             {
-                animator.SetInteger("state", 2);
+                animator.SetInteger("state", 0);
                 animal.PlayAnimation(AnimationKeys.Idle);
                // PlayAnim(animal.animationDic[animation_LookAround], animation_LookAround);
                 await UniTask.Delay(500, cancellationToken: cancellationToken);
@@ -1757,7 +1775,7 @@ public class Employee : AnimalController
         }
     }
 
-    async UniTask Employee_Table(Vector3 position, Table table, CancellationToken cancellationToken = default)
+    async UniTask Employee_Table(Vector3 position, Table table, int seatIndex, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -1801,7 +1819,7 @@ public class Employee : AnimalController
                                 animator.SetInteger("state", 0);
                                 animal.PlayAnimation(AnimationKeys.Idle);
                               //  PlayAnim(animal.animationDic[animation_Idle_A], animation_Idle_A);
-                              busy = false;
+                                busy = false;
                                 await UniTask.Delay(500);
                                 employeeCallback?.Invoke(this);
                                 return;
@@ -1809,9 +1827,7 @@ public class Employee : AnimalController
 
                             continue;
                         }
-
-                        modelTrans.LookAt(table.transforms);
-                        
+                        modelTrans.rotation = table.seats[seatIndex].transforms.rotation;
                     }
 
                     await UniTask.Delay(200, cancellationToken: cancellationToken);
@@ -1842,6 +1858,7 @@ public class Employee : AnimalController
                     table.employeeContoller = null;
                     employeeState = EmployeeState.TrashCan;
                     busy = false;
+                    table.seats[seatIndex].animal = null;
                     await UniTask.Delay(500, cancellationToken: cancellationToken);
                     GameInstance.GameIns.animalManager.AttachEmployeeTask(this);
                 }

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Seat : MonoBehaviour
 {
-    public AnimalController customer;
+    public AnimalController animal { get; set; }
     public Transform transforms;
 
     private void Awake()
