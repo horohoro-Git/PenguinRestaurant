@@ -92,8 +92,12 @@ public class AnimalManager : MonoBehaviour
             employee.FindEmployeeWorks();
         }
     };
+
+    [NonSerialized] public BlackConsumer blackConsumer;
+
     private void Awake()
     {
+        blackConsumer = NewBlackConsumer();
         WorkSpaceManager workSpaceManager = GetComponent<WorkSpaceManager>();
         GameInstance.GameIns.animalManager = this;
         GameInstance.GameIns.workSpaceManager = workSpaceManager;

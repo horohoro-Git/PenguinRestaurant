@@ -8,8 +8,18 @@ public class EnemySpawner : MonoBehaviour
 {
     float spawnTimer;
     BlackConsumer currentBlackConsumer;
+    bool bSpawned;
+    private void Awake()
+    {
+     
+    }
     private void Start()
     {
+        currentBlackConsumer = GameInstance.GameIns.animalManager.blackConsumer;
+        currentBlackConsumer.gameObject.SetActive(false);
+        currentBlackConsumer.spawnerTrans = transform;
+        currentBlackConsumer.trans.position = transform.position;
+        currentBlackConsumer.animalStruct = AssetLoader.animals[201];
         spawnTimer = Time.time;
         EnemySpawn(App.GlobalToken).Forget();
     }
@@ -34,17 +44,15 @@ public class EnemySpawner : MonoBehaviour
                 }
                 if(animalManager.customerControllers.Count > 0 && canSpawn)
                 {
-                    if(currentBlackConsumer == null)
+                    if(!bSpawned)
                     {
-                        currentBlackConsumer = animalManager.NewBlackConsumer();
-                        currentBlackConsumer.spawnerTrans = transform;
-                        currentBlackConsumer.trans.position = transform.position;
-                        currentBlackConsumer.animalStruct = AssetLoader.animals[201];
-                        Debug.Log(currentBlackConsumer.animalStruct.eat_speed);
+                        bSpawned = true;
+                        currentBlackConsumer.gameObject.SetActive(true);
                         GameInstance.GameIns.lodManager.AddLODGroup(currentBlackConsumer.ID, currentBlackConsumer.lodGroup);
                         currentBlackConsumer.state = BlackConsumerState.FindingTarget;
                         currentBlackConsumer.consumerCallback?.Invoke(currentBlackConsumer);
                     }
+               
                 }
 
 
