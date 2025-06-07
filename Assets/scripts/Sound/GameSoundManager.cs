@@ -10,6 +10,9 @@ public class GameSoundManager : SoundManager
     public List<int> machinesSoundKeys = new List<int>();
     public List<int> throwSoundKeys = new List<int>();
     public List<int> createSoundKeys = new List<int>();
+    public List<int> extensionSoundKeys = new List<int>();
+    public List<int> hitSoundKeys = new List<int>();
+    public List<int> painSoundKeys = new List<int>();
     public List<int> quackSoundKeys = new List<int>();
     public List<int> happySoundKeys = new List<int>();
     public List<int> eatSoundKeys = new List<int>();
@@ -20,6 +23,9 @@ public class GameSoundManager : SoundManager
     [NonSerialized] public List<AudioClip> dropPlateSounds = new List<AudioClip>();
     [NonSerialized] public List<AudioClip> throwSounds = new List<AudioClip>();
     [NonSerialized] public List<AudioClip> createSounds = new List<AudioClip>();
+    [NonSerialized] public List<AudioClip> extensionSounds = new List<AudioClip>();
+    [NonSerialized] public List<AudioClip> hitSounds = new List<AudioClip>();
+    [NonSerialized] public List<AudioClip> painSounds = new List<AudioClip>();
     [NonSerialized] public List<AudioClip> quackSounds = new List<AudioClip>();
     [NonSerialized] public List<AudioClip> happySounds = new List<AudioClip>();
     [NonSerialized] public List<AudioClip> eatSounds = new List<AudioClip>();
@@ -38,7 +44,10 @@ public class GameSoundManager : SoundManager
         for (int i = 0; i < dropPlateSoundKeys.Count; i++) dropPlateSounds.Add(AssetLoader.loadedSounds[AssetLoader.sounds[dropPlateSoundKeys[i]].Name]);
         for (int i = 0; i < throwSoundKeys.Count; i++) throwSounds.Add(AssetLoader.loadedSounds[AssetLoader.sounds[throwSoundKeys[i]].Name]);
         for (int i = 0; i < createSoundKeys.Count; i++) createSounds.Add(AssetLoader.loadedSounds[AssetLoader.sounds[createSoundKeys[i]].Name]);
+        for (int i = 0; i < extensionSoundKeys.Count; i++) extensionSounds.Add(AssetLoader.loadedSounds[AssetLoader.sounds[extensionSoundKeys[i]].Name]);
         for (int i = 0; i < quackSoundKeys.Count; i++) quackSounds.Add(AssetLoader.loadedSounds[AssetLoader.sounds[quackSoundKeys[i]].Name]);
+        for (int i = 0; i < hitSoundKeys.Count; i++) hitSounds.Add(AssetLoader.loadedSounds[AssetLoader.sounds[hitSoundKeys[i]].Name]);
+        for (int i = 0; i < painSoundKeys.Count; i++) painSounds.Add(AssetLoader.loadedSounds[AssetLoader.sounds[painSoundKeys[i]].Name]);
         for (int i = 0; i < happySoundKeys.Count; i++) happySounds.Add(AssetLoader.loadedSounds[AssetLoader.sounds[happySoundKeys[i]].Name]);
         for (int i = 0; i < eatSoundKeys.Count; i++) eatSounds.Add(AssetLoader.loadedSounds[AssetLoader.sounds[eatSoundKeys[i]].Name]);
         for (int i = 0; i < laughAtSoundKeys.Count; i++) laughAtSounds.Add(AssetLoader.loadedSounds[AssetLoader.sounds[laughAtSoundKeys[i]].Name]);
@@ -65,6 +74,17 @@ public class GameSoundManager : SoundManager
     public AudioClip CreateFood()
     {
         return createSounds[0];
+    }
+
+    public AudioClip Extension()
+    {
+        int r = UnityEngine.Random.Range(0, extensionSounds.Count);
+        return extensionSounds[r];
+    }
+    public AudioClip Hit()
+    {
+        int r = UnityEngine.Random.Range(0,hitSounds.Count);
+        return hitSounds[r];
     }
     public AudioClip Quack()
     {

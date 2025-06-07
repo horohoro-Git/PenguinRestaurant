@@ -25,6 +25,7 @@ public static class AnimationKeys
     // 애니메이터 파라미터
     public const string state = "state";
     public const string eat = "eat";
+    public const string hit = "hit";
     public const string emotion = "emotion";
 
     public const string popup_close = "popup_close";

@@ -203,6 +203,9 @@ public class RestaurantManager : MonoBehaviour
         expandables[extensionLevel].SetActive(true);
         removables[extensionLevel].SetActive(false);
         extensionParticles[extensionLevel].Play();
+        purchase.clip = GameIns.gameSoundManager.Extension();
+        purchase.volume = 0.2f;
+        purchase.Play();
         restaurantData.extension_level++;
         restaurantData.changed = true;
 
@@ -592,7 +595,7 @@ public class RestaurantManager : MonoBehaviour
                 await UniTask.NextFrame(cancellationToken: cancellationToken);  
             }
 
-          
+            await UniTask.NextFrame(cancellationToken: cancellationToken);
             MoveCalculator.CheckArea(GameIns.calculatorScale, true);
 
             GameIns.store.StoreUpdate();
