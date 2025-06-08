@@ -19,6 +19,7 @@ public class GameSoundManager : SoundManager
     public List<int> laughAtSoundKeys = new List<int>();
     public List<int> angryScreamSoundKeys = new List<int>();
     public List<int> sadScreamScreamSoundKeys = new List<int>();
+    public List<int> levelupSoundKeys = new List<int>();
     public Dictionary<int, AudioClip> machinesSounds = new Dictionary<int, AudioClip>();
     [NonSerialized] public List<AudioClip> dropPlateSounds = new List<AudioClip>();
     [NonSerialized] public List<AudioClip> throwSounds = new List<AudioClip>();
@@ -32,6 +33,7 @@ public class GameSoundManager : SoundManager
     [NonSerialized] public List<AudioClip> laughAtSounds = new List<AudioClip>();
     [NonSerialized] public List<AudioClip> angryScreamSounds = new List<AudioClip>();
     [NonSerialized] public List<AudioClip> sadScreamSounds = new List<AudioClip>();
+    [NonSerialized] public List<AudioClip> levelupSounds = new List<AudioClip>();
 
 
 
@@ -53,6 +55,7 @@ public class GameSoundManager : SoundManager
         for (int i = 0; i < laughAtSoundKeys.Count; i++) laughAtSounds.Add(AssetLoader.loadedSounds[AssetLoader.sounds[laughAtSoundKeys[i]].Name]);
         for (int i = 0; i < angryScreamSoundKeys.Count; i++) angryScreamSounds.Add(AssetLoader.loadedSounds[AssetLoader.sounds[angryScreamSoundKeys[i]].Name]);
         for (int i = 0; i < sadScreamScreamSoundKeys.Count; i++) sadScreamSounds.Add(AssetLoader.loadedSounds[AssetLoader.sounds[sadScreamScreamSoundKeys[i]].Name]);
+        for (int i = 0; i < levelupSoundKeys.Count; i++) levelupSounds.Add(AssetLoader.loadedSounds[AssetLoader.sounds[levelupSoundKeys[i]].Name]);
     }
 
     public AudioClip DropPlate()
@@ -86,6 +89,12 @@ public class GameSoundManager : SoundManager
         int r = UnityEngine.Random.Range(0,hitSounds.Count);
         return hitSounds[r];
     }
+
+    public AudioClip Pain()
+    {
+        int r = UnityEngine.Random.Range(0, painSounds.Count);
+        return painSounds[r];
+    }
     public AudioClip Quack()
     {
         int r = UnityEngine.Random.Range(0, quackSounds.Count);
@@ -117,5 +126,10 @@ public class GameSoundManager : SoundManager
     {
         int r = UnityEngine.Random.Range(0, sadScreamSounds.Count);
         return sadScreamSounds[r];
+    }
+    public AudioClip LevelUp()
+    {
+        int r = UnityEngine.Random.Range(0, levelupSounds.Count);
+        return levelupSounds[r];
     }
 }

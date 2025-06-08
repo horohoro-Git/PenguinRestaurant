@@ -17,6 +17,8 @@ public class GatcharManager : MonoBehaviour
     public GameObject popup_TierUp;
     public Image backGlow;
     public Transform penguinPoint;
+    public AudioSource audioSource;
+    public AudioSource purchaseAudioSource;
 
     public int price;
     public Sprite[] sprites;
@@ -76,9 +78,6 @@ public class GatcharManager : MonoBehaviour
     }
     private void Start()
     {
-
-        
-
         GameInstance.GameIns.animalManager.NewGatchaAnimals();
         playerAnimalDataManager = GameInstance.GameIns.playerAnimalDataManager;
 
@@ -122,8 +121,10 @@ public class GatcharManager : MonoBehaviour
         if (GameInstance.GameIns.restaurantManager.restaurantCurrency.Money >= price)
         {
             GameInstance.GameIns.restaurantManager.restaurantCurrency.Money -= (int)price;
-            //GameInstance.GameIns.uiManager.UpdateMoneyText(GameInstance.GameIns.restaurantManager.restaurantCurrency.money);
-           // SaveLoadManager.Save(SaveLoadManager.SaveState.ONLY_SAVE_PLAYERDATA);
+
+            purchaseAudioSource.clip = GameInstance.GameIns.gatchaSoundManager.Purchase();
+            purchaseAudioSource.volume = 0.2f;
+            purchaseAudioSource.Play();
             return true;
         }
         return false;
@@ -201,11 +202,14 @@ public class GatcharManager : MonoBehaviour
                 popup.SetActive(true);
                 if(AnimalManager.gatchaTiers.ContainsKey(pair.Key))
                 {
-                    GetAnimator.SetInteger(AnimationKeys.emotion, 1);
-                    if(AnimalManager.gatchaTiers[pair.Key] < 4) AnimalManager.gatchaTiers[pair.Key]++;
-                    int tier = AnimalManager.gatchaTiers[pair.Key];
-                    if (tier >= 2 && tier < 5)
+                    if (AnimalManager.gatchaTiers[pair.Key] < 4)
                     {
+                        GetAnimator.SetInteger(AnimationKeys.emotion, 1);
+                        AnimalManager.gatchaTiers[pair.Key]++;
+                        int tier = AnimalManager.gatchaTiers[pair.Key];
+                        audioSource.clip = GameInstance.GameIns.gatchaSoundManager.GradeUp();
+                        audioSource.volume = 0.4f;
+                        audioSource.Play();
                         popup_TierUp.SetActive(true);
 
                         AnimalStruct asset = AssetLoader.animals[pair.Key];
@@ -215,10 +219,14 @@ public class GatcharManager : MonoBehaviour
                         if (tier == 2) backGlow.color = Color.blue;
                         else if (tier == 3) backGlow.color = new Color(0.5f, 0f, 0.5f);
                         else if (tier == 4) backGlow.color = Color.yellow;
+
                     }
                 }
                 else
                 {
+                    audioSource.clip = GameInstance.GameIns.gatchaSoundManager.Unlock();
+                    audioSource.volume = 0.4f;
+                    audioSource.Play();
                     AnimalManager.gatchaTiers[pair.Key] = 1;
                     AnimalStruct asset = AssetLoader.animals[pair.Key];
                     string n = asset.asset_name + "_Sprite";

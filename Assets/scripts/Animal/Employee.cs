@@ -2704,6 +2704,10 @@ public class Employee : AnimalController
     {
        
         employeeLevelData.level++;
+
+        audioSource.clip = GameIns.gameSoundManager.LevelUp();
+        audioSource.volume = 0.2f;
+        audioSource.Play();
         EXP = 0;
         employeeLevel = AssetLoader.employees_levels[employeeLevelData.level];
         //Animal animal = GetComponentInParent<Animal>();

@@ -38,3 +38,4 @@ Animal Restaurant Tycoon Game
 06/05 Add BGM (loading/in-game), Revise seating: pick between 2 zones, align toward nearest of 4 seat points, sit in a straight line
 06/06 Add a black consumer character who steals customers' food and interacts with guests eating at the table
 06/07 Allow intruders to be defeated by touch, add a defeat sound effect, and play a firework sound when the map expands
+06/08 Added sound to the gacha map and adjusted patty orientation on the burger grill

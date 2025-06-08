@@ -220,8 +220,6 @@ public class PlaceController : MonoBehaviour
     {
         Vector3 returnVector = Vector3.zero;
 
-
-
         return returnVector;
     }
 

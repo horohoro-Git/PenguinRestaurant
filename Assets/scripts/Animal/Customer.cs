@@ -433,16 +433,29 @@ public class Customer : AnimalController
     {
         try
         {
-            Vector3 pos = position[position.Length - 1].transforms.position;
+            int queueindex = 0;
 
-            int currentPoint = position.Length - 1;
-            position[position.Length - 1].controller = this;
+            for(int i = position.Length - 1; i >= 0; i--)
+            {
+                if(position[i].controller == null)
+                {
+                    queueindex = i;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            Vector3 pos = position[queueindex].transforms.position;
+
+            int currentPoint = queueindex;// position.Length - 1;
+            position[queueindex].controller = this;
             Stack<Vector3> moveTargets = await CalculateNodes_Async(pos, false, cancellationToken);
 
             await Customer_Move(moveTargets, pos, true, cancellationToken: cancellationToken);
             modelTrans.rotation = position[currentPoint].transforms.rotation;
-            
-            for (int i = position.Length - 2; i >= 0; i--)
+
+            for (int i = queueindex; i >= 0; i--)
             {
                 while (position[i].controller != null && position[i].controller != this)
                 {

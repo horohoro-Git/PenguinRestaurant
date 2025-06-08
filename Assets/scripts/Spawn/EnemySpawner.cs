@@ -15,11 +15,7 @@ public class EnemySpawner : MonoBehaviour
     }
     private void Start()
     {
-        currentBlackConsumer = GameInstance.GameIns.animalManager.blackConsumer;
-        currentBlackConsumer.gameObject.SetActive(false);
-        currentBlackConsumer.spawnerTrans = transform;
-        currentBlackConsumer.trans.position = transform.position;
-        currentBlackConsumer.animalStruct = AssetLoader.animals[201];
+       
         spawnTimer = Time.time;
         EnemySpawn(App.GlobalToken).Forget();
     }
@@ -47,6 +43,10 @@ public class EnemySpawner : MonoBehaviour
                     if(!bSpawned)
                     {
                         bSpawned = true;
+                        currentBlackConsumer = GameInstance.GameIns.animalManager.blackConsumer;
+                        currentBlackConsumer.spawnerTrans = transform;
+                        currentBlackConsumer.trans.position = transform.position;
+                        currentBlackConsumer.animalStruct = AssetLoader.animals[201];
                         currentBlackConsumer.gameObject.SetActive(true);
                         GameInstance.GameIns.lodManager.AddLODGroup(currentBlackConsumer.ID, currentBlackConsumer.lodGroup);
                         currentBlackConsumer.state = BlackConsumerState.FindingTarget;
