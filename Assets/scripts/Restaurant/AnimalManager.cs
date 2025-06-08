@@ -98,6 +98,7 @@ public class AnimalManager : MonoBehaviour
     private void Awake()
     {
         blackConsumer = NewBlackConsumer();
+        blackConsumer.gameObject.SetActive(false);
         WorkSpaceManager workSpaceManager = GetComponent<WorkSpaceManager>();
         GameInstance.GameIns.animalManager = this;
         GameInstance.GameIns.workSpaceManager = workSpaceManager;

@@ -28,6 +28,7 @@ public class GameInstance
     public UISoundManager uISoundManager;
     public GameSoundManager gameSoundManager;
     public BGMSoundManager bgMSoundManager;
+    public GatchaSoundManager gatchaSoundManager;
     public static GameInstance GameIns { get { return gameInstance; }  }
     private static Queue<Vector3> pool = new Queue<Vector3>();
     public static List<GraphicRaycaster> graphicRaycasters = new List<GraphicRaycaster>();

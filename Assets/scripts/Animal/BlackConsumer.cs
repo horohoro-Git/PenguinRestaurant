@@ -27,6 +27,8 @@ public class BlackConsumer : AnimalController
     bool bDead = false;
     [NonSerialized] public Transform spawnerTrans;
     CancellationTokenSource cancellationTokenSource;
+    public ParticleSystem particles;
+    public AudioSource hitAudio;
     private void Awake()
     {
         audioSource = GetComponent<AudioSource>();
@@ -665,12 +667,24 @@ public class BlackConsumer : AnimalController
     {
         if (!bDead)
         {
+            particles.Play();
+            hitAudio.clip = GameIns.gameSoundManager.Hit();
+            hitAudio.volume = 0.2f;
+            hitAudio.Play();
+
+            audioSource.clip = GameIns.gameSoundManager.Pain();
+            audioSource.volume = 0.2f;
+            audioSource.Play();
             bDead = true;
-            targetTable.stealing = false;
-            targetTable.hasProblem = false;
-            targetTable.stolen = false;
-            targetTable.seats[seatIndex].animal = null;
-            targetTable = null;
+
+            if (targetTable != null)
+            {
+                targetTable.stealing = false;
+                targetTable.hasProblem = false;
+                targetTable.stolen = false;
+                targetTable.seats[seatIndex].animal = null;
+                targetTable = null;
+            }
             animator.SetTrigger(AnimationKeys.Dead);
             state = BlackConsumerState.SubDue;
 

@@ -44,7 +44,6 @@ public class BurgerMachine : FoodMachine
         createdBurger = null;
         currentFood = Instantiate(testPatty);
         currentFood.transform.position = pattyTrans.position;
-
         bake = StartCoroutine(BakePatty(t));
     }
 
@@ -115,7 +114,6 @@ public class BurgerMachine : FoodMachine
             float f = 0;
             while (f <= t * 0.2f)
             {
-
                 if (currentFood == null) yield break;
 
                 currentFood.transform.position = Vector3.Lerp(v1, t1, f * (1 / (t *  t * 0.2f)) * t);
@@ -125,8 +123,9 @@ public class BurgerMachine : FoodMachine
             }
             f = 0;
             Quaternion q1 = currentFood.transform.rotation;
-            Quaternion qt1 = Quaternion.Euler(180, 0, 0) * currentFood.transform.rotation;
-            Quaternion qt2 = Quaternion.Euler(360, 0, 0) * currentFood.transform.rotation;
+
+            Quaternion qt1 = Quaternion.AngleAxis(180, transforms.right) * currentFood.transform.rotation; //Quaternion.Euler(180, 0, 0) * currentFood.transform.rotation;
+            Quaternion qt2 = Quaternion.AngleAxis(360, transforms.right) * currentFood.transform.rotation;
 
             while (f <= t * 0.2f)
             {

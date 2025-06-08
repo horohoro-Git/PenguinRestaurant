@@ -62,7 +62,7 @@ public class AssetLoader : MonoBehaviour
         SpriteAtlasManager.atlasRequested += (tag, callback) =>
         {
             Debug.Log($"[TAG]: {tag}");
-            callback(loadedAtlases[tag]);
+            if(loadedAtlases.ContainsKey(tag)) callback(loadedAtlases[tag]);
 
         };
     }
