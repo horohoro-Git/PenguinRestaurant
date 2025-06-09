@@ -39,3 +39,4 @@ Animal Restaurant Tycoon Game
 06/06 Add a black consumer character who steals customers' food and interacts with guests eating at the table
 06/07 Allow intruders to be defeated by touch, add a defeat sound effect, and play a firework sound when the map expands
 06/08 Added sound to the gacha map and adjusted patty orientation on the burger grill
+06/09 Conducting tests for migrating the rendering pipeline from Built-In to URP
