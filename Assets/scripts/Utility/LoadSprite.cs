@@ -1,13 +1,22 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class LoadSprite : MonoBehaviour
 {
+    public bool bImage;
     public string atlasName;
     public string assetName;
     private void Awake()
     {
-        if(AssetLoader.loadedAtlases.ContainsKey(atlasName)) GetComponent<SpriteRenderer>().sprite = AssetLoader.loadedAtlases[atlasName].GetSprite(assetName);
+        if (!bImage)
+        {
+            if (AssetLoader.loadedAtlases.ContainsKey(atlasName)) GetComponent<SpriteRenderer>().sprite = AssetLoader.loadedAtlases[atlasName].GetSprite(assetName);
+        }
+        else
+        {
+            if (AssetLoader.loadedAtlases.ContainsKey(atlasName)) GetComponent<Image>().sprite = AssetLoader.loadedAtlases[atlasName].GetSprite(assetName);
+        }
     }
 }
