@@ -112,8 +112,8 @@ public class UIManager : MonoBehaviour
                 case SceneState.Restaurant:
                     // GameIns.app.currentScene = SceneState.Draw;
                     if (GameIns.applianceUIManager.currentBox != null) GameIns.applianceUIManager.currentBox.ClearFishes();
-                    animalGuideImage.sprite = loadedSprites[spriteAssetKeys[10001].ID];
-                    changeSceneImage.sprite = loadedSprites[spriteAssetKeys[10002].ID];
+                    animalGuideImage.sprite = loadedAtlases["Town"].GetSprite(spriteAssetKeys[10001].Name); //loadedSprites[spriteAssetKeys[10001].ID];
+                    changeSceneImage.sprite = loadedAtlases["Town"].GetSprite(spriteAssetKeys[10002].Name);
 
                     cameraSize = InputManger.cachingCamera.orthographicSize;
                     drawBtn.gameObject.SetActive(false);
@@ -122,10 +122,12 @@ public class UIManager : MonoBehaviour
                     break;
                 case SceneState.Draw:
                   //  GameIns.app.currentScene = SceneState.Restaurant;
-                    animalGuideImage.sprite = loadedSprites[spriteAssetKeys[10001].ID];
-                    changeSceneImage.sprite = loadedSprites[spriteAssetKeys[10003].ID];
-               //     GameIns.app.pos = GameIns.inputManager.cameraTrans.position;
-                   // if (GameIns.applianceUIManager.currentBox != null) GameIns.applianceUIManager.currentBox.ClearFishes();
+                   // animalGuideImage.sprite = loadedSprites[spriteAssetKeys[10001].ID];
+                   // changeSceneImage.sprite = loadedSprites[spriteAssetKeys[10003].ID];
+                    animalGuideImage.sprite = loadedAtlases["Town"].GetSprite(spriteAssetKeys[10001].Name); //loadedSprites[spriteAssetKeys[10001].ID];
+                    changeSceneImage.sprite = loadedAtlases["Town"].GetSprite(spriteAssetKeys[10003].Name);
+                    //     GameIns.app.pos = GameIns.inputManager.cameraTrans.position;
+                    // if (GameIns.applianceUIManager.currentBox != null) GameIns.applianceUIManager.currentBox.ClearFishes();
 
                     StartCoroutine(FadeInFadeOut(true, 1));
                     break;

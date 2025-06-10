@@ -35,7 +35,6 @@ public class BlackConsumer : AnimalController
     }
     public void CauseTrouble()
     {
-        Debug.LogWarning("AAAA");
         WorkSpaceManager workSpaceManager = GameIns.workSpaceManager;
         switch(state)
         {

@@ -18,7 +18,8 @@ public enum SceneState
     Menu,
     Loading,
     Restaurant,
-    Draw
+    Draw,
+    Fishing
 }
 
 public class App : MonoBehaviour
@@ -176,6 +177,7 @@ public class App : MonoBehaviour
             await LoadScene(AssetLoader.loadedMap["InteractionScene"], cancellationToken);
             await LoadScene(AssetLoader.loadedMap[GameInstance.GameIns.assetLoader.gameRegulation.map_name], cancellationToken);
             await LoadScene(AssetLoader.loadedMap[GameInstance.GameIns.assetLoader.gameRegulation.map_name + "_gatcha"], cancellationToken);
+            await LoadScene(AssetLoader.loadedMap[GameInstance.GameIns.assetLoader.gameRegulation.map_name + "_fishing"], cancellationToken);
 
             currentScene = SceneState.Restaurant;
             loading.ChangeText("식당을 불러오는 중");
@@ -211,6 +213,8 @@ public class App : MonoBehaviour
                     {
                         texts[i].font = AssetLoader.font;
                         texts[i].fontSharedMaterial = AssetLoader.font_mat;
+                      //  texts[i].fontMaterial = AssetLoader.font_mat;
+                      //  texts[i].material = AssetLoader.font_mat;
                     }
                     texts.RemoveAt(i);
                     await UniTask.NextFrame(cancellationToken: cancellationToken);
