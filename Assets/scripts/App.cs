@@ -11,6 +11,7 @@ using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 using Vector3 = UnityEngine.Vector3;
+using Quaternion = UnityEngine.Quaternion;
 //한글
 
 public enum SceneState
@@ -28,7 +29,7 @@ public class App : MonoBehaviour
     public static CancellationToken GlobalToken => globalCts.Token;
 
     public SceneState currentScene;
-
+    public static float restaurantTimeScale = 1f;
     Vector3 vector;
     public Vector3 pos { get { return vector; } set { vector = value; Debug.Log(value); } }
     static Dictionary<string, Scene> scenes = new Dictionary<string, Scene>();
@@ -311,32 +312,84 @@ public class App : MonoBehaviour
     {
         if (currentScene == SceneState.Restaurant) return;
         GameInstance.GameIns.bgMSoundManager.BGMChange(901000, 0.4f);
-        currentScene = SceneState.Restaurant; 
+        currentScene = SceneState.Restaurant;
+        restaurantTimeScale = 1;
+        Time.timeScale = 1;
+        Time.fixedDeltaTime = 0.02f;
+//        InputManger.cachingCamera.enabled = false;
+        
         GameInstance.GameIns.inputManager.cameraTrans.position = pos;
-      //  GameInstance.GameIns.inputManager.DragScreen_WindowEditor(true);
+        GameInstance.GameIns.inputManager.cameraTrans.rotation = Quaternion.Euler(0, 45, 0);
+        InputManger.cachingCamera.transform.localPosition = new Vector3(0, 200, 0);
+        InputManger.cachingCamera.transform.localRotation = Quaternion.Euler(60, 0, 0);
+        //  GameInstance.GameIns.inputManager.DragScreen_WindowEditor(true);
+
+        InputManger.cachingCamera.orthographic = true;
+        InputManger.cachingCamera.orthographicSize = 15;
         GameInstance.GameIns.inputManager.inputDisAble = false;
         GameInstance.GameIns.applianceUIManager.UIClearAll(true);
         GameInstance.GameIns.gatcharManager.ClearRollings();
-
-     //   Utility.CheckHirable(GameInstance.GameIns.inputManager.cameraRange.position, ref i, ref j);
-        Time.timeScale = 1;
-        Time.fixedDeltaTime = 0.02f;
+        //   Utility.CheckHirable(GameInstance.GameIns.inputManager.cameraRange.position, ref i, ref j);
+     //   StartCoroutine(OrthographicNextFrame());
+    }
+    IEnumerator OrthographicNextFrame()
+    {
+        yield return null;
+        Debug.Log(InputManger.cachingCamera.orthographicSize);
+        InputManger.cachingCamera.orthographicSize = 15;
+        Debug.Log(InputManger.cachingCamera.orthographicSize);
+        yield return null;
+        InputManger.cachingCamera.enabled = true;
+        yield return null;
+        GameInstance.GameIns.inputManager.inputDisAble = false;
     }
 
     public void ChangeScene_DrawScene()
     {
         if (currentScene == SceneState.Draw) return;
+        if(currentScene == SceneState.Restaurant) pos = GameInstance.GameIns.inputManager.cameraTrans.position;
         currentScene = SceneState.Draw;
         GameInstance.GameIns.bgMSoundManager.BGMChange(900100, 0.2f);
       //  GameInstance.GameIns.inputManager.DragScreen_WindowEditor(true);
         GameInstance.GameIns.inputManager.inputDisAble = true;
-        pos = GameInstance.GameIns.inputManager.cameraTrans.position;
+       
         Time.timeScale = 0;
         Time.fixedDeltaTime = 0f;
+        restaurantTimeScale = 0f;
+     //   InputManger.cachingCamera.enabled = false;
+        InputManger.cachingCamera.orthographicSize = 15;
+        InputManger.cachingCamera.orthographic = true;
+      //  InputManger.cachingCamera.enabled = true;
         GameInstance.GameIns.inputManager.cameraTrans.position = GameInstance.GetVector3(-80.35f, 0, -1080.7f);
+        GameInstance.GameIns.inputManager.cameraTrans.rotation = Quaternion.Euler(0, 45, 0);
+        InputManger.cachingCamera.transform.localPosition = new Vector3(0, 200, 0);
+        InputManger.cachingCamera.transform.localRotation = Quaternion.Euler(60, 0, 0);
         GameInstance.GameIns.uiManager.drawBtn.gameObject.SetActive(true);
         GameInstance.GameIns.uiManager.drawSpeedUpBtn.gameObject.SetActive(true);
+    }
+  
 
+    public void ChangeScene_Fishing()
+    {
+        if(currentScene == SceneState.Fishing) return;
+        if(currentScene == SceneState.Restaurant) pos = GameInstance.GameIns.inputManager.cameraTrans.position;
+        currentScene = SceneState.Fishing;
+        GameInstance.GameIns.bgMSoundManager.BGMChange(900010, 0.2f);
+        GameInstance.GameIns.inputManager.inputDisAble = true;
+        Time.timeScale = 1;
+        Time.fixedDeltaTime = 0.02f;
+       
+        restaurantTimeScale = 0f;
+       // InputManger.cachingCamera.enabled = false;
+        InputManger.cachingCamera.fieldOfView = 60f;
+        InputManger.cachingCamera.nearClipPlane = 0.1f;
+        InputManger.cachingCamera.farClipPlane = 1000f;
+        InputManger.cachingCamera.orthographic = false;
+      //  InputManger.cachingCamera.enabled = true;
+        GameInstance.GameIns.inputManager.cameraTrans.position = new Vector3(988, 30, 57);
+        GameInstance.GameIns.inputManager.cameraTrans.rotation = Quaternion.Euler(0, 0, 0);
+        InputManger.cachingCamera.transform.localPosition = new Vector3(0, 0, 0);
+        InputManger.cachingCamera.transform.localRotation = Quaternion.Euler(60, 180, 0);
     }
 
     public static void UnloadAsync(string name)

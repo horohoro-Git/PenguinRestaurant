@@ -75,21 +75,28 @@ public class BurgerMachine : FoodMachine
         float f = 0;
         while (f <= 0.2f)
         {
-            food.transform.localScale = Vector3.Lerp(v1, v3, f * 5);
-            f += Time.deltaTime;
+            if (App.restaurantTimeScale == 1)
+            {
+                food.transform.localScale = Vector3.Lerp(v1, v3, f * 5);
+                f += Time.deltaTime;
+            }
             yield return null;
         }
         f = 0;
         while (f <= 0.1f)
         {
-            food.transform.localScale = Vector3.Lerp(v3, v2, f * 10);
-            f += Time.deltaTime;
+            if (App.restaurantTimeScale == 1)
+            {
+                food.transform.localScale = Vector3.Lerp(v3, v2, f * 10);
+                f += Time.deltaTime;
+            }
             yield return null;
         }
         food.transform.localScale = v2;
 
-        yield return CoroutneManager.waitForzeroone;
+        //    yield return CoroutneManager.waitForzeroone;
 
+        yield return StartCoroutine(Utility.CustomCoroutineDelay(0.1f));
         tempBurger = null;
         createdBurger = food;
         foodStack.foodStack.Push(food);
@@ -104,9 +111,9 @@ public class BurgerMachine : FoodMachine
         t = (t-1.5f) / 2;
         while (true)
         {
-            currentFood.transform.rotation = Quaternion.Euler(0f, 0f, 0f);  
-            yield return CoroutneManager.waitForzerofive;
-
+            currentFood.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
+            //  yield return CoroutneManager.waitForzerofive;
+            yield return StartCoroutine(Utility.CustomCoroutineDelay(0.5f));
             if (currentFood == null) yield break;
             Vector3 v1 = currentFood.transform.position;
             Vector3 t1 = currentFood.transform.position + Vector3.up * 3;
@@ -114,11 +121,14 @@ public class BurgerMachine : FoodMachine
             float f = 0;
             while (f <= t * 0.2f)
             {
-                if (currentFood == null) yield break;
+                if (App.restaurantTimeScale == 1)
+                {
+                    if (currentFood == null) yield break;
 
-                currentFood.transform.position = Vector3.Lerp(v1, t1, f * (1 / (t *  t * 0.2f)) * t);
-                f += Time.deltaTime;
 
+                    currentFood.transform.position = Vector3.Lerp(v1, t1, f * (1 / (t * t * 0.2f)) * t);
+                    f += Time.deltaTime;// * App.restaurantTimeScale;
+                }
                 yield return null;
             }
             f = 0;
@@ -129,20 +139,26 @@ public class BurgerMachine : FoodMachine
 
             while (f <= t * 0.2f)
             {
-                if (currentFood == null) yield break;
+                if (App.restaurantTimeScale == 1)
+                {
+                    if (currentFood == null) yield break;
 
-                currentFood.transform.rotation = Quaternion.Lerp(q1, qt1, f * (1 / (t * t * 0.2f)) * t);
-                f += Time.deltaTime;
+                    currentFood.transform.rotation = Quaternion.Lerp(q1, qt1, f * (1 / (t * t * 0.2f)) * t);
+                    f += Time.deltaTime;
+                }
                 yield return null;
             }
 
             f = 0;
             while (f <= t * 0.2f)
             {
-                if (currentFood == null) yield break;
+                if (App.restaurantTimeScale == 1)
+                {
+                    if (currentFood == null) yield break;
 
-                currentFood.transform.rotation = Quaternion.Lerp(qt1, qt2, f * (1 / (t * t * 0.2f)) * t);
-                f += Time.deltaTime;
+                    currentFood.transform.rotation = Quaternion.Lerp(qt1, qt2, f * (1 / (t * t * 0.2f)) * t);
+                    f += Time.deltaTime;
+                }
                 yield return null;
             }
           
@@ -152,12 +168,13 @@ public class BurgerMachine : FoodMachine
 
             while (f <= t * 0.4f)
             {
+                if (App.restaurantTimeScale == 1)
+                {
+                    if (currentFood == null) yield break;
 
-                if (currentFood == null) yield break;
-
-                currentFood.transform.position = Vector3.Lerp(t1, v1, f * (1 / (t * t * 0.4f)) * t);
-                f += Time.deltaTime;
-
+                    currentFood.transform.position = Vector3.Lerp(t1, v1, f * (1 / (t * t * 0.4f)) * t);
+                    f += Time.deltaTime;
+                }
                 yield return null;
             }
             currentFood.transform.rotation = Quaternion.Euler(0f, 0f, 0f);

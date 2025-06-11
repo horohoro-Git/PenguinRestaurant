@@ -354,42 +354,7 @@ public class Employee : AnimalController
     {
         falling = true;
         elapsedTime = 0f;
-        /* Vector3 loc = GameIns.inputManager.cameraRange.position;
-         int playerX = (int)((loc.x - GameIns.calculatorScale.minX) / GameIns.calculatorScale.distanceSize);
-         int playerY = (int)((loc.z - GameIns.calculatorScale.minY) / GameIns.calculatorScale.distanceSize);
-         while(true)
-         {
-             int xx = (int)UnityEngine.Random.Range(-Camera.main.orthographicSize / 2.5f, Camera.main.orthographicSize / 2.5f);
-             int zz = (int)UnityEngine.Random.Range(-Camera.main.orthographicSize / 2.5f, Camera.main.orthographicSize / 2.5f);
-             length = (int)UnityEngine.Random.Range(-Camera.main.orthographicSize / 2.5f, Camera.main.orthographicSize / 2.5f);
-             if (Utility.ValidCheck(playerY + zz, playerX + xx))
-             {
-                 if (!MoveCalculator.GetBlocks[playerY + zz, playerX + xx])
-                 {
-                     //   float r = GameInstance.GameIns.calculatorScale.minY + node.r * GameInstance.GameIns.calculatorScale.distanceSize;
-                     //   float c = GameInstance.GameIns.calculatorScale.minX + node.c * GameInstance.GameIns.calculatorScale.distanceSize;
-                     int tx = (int)(GameIns.calculatorScale.minX + (playerX + xx) * GameIns.calculatorScale.distanceSize);
-                     int ty = (int)(GameIns.calculatorScale.minY + (playerY + zz) * GameIns.calculatorScale.distanceSize);
-                     startPoint = trans.position; //start.position;
-
-                     endPoint = new Vector3(loc.x, 0, loc.z);
-                     dir2 = new Vector3(xx, 0, zz).normalized;
-
-                     endPoint += dir2 * length;
-                     if(Utility.ValidCheck((int)endPoint.z, (int)endPoint.x) && !MoveCalculator.GetBlocks[(int)endPoint.z, (int)endPoint.x])
-                     {
-
-                         controlVector = (startPoint + endPoint) / RestaurantMgr.weight + Vector3.up * RestaurantMgr.height;
-
-                         RestaurantMgr.flyingEndPoints.Add(endPoint);
-                     }
-                     return true;
-                 }
-
-             }
-
-         }*/
-
+       
         int num = InputManger.spawnDetects.Count;
 
         if (num == 0) return false;
@@ -408,43 +373,7 @@ public class Employee : AnimalController
             return true;
         }
 
-        /*  if (Physics.CheckSphere(GameInstance.GameIns.inputManager.cameraRange.position, Camera.main.orthographicSize / 4f, 1))
-          {
-              while (true)
-              {
-                  x = UnityEngine.Random.Range(-Camera.main.orthographicSize / 2.5f, Camera.main.orthographicSize / 2.5f);
-                  z = UnityEngine.Random.Range(-Camera.main.orthographicSize / 2.5f, Camera.main.orthographicSize / 2.5f);
-                  length = UnityEngine.Random.Range(-Camera.main.orthographicSize / 2.5f, Camera.main.orthographicSize / 2.5f);
-                  //  length = Random.Range(-10,10);
-                  Vector3 test = GameInstance.GetVector3(GameInstance.GameIns.inputManager.cameraRange.position.x, 0, GameInstance.GameIns.inputManager.cameraRange.position.z);
-                  Vector3 n = GameInstance.GetVector3(x, 0, z).normalized;
-                  Vector3 ta = test + n * length;
-
-                  if (Physics.Raycast(ta + Vector3.up * 5, Vector3.down, 5))
-                  {
-                      //   Debug.DrawLine(ta + Vector3.up * 10, test + Vector3.down * 100f, Color.red, 100);
-
-                      if (Physics.CheckBox(ta, GameInstance.GetVector3(0.6f, 0.6f, 0.6f), Quaternion.identity, 1 << 6 | 1 << 7 | 1 << 8))
-                      {
-
-                      }
-                      else break;
-
-
-                  }
-              }
-              startPoint = trans.position; //start.position;
-
-              endPoint = GameInstance.GetVector3(GameInstance.GameIns.inputManager.cameraRange.position.x, 0, GameInstance.GameIns.inputManager.cameraRange.position.z);
-              dir2 = new Vector3(x, 0, z).normalized;
-
-              endPoint += dir2 * length;
-              controlVector = (startPoint + endPoint) / RestaurantMgr.weight + Vector3.up * RestaurantMgr.height;
-
-              RestaurantMgr.flyingEndPoints.Add(endPoint);
-              return true;
-          }
-          return false;*/
+       
     }
     // busy = false;
     //Debug.DrawLine(trans.position, targetLoc, Color.red, 5f);
@@ -457,34 +386,39 @@ public class Employee : AnimalController
 
         while (true)
         {
-            elapsedTime += Time.deltaTime;
-            float t = Mathf.Clamp01(elapsedTime / RestaurantMgr.duration);
-
-            Vector3 origin = trans.position;
-            Vector3 targetLoc = CalculateBezierPoint(t, startPoint, controlVector, endPoint); //배지어 곡선의 t에 해당하는 위치 계산
-//  Debug.DrawLine(trans.position, targetLoc, Color.red, 5f);
-            Vector3 dir = targetLoc - origin;
-            float angle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;     //회전 각도 계산
-            modelTrans.rotation = Quaternion.AngleAxis(angle, Vector3.up);
-            trans.position = targetLoc;
-            int posX = Mathf.FloorToInt((endPoint.x - GameIns.calculatorScale.minX) / GameIns.calculatorScale.distanceSize);
-            int posZ = Mathf.FloorToInt((endPoint.z - GameIns.calculatorScale.minY) / GameIns.calculatorScale.distanceSize);
-
-            if (MoveCalculator.GetBlocks[MoveCalculator.GetIndex(posX, posZ)]) FindSafetyZone(endPoint);
-            
-            await UniTask.NextFrame(cancellationToken: cancellationToken);
-            if (t >= 1.0f)
+            if (App.restaurantTimeScale == 1)
             {
-                trans.position = endPoint;
-                break;
+                elapsedTime += Time.deltaTime;
+                float t = Mathf.Clamp01(elapsedTime / RestaurantMgr.duration);
+
+                Vector3 origin = trans.position;
+                Vector3 targetLoc = CalculateBezierPoint(t, startPoint, controlVector, endPoint); //배지어 곡선의 t에 해당하는 위치 계산
+                                                                                                  //  Debug.DrawLine(trans.position, targetLoc, Color.red, 5f);
+                Vector3 dir = targetLoc - origin;
+                float angle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;     //회전 각도 계산
+                modelTrans.rotation = Quaternion.AngleAxis(angle, Vector3.up);
+                trans.position = targetLoc;
+                int posX = Mathf.FloorToInt((endPoint.x - GameIns.calculatorScale.minX) / GameIns.calculatorScale.distanceSize);
+                int posZ = Mathf.FloorToInt((endPoint.z - GameIns.calculatorScale.minY) / GameIns.calculatorScale.distanceSize);
+
+                if (MoveCalculator.GetBlocks[MoveCalculator.GetIndex(posX, posZ)]) FindSafetyZone(endPoint);
+
+                if (t >= 1.0f)
+                {
+                    trans.position = endPoint;
+                    break;
+                }
             }
+            await UniTask.NextFrame(cancellationToken: cancellationToken);
         }
         await UniTask.NextFrame(cancellationToken: cancellationToken);
-        await UniTask.Delay(200,cancellationToken: cancellationToken);
+        // await UniTask.Delay(200,cancellationToken: cancellationToken);
+        await Utility.CustomUniTaskDelay(0.2f, cancellationToken);
         animal.PlayAnimation(AnimationKeys.Idle);
        // PlayAnim(animal.animationDic["Idle_A"], "Idle_A");
         animator.SetInteger("state", 0);
-        await UniTask.Delay(200,cancellationToken: cancellationToken);
+        await Utility.CustomUniTaskDelay(0.2f, cancellationToken);
+   //     await UniTask.Delay(200,cancellationToken: cancellationToken);
         falling = false;    // 낙하 종료
         elapsedTime = 0;
         if (!pause)
@@ -1277,7 +1211,8 @@ public class Employee : AnimalController
                 animator.SetInteger("state", 0);
                 animal.PlayAnimation(AnimationKeys.Idle);
                // PlayAnim(animal.animationDic[animation_LookAround], animation_LookAround);
-                await UniTask.Delay(500, cancellationToken: cancellationToken);
+              //  await UniTask.Delay(500, cancellationToken: cancellationToken);
+                await Utility.CustomUniTaskDelay(0.5f, cancellationToken);
             }
             else
             {
@@ -2484,31 +2419,34 @@ public class Employee : AnimalController
 
                 while(true)
                 {
-                    while (pause) await UniTask.Delay(100, cancellationToken: cancellationToken);
-                    if (reCalculate)
+                    if (App.restaurantTimeScale == 1)
                     {
-                        Debug.Log("Recalculate");
-                        return;
+                        while (pause) await Utility.CustomUniTaskDelay(0.1f, cancellationToken); //await UniTask.Delay(100, cancellationToken: cancellationToken);
+                        if (reCalculate)
+                        {
+                            Debug.Log("Recalculate");
+                            return;
+                        }
+
+                        if (trans == null || !trans)
+                        {
+                            await UniTask.NextFrame();
+                            return;
+                        }
+
+
+                        if (Vector3.Distance(trans.position, target) <= 0.01f) break;
+                        cancellationToken.ThrowIfCancellationRequested();
+                        animator.SetInteger("state", 1);
+                        animal.PlayAnimation(AnimationKeys.Walk);
+                        // PlayAnim(animal.animationDic[animation_Run], animation_Run);
+                        cur = (target - trans.position).magnitude;
+                        Vector3 dir = (target - trans.position).normalized;
+                        trans.position = Vector3.MoveTowards(trans.position, target, employeeLevel.move_speed * Time.deltaTime);
+                        float angle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
+                        modelTrans.rotation = Quaternion.AngleAxis(angle, Vector3.up);
+                        // animatedAnimal.transforms.rotation = Quaternion.AngleAxis(angle, Vector3.up);
                     }
-
-                    if (trans == null || !trans)
-                    {
-                        await UniTask.NextFrame();
-                        return;
-                    }
-
-
-                    if (Vector3.Distance(trans.position, target) <= 0.01f) break;
-                    cancellationToken.ThrowIfCancellationRequested();
-                    animator.SetInteger("state", 1);
-                    animal.PlayAnimation(AnimationKeys.Walk);
-                    // PlayAnim(animal.animationDic[animation_Run], animation_Run);
-                    cur = (target - trans.position).magnitude;
-                    Vector3 dir = (target - trans.position).normalized;
-                    trans.position = Vector3.MoveTowards(trans.position, target, employeeLevel.move_speed * Time.deltaTime);
-                    float angle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
-                    modelTrans.rotation = Quaternion.AngleAxis(angle, Vector3.up);
-                    // animatedAnimal.transforms.rotation = Quaternion.AngleAxis(angle, Vector3.up);
                     await UniTask.NextFrame();
                     if (debuging) Debug.Log("이동 중");
                 }
@@ -2518,19 +2456,22 @@ public class Employee : AnimalController
             newLoc.y = 0;
             while (true)
             {
-                while (pause) await UniTask.Delay(100, cancellationToken: cancellationToken);
-                if (reCalculate)
+                if (App.restaurantTimeScale == 1)
                 {
-                    Debug.Log("Recalculate");
-                    return;
+                    while (pause) await Utility.CustomUniTaskDelay(0.1f, cancellationToken); //await UniTask.Delay(100, cancellationToken: cancellationToken);
+                    if (reCalculate)
+                    {
+                        Debug.Log("Recalculate");
+                        return;
+                    }
+                    animator.SetInteger("state", 1);
+                    animal.PlayAnimation(AnimationKeys.Walk);
+                    trans.position = Vector3.MoveTowards(trans.position, newLoc, employeeLevel.move_speed * Time.deltaTime);
+                    if (Vector3.Distance(trans.position, newLoc) <= 0.01f) break;
+                    Vector3 dir = newLoc - trans.position;
+                    float angle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
+                    modelTrans.rotation = Quaternion.AngleAxis(angle, Vector3.up);
                 }
-                animator.SetInteger("state", 1);
-                animal.PlayAnimation(AnimationKeys.Walk);
-                trans.position = Vector3.MoveTowards(trans.position, newLoc, employeeLevel.move_speed * Time.deltaTime);
-                if (Vector3.Distance(trans.position, newLoc) <= 0.01f) break;
-                Vector3 dir = newLoc - trans.position;
-                float angle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
-                modelTrans.rotation = Quaternion.AngleAxis(angle, Vector3.up);
                 await UniTask.NextFrame(cancellationToken: cancellationToken);
             }
 
@@ -2566,7 +2507,8 @@ public class Employee : AnimalController
 
                 await UniTask.NextFrame(cancellationToken: cancellationToken);
             }
-            await UniTask.Delay(200, cancellationToken: cancellationToken);
+            await Utility.CustomUniTaskDelay(0.2f, cancellationToken);
+           // await UniTask.Delay(200, cancellationToken: cancellationToken);
             float a = 0;
             while (a < 3)
             {
@@ -2575,7 +2517,8 @@ public class Employee : AnimalController
                 await UniTask.NextFrame(cancellationToken: cancellationToken);
             }
 
-            await UniTask.Delay(200, cancellationToken: cancellationToken);
+            await Utility.CustomUniTaskDelay(0.2f, cancellationToken);
+          //  await UniTask.Delay(200, cancellationToken: cancellationToken);
 
             while (foodStacks[MachineType.PackingTable].foodStack.Count > 0)
             {
@@ -2585,7 +2528,8 @@ public class Employee : AnimalController
             }
             //packingTable.customer = null;
 
-            await UniTask.Delay(5000, cancellationToken: cancellationToken);
+            await Utility.CustomUniTaskDelay(5f, cancellationToken);
+         //   await UniTask.Delay(5000, cancellationToken: cancellationToken);
 
             bool check = false;
             int moveX = 0;
@@ -2610,17 +2554,20 @@ public class Employee : AnimalController
             Vector3 targetLoc = GameInstance.GetVector3(moveX, 0, moveZ);
             while (true)
             {
-                Vector3 currnetLoc = GameInstance.GetVector3(trans.position.x, 0, trans.position.z);
-                Vector3 dir = (targetLoc - currnetLoc).normalized;
-                trans.Translate(dir * 7f * Time.deltaTime);
-                float angle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
-                modelTrans.rotation = Quaternion.AngleAxis(angle, Vector3.up);
+                if (App.restaurantTimeScale == 1)
+                {
+                    Vector3 currnetLoc = GameInstance.GetVector3(trans.position.x, 0, trans.position.z);
+                    Vector3 dir = (targetLoc - currnetLoc).normalized;
+                    trans.Translate(dir * 7f * Time.deltaTime);
+                    float angle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
+                    modelTrans.rotation = Quaternion.AngleAxis(angle, Vector3.up);
 
-                if ((currnetLoc - targetLoc).magnitude < 0.5f) break;
+                    if ((currnetLoc - targetLoc).magnitude < 0.5f) break;
+                }
                 await UniTask.NextFrame(cancellationToken: cancellationToken);
             }
-
-            await UniTask.Delay(400, cancellationToken: cancellationToken);
+            await Utility.CustomUniTaskDelay(0.4f, cancellationToken);
+           // await UniTask.Delay(400, cancellationToken: cancellationToken);
             while (true)
             {
                 trans.position = GameInstance.GetVector3(trans.position.x, trans.position.y - 6f * Time.deltaTime, trans.position.z);

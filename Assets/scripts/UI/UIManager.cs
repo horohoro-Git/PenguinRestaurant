@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using static AssetLoader;
@@ -24,6 +25,7 @@ public class UIManager : MonoBehaviour
     public Image changeSceneImage;
     public Button drawBtn;
     public Button drawSpeedUpBtn;
+    public Button fishingBtn;
     public GameObject animalGuide;
     public Image fadeImage;
 
@@ -38,6 +40,9 @@ public class UIManager : MonoBehaviour
 
     public AudioSource audioSource;
 
+    Dictionary<int, Sprite> atlasSprites = new Dictionary<int, Sprite>();
+    EventSystem eventSystem;
+    
     // Start is called before the first frame update
     private void Awake()
     {
@@ -58,13 +63,21 @@ public class UIManager : MonoBehaviour
     }
     void Start()
     {
+        eventSystem = EventSystem.current;
+        atlasSprites[10001] = loadedAtlases["Town"].GetSprite(spriteAssetKeys[10001].Name);
+        atlasSprites[10002] = loadedAtlases["Town"].GetSprite(spriteAssetKeys[10002].Name);
+        atlasSprites[10003] = loadedAtlases["Town"].GetSprite(spriteAssetKeys[10003].Name);
+        atlasSprites[10004] = loadedAtlases["Town"].GetSprite(spriteAssetKeys[10004].Name);
+       
+
         animalGuideButton.onClick.AddListener(() =>
         {
             UIClick();
           
             if (bGuideOn)
             {
-                animalGuideImage.sprite = loadedSprites[spriteAssetKeys[10001].ID];
+
+                animalGuideImage.sprite = atlasSprites[10001]; //loadedAtlases["Town"].GetSprite(spriteAssetKeys[10001].Name);
                 bGuideOn = false;
             }
             else
@@ -72,10 +85,13 @@ public class UIManager : MonoBehaviour
                 switch (GameIns.app.currentScene)
                 {
                     case SceneState.Restaurant:
-                        animalGuideImage.sprite = loadedSprites[spriteAssetKeys[10002].ID];
+                        animalGuideImage.sprite = atlasSprites[10002]; //loadedAtlases["Town"].GetSprite(spriteAssetKeys[10002].Name);
                         break;
                     case SceneState.Draw:
-                        animalGuideImage.sprite = loadedSprites[spriteAssetKeys[10003].ID];
+                        animalGuideImage.sprite = atlasSprites[10003];//loadedAtlases["Town"].GetSprite(spriteAssetKeys[10003].Name);
+                        break;
+                    case SceneState.Fishing:
+                        animalGuideImage.sprite = atlasSprites[10004];//loadedAtlases["Town"].GetSprite(spriteAssetKeys[10004].Name);
                         break;
                 }
 
@@ -83,25 +99,6 @@ public class UIManager : MonoBehaviour
             }
             
             StartCoroutine(FadeInFadeOut(bGuideOn, 0));
-
-         /*   //   GameInstance.GameIns.inputManager.inputDisAble = false;
-            //   GameInstance.GameIns.inputManager.DragScreen_WindowEditor(true);
-
-            //      animalGuide.SetActive(bGuideOn);
-            StartCoroutine(FadeInFadeOut(bGuideOn, 0));
-            }
-            else
-            {
-                // if(state == SceneState.Draw)
-                {
-                //    GameInstance.GameIns.inputManager.inputDisAble = true;
-         //           GameInstance.GameIns.inputManager.DragScreen_WindowEditor(true);
-                }
-                bGuideOn = true;
-                // animalGuide.SetActive(bGuideOn);
-                StartCoroutine(FadeInFadeOut(bGuideOn, 0));
-            }*/
-
         });
 
         changeScene.onClick.AddListener(() =>
@@ -110,10 +107,11 @@ public class UIManager : MonoBehaviour
             switch (GameIns.app.currentScene)
             {
                 case SceneState.Restaurant:
+                    
                     // GameIns.app.currentScene = SceneState.Draw;
                     if (GameIns.applianceUIManager.currentBox != null) GameIns.applianceUIManager.currentBox.ClearFishes();
-                    animalGuideImage.sprite = loadedAtlases["Town"].GetSprite(spriteAssetKeys[10001].Name); //loadedSprites[spriteAssetKeys[10001].ID];
-                    changeSceneImage.sprite = loadedAtlases["Town"].GetSprite(spriteAssetKeys[10002].Name);
+                    animalGuideImage.sprite = atlasSprites[10001];//loadedAtlases["Town"].GetSprite(spriteAssetKeys[10001].Name); //loadedSprites[spriteAssetKeys[10001].ID];
+                    changeSceneImage.sprite = atlasSprites[10002];//loadedAtlases["Town"].GetSprite(spriteAssetKeys[10002].Name);
 
                     cameraSize = InputManger.cachingCamera.orthographicSize;
                     drawBtn.gameObject.SetActive(false);
@@ -124,14 +122,29 @@ public class UIManager : MonoBehaviour
                   //  GameIns.app.currentScene = SceneState.Restaurant;
                    // animalGuideImage.sprite = loadedSprites[spriteAssetKeys[10001].ID];
                    // changeSceneImage.sprite = loadedSprites[spriteAssetKeys[10003].ID];
-                    animalGuideImage.sprite = loadedAtlases["Town"].GetSprite(spriteAssetKeys[10001].Name); //loadedSprites[spriteAssetKeys[10001].ID];
-                    changeSceneImage.sprite = loadedAtlases["Town"].GetSprite(spriteAssetKeys[10003].Name);
+                    animalGuideImage.sprite = atlasSprites[10001]; //loadedAtlases["Town"].GetSprite(spriteAssetKeys[10001].Name); //loadedSprites[spriteAssetKeys[10001].ID];
+                    changeSceneImage.sprite = atlasSprites[10003];//loadedAtlases["Town"].GetSprite(spriteAssetKeys[10003].Name);
                     //     GameIns.app.pos = GameIns.inputManager.cameraTrans.position;
                     // if (GameIns.applianceUIManager.currentBox != null) GameIns.applianceUIManager.currentBox.ClearFishes();
 
                     StartCoroutine(FadeInFadeOut(true, 1));
                     break;
+                case SceneState.Fishing:
+                    animalGuideImage.sprite = atlasSprites[10001]; //loadedAtlases["Town"].GetSprite(spriteAssetKeys[10001].Name); //loadedSprites[spriteAssetKeys[10001].ID];
+                    changeSceneImage.sprite = atlasSprites[10003];//loadedAtlases["Town"].GetSprite(spriteAssetKeys[10004].Name);
+                    StartCoroutine(FadeInFadeOut(true, 1));
+                    break;
             }
+
+        });
+
+        fishingBtn.onClick.AddListener(() =>
+        {
+            UIClick();
+            animalGuideImage.sprite = atlasSprites[10001];
+            changeSceneImage.sprite = atlasSprites[10002];
+            StartCoroutine(FadeInFadeOut(true, 3));
+            fishingBtn.gameObject.SetActive(false);
 
         });
 
@@ -157,44 +170,55 @@ public class UIManager : MonoBehaviour
 
     IEnumerator FadeInFadeOut(bool fades,int t)
     {
-      //  if (fades)
+        eventSystem.enabled = false;
+        float f = 0;
+        fadeImage.raycastTarget = true;
+        while (f <= 0.1f)
         {
-            float f = 0;
-            fadeImage.raycastTarget = true;
-            while (true)
-            {   
-                f += Time.unscaledDeltaTime * 8;
-                Color c = fadeImage.color;
-                c.a = f;
-                if (fadeImage.color.a > 0.9)
-                {
-                    if (t == 1)
-                    {
-                        Camera.main.orthographicSize = cameraSize;
-                    }
-                    else if (t == 2)
-                    {
-                        Camera.main.orthographicSize = 15;
-                    }
-                    fadeImage.raycastTarget = false;
-                    ShowUI(t);
-                    c.a = 0;
-                    fadeImage.color = c;
-                    break;
-                }
-                fadeImage.color = c;
-                yield return null;
-            }
-            
+            f += Time.unscaledDeltaTime;
+            float a = Mathf.Lerp(0, 1, f / 0.1f);
+            Color c = fadeImage.color;
+            c.a = a;
+          
+            fadeImage.color = c;
+            yield return null;
         }
+        f = 0;
+        ShowUI(t);
+       /* if (t == 1)
+        {
+            Camera.main.orthographicSize = cameraSize;
+        }
+        else if (t == 2)
+        {
+            Camera.main.orthographicSize = 15;
+        }
+*/
+        yield return CoroutneManager.waitForzeroone_real;
+        while (f <= 0.1f)
+        {
+            f += Time.unscaledDeltaTime;
+            float a = Mathf.Lerp(1, 0, f / 0.1f);
+            Color c = fadeImage.color;
+            c.a = a;
+
+            fadeImage.color = c;
+            yield return null;
+        }
+        Color transparent = fadeImage.color;
+        transparent.a = 0;
+        fadeImage.color = transparent;
+        fadeImage.raycastTarget = false;
+        yield return null;
+        eventSystem.enabled = true;
     }
 
     void ShowUI(int t)
     {
-       
+
         if (t == 0)
         {
-        
+
             if (bGuideOn)
             {
                 GameIns.applianceUIManager.UIClearAll(false);
@@ -208,7 +232,7 @@ public class UIManager : MonoBehaviour
                     GameIns.applianceUIManager.UIClearAll(false);
                     drawBtn.gameObject.SetActive(true);
                     drawSpeedUpBtn.gameObject.SetActive(true);
-                }        
+                }
                 else
                 {
                     GameIns.applianceUIManager.UIClearAll(true);
@@ -218,12 +242,12 @@ public class UIManager : MonoBehaviour
         }
         else if (t == 1)
         {
-            
             // GameIns.applianceUIManager.UIClearAll(true);
             animalGuide.SetActive(false);
             bGuideOn = false;
             drawBtn.gameObject.SetActive(false);
             drawSpeedUpBtn.gameObject.SetActive(false);
+            fishingBtn.gameObject.SetActive(true);
             GameIns.app.ChangeScene_Restaurant();
         }
         else if (t == 2)
@@ -232,6 +256,14 @@ public class UIManager : MonoBehaviour
             animalGuide.SetActive(false);
             bGuideOn = false;
             GameIns.app.ChangeScene_DrawScene();
+        }
+        else if (t == 3)
+        {
+            animalGuide.SetActive(false);
+            bGuideOn = false;
+            GameIns.applianceUIManager.UIClearAll(false);
+            GameIns.app.ChangeScene_Fishing();
+
         }
     }
 
