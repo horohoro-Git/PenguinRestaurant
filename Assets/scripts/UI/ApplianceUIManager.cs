@@ -103,6 +103,7 @@ public class ApplianceUIManager : MonoBehaviour
     }
     private void Update()
     {
+        if (GameInstance.GameIns.inputManager.inputDisAble) return;
         if (viewHireBtn)
         {
             if (Physics.CheckSphere(GameInstance.GameIns.inputManager.cameraRange.position, Camera.main.orthographicSize / 4f, 1))
@@ -615,7 +616,7 @@ public class ApplianceUIManager : MonoBehaviour
             feedingDescription.gameObject.SetActive(false);
             feeding = false;
          //   currentBox = null;
-            GameInstance.GameIns.inputManager.inputDisAble = false;
+       //     GameInstance.GameIns.inputManager.inputDisAble = false;
         }
     }
 

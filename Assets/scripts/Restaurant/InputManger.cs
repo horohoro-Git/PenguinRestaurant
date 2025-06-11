@@ -145,7 +145,6 @@ public class InputManger : MonoBehaviour
 
     void Update()
     {
-      
         // Utility.CheckHirable(cameraRange.position, ref refX, ref refY, true, true);
         /*  if (Input.GetKey(KeyCode.O))
           {
@@ -208,7 +207,7 @@ public class InputManger : MonoBehaviour
     void ScreenPoint(InputAction.CallbackContext callbackContext)
     {
 
-
+       // if (inputDisAble) return;
         Vector2 vector2 = callbackContext.ReadValue<Vector2>();
 
         if (justTouch)
@@ -251,14 +250,14 @@ public class InputManger : MonoBehaviour
             }
             else
             {
-                ((Action)EventManager.Publish(3))?.Invoke();
+              //  ((Action)EventManager.Publish(3))?.Invoke();
             }
         }
     }
 
     void StartClick(InputAction.CallbackContext callbackContext)
     {
-
+       // if(inputDisAble) return;
         camVelocity = Vector3.zero;
         if (cachingCamera == null) cachingCamera = Camera.main;
         if (CheckClickedUI(1 << 5 | 1 << 14 | 1 << 18)) return;
@@ -279,6 +278,7 @@ public class InputManger : MonoBehaviour
     }
     void EndClick(InputAction.CallbackContext callbackContext)
     {
+      //  if (inputDisAble) return;
         if (draggingEmployee != null)
         {
             inputDisAble = false;
@@ -381,58 +381,61 @@ public class InputManger : MonoBehaviour
             Vector3 test = Vector3.zero;
             while (isDragging)
             {
-                //Debug.Log(realPosition + " real");
-                //Debug.Log(followPosition + " follow");
-                Vector3 l = deltaPosition - currentPosition;
-                float m = l.magnitude;
-                Vector3 n = l.normalized;
-
-                if (test == Vector3.zero && !bClick)
+                if (App.restaurantTimeScale == 1)
                 {
-                    Vector3 dir = (realPosition - followPosition).normalized;
-                    float moveDistance = (realPosition - followPosition).magnitude;
-                    test = cameraTrans.position + dir * (moveDistance * 2); //cameraTrans.position + (realPosition - followPosition).magnitude * 2 * (realPosition - followPosition).normalized;
-                    float remainingDistance = Vector3.Distance(cameraTrans.position, test);
-                    distanceFactor = Mathf.Clamp01(remainingDistance / 25f);
+                    //Debug.Log(realPosition + " real");
+                    //Debug.Log(followPosition + " follow");
+                    Vector3 l = deltaPosition - currentPosition;
+                    float m = l.magnitude;
+                    Vector3 n = l.normalized;
 
-                }
-                // Debug.Log(realPosition);
-                if (bClick)
-                {
-                    realPosition += n * m;
-
-                    Vector3 move = Vector3.SmoothDamp(followPosition, realPosition, ref camVelocity, 0.2f);
-                    //Vector3 lerps = Vector3.Lerp(followPosition, realPosition, 0.2f);
-
-                    //   Debug.DrawLine(cameraRange.position, cameraRange.position + n * camVelocity.magnitude, Color.red, 5f);
-
-                    Vector3 d = move - cameraTrans.position;
-                    if (CheckRayMove(d))
+                    if (test == Vector3.zero && !bClick)
                     {
-                        if (!inputDisAble) cameraTrans.position = new Vector3(move.x, 0, move.z);
-                        //        Utility.CheckHirable(cameraRange.position, ref refX, ref refY);
+                        Vector3 dir = (realPosition - followPosition).normalized;
+                        float moveDistance = (realPosition - followPosition).magnitude;
+                        test = cameraTrans.position + dir * (moveDistance * 2); //cameraTrans.position + (realPosition - followPosition).magnitude * 2 * (realPosition - followPosition).normalized;
+                        float remainingDistance = Vector3.Distance(cameraTrans.position, test);
+                        distanceFactor = Mathf.Clamp01(remainingDistance / 25f);
 
                     }
-
-                }
-                else
-                {
-
-                    // targetSmoothTime = Mathf.Lerp(0.2f, 1f, distanceFactor);
-                    currentSmoothTime = Mathf.Lerp(0.2f, distanceFactor, 0.05f);
-                    Vector3 move = Vector3.SmoothDamp(followPosition, test, ref camVelocity, currentSmoothTime);
-                    Vector3 d = move - cameraTrans.position;
-                    if (CheckRayMove(d))
+                    // Debug.Log(realPosition);
+                    if (bClick)
                     {
-                        if (!inputDisAble) cameraTrans.position = new Vector3(move.x, 0, move.z);
-                        //  Utility.CheckHirable(cameraRange.position, ref refX, ref refY);
+                        realPosition += n * m;
+
+                        Vector3 move = Vector3.SmoothDamp(followPosition, realPosition, ref camVelocity, 0.2f);
+                        //Vector3 lerps = Vector3.Lerp(followPosition, realPosition, 0.2f);
+
+                        //   Debug.DrawLine(cameraRange.position, cameraRange.position + n * camVelocity.magnitude, Color.red, 5f);
+
+                        Vector3 d = move - cameraTrans.position;
+                        if (CheckRayMove(d))
+                        {
+                            if (!inputDisAble) cameraTrans.position = new Vector3(move.x, 0, move.z);
+                            //        Utility.CheckHirable(cameraRange.position, ref refX, ref refY);
+
+                        }
+
                     }
+                    else
+                    {
 
+                        // targetSmoothTime = Mathf.Lerp(0.2f, 1f, distanceFactor);
+                        currentSmoothTime = Mathf.Lerp(0.2f, distanceFactor, 0.05f);
+                        Vector3 move = Vector3.SmoothDamp(followPosition, test, ref camVelocity, currentSmoothTime);
+                        Vector3 d = move - cameraTrans.position;
+                        if (CheckRayMove(d))
+                        {
+                            if (!inputDisAble) cameraTrans.position = new Vector3(move.x, 0, move.z);
+                            //  Utility.CheckHirable(cameraRange.position, ref refX, ref refY);
+                        }
+
+                    }
+                    followPosition = cameraTrans.position;
+
+                    deltaPosition = currentPosition;
+                    if (camVelocity.magnitude < 0.01f) break;
                 }
-                followPosition = cameraTrans.position;
-
-                deltaPosition = currentPosition;
-                if (camVelocity.magnitude < 0.01f) break;
                 // await UniTask.NextFrame(cancellationToken: cancellationToken);
                 yield return null;
             }
@@ -447,9 +450,12 @@ public class InputManger : MonoBehaviour
         isDragging = false;
         while (i < 0.5f)
         {
-            if (!inputDisAble) cameraTrans.position -= move * Time.deltaTime;
-            //   Utility.CheckHirable(cameraRange.position, ref refX, ref refY, checkingHirePos);
-            i += Time.deltaTime;
+            if (App.restaurantTimeScale == 1)
+            {
+                if (!inputDisAble) cameraTrans.position -= move * Time.deltaTime;
+                //   Utility.CheckHirable(cameraRange.position, ref refX, ref refY, checkingHirePos);
+                i += Time.deltaTime;
+            }
             yield return null;
         }
     }

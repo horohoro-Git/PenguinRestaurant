@@ -12,6 +12,8 @@ using Unity.VisualScripting;
 using System.Text;
 using JetBrains.Annotations;
 using DG.Tweening;
+using Cysharp.Threading.Tasks;
+using System.Threading;
 
 public enum CounterType
 {
@@ -600,6 +602,31 @@ public class Utility
         return result;
     }
 
+
+    public static async UniTask CustomUniTaskDelay(float delayTime, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            float target = RestaurantManager.restaurantTimer + delayTime;
+            while (RestaurantManager.restaurantTimer < target)
+            {
+                await UniTask.NextFrame(cancellationToken: cancellationToken);
+            }
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
+    public static IEnumerator CustomCoroutineDelay(float delayTime)
+    {
+        float target = RestaurantManager.restaurantTimer + delayTime;
+        while (RestaurantManager.restaurantTimer < target)
+        {
+            yield return null;
+        }
+    }
 }
 
 public class GameRegulation

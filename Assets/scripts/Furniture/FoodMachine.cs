@@ -332,13 +332,15 @@ public class FoodMachine : Furniture
     {
         try
         {
-            await UniTask.Delay(500, cancellationToken: cancellationToken);
+            await Utility.CustomUniTaskDelay(0.5f, cancellationToken);  
+            //await UniTask.Delay(500, cancellationToken: cancellationToken);
 
             while (true)
             {
                 if (machineLevelData == null || foodStack.foodStack.Count >= machineLevelData.max_height)
                 {
-                    await UniTask.Delay(200, cancellationToken: cancellationToken);
+                    await Utility.CustomUniTaskDelay(0.2f, cancellationToken);
+                  //  await UniTask.Delay(200, cancellationToken: cancellationToken);
                     continue;
                 }
 
@@ -349,7 +351,8 @@ public class FoodMachine : Furniture
                 }
                 else
                 {
-                    await UniTask.Delay(200, cancellationToken: cancellationToken);
+                    await Utility.CustomUniTaskDelay(0.2f, cancellationToken);
+                   // await UniTask.Delay(200, cancellationToken: cancellationToken);
                     continue;
                 }
 
@@ -362,10 +365,12 @@ public class FoodMachine : Furniture
 
                 cookingAction?.Invoke(cookingTimer);
 
-                await UniTask.Delay((int)(cookingTimer * 1000), cancellationToken: cancellationToken);
+                await Utility.CustomUniTaskDelay(cookingTimer, cancellationToken);
+            //    await UniTask.Delay((int)(cookingTimer * 1000), cancellationToken: cancellationToken);
 
                 cookingFinishAction?.Invoke();
-                await UniTask.Delay(600, cancellationToken: cancellationToken);
+                await Utility.CustomUniTaskDelay(0.6f, cancellationToken);
+               // await UniTask.Delay(600, cancellationToken: cancellationToken);
 
             }
         }

@@ -41,3 +41,4 @@ Animal Restaurant Tycoon Game
 06/08 Added sound to the gacha map and adjusted patty orientation on the burger grill
 06/09 Conducting tests for migrating the rendering pipeline from Built-In to URP
 06/10 Completed migration to URP and restored broken batching caused by the pipeline change
+06/11 Added a custom time scale for the restaurant and made all non-UI asynchronous operations in the restaurant follow it; also added a minigame entry feature

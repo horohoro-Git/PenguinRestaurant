@@ -52,15 +52,21 @@ public class CokeMachine : FoodMachine
         float f = 0;
         while (f <= 0.2f)
         {
-            food.transform.localScale = Vector3.Lerp(v1, v3, f * 5);
-            f += Time.deltaTime;
+            if (App.restaurantTimeScale == 1)
+            {
+                food.transform.localScale = Vector3.Lerp(v1, v3, f * 5);
+                f += Time.deltaTime;
+            }
             yield return null;
         }
         f = 0;
         while (f <= 0.1f)
         {
-            food.transform.localScale = Vector3.Lerp(v3, v2, f * 10);
-            f += Time.deltaTime;
+            if (App.restaurantTimeScale == 1)
+            {
+                food.transform.localScale = Vector3.Lerp(v3, v2, f * 10);
+                f += Time.deltaTime;
+            }
             yield return null;
         }
         food.transform.localScale = v2;
@@ -70,7 +76,8 @@ public class CokeMachine : FoodMachine
                 foodStack.foodStack.Push(food);
 
                 food.transform.DOJump(foodTransform.position + Vector3.up * (foodStack.foodStack.Count - 1) * 0.7f, 2, 1, 0.4f);*/
-        yield return CoroutneManager.waitForzerofive;
+        //  yield return CoroutneManager.waitForzerofive;
+        yield return StartCoroutine(Utility.CustomCoroutineDelay(0.5f));
 
         yield return StartCoroutine(Shaking(timer));
     }
@@ -92,9 +99,12 @@ public class CokeMachine : FoodMachine
         float f = 0;
         while (f <= timer)
         {
-            Vector3 v2 = cur + transform.right * UnityEngine.Random.Range(-0.1f, 0.1f);
-            transform.position = v2;
-            f += Time.deltaTime;
+            if (App.restaurantTimeScale == 1)
+            {
+                Vector3 v2 = cur + transform.right * UnityEngine.Random.Range(-0.1f, 0.1f);
+                transform.position = v2;
+                f += Time.deltaTime;
+            }
             yield return null;
         }
         transform.position = cur;
@@ -103,7 +113,8 @@ public class CokeMachine : FoodMachine
     public IEnumerator CreateCokeDone()
     {
         food.transform.SetParent(FoodManager.foodCollects.transform);
-        yield return CoroutneManager.waitForzerothree;
+        //  yield return CoroutneManager.waitForzerothree;
+        yield return StartCoroutine(Utility.CustomCoroutineDelay(0.3f));
 
         createdFood = food;
         food = null;

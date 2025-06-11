@@ -413,7 +413,8 @@ public class Customer : AnimalController
     {
         try
         {
-            await UniTask.Delay(200, cancellationToken: cancellationToken);
+          //  await UniTask.Delay(200, cancellationToken: cancellationToken);
+            await Utility.CustomUniTaskDelay(0.2f, cancellationToken);
          //   GameInstance.GameIns.animalManager.AttacCustomerTask(this);
             customerCallback?.Invoke(this);
         }
@@ -635,30 +636,33 @@ public class Customer : AnimalController
                 float cur = (target - trans.position).magnitude;
                 while(true)
                 {
-                    if (!standInline && reCalculate)
+                    if (App.restaurantTimeScale == 1)
                     {
-                        Debug.Log("reCalculate");
-                        return;
-                    }
-                    if (trans == null || !trans)
-                    {
-                        Debug.LogError("No Trans Find");
-                        await UniTask.NextFrame();
-                        return;
-                    }
-                   
-                    if (Vector3.Distance(trans.position, target) <= 0.01f) break;
+                        if (!standInline && reCalculate)
+                        {
+                            Debug.Log("reCalculate");
+                            return;
+                        }
+                        if (trans == null || !trans)
+                        {
+                            Debug.LogError("No Trans Find");
+                            await UniTask.NextFrame();
+                            return;
+                        }
 
-                    Debug.DrawLine(trans.position, target, Color.red, 0.1f);
-                    //  moveCTS.Token.ThrowIfCancellationRequested();
-                    animator.SetInteger("state", 1);
-                    animal.PlayAnimation(AnimationKeys.Walk);
-                    // PlayAnim(animal.animationDic["Run"], "Run");
-                    cur = (target - trans.position).magnitude;
-                    Vector3 dir = (target - trans.position).normalized;
-                    trans.position = Vector3.MoveTowards(trans.position, target, animalStruct.speed * Time.deltaTime);
-                    float angle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
-                    modelTrans.rotation = Quaternion.AngleAxis(angle, Vector3.up);
+                        if (Vector3.Distance(trans.position, target) <= 0.01f) break;
+
+                        Debug.DrawLine(trans.position, target, Color.red, 0.1f);
+                        //  moveCTS.Token.ThrowIfCancellationRequested();
+                        animator.SetInteger("state", 1);
+                        animal.PlayAnimation(AnimationKeys.Walk);
+                        // PlayAnim(animal.animationDic["Run"], "Run");
+                        cur = (target - trans.position).magnitude;
+                        Vector3 dir = (target - trans.position).normalized;
+                        trans.position = Vector3.MoveTowards(trans.position, target, animalStruct.speed * Time.deltaTime);
+                        float angle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
+                        modelTrans.rotation = Quaternion.AngleAxis(angle, Vector3.up);
+                    }
                     await UniTask.NextFrame(cancellationToken: cancellationToken);
                 }
 
@@ -704,13 +708,16 @@ public class Customer : AnimalController
 
             while (true)
             {
-                animator.SetInteger("state", 1);
-                animal.PlayAnimation(AnimationKeys.Walk);
-                trans.position = Vector3.MoveTowards(trans.position, newLoc, animalStruct.speed * Time.deltaTime);
-                if (Vector3.Distance(trans.position, newLoc) <= 0.01f) break;
-                Vector3 dir = newLoc - trans.position;
-                float angle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
-                modelTrans.rotation = Quaternion.AngleAxis(angle, Vector3.up);
+                if (App.restaurantTimeScale == 1)
+                {
+                    animator.SetInteger("state", 1);
+                    animal.PlayAnimation(AnimationKeys.Walk);
+                    trans.position = Vector3.MoveTowards(trans.position, newLoc, animalStruct.speed * Time.deltaTime);
+                    if (Vector3.Distance(trans.position, newLoc) <= 0.01f) break;
+                    Vector3 dir = newLoc - trans.position;
+                    float angle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
+                    modelTrans.rotation = Quaternion.AngleAxis(angle, Vector3.up);
+                }
                 await UniTask.NextFrame(cancellationToken: cancellationToken);
             }
 
@@ -771,7 +778,8 @@ public class Customer : AnimalController
                     seatIndex = index;
                     tb = table;
                     //customerAction = CustomerAction.CustomerTable;
-                    await UniTask.Delay(200, cancellationToken: cancellationToken);
+                    //  await UniTask.Delay(200, cancellationToken: cancellationToken);
+                    await Utility.CustomUniTaskDelay(0.2f, cancellationToken);
 
                     for (int i = VisualizingFoodStack.Count - 1; i >= 0; i--)
                     {
@@ -792,7 +800,8 @@ public class Customer : AnimalController
                         f.transforms.DOJump(pos, r, 1, 0.2f);
 #endif
                         table.foodStacks[0].foodStack.Push(f);
-                        await UniTask.Delay(300, cancellationToken: cancellationToken);
+                       // await UniTask.Delay(300, cancellationToken: cancellationToken);
+                        await Utility.CustomUniTaskDelay(0.3f, cancellationToken);
                     }
 
                     //식사
@@ -821,13 +830,14 @@ public class Customer : AnimalController
                             animal.audioSource.clip = GameInstance.GameIns.gameSoundManager.ThrowSound();
                             animal.audioSource.Play();
                             f.transforms.DOJump(t, 1, 1, 0.2f);
-                            await UniTask.Delay(300, cancellationToken: cancellationToken);
+                            //await UniTask.Delay(300, cancellationToken: cancellationToken);
+                            await Utility.CustomUniTaskDelay(0.3f, cancellationToken);
                         }
                         else
                         {
                             f = table.placedFoods[seatIndex].GetComponent<Food>();
                         }
-                        float tm = 0;
+                        float tm = RestaurantManager.restaurantTimer;
                         bool stealing = false;
                         bool stolen = false;
                         for (int i = 0; i < 100; i++)
@@ -835,10 +845,10 @@ public class Customer : AnimalController
                             
                             if (!table.hasProblem)
                             {
-                                int timer = (int)(10 * animalStruct.eat_speed);
-                                if (tm + animalStruct.eat_speed / 10 <= Time.time)
+                                float timer = animalStruct.eat_speed;
+                                if (RestaurantManager.restaurantTimer >= tm + timer * 10)
                                 {
-                                    tm = Time.time;
+                                    tm = RestaurantManager.restaurantTimer;
 
                                     animal.audioSource.clip = GameInstance.GameIns.gameSoundManager.Eat();
                                     animal.audioSource.volume = 0.05f;
@@ -847,7 +857,8 @@ public class Customer : AnimalController
                                     // animator.SetInteger("state", 2);
                                     animal.PlayTriggerAnimation(AnimationKeys.Eat);
                                 }
-                                await UniTask.Delay(timer);
+                                await Utility.CustomUniTaskDelay(timer, cancellationToken);
+                             //   await UniTask.Delay(timer);
                             }
                             else
                             {
@@ -879,7 +890,8 @@ public class Customer : AnimalController
                                         cancellationTokenSource = new CancellationTokenSource();
                                         EmoteTimer(0, AnimationKeys.Trauma, true, cancellationTokenSource.Token).Forget();
 
-                                        await UniTask.Delay(3000, cancellationToken: cancellationToken);
+                                        await Utility.CustomUniTaskDelay(3f, cancellationToken);
+                                       // await UniTask.Delay(3000, cancellationToken: cancellationToken);
                                         customerState = CustomerState.Table;
                                         animator.SetInteger("state", 0);
                                         animal.PlayAnimation(AnimationKeys.Idle);
@@ -889,7 +901,8 @@ public class Customer : AnimalController
                                     }
                                     else
                                     {
-                                        await UniTask.Delay(200, cancellationToken: cancellationToken);
+                                        await Utility.CustomUniTaskDelay(0.2f, cancellationToken);
+                                       // await UniTask.Delay(200, cancellationToken: cancellationToken);
                                     }
 
                                 }
@@ -904,8 +917,8 @@ public class Customer : AnimalController
                                             table.placedFoods[j] = null;
                                             table.placedFoods[seatIndex].transform.DOJump(t, 1, 1, 0.2f);
                                             
-                                            await UniTask.Delay(300, cancellationToken: cancellationToken);
-
+                                           // await UniTask.Delay(300, cancellationToken: cancellationToken);
+                                            await Utility.CustomUniTaskDelay(0.3f, cancellationToken);
                                             goto GoUp;
 
                                         }
@@ -944,11 +957,13 @@ public class Customer : AnimalController
 
                         particle.GetComponent<ParticleSystem>().Play();
 
-                        await UniTask.Delay(200, cancellationToken: cancellationToken);
+                       // await UniTask.Delay(200, cancellationToken: cancellationToken);
+                        await Utility.CustomUniTaskDelay(0.2f, cancellationToken);
 
                     }
                     customerState = CustomerState.Table;
-                    await UniTask.Delay(500, cancellationToken: cancellationToken);
+                    await Utility.CustomUniTaskDelay(0.5f, cancellationToken);
+                   // await UniTask.Delay(500, cancellationToken: cancellationToken);
                     ParticleManager.ClearParticle(particle);
 
                     animal.audioSource.clip = GameInstance.GameIns.gameSoundManager.Happy();
@@ -957,8 +972,9 @@ public class Customer : AnimalController
 
                     if (cancellationTokenSource != null) cancellationTokenSource.Cancel();
                     cancellationTokenSource = new CancellationTokenSource();
-                    EmoteTimer(5000, AnimationKeys.Happy, false, cancellationTokenSource.Token).Forget();
-                    await UniTask.Delay(3000, cancellationToken: cancellationToken);
+                    EmoteTimer(5f, AnimationKeys.Happy, false, cancellationTokenSource.Token).Forget();
+                  //  await UniTask.Delay(3000, cancellationToken: cancellationToken);
+                    await Utility.CustomUniTaskDelay(3f, cancellationToken);
                     animator.SetInteger("state", 0);
                     animal.PlayAnimation(AnimationKeys.Idle);
                     //PlayAnim(animal.animationDic["Idle_A"], "Idle_A");
@@ -1051,14 +1067,15 @@ public class Customer : AnimalController
         }
     }
 
-    async UniTask EmoteTimer(int delay, string emote, bool continues, CancellationToken cancellationToken = default)
+    async UniTask EmoteTimer(float delay, string emote, bool continues, CancellationToken cancellationToken = default)
     {
         try
         {
             Emote(true, emote);
             if (!continues)
             {
-                await UniTask.Delay(delay, cancellationToken: cancellationToken);
+                await Utility.CustomUniTaskDelay(delay, cancellationToken);
+            //    await UniTask.Delay(delay, cancellationToken: cancellationToken);
                 Emote(false, AnimationKeys.Normal);
             }
         }

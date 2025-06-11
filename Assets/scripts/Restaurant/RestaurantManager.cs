@@ -74,6 +74,8 @@ public class RestaurantManager : MonoBehaviour
 
     public VendingMachineData vendingData;
 
+    public static float restaurantTimer;
+
   //  public Dictionary<WorkSpaceType, int> workSpaces = new Dictionary<WorkSpaceType, int>(); 
  //   public Dictionary<MachineType, MachineLevelStruct>
     // Start is called before the first frame update
@@ -161,11 +163,18 @@ public class RestaurantManager : MonoBehaviour
         AutoSave(App.GlobalToken).Forget();
     }
 
+    private void Update()
+    {
+        restaurantTimer += Time.deltaTime * App.restaurantTimeScale;
+    }
+
     async UniTask AutoSave(CancellationToken cancellationToken = default)
     {
         while (true)
         {
-            await UniTask.Delay(30000, cancellationToken: cancellationToken);
+            // await UniTask.Delay(30000, cancellationToken: cancellationToken);
+
+            await Utility.CustomUniTaskDelay(30f, cancellationToken);
 
             if(employees.changed)
             {
@@ -305,7 +314,7 @@ public class RestaurantManager : MonoBehaviour
                 {
                     if (levels[level].gameObject.TryGetComponent<FoodMachine>(out FoodMachine foodMachine))
                     {
-                        SetMachineLayer(foodMachine.modelTrans.gameObject).Forget();
+                        SetMachineLayer(foodMachine.modelTrans.gameObject, App.GlobalToken).Forget();
                         workSpaceManager.foodMachines.Add(foodMachine);
                         foodMachine.restaurantParam = restaurantparams[level];
                      //   foodMachine.Set(level);
@@ -499,15 +508,15 @@ public class RestaurantManager : MonoBehaviour
         float worldZ = GameIns.calculatorScale.minY + finalZ * (GameIns.calculatorScale.distanceSize);
         Vector3 targetPos = new Vector3(worldX, 0, worldZ);
         Vector3 st = animal.trans.position;
-        float t = 0;
+        float t = restaurantTimer + 0.2f;
         animal.animator.SetInteger("state", 0);
         animal.animal.PlayAnimation(AnimationKeys.Idle);// (animal.animal.animationDic["Idle_A"], "Idle_A");
-        while (t < 0.2f)
+        while (restaurantTimer < t)
         {
-            float progress = t / 0.2f; // 0 ~ 1
+            float progress = restaurantTimer / t; // 0 ~ 1
             animal.trans.position = Vector3.Lerp(st, targetPos, progress);
 
-            t += Time.deltaTime;
+        //    t += Time.deltaTime;
             await UniTask.NextFrame(cancellationToken);
         }
         animal.trans.position = targetPos;
@@ -516,9 +525,10 @@ public class RestaurantManager : MonoBehaviour
         animal.bWait = false;
     }
 
-    async UniTask SetMachineLayer(GameObject go)
+    async UniTask SetMachineLayer(GameObject go, CancellationToken cancellationToken = default)
     {
-        await UniTask.Delay(1000);
+     //   await UniTask.Delay(1000);
+        await Utility.CustomUniTaskDelay(1, cancellationToken);
        // yield return GetWaitTimer.WaitTimer.GetTimer(1000);
         go.layer = LayerMask.NameToLayer("RestaurantObject");
     }

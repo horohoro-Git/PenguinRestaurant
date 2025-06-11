@@ -72,16 +72,17 @@ public class DonutMachine : FoodMachine
             frieds[x, y] = true;
             friedQueue.Enqueue((food, new Vector2Int(x,y)));
             StartCoroutine(DonutVitlity(food));
-            yield return CoroutneManager.waitForzeroone;
+            //  yield return CoroutneManager.waitForzeroone;
+            yield return StartCoroutine(Utility.CustomCoroutineDelay(0.1f));
         }
 
         while (true)
         {
-            yield return CoroutneManager.waitFortwo;
-
-            if(friedQueue.Count < 6)
+            //  yield return CoroutneManager.waitFortwo;
+            yield return StartCoroutine(Utility.CustomCoroutineDelay(2f));
+            if (friedQueue.Count < 6)
             {
-                if(friedQueue.Count >= 2) yield return CoroutneManager.waitFortwo;
+                if (friedQueue.Count >= 2) yield return StartCoroutine(Utility.CustomCoroutineDelay(2f)); //yield return CoroutneManager.waitFortwo;
                 for (int i=0; i < 3; i++)
                 {
                     for (int j=0; j<2; j++)
@@ -119,15 +120,21 @@ public class DonutMachine : FoodMachine
         float f = 0;
         while (f <= 0.2f)
         {
-            food.transform.localScale = Vector3.Lerp(v1, v3, f * 5);
-            f += Time.deltaTime;
+            if (App.restaurantTimeScale == 1)
+            {
+                food.transform.localScale = Vector3.Lerp(v1, v3, f * 5);
+                f += Time.deltaTime;
+            }
             yield return null;
         }
         f = 0;
         while (f <= 0.1f)
         {
-            food.transform.localScale = Vector3.Lerp(v3, v2, f * 10);
-            f += Time.deltaTime;
+            if (App.restaurantTimeScale == 1)
+            {
+                food.transform.localScale = Vector3.Lerp(v3, v2, f * 10);
+                f += Time.deltaTime;
+            }
             yield return null;
         }
         food.transform.localScale = v2;
@@ -171,17 +178,23 @@ public class DonutMachine : FoodMachine
             f = 0;
             while (f <= timer)
             {
-                current.transform.rotation = Quaternion.Lerp(q1, q2, f * (1 / timer));
+                if (App.restaurantTimeScale == 1)
+                {
+                    current.transform.rotation = Quaternion.Lerp(q1, q2, f * (1 / timer));
 
-                f += Time.deltaTime;
+                    f += Time.deltaTime;
+                }
                 yield return null;
             }
             f = 0;
             while (f <= timer)
             {
-                current.transform.rotation = Quaternion.Lerp(q2, q3, f * (1 / timer));
+                if (App.restaurantTimeScale == 1)
+                {
+                    current.transform.rotation = Quaternion.Lerp(q2, q3, f * (1 / timer));
 
-                f += Time.deltaTime;
+                    f += Time.deltaTime;
+                }
                 yield return null;
             }
             current.transform.rotation = Quaternion.Euler(Vector3.zero);
@@ -195,7 +208,8 @@ public class DonutMachine : FoodMachine
         (current, v) = friedQueue.Dequeue();
         frieds[v.x, v.y] = false;
         current.transform.SetParent(FoodManager.foodCollects.transform);
-        yield return CoroutneManager.waitForzerothree;
+        //   yield return CoroutneManager.waitForzerothree;
+        yield return StartCoroutine(Utility.CustomCoroutineDelay(0.3f));
 
         createdFood = current;
         current = null;
