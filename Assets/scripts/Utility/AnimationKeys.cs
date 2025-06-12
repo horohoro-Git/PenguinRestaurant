@@ -12,6 +12,8 @@ public static class AnimationKeys
     public const string Hit = "Hit";
     public const string Bounce = "Bounce";
     public const string Eat = "Eat";
+    public const string Swim = "Swim";
+    public const string None = "None";
 
     // Shape Keys
     public const string Normal = "normal";

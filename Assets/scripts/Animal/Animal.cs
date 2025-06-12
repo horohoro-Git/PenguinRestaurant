@@ -36,6 +36,7 @@ public class Animal : MonoBehaviour
     [HideInInspector]
     public int hateFood;
 
+    public bool hasShadow;
 #if HAS_ANIMATION_INSTANCING
     AnimIns animIns;
     public AnimIns InstancingCharacter { get { if (animIns == null) animIns = GetComponentInChildren<AnimIns>(); return animIns;} }
@@ -86,12 +87,15 @@ public class Animal : MonoBehaviour
     }
     public void PlayAnimation(string str)
     {
-        if(shadow == null)
+        if (hasShadow)
         {
-            shadow = GetComponentInChildren<AnimalController>().shadow;
-            shadow.gameObject.SetActive(true);
-            //GetComponentInChildren<Shadow>();
-           //shadow = GameInstance.GameIns.animalManager.AttackShadow(this);
+            if (shadow == null)
+            {
+                shadow = GetComponentInChildren<AnimalController>().shadow;
+                shadow.gameObject.SetActive(true);
+                //GetComponentInChildren<Shadow>();
+                //shadow = GameInstance.GameIns.animalManager.AttackShadow(this);
+            }
         }
 #if HAS_ANIMATION_INSTANCING
         InstancingCharacter.PlayAnim(animationDic[str], str);
