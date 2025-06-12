@@ -327,6 +327,7 @@ public class App : MonoBehaviour
         InputManger.cachingCamera.orthographic = true;
         InputManger.cachingCamera.orthographicSize = 15;
         GameInstance.GameIns.inputManager.inputDisAble = false;
+        GameInstance.GameIns.uiManager.fishingStartButton.gameObject.SetActive(false);
         GameInstance.GameIns.applianceUIManager.UIClearAll(true);
         GameInstance.GameIns.gatcharManager.ClearRollings();
         //   Utility.CheckHirable(GameInstance.GameIns.inputManager.cameraRange.position, ref i, ref j);
@@ -390,6 +391,9 @@ public class App : MonoBehaviour
         GameInstance.GameIns.inputManager.cameraTrans.rotation = Quaternion.Euler(0, 0, 0);
         InputManger.cachingCamera.transform.localPosition = new Vector3(0, 0, 0);
         InputManger.cachingCamera.transform.localRotation = Quaternion.Euler(60, 180, 0);
+
+        if(!GameInstance.GameIns.fishingManager.working) GameInstance.GameIns.uiManager.fishingStartButton.gameObject.SetActive(true);
+   //     GameInstance.GameIns.fishingManager.StartFishing();
     }
 
     public static void UnloadAsync(string name)

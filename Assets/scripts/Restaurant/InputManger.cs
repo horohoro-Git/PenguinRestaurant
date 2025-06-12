@@ -257,7 +257,8 @@ public class InputManger : MonoBehaviour
 
     void StartClick(InputAction.CallbackContext callbackContext)
     {
-       // if(inputDisAble) return;
+        // if(inputDisAble) return;
+        Debug.Log("KK");
         camVelocity = Vector3.zero;
         if (cachingCamera == null) cachingCamera = Camera.main;
         if (CheckClickedUI(1 << 5 | 1 << 14 | 1 << 18)) return;
@@ -334,6 +335,13 @@ public class InputManger : MonoBehaviour
                         draggingEmployee.pause = true;
                     }
                     //GameInstance.GameIns.applianceUIManager.ShowPenguinUpgradeInfo(employee);
+                }
+                else if(go.TryGetComponent(out Fish fish))
+                {
+                    if(fish.bFloating)
+                    {
+                        fish.Caught();
+                    }
                 }
             }
             else if(go.TryGetComponent(out BlackConsumer blackConsumer))

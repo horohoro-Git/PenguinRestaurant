@@ -35,7 +35,8 @@ public class AssetLoader : MonoBehaviour
     public static Dictionary<int, StringStruct> spriteAssetKeys = new Dictionary<int, StringStruct>();
     public static Dictionary<int, StringStruct> atlasesKeys = new Dictionary<int, StringStruct>();
     public static Dictionary<int, LevelData> levelData = new Dictionary<int, LevelData>();
-    public static Dictionary<int, SoundsStruct> sounds = new Dictionary<int, SoundsStruct>();
+    public static Dictionary<int, ItemStruct> sounds = new Dictionary<int, ItemStruct>();
+    public static Dictionary<int, ItemStruct> fishingAnimals = new Dictionary<int, ItemStruct>();
     public static List<MapContent> maps = new List<MapContent>();
     public static List<RestaurantParam> restaurantParams = new List<RestaurantParam>();
 
@@ -49,9 +50,9 @@ public class AssetLoader : MonoBehaviour
 
     public GameRegulation gameRegulation;
 
-    string[] tables = new string[9]
+    string[] tables = new string[10]
     {
-       "all", "employees", "machines", "animals", "level","furniture", "sprites", "atlases", "shop"
+       "all", "employees", "machines", "animals", "level","furniture", "sprites", "atlases", "shop", "fishing"
     };
     Dictionary<string, string> tableContents = new Dictionary<string, string>();
 
@@ -115,7 +116,7 @@ public class AssetLoader : MonoBehaviour
             if (soundsRequest != null)
             {
                 soundContents = soundsRequest.asset.ToString();
-                sounds = SaveLoadSystem.GetDictionaryData<int, SoundsStruct>(soundContents);
+                sounds = SaveLoadSystem.GetDictionaryData<int, ItemStruct>(soundContents);
 
                 foreach (var sound in sounds) 
                 {
@@ -211,12 +212,13 @@ public class AssetLoader : MonoBehaviour
 
                     await UniTask.RunOnThreadPool(() =>
                     {
-                    
+                        
                         items = SaveLoadSystem.GetDictionaryData<int, ItemStruct>(tableContents["all"]);
                         sprites = SaveLoadSystem.GetDictionaryData<int, ItemStruct>(tableContents["sprites"]);
                         atlases = SaveLoadSystem.GetDictionaryData<int, ItemStruct>(tableContents["atlases"]);
                         goods = SaveLoadSystem.GetDictionaryData<int, GoodsStruct>(tableContents["shop"]);
                         animals = SaveLoadSystem.GetDictionaryData<int, AnimalStruct>(tableContents["animals"]);
+                        fishingAnimals = SaveLoadSystem.GetDictionaryData<int, ItemStruct>(tableContents["fishing"]);
                         employees_levels = SaveLoadSystem.GetDictionaryData<int, EmployeeLevelStruct>(tableContents["employees"]);
                         machines_levels = SaveLoadSystem.GetDictionaryDataClass<int, MachineLevelData>(tableContents["machines"]);
                         levelData = SaveLoadSystem.GetDictionaryDataClass<int, LevelData>(tableContents["level"]);

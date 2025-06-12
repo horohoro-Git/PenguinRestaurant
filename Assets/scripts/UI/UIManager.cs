@@ -26,6 +26,8 @@ public class UIManager : MonoBehaviour
     public Button drawBtn;
     public Button drawSpeedUpBtn;
     public Button fishingBtn;
+    public Button fishingStartButton;
+    public TMP_Text fishesNumText;
     public GameObject animalGuide;
     public Image fadeImage;
 
@@ -165,6 +167,13 @@ public class UIManager : MonoBehaviour
             UIClick();
             GameIns.gatcharManager.GatcharSpeedUp();
         });
+
+        fishingStartButton.onClick.AddListener(() =>
+        {
+            UIClick();
+            GameIns.fishingManager.StartFishing();
+            fishingStartButton.gameObject.SetActive(false);
+        });
     }
 
 
@@ -185,16 +194,21 @@ public class UIManager : MonoBehaviour
         }
         f = 0;
         ShowUI(t);
-       /* if (t == 1)
+        /* if (t == 1)
+         {
+             Camera.main.orthographicSize = cameraSize;
+         }
+         else if (t == 2)
+         {
+             Camera.main.orthographicSize = 15;
+         }
+ */
+        float timer = 0;
+        while (timer < 0.1f)
         {
-            Camera.main.orthographicSize = cameraSize;
+            timer += Time.unscaledDeltaTime;
+            yield return null;
         }
-        else if (t == 2)
-        {
-            Camera.main.orthographicSize = 15;
-        }
-*/
-        yield return CoroutneManager.waitForzeroone_real;
         while (f <= 0.1f)
         {
             f += Time.unscaledDeltaTime;
