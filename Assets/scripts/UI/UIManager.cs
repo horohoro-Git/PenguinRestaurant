@@ -44,7 +44,8 @@ public class UIManager : MonoBehaviour
 
     Dictionary<int, Sprite> atlasSprites = new Dictionary<int, Sprite>();
     EventSystem eventSystem;
-    
+
+    public RectTransform fishImage;
     // Start is called before the first frame update
     private void Awake()
     {

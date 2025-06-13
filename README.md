@@ -43,3 +43,4 @@ Animal Restaurant Tycoon Game
 06/10 Completed migration to URP and restored broken batching caused by the pipeline change
 06/11 Added a custom time scale for the restaurant and made all non-UI asynchronous operations in the restaurant follow it; also added a minigame entry feature
 06/12 Add the ability to pollute the river water and include living, moving fish in the mini-game
+06/13 Fixed water ripple visibility issue based on distance; fish can now be tapped to receive rewards

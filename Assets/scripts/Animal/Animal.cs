@@ -47,7 +47,7 @@ public class Animal : MonoBehaviour
     public Shadow shadow;
     [NonSerialized] public AudioSource audioSource;
 
-    private void Awake()
+    public virtual void Awake()
     {
         audioSource = GetComponent<AudioSource>();
     }
