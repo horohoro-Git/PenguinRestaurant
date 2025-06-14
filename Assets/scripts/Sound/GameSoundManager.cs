@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameSoundManager : SoundManager
+public class GameSoundManager : MonoBehaviour
 {
  
     public List<int> dropPlateSoundKeys = new List<int>();

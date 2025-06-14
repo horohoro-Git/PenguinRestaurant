@@ -152,9 +152,8 @@ public class GridManager : MonoBehaviour
 
         RemoveSelect();
 
-        GameIns.uiManager.audioSource.clip = GameIns.uISoundManager.FurniturePlace();
-        GameIns.uiManager.audioSource.volume = 0.05f;
-        GameIns.uiManager.audioSource.Play();
+        SoundManager.Instance.PlayAudio(GameIns.uISoundManager.FurniturePlace(), 0.05f);
+      
         //RemoveLine();
 
         currentSelector = GetSelect();

@@ -77,7 +77,7 @@ public class InputManger : MonoBehaviour
     public float height;
     public Garbage TestObject;
     public float size;
-    public AudioSource audioSource;
+//    public AudioSource audioSource;
     public bool inOtherAction;
     public ParticleSystem particleSystems;
     float zOffset;

@@ -17,9 +17,6 @@ public class GatcharManager : MonoBehaviour
     public GameObject popup_TierUp;
     public Image backGlow;
     public Transform penguinPoint;
-    public AudioSource audioSource;
-    public AudioSource purchaseAudioSource;
-
     public int price;
     public Sprite[] sprites;
     public Image NewAnimalImage;
@@ -122,9 +119,8 @@ public class GatcharManager : MonoBehaviour
         {
             GameInstance.GameIns.restaurantManager.restaurantCurrency.Money -= (int)price;
 
-            purchaseAudioSource.clip = GameInstance.GameIns.gatchaSoundManager.Purchase();
-            purchaseAudioSource.volume = 0.2f;
-            purchaseAudioSource.Play();
+            SoundManager.Instance.PlayAudio(GameInstance.GameIns.gatchaSoundManager.Purchase(), 0.2f);
+          
             return true;
         }
         return false;
@@ -207,9 +203,8 @@ public class GatcharManager : MonoBehaviour
                         GetAnimator.SetInteger(AnimationKeys.emotion, 1);
                         AnimalManager.gatchaTiers[pair.Key]++;
                         int tier = AnimalManager.gatchaTiers[pair.Key];
-                        audioSource.clip = GameInstance.GameIns.gatchaSoundManager.GradeUp();
-                        audioSource.volume = 0.4f;
-                        audioSource.Play();
+                        SoundManager.Instance.PlayAudio(GameInstance.GameIns.gatchaSoundManager.GradeUp(), 0.4f);
+                     
                         popup_TierUp.SetActive(true);
 
                         AnimalStruct asset = AssetLoader.animals[pair.Key];
@@ -224,9 +219,8 @@ public class GatcharManager : MonoBehaviour
                 }
                 else
                 {
-                    audioSource.clip = GameInstance.GameIns.gatchaSoundManager.Unlock();
-                    audioSource.volume = 0.4f;
-                    audioSource.Play();
+                    SoundManager.Instance.PlayAudio(GameInstance.GameIns.gatchaSoundManager.Unlock(), 0.4f);
+                  
                     AnimalManager.gatchaTiers[pair.Key] = 1;
                     AnimalStruct asset = AssetLoader.animals[pair.Key];
                     string n = asset.asset_name + "_Sprite";

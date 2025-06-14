@@ -50,15 +50,14 @@ public class FishingManager : MonoBehaviour
 
     [NonSerialized] public bool working;
 
-    [NonSerialized] public AudioSource audioSource;
-
+    Coroutine incomeCoroutine;
     private void Awake()
     {
-        audioSource = GetComponent<AudioSource>();
         GameInstance.GameIns.fishingManager = this;
     }
     private void Start()
     {
+       
         fishingAnimals = AssetLoader.fishingAnimals;
 
         barrelObject = Instantiate(barrel, barrelPoint);
@@ -75,7 +74,7 @@ public class FishingManager : MonoBehaviour
         }
      //   SpawnFish();
 
-        for(int i=0; i<200; i++)
+        for(int i=0; i<1000; i++)
         {
             GameObject fishIconObject = Instantiate(fishIcon, canvas.transform);
             fishIconObject.SetActive(false);
@@ -114,9 +113,7 @@ public class FishingManager : MonoBehaviour
         {
             Vector3 pos = head.transform.position;
             barrelObject.transform.DOJump(pos, 2, 1, 0.2f);
-            audioSource.clip = GameInstance.GameIns.gameSoundManager.ThrowSound();
-            audioSource.volume = 0.2f;
-            audioSource.Play();
+            SoundManager.Instance.PlayAudio(GameInstance.GameIns.gameSoundManager.ThrowSound(), 0.2f);
             yield return CoroutneManager.waitForzerothree;
             barrelObject.target = head.transform;
         }
@@ -127,10 +124,8 @@ public class FishingManager : MonoBehaviour
             timer += Time.unscaledDeltaTime;
             yield return null;
         }
-
-        audioSource.clip = GameInstance.GameIns.gameSoundManager.Quack();
-        audioSource.volume = 0.2f;
-        audioSource.Play();
+        SoundManager.Instance.PlayAudio(GameInstance.GameIns.gameSoundManager.Quack(), 0.2f);
+        
         penguin.GetComponent<Animator>().SetInteger(AnimationKeys.state, 1);
         float f = 0;
         float current = 6;
@@ -254,8 +249,17 @@ public class FishingManager : MonoBehaviour
 
     public GameObject GetFishIcon()
     {
-        GameObject f = fishRewardIconQueue.Dequeue();
-        f.SetActive(true);
+        GameObject f;
+        if (fishRewardIconQueue.Count > 0)
+        {
+            f = fishRewardIconQueue.Dequeue();
+            f.SetActive(true);
+        }
+        else
+        {
+
+            f = Instantiate(fishIcon, canvas.transform);
+        }
         return f;
     }
 
@@ -279,7 +283,7 @@ public class FishingManager : MonoBehaviour
         yield return new WaitForSecondsRealtime(0.2f);
 
         Stack<RectTransform> stack = new Stack<RectTransform>();
-        for (int i = 0; i < 20; i++)
+        for (int i = 0; i < 100; i++)
         {
             RectTransform icon = GetFishIcon().GetComponent<RectTransform>();
             icon.position = target;
@@ -294,6 +298,7 @@ public class FishingManager : MonoBehaviour
         }
 
         yield return new WaitForSecondsRealtime(0.5f);
+
         while (stack.Count > 0)
         {
             RectTransform icon = stack.Pop();
@@ -321,8 +326,7 @@ public class FishingManager : MonoBehaviour
     {
         Vector3 cur = icon.position;
         Vector3 target = GameInstance.GameIns.uiManager.fishImage.position;
-        Debug.Log(target);
-
+   
         float f = 0;
         while (f <= 1)
         {
@@ -332,9 +336,16 @@ public class FishingManager : MonoBehaviour
         }
         icon.position = target;
 
-        Debug.Log(icon.position + " arrived");
-
+        SoundManager.Instance.PlayAudio(GameInstance.GameIns.uISoundManager.Fish(), 0.4f);
+       
         GameInstance.GameIns.restaurantManager.GetFish(1, false);
         RemoveFishIcon(icon.gameObject);
+       
     }
+
+
+    /*IEnumerator FishIncome()
+    {
+
+    }*/
 }

@@ -45,9 +45,7 @@ public class CoffeeMachine : FoodMachine
         audioSource.Stop();
         StartCoroutine(CreateCoffeeDone());
 
-        foodCreateAudio.clip = GameInstance.GameIns.gameSoundManager.CreateFood();
-        foodCreateAudio.volume = 0.4f;
-        foodCreateAudio.Play();
+        SoundManager.Instance.PlayAudio3D(GameInstance.GameIns.gameSoundManager.CreateFood(), 0.4f, 100, 5, transform.position);
     }
 
     public IEnumerator CreateCoffee(Food food, float timer)

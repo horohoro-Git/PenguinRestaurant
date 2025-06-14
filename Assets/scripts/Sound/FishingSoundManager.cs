@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static AssetLoader;
-public class FishingSoundManager : SoundManager
+public class FishingSoundManager : MonoBehaviour
 {
  
     public List<int> dropletSoundKeys = new List<int>();

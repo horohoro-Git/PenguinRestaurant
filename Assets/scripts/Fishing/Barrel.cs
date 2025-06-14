@@ -28,9 +28,8 @@ public class Barrel : MonoBehaviour
 
     IEnumerator Falling()
     {
-        GameInstance.GameIns.fishingManager.audioSource.clip = GameInstance.GameIns.fishingSoundManager.WaterSplashSound();
-        GameInstance.GameIns.fishingManager.audioSource.volume = 0.2f;
-        GameInstance.GameIns.fishingManager.audioSource.Play();
+        SoundManager.Instance.PlayAudio(GameInstance.GameIns.fishingSoundManager.WaterSplashSound(), 0.2f);
+
         WaterSplash waterSplash = GameInstance.GameIns.fishingManager.GetSplash();
         waterSplash.transform.position = transform.position;
         waterSplash.transform.localScale = new Vector3(3, 3, 3);

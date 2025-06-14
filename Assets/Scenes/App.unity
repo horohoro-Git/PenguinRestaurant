@@ -184,6 +184,52 @@ MonoBehaviour:
   sceneLoaded: 0
   mapContents: 
   soundContents: 
+--- !u!1 &1987897593
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1987897595}
+  - component: {fileID: 1987897594}
+  m_Layer: 0
+  m_Name: SoundManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1987897594
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1987897593}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd1f8e2184c6c134e9dc8f98407faaa6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  min: 5
+  max: 5
+--- !u!4 &1987897595
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1987897593}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1072.5177, y: 7.7051964, z: 48.857605}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2143204390
 GameObject:
   m_ObjectHideFlags: 0
@@ -196,7 +242,7 @@ GameObject:
   - component: {fileID: 2143204392}
   - component: {fileID: 2143204393}
   m_Layer: 0
-  m_Name: SoundManager
+  m_Name: BGM
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -229,6 +275,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0dc2eb41b282f0144ae06d25d80aae66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  min: 0
+  max: 0
   bgmSoundKey: b0e20d0088bf0d0004bc0d00aabb0d00
 --- !u!82 &2143204393
 AudioSource:
@@ -332,3 +380,4 @@ SceneRoots:
   m_Roots:
   - {fileID: 1420140383}
   - {fileID: 2143204391}
+  - {fileID: 1987897595}

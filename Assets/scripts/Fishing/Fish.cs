@@ -161,9 +161,9 @@ public class Fish : Animal
         waterSplash.transform.position = body.transform.position;
         waterSplash.transform.localScale = new Vector3(2, 2, 2);
         waterSplash.PlayParticle();
-        GameInstance.GameIns.fishingManager.audioSource.clip = GameInstance.GameIns.fishingSoundManager.DropletSound();
-        GameInstance.GameIns.fishingManager.audioSource.volume = 0.2f;
-        GameInstance.GameIns.fishingManager.audioSource.Play();
+
+        SoundManager.Instance.PlayAudio(GameInstance.GameIns.fishingSoundManager.DropletSound(), 0.2f);
+     
         bFloating = false;
 
 

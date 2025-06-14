@@ -29,10 +29,7 @@ public class BlackConsumer : AnimalController
     CancellationTokenSource cancellationTokenSource;
     public ParticleSystem particles;
     public AudioSource hitAudio;
-    private void Awake()
-    {
-        audioSource = GetComponent<AudioSource>();
-    }
+
     public void CauseTrouble()
     {
         WorkSpaceManager workSpaceManager = GameIns.workSpaceManager;
@@ -452,9 +449,8 @@ public class BlackConsumer : AnimalController
                 }
 
                 targetTable.stolen = true;
-                audioSource.clip = GameIns.gameSoundManager.LaughAt();
-                audioSource.volume = 0.1f;
-                audioSource.Play();
+                SoundManager.Instance.PlayAudio3D(GameIns.gameSoundManager.LaughAt(), 0.1f, 100, 5, trans.position);
+               
                 animator.SetBool("bounceTrigger", true);
                 animator.SetTrigger("bounce");
                 //audioSource.clip = 
@@ -494,10 +490,8 @@ public class BlackConsumer : AnimalController
                 if (tm + animalStruct.eat_speed / 10 <= Time.time)
                 {
                     tm = Time.time;
-
-                    audioSource.clip = GameInstance.GameIns.gameSoundManager.Eat();
-                    audioSource.volume = 0.05f;
-                    audioSource.Play();
+                    SoundManager.Instance.PlayAudio3D(GameIns.gameSoundManager.Eat(), 0.1f, 100, 5, trans.position);
+                    
                     animator.SetTrigger(AnimationKeys.eat);
                 }
                 await UniTask.Delay(timer, cancellationToken: cancellationToken);
@@ -670,10 +664,8 @@ public class BlackConsumer : AnimalController
             hitAudio.clip = GameIns.gameSoundManager.Hit();
             hitAudio.volume = 0.2f;
             hitAudio.Play();
+            SoundManager.Instance.PlayAudio3D(GameIns.gameSoundManager.Pain(), 0.1f, 100, 5, trans.position);
 
-            audioSource.clip = GameIns.gameSoundManager.Pain();
-            audioSource.volume = 0.2f;
-            audioSource.Play();
             bDead = true;
 
             if (targetTable != null)
