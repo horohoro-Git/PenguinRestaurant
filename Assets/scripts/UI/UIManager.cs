@@ -40,11 +40,12 @@ public class UIManager : MonoBehaviour
 
     private float cameraSize;
 
-    public AudioSource audioSource;
+  //  public AudioSource audioSource;
 
     Dictionary<int, Sprite> atlasSprites = new Dictionary<int, Sprite>();
     EventSystem eventSystem;
-    
+
+    public RectTransform fishImage;
     // Start is called before the first frame update
     private void Awake()
     {
@@ -358,9 +359,9 @@ public class UIManager : MonoBehaviour
     //게임 종료 (사용중)
     public void QuitGame()
     {
-        audioSource.clip = GameIns.uISoundManager.UIClick();
-        audioSource.volume = 0.2f;
-        audioSource.Play();
+      
+        SoundManager.Instance.PlayAudio(GameIns.uISoundManager.UIClick(), 0.2f);
+
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else
@@ -420,8 +421,9 @@ public class UIManager : MonoBehaviour
 
     public void UIClick()
     {
-        audioSource.clip = GameIns.uISoundManager.UIClick();
+      /*  audioSource.clip = GameIns.uISoundManager.UIClick();
         audioSource.volume = 0.1f;
-        audioSource.Play();
+        audioSource.Play();*/
+        SoundManager.Instance.PlayAudio(GameIns.uISoundManager.UIClick(), 0.1f);
     }
 }

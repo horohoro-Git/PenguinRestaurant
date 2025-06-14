@@ -28,8 +28,11 @@ public class Barrel : MonoBehaviour
 
     IEnumerator Falling()
     {
+        SoundManager.Instance.PlayAudio(GameInstance.GameIns.fishingSoundManager.WaterSplashSound(), 0.2f);
+
         WaterSplash waterSplash = GameInstance.GameIns.fishingManager.GetSplash();
-        waterSplash.transform.position = transform.position;    
+        waterSplash.transform.position = transform.position;
+        waterSplash.transform.localScale = new Vector3(3, 3, 3);
         waterSplash.PlayParticle();
 
         Quaternion startRot = transform.rotation;

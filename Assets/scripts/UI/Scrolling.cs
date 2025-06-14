@@ -69,9 +69,8 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
             {
                 if (isDown)
                 {
-                    GameInstance.GameIns.uiManager.audioSource.clip = GameInstance.GameIns.uISoundManager.Spread();
-                    GameInstance.GameIns.uiManager.audioSource.volume = 0.2f;
-                    GameInstance.GameIns.uiManager.audioSource.Play();
+                    SoundManager.Instance.PlayAudio(GameInstance.GameIns.uISoundManager.Spread(), 0.2f);
+                
                 }
                 animator.enabled = true;
                 animator.SetInteger(AnimationKeys.scrolling, 1);
@@ -90,9 +89,8 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
             {
                 if (!isDown)
                 {
-                    GameInstance.GameIns.uiManager.audioSource.clip = GameInstance.GameIns.uISoundManager.Fold();
-                    GameInstance.GameIns.uiManager.audioSource.volume = 0.2f;
-                    GameInstance.GameIns.uiManager.audioSource.Play();
+                    SoundManager.Instance.PlayAudio(GameInstance.GameIns.uISoundManager.Fold(), 0.2f);
+                
                 }
                 animator.enabled = true;
                 animator.SetInteger(AnimationKeys.scrolling, 2);
@@ -194,9 +192,7 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
         if (scrollCoroutine != null) StopCoroutine(scrollCoroutine);
       
         scrollCoroutine = StartCoroutine(Down());
-        GameInstance.GameIns.uiManager.audioSource.clip = GameInstance.GameIns.uISoundManager.Fold();
-        GameInstance.GameIns.uiManager.audioSource.volume = 0.2f;
-        GameInstance.GameIns.uiManager.audioSource.Play();
+        SoundManager.Instance.PlayAudio(GameInstance.GameIns.uISoundManager.Fold(), 0.2f);
         animator.enabled = true;
         animator.SetInteger(AnimationKeys.scrolling, 2);
         isSpread = false;

@@ -827,8 +827,9 @@ public class Customer : AnimalController
 
                             table.placedFoods[seatIndex] = f.gameObject;
 
-                            animal.audioSource.clip = GameInstance.GameIns.gameSoundManager.ThrowSound();
-                            animal.audioSource.Play();
+                            //animal.audioSource.clip = GameInstance.GameIns.gameSoundManager.ThrowSound();
+                            //   animal.audioSource.Play();
+                            SoundManager.Instance.PlayAudio3D(GameInstance.GameIns.gameSoundManager.ThrowSound(), 0.4f, 100, 5, trans.position);
                             f.transforms.DOJump(t, 1, 1, 0.2f);
                             //await UniTask.Delay(300, cancellationToken: cancellationToken);
                             await Utility.CustomUniTaskDelay(0.3f, cancellationToken);
@@ -850,9 +851,7 @@ public class Customer : AnimalController
                                 {
                                     tm = RestaurantManager.restaurantTimer;
 
-                                    animal.audioSource.clip = GameInstance.GameIns.gameSoundManager.Eat();
-                                    animal.audioSource.volume = 0.05f;
-                                    animal.audioSource.Play();
+                                    SoundManager.Instance.PlayAudio3D(GameInstance.GameIns.gameSoundManager.Eat(), 0.05f, 100, 5, trans.position);
                                     animator.SetTrigger(AnimationKeys.eat);
                                     // animator.SetInteger("state", 2);
                                     animal.PlayTriggerAnimation(AnimationKeys.Eat);
@@ -867,9 +866,7 @@ public class Customer : AnimalController
                                     if(table.stealing && !stealing)
                                     {
                                         stealing = true;
-                                        animal.audioSource.clip = GameInstance.GameIns.gameSoundManager.Angry();
-                                        animal.audioSource.volume = 0.1f;
-                                        animal.audioSource.Play();
+                                        SoundManager.Instance.PlayAudio3D(GameInstance.GameIns.gameSoundManager.Angry(), 0.1f, 100, 5, trans.position);
                                         if(cancellationTokenSource != null) cancellationTokenSource.Cancel();
                                         cancellationTokenSource = new CancellationTokenSource();
                                         EmoteTimer(0, AnimationKeys.Sad, true, cancellationTokenSource.Token).Forget();
@@ -883,9 +880,8 @@ public class Customer : AnimalController
                                     remains += table.foodStacks[0].foodStack.Count;*/
                                     if (table.stolen)
                                     {
-                                        animal.audioSource.clip = GameInstance.GameIns.gameSoundManager.Sad();
-                                        animal.audioSource.volume = 0.1f;
-                                        animal.audioSource.Play();
+                                        SoundManager.Instance.PlayAudio3D(GameInstance.GameIns.gameSoundManager.Sad(), 0.1f, 100, 5, trans.position);
+                                      
                                         if (cancellationTokenSource != null) cancellationTokenSource.Cancel();
                                         cancellationTokenSource = new CancellationTokenSource();
                                         EmoteTimer(0, AnimationKeys.Trauma, true, cancellationTokenSource.Token).Forget();
@@ -965,10 +961,7 @@ public class Customer : AnimalController
                     await Utility.CustomUniTaskDelay(0.5f, cancellationToken);
                    // await UniTask.Delay(500, cancellationToken: cancellationToken);
                     ParticleManager.ClearParticle(particle);
-
-                    animal.audioSource.clip = GameInstance.GameIns.gameSoundManager.Happy();
-                    animal.audioSource.volume = 0.2f;
-                    animal.audioSource.Play();
+                    SoundManager.Instance.PlayAudio3D(GameInstance.GameIns.gameSoundManager.Happy(), 0.1f, 100, 5, trans.position);
 
                     if (cancellationTokenSource != null) cancellationTokenSource.Cancel();
                     cancellationTokenSource = new CancellationTokenSource();

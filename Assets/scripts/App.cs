@@ -330,8 +330,9 @@ public class App : MonoBehaviour
         GameInstance.GameIns.uiManager.fishingStartButton.gameObject.SetActive(false);
         GameInstance.GameIns.applianceUIManager.UIClearAll(true);
         GameInstance.GameIns.gatcharManager.ClearRollings();
+        SoundManager.Instance.RestaurantSoundsOnoff(true);
         //   Utility.CheckHirable(GameInstance.GameIns.inputManager.cameraRange.position, ref i, ref j);
-     //   StartCoroutine(OrthographicNextFrame());
+        //   StartCoroutine(OrthographicNextFrame());
     }
     IEnumerator OrthographicNextFrame()
     {
@@ -367,6 +368,7 @@ public class App : MonoBehaviour
         InputManger.cachingCamera.transform.localRotation = Quaternion.Euler(60, 0, 0);
         GameInstance.GameIns.uiManager.drawBtn.gameObject.SetActive(true);
         GameInstance.GameIns.uiManager.drawSpeedUpBtn.gameObject.SetActive(true);
+        SoundManager.Instance.RestaurantSoundsOnoff(false);
     }
   
 
@@ -393,7 +395,8 @@ public class App : MonoBehaviour
         InputManger.cachingCamera.transform.localRotation = Quaternion.Euler(60, 180, 0);
 
         if(!GameInstance.GameIns.fishingManager.working) GameInstance.GameIns.uiManager.fishingStartButton.gameObject.SetActive(true);
-   //     GameInstance.GameIns.fishingManager.StartFishing();
+        SoundManager.Instance.RestaurantSoundsOnoff(false);
+        //     GameInstance.GameIns.fishingManager.StartFishing();
     }
 
     public static void UnloadAsync(string name)

@@ -20,7 +20,7 @@ public class WaterSplash : MonoBehaviour
         renderer.material.SetColor("_Color_1", GameInstance.GameIns.fishingManager.water.material.GetColor("_ShallowColor"));
         renderer.material.SetColor("_Color_2", GameInstance.GameIns.fishingManager.water.material.GetColor("_ShallowColor"));
 
-        ParticleSystemRenderer renderer2 = particle.GetComponent<ParticleSystemRenderer>();
+        ParticleSystemRenderer renderer2 = subParticleSystem.GetComponent<ParticleSystemRenderer>();
         renderer2.material.SetColor("_Color_1", GameInstance.GameIns.fishingManager.water.material.GetColor("_ShallowColor"));
         renderer2.material.SetColor("_Color_2", GameInstance.GameIns.fishingManager.water.material.GetColor("_ShallowColor"));
         particle.Play();

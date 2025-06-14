@@ -1395,10 +1395,9 @@ public class Employee : AnimalController
 #if HAS_DOTWEEN
                             DOTween.Kill(f.transforms); //Tween 力芭
                             f.transforms.DOJump(targetPosition, r, 1, 0.2f).OnComplete(() =>
-                              OnFoodStackComplete(f, targetPosition, foodStack, audioSource, foodStack.foodStack.Count, headPoint));
-                            audioSource.clip = GameIns.gameSoundManager.ThrowSound();
-                            audioSource.volume = 0.2f;
-                            audioSource.Play();
+                              OnFoodStackComplete(f, targetPosition, foodStack, foodStack.foodStack.Count, headPoint));
+                          
+                            SoundManager.Instance.PlayAudio3D(GameIns.gameSoundManager.ThrowSound(), 0.2f, 100, 5, trans.position);
 #endif 
                             await UniTask.Delay(300, cancellationToken: cancellationToken);
                             if (pause) break;
@@ -1477,9 +1476,8 @@ public class Employee : AnimalController
                             counter.foodStacks[i].getNum = counter.foodStacks[i].getNum - 1 < 0 ? 0 : counter.foodStacks[i].getNum - 1;
 
                             if (debuging) Debug.Log(counter.foodStacks[i].getNum);
-                            audioSource.clip = GameIns.gameSoundManager.ThrowSound();
-                            audioSource.volume = 0.2f;
-                            audioSource.Play();
+                            SoundManager.Instance.PlayAudio3D(GameIns.gameSoundManager.ThrowSound(), 0.2f, 100, 5, trans.position);
+                         
                             await UniTask.Delay(300, cancellationToken: cancellationToken);
 
                             EXP += 1;
@@ -1665,10 +1663,9 @@ public class Employee : AnimalController
 #if HAS_DOTWEEN
                                         DOTween.Kill(f.transforms);
                                         f.transforms.DOJump(pos, r, 1, 0.2f).OnComplete(() =>
-                                        OnFoodStackComplete(f, pos, counter.customer.foodStacks[j], audioSource, index, counter.customer.headPoint));
-                                        audioSource.clip = GameIns.gameSoundManager.ThrowSound();
-                                        audioSource.volume = 0.2f;
-                                        audioSource.Play();
+                                        OnFoodStackComplete(f, pos, counter.customer.foodStacks[j], index, counter.customer.headPoint));
+                                      
+                                        SoundManager.Instance.PlayAudio3D(GameIns.gameSoundManager.ThrowSound(), 0.2f, 100, 5, trans.position);
 #endif
                                         counter.customer.VisualizingFoodStack.Add(f);
                                         index++;
@@ -1778,10 +1775,9 @@ public class Employee : AnimalController
 #if HAS_DOTWEEN
                         DOTween.Kill(garbage.transforms);
                         garbage.transforms.DOJump(pos, r, 1, 0.2f).OnComplete(() =>
-                        OnGarbageStackComplete(garbage, pos, garbageList, audioSource, index, headPoint));
-                        audioSource.clip = GameIns.gameSoundManager.ThrowSound();
-                        audioSource.volume = 0.2f;
-                        audioSource.Play();
+                        OnGarbageStackComplete(garbage, pos, garbageList, index, headPoint));
+                       
+                        SoundManager.Instance.PlayAudio3D(GameIns.gameSoundManager.ThrowSound(), 0.2f, 100, 5, trans.position);
 #endif
                         await UniTask.Delay(300, cancellationToken: cancellationToken);
                         if (pause) goto Escape;
@@ -1860,10 +1856,8 @@ public class Employee : AnimalController
 #if HAS_DOTWEEN
                         DOTween.Kill(garbage.transforms);
                         garbage.transforms.DOJump(pos, r, 1, 0.2f).OnComplete(() =>
-                        OnGarbageClearComplete(garbage, audioSource));
-                        audioSource.clip = GameIns.gameSoundManager.ThrowSound();
-                        audioSource.volume = 0.2f;
-                        audioSource.Play();
+                        OnGarbageClearComplete(garbage));
+                        SoundManager.Instance.PlayAudio3D(GameIns.gameSoundManager.ThrowSound(), 0.2f, 100, 5, trans.position);
 #endif
                         await UniTask.Delay(300, cancellationToken: cancellationToken);
                         EXP += 2;
@@ -2067,7 +2061,7 @@ public class Employee : AnimalController
                                     f.transforms.DOJump(packingTable.packageFood.packageTrans[packingTable.packingNumber].position, r, 1, 0.2f).OnComplete(() =>
                                     CompleteMove(f, t, t.position, packingTable));
 #endif
-                                    audioSource.Play();
+                                  //  audioSource.Play();
                                     await UniTask.Delay(300, cancellationToken: cancellationToken);
                                     if (packingTable.packingNumber == 4) break;
                                     if (pause) goto Escape;
@@ -2165,7 +2159,7 @@ public class Employee : AnimalController
 #if HAS_DOTWEEN
                         DOTween.Kill(f.transforms); //Tween 力芭
                         f.transforms.DOJump(targetPosition, r, 1, 0.2f).OnComplete(() =>
-                          OnFoodStackComplete(f, targetPosition, foodStacks[MachineType.PackingTable], audioSource, foodStacks[MachineType.PackingTable].foodStack.Count, headPoint));
+                          OnFoodStackComplete(f, targetPosition, foodStacks[MachineType.PackingTable], foodStacks[MachineType.PackingTable].foodStack.Count, headPoint));
 #endif
                         await UniTask.Delay(300, cancellationToken: cancellationToken);
                         if (pause) break;
@@ -2245,7 +2239,7 @@ public class Employee : AnimalController
 #if HAS_DOTWEEN
                                         DOTween.Kill(f.transforms); //Tween 力芭
                                         f.transforms.DOJump(targetPosition, r, 1, 0.2f).OnComplete(() =>
-                                          OnFoodStackComplete(f, targetPosition, foodStacks[MachineType.PackingTable], audioSource, foodStacks[MachineType.PackingTable].foodStack.Count, headPoint));
+                                          OnFoodStackComplete(f, targetPosition, foodStacks[MachineType.PackingTable], foodStacks[MachineType.PackingTable].foodStack.Count, headPoint));
 #endif
                                         await UniTask.Delay(300, cancellationToken: cancellationToken);
                                         if (pause) goto Escape;
@@ -2355,7 +2349,7 @@ public class Employee : AnimalController
 #if HAS_DOTWEEN
                         DOTween.Kill(f.transforms); //Tween 力芭
                         f.transforms.DOJump(targetPosition, r, 1, 0.2f).OnComplete(() =>
-                          OnFoodStackComplete(f, targetPosition, foodStacks[MachineType.PackingTable], audioSource, foodStacks[MachineType.PackingTable].foodStack.Count, headPoint));
+                          OnFoodStackComplete(f, targetPosition, foodStacks[MachineType.PackingTable], foodStacks[MachineType.PackingTable].foodStack.Count, headPoint));
 #endif
                         await UniTask.Delay(300, cancellationToken: cancellationToken);
                         if (pause) goto Escape;
@@ -2612,7 +2606,7 @@ public class Employee : AnimalController
     }
    
 
-    void OnFoodStackComplete(Food food, Vector3 targetPoint, FoodStack fs, AudioSource audio, int index, Transform target)
+    void OnFoodStackComplete(Food food, Vector3 targetPoint, FoodStack fs, int index, Transform target)
     {
         if (!fs.foodStack.Contains(food))
         {
@@ -2622,7 +2616,7 @@ public class Employee : AnimalController
            
         }
     }
-    void OnGarbageStackComplete(Garbage garbage, Vector3 targetPoint, Stack<Garbage> gs, AudioSource audio, int index, Transform target)
+    void OnGarbageStackComplete(Garbage garbage, Vector3 targetPoint, Stack<Garbage> gs, int index, Transform target)
     {
         if (!gs.Contains(garbage))
         {
@@ -2632,7 +2626,7 @@ public class Employee : AnimalController
         }
     }
 
-    void OnGarbageClearComplete(Garbage garbage, AudioSource audio)
+    void OnGarbageClearComplete(Garbage garbage)
     {
         GarbageManager.ClearGarbage(garbage);
     }
@@ -2651,10 +2645,7 @@ public class Employee : AnimalController
     {
        
         employeeLevelData.level++;
-
-        audioSource.clip = GameIns.gameSoundManager.LevelUp();
-        audioSource.volume = 0.2f;
-        audioSource.Play();
+        SoundManager.Instance.PlayAudio(GameIns.gameSoundManager.LevelUp(), 0.2f);
         EXP = 0;
         employeeLevel = AssetLoader.employees_levels[employeeLevelData.level];
         //Animal animal = GetComponentInParent<Animal>();
@@ -2673,9 +2664,8 @@ public class Employee : AnimalController
 
     public void Dragged()
     {
-        animal.audioSource.clip = GameIns.gameSoundManager.Quack();
-        animal.audioSource.volume = 0.2f;
-        animal.audioSource.Play();
+        SoundManager.Instance.PlayAudio(GameIns.gameSoundManager.Quack(), 0.2f);
+        
         animator.SetInteger("state", 2);
         animal.PlayAnimation(AnimationKeys.Fly);
     }

@@ -77,7 +77,7 @@ public class InputManger : MonoBehaviour
     public float height;
     public Garbage TestObject;
     public float size;
-    public AudioSource audioSource;
+//    public AudioSource audioSource;
     public bool inOtherAction;
     public ParticleSystem particleSystems;
     float zOffset;
@@ -257,8 +257,7 @@ public class InputManger : MonoBehaviour
 
     void StartClick(InputAction.CallbackContext callbackContext)
     {
-        // if(inputDisAble) return;
-        Debug.Log("KK");
+       
         camVelocity = Vector3.zero;
         if (cachingCamera == null) cachingCamera = Camera.main;
         if (CheckClickedUI(1 << 5 | 1 << 14 | 1 << 18)) return;

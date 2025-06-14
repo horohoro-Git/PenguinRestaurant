@@ -10,6 +10,8 @@ public class FishingManager : MonoBehaviour
     public Transform penguinPoint;
     public WaterQuality water;
     public WaterSplash splash;
+    public RectTransform canvas;
+    public GameObject fishIcon;
     Dictionary<int, ItemStruct> fishingAnimals = new Dictionary<int, ItemStruct>(); 
 
     Dictionary<int, Queue<Fish>> fishes = new Dictionary<int, Queue<Fish>>();
@@ -18,6 +20,7 @@ public class FishingManager : MonoBehaviour
 
     Queue<WaterSplash> waterSplashQueue = new Queue<WaterSplash>();
 
+    Queue<GameObject> fishRewardIconQueue = new Queue<GameObject>();
 
     public Barrel barrel;
     public Transform barrelPoint;
@@ -46,12 +49,15 @@ public class FishingManager : MonoBehaviour
     Animator penguinAnimator;
 
     [NonSerialized] public bool working;
+
+    Coroutine incomeCoroutine;
     private void Awake()
     {
         GameInstance.GameIns.fishingManager = this;
     }
     private void Start()
     {
+       
         fishingAnimals = AssetLoader.fishingAnimals;
 
         barrelObject = Instantiate(barrel, barrelPoint);
@@ -67,6 +73,13 @@ public class FishingManager : MonoBehaviour
             waterSplashQueue.Enqueue(waterSplash);
         }
      //   SpawnFish();
+
+        for(int i=0; i<1000; i++)
+        {
+            GameObject fishIconObject = Instantiate(fishIcon, canvas.transform);
+            fishIconObject.SetActive(false);
+            fishRewardIconQueue.Enqueue(fishIconObject);
+        }
     }
    
 
@@ -100,6 +113,7 @@ public class FishingManager : MonoBehaviour
         {
             Vector3 pos = head.transform.position;
             barrelObject.transform.DOJump(pos, 2, 1, 0.2f);
+            SoundManager.Instance.PlayAudio(GameInstance.GameIns.gameSoundManager.ThrowSound(), 0.2f);
             yield return CoroutneManager.waitForzerothree;
             barrelObject.target = head.transform;
         }
@@ -110,8 +124,8 @@ public class FishingManager : MonoBehaviour
             timer += Time.unscaledDeltaTime;
             yield return null;
         }
-
-
+        SoundManager.Instance.PlayAudio(GameInstance.GameIns.gameSoundManager.Quack(), 0.2f);
+        
         penguin.GetComponent<Animator>().SetInteger(AnimationKeys.state, 1);
         float f = 0;
         float current = 6;
@@ -231,4 +245,107 @@ public class FishingManager : MonoBehaviour
         waterSplash.gameObject.SetActive(false);    
         waterSplashQueue.Enqueue(waterSplash);
     }
+
+
+    public GameObject GetFishIcon()
+    {
+        GameObject f;
+        if (fishRewardIconQueue.Count > 0)
+        {
+            f = fishRewardIconQueue.Dequeue();
+            f.SetActive(true);
+        }
+        else
+        {
+
+            f = Instantiate(fishIcon, canvas.transform);
+        }
+        return f;
+    }
+
+    public void RemoveFishIcon(GameObject icon)
+    {
+        icon.SetActive(false);
+        fishRewardIconQueue.Enqueue(icon);
+    }
+
+    public void CaughtFish(Vector3 pos)
+    {
+       
+       
+        StartCoroutine(GetCaughtFish(pos));
+    }
+
+    IEnumerator GetCaughtFish(Vector3 pos)
+    {
+        Vector3 target = InputManger.cachingCamera.WorldToScreenPoint(pos);
+
+        yield return new WaitForSecondsRealtime(0.2f);
+
+        Stack<RectTransform> stack = new Stack<RectTransform>();
+        for (int i = 0; i < 100; i++)
+        {
+            RectTransform icon = GetFishIcon().GetComponent<RectTransform>();
+            icon.position = target;
+            stack.Push(icon);
+        }
+
+        yield return new WaitForSecondsRealtime(0.2f);
+
+        foreach (var v in stack)
+        {
+            StartCoroutine(SpreadFishes(v, target));
+        }
+
+        yield return new WaitForSecondsRealtime(0.5f);
+
+        while (stack.Count > 0)
+        {
+            RectTransform icon = stack.Pop();
+            StartCoroutine(Rewarding(icon, pos));
+            yield return new WaitForSecondsRealtime(0.01f);
+        }
+
+    }
+    IEnumerator SpreadFishes(RectTransform rect, Vector3 pos)
+    {
+        float x = Random.Range(-100, 100);
+        float y = Random.Range(-100, 100);
+        Vector3 target = pos;
+        target.x += x;
+        target.y += y;
+        float f = 0;
+        while(f <= 1)
+        {
+            rect.position = Vector3.Lerp(pos, target, f);
+            f += Time.unscaledDeltaTime / 0.2f;
+            yield return null;
+        }
+    }
+    IEnumerator Rewarding(RectTransform icon, Vector3 pos)
+    {
+        Vector3 cur = icon.position;
+        Vector3 target = GameInstance.GameIns.uiManager.fishImage.position;
+   
+        float f = 0;
+        while (f <= 1)
+        {
+            icon.position = Vector3.Lerp(cur, target, f);
+            f += Time.unscaledDeltaTime / 0.2f;
+            yield return null;
+        }
+        icon.position = target;
+
+        SoundManager.Instance.PlayAudio(GameInstance.GameIns.uISoundManager.Fish(), 0.4f);
+       
+        GameInstance.GameIns.restaurantManager.GetFish(1, false);
+        RemoveFishIcon(icon.gameObject);
+       
+    }
+
+
+    /*IEnumerator FishIncome()
+    {
+
+    }*/
 }

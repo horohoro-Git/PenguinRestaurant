@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Unity.VisualScripting;
 using UnityEngine;
-
+using Random = UnityEngine.Random;
 public class Fish : Animal
 {
     public AnimalStruct animalStruct;
@@ -14,6 +14,12 @@ public class Fish : Animal
     [NonSerialized] public bool bFloating;
     public Animator modelAnimator;
 
+    Body body;
+    public override void Awake()
+    {
+        base.Awake();
+        Utility.TryGetComponentInChildren(gameObject, out body);
+    }
     public void Setup(AnimalStruct animalStruct)
     {
         this.animalStruct = animalStruct;
@@ -33,10 +39,7 @@ public class Fish : Animal
         Vector3 current = trans.position;
         modelAnimator.SetInteger(AnimationKeys.state, 1);
         PlayAnimation(AnimationKeys.Swim);
-        foreach(var v in animationDic)
-        {
-            Debug.Log(v.Key);
-        }
+      
         while (true)
         {
             if (bDead)
@@ -74,18 +77,19 @@ public class Fish : Animal
         Quaternion endRot = startRot * Quaternion.Euler(0, 0, 90);
         float t = 0f;
 
+        float r = Random.Range(0.2f, 0.5f);
         while (t < 1f)
         {
             PlayAnimation(AnimationKeys.None);
             modelAnimator.SetTrigger(AnimationKeys.Dead);
             modelTrans.rotation = Quaternion.Lerp(startRot, endRot, t);
-            t += Time.unscaledDeltaTime / 0.3f;
+            t += Time.unscaledDeltaTime / r;
             yield return null;
         }
 
         modelTrans.rotation = endRot;
-
-        yield return new WaitForSeconds(0.5f); //CoroutneManager.waitForzerofive_real;
+        float randomTimer = Random.Range(0.5f, 2f);
+        yield return new WaitForSecondsRealtime(randomTimer);
 
 
         t = 0;
@@ -108,19 +112,19 @@ public class Fish : Animal
 
     IEnumerator Floating()
     {
-        bool up = false;
         while (bFloating)
         {
             float origin = 1f;
             float target = 0.5f;
             float timer = 0f;
+            float r = Random.Range(1.2f, 1.8f);
             while (timer < 1)
             {
                 float height = Mathf.Lerp(origin, target, timer);
                 Vector3 pos = modelTrans.position;
                 pos.y = height;
                 modelTrans.position = pos;
-                timer += Time.unscaledDeltaTime / 1.5f;
+                timer += Time.unscaledDeltaTime / r;
                 yield return null;
             }
 
@@ -137,8 +141,8 @@ public class Fish : Animal
                 float height = Mathf.Lerp(target, origin, timer);
                 Vector3 pos = modelTrans.position;
                 pos.y = height;
-                modelTrans.position = pos;
-                timer += Time.unscaledDeltaTime / 1.5f;
+                modelTrans.position = pos; 
+                timer += Time.unscaledDeltaTime / r;
                 yield return null;
             }
 
@@ -153,7 +157,17 @@ public class Fish : Animal
 
     public void Caught()
     {
+        WaterSplash waterSplash = GameInstance.GameIns.fishingManager.GetSplash();
+        waterSplash.transform.position = body.transform.position;
+        waterSplash.transform.localScale = new Vector3(2, 2, 2);
+        waterSplash.PlayParticle();
+
+        SoundManager.Instance.PlayAudio(GameInstance.GameIns.fishingSoundManager.DropletSound(), 0.2f);
+     
         bFloating = false;
+
+
+        GameInstance.GameIns.fishingManager.CaughtFish(body.transform.position);
         GameInstance.GameIns.fishingManager.RemoveFish(this);
     }
 }

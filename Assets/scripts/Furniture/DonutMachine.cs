@@ -112,8 +112,7 @@ public class DonutMachine : FoodMachine
 
     IEnumerator DonutVitlity(Food food)
     {
-        foodCreateAudio.clip = GameInstance.GameIns.gameSoundManager.CreateFood();
-        foodCreateAudio.Play();
+        SoundManager.Instance.PlayAudio3D(GameInstance.GameIns.gameSoundManager.CreateFood(), 0.4f, 100, 5, food.transform.position);
         Vector3 v1 = food.transform.localScale;
         Vector3 v2 = new Vector3(1, 1, 1);
         Vector3 v3 = new Vector3(1.2f, 1.2f, 1.2f);

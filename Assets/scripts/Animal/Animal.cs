@@ -45,11 +45,11 @@ public class Animal : MonoBehaviour
     // public AnimationClip clip;
     public Dictionary<string, int> animationDic = new Dictionary<string, int>();
     public Shadow shadow;
-    [NonSerialized] public AudioSource audioSource;
+   // [NonSerialized] public AudioSource audioSource;
 
-    private void Awake()
+    public virtual void Awake()
     {
-        audioSource = GetComponent<AudioSource>();
+   //     audioSource = GetComponent<AudioSource>();
     }
     private void Start()
     {

@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GatchaSoundManager : SoundManager
+public class GatchaSoundManager : MonoBehaviour
 {
     public List<int> unlockSoundKeys = new List<int>();
     public List<int> gradeupSoundKeys = new List<int>();

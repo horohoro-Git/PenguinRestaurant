@@ -195,10 +195,8 @@ public class FoodMachine : Furniture
 
             Vector3 current = tray.transform.localScale;
 
-            AudioSource audioSource = tray.GetComponent<AudioSource>();
-            audioSource.clip = GameInstance.GameIns.gameSoundManager.DropPlate();
-            audioSource.volume = 0.2f;
-            audioSource.Play();
+            
+            SoundManager.Instance.PlayAudio3D(GameInstance.GameIns.gameSoundManager.DropPlate(), 0.2f, 100, 5, tray.transform.position);
 
             f = 0;
             while (f <= 0.2f)
@@ -359,6 +357,9 @@ public class FoodMachine : Furniture
                 audioSource.clip = GameInstance.GameIns.gameSoundManager.MachineSound(soundClip);
                 audioSource.volume = 0.1f;
                 audioSource.loop = true;
+                audioSource.spatialBlend = 1;
+                audioSource.maxDistance = SoundManager.Instance.max;
+                audioSource.minDistance = SoundManager.Instance.min;
                 audioSource.Play();
 
                 float cookingTimer = machineLevelData.cooking_time;
@@ -484,5 +485,19 @@ public class FoodMachine : Furniture
         isQuitting = true;
         cancellationTokenSource.Cancel();
         cancellationTokenSource.Dispose();
+    }
+
+
+    public void MachineSound(bool pause)
+    {
+        if(pause)
+        {
+            audioSource.Pause();
+        }
+        else
+        {
+            audioSource.UnPause();
+
+        }
     }
 }

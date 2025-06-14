@@ -11,9 +11,7 @@ public class Popup : MonoBehaviour
 
     public void TriggerPopupClose()
     {
-        GameInstance.GameIns.uiManager.audioSource.clip = GameInstance.GameIns.uISoundManager.UIPop();
-        GameInstance.GameIns.uiManager.audioSource.volume = 0.4f;
-        GameInstance.GameIns.uiManager.audioSource.Play();
+        SoundManager.Instance.PlayAudio(GameInstance.GameIns.uISoundManager.UIPop(), 0.4f);
         animator.SetTrigger(AnimationKeys.popup_close);
     }
 

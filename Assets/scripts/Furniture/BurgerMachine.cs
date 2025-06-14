@@ -60,9 +60,7 @@ public class BurgerMachine : FoodMachine
         f.transform.localScale = Vector3.zero;
         StartCoroutine(CreateBurger(f));
 
-        foodCreateAudio.clip = GameInstance.GameIns.gameSoundManager.CreateFood();
-        foodCreateAudio.volume = 0.4f;
-        foodCreateAudio.Play();
+        SoundManager.Instance.PlayAudio3D(GameInstance.GameIns.gameSoundManager.CreateFood(), 0.4f, 100, 5, f.transform.position);
     }
 
 

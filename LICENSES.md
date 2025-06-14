@@ -58,4 +58,16 @@ https://soundcloud.com/kilua-boy/sleep-talking
 
 "Footsteps water light 004" by duckduckpony on Freesound.org
 Licensed under CC BY 4.0
+<<<<<<< HEAD
 Source: https://freesound.org/people/duckduckpony/sounds/204017/
+=======
+Source: https://freesound.org/people/duckduckpony/sounds/204017/
+
+"Footsteps water light 006" by duckduckpony on Freesound.org
+Licensed under CC BY 4.0
+Source: https://freesound.org/people/duckduckpony/sounds/204033/
+
+"Footsteps water light 008" by duckduckpony on Freesound.org
+Licensed under CC BY 4.0
+Source: https://freesound.org/people/duckduckpony/sounds/204035/
+>>>>>>> develop

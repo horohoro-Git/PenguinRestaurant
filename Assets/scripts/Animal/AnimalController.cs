@@ -84,7 +84,6 @@ public class AnimalController : MonoBehaviour
 
     public GameObject eatParticle;
 
-    public AudioSource audioSource;
     public float coroutineTimer = 0;
     public AnimalStruct animalStruct { get; set; }
 #if HAS_ANIMATION_INSTANCING

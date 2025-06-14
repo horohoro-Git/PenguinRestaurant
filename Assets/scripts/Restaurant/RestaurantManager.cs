@@ -16,6 +16,7 @@ using System.Text;
 using System.Numerics;
 using Vector3 = UnityEngine.Vector3;
 using Quaternion = UnityEngine.Quaternion;
+using Random = UnityEngine.Random;
 
 public class RestaurantManager : MonoBehaviour
 {
@@ -24,7 +25,6 @@ public class RestaurantManager : MonoBehaviour
     public GameObject[] levels;
     public NextTarget[] levelGuides;
     NextTargetData[] nextTargetDatas = new NextTargetData[100];
-    public AudioSource purchase;
     [NonSerialized] public int level = 0;
     public bool allLevelUp;
     [NonSerialized] public int fishNum = 0;
@@ -75,13 +75,18 @@ public class RestaurantManager : MonoBehaviour
     public VendingMachineData vendingData;
 
     public static float restaurantTimer;
-
+    [NonSerialized] public int moneyChangedSoundKey;
+    [NonSerialized] public int fishChangedSoundKey;
+    Coroutine changingMoneyCoroutine;
+    Coroutine changingFishCoroutine;
   //  public Dictionary<WorkSpaceType, int> workSpaces = new Dictionary<WorkSpaceType, int>(); 
  //   public Dictionary<MachineType, MachineLevelStruct>
     // Start is called before the first frame update
     private void Awake()
     {
-      
+        moneyChangedSoundKey = 100011;
+        fishChangedSoundKey = 100012;
+
         door = Instantiate(door);
         door.gameObject.SetActive(false);
         trayObjects = new GameObject();
@@ -212,9 +217,8 @@ public class RestaurantManager : MonoBehaviour
         expandables[extensionLevel].SetActive(true);
         removables[extensionLevel].SetActive(false);
         extensionParticles[extensionLevel].Play();
-        purchase.clip = GameIns.gameSoundManager.Extension();
-        purchase.volume = 0.2f;
-        purchase.Play();
+        SoundManager.Instance.PlayAudio(GameIns.gameSoundManager.Extension(), 0.2f);
+       
         restaurantData.extension_level++;
         restaurantData.changed = true;
 
@@ -285,7 +289,7 @@ public class RestaurantManager : MonoBehaviour
                 }
                 else return;
                // GameInstance.GameIns.uiManager.UpdateMoneyText(restaurantCurrency.money);
-                purchase.Play();
+              // purchase.Play();
             }
         }
 
@@ -739,9 +743,10 @@ public class RestaurantManager : MonoBehaviour
 
             //  animal.EmployeeData = employeeDatas[combineDatas.employeeData[animal.id - 1].level - 1];
             animal.employeeLevel = AssetLoader.employees_levels[1];
-            animal.animal.audioSource.clip = GameIns.gameSoundManager.Quack();
-            animal.animal.audioSource.volume = 0.2f;
-            animal.animal.audioSource.Play();
+            //  SoundManager.Instance.PlayAudio3D(GameInstance.GameIns.gameSoundManager.Quack(), 0.1f, 100, 5, trans.position);
+
+            SoundManager.Instance.PlayAudio(GameIns.gameSoundManager.Quack(), 0.2f);
+           
             // animal.EmployeeData = new EmployeeData(1, 1, 1, 1, 1);
             //   Vector3 targetPos = GameInstance.GameIns.inputManager.cameraRange.position;
             //animal.busy = true;
@@ -935,9 +940,8 @@ public class RestaurantManager : MonoBehaviour
     {
         if (restaurantCurrency.Money >= foodMachine.machineLevelData.Price_Value)
         {
-            GameIns.uiManager.audioSource.clip = GameIns.uISoundManager.Money();
-            GameIns.uiManager.audioSource.volume = 0.2f;
-            GameIns.uiManager.audioSource.Play();
+            bool exists = SoundManager.Instance.PlayAudioWithKey(GameIns.uISoundManager.Money(), 0.2f, moneyChangedSoundKey);
+       
             restaurantCurrency.Money -= foodMachine.machineLevelData.Price_Value;
             GetMoney((-foodMachine.machineLevelData.Price_Value).ToSafeString()); 
             MachineType type = foodMachine.machineType;
@@ -964,9 +968,8 @@ public class RestaurantManager : MonoBehaviour
 
     public void AddFuel(FoodMachine foodMachine, int amount)
     {
-        GameIns.uiManager.audioSource.clip = GameIns.uISoundManager.Fish();
-        GameIns.uiManager.audioSource.volume = 0.2f;
-        GameIns.uiManager.audioSource.Play();
+        SoundManager.Instance.PlayAudioWithKey(GameIns.uISoundManager.Fishes(), 0.2f, fishChangedSoundKey);
+     
         GetFish(-amount);
         restaurantCurrency.changed = true;
         foodMachine.machineLevelData.fishes += amount;
@@ -1106,7 +1109,8 @@ public class RestaurantManager : MonoBehaviour
         restaurantCurrency.fishes += addFish;
         if (animate)
         {
-            StartCoroutine(ChangingFishes(before, addFish));
+            if(changingFishCoroutine != null) StopCoroutine(changingFishCoroutine);
+            changingFishCoroutine = StartCoroutine(ChangingFishes(before, addFish));
         }
         else
         {
@@ -1138,10 +1142,8 @@ public class RestaurantManager : MonoBehaviour
             }
         }
         GameIns.uiManager.fishText.text = restaurantCurrency.fishes.ToString();
-        if (GameIns.uiManager.audioSource.clip == GameIns.uISoundManager.Fish())
-        {
-            GameIns.uiManager.audioSource.Stop();
-        }
+      
+        SoundManager.Instance.AudioStop(fishChangedSoundKey);
     }
 
     public void GetMoney(string addMoney, bool animate = true)
@@ -1152,7 +1154,8 @@ public class RestaurantManager : MonoBehaviour
 
         if(animate)
         {
-            StartCoroutine(ChangingMoney(before, bigInteger));
+            if (changingMoneyCoroutine != null) StopCoroutine(changingMoneyCoroutine);
+            changingMoneyCoroutine = StartCoroutine(ChangingMoney(before, bigInteger));
         }
         else
         {
@@ -1191,9 +1194,6 @@ public class RestaurantManager : MonoBehaviour
     
         moneyString = Utility.GetFormattedMoney(restaurantCurrency.Money, moneyString);
         GameIns.uiManager.moneyText.text = moneyString.ToString();
-        if(GameIns.uiManager.audioSource.clip == GameIns.uISoundManager.Money())
-        {
-            GameIns.uiManager.audioSource.Stop();
-        }
+        SoundManager.Instance.AudioStop(moneyChangedSoundKey);
     }
 }
