@@ -36,7 +36,7 @@ public class FishingManager : MonoBehaviour
 
     float spawnTimer = 5;
     float timerGap = 5;
-    int numberOfFishes = 0;
+    [NonSerialized] public int numberOfFishes = 0;
     public int FishCount { get { return numberOfFishes; } set { numberOfFishes = value; 
             
                                 if(GameInstance.GameIns.uiManager)
@@ -49,6 +49,8 @@ public class FishingManager : MonoBehaviour
     Animator penguinAnimator;
 
     [NonSerialized] public bool working;
+
+    public bool setup;
 
     Coroutine incomeCoroutine;
     private void Awake()
@@ -85,18 +87,54 @@ public class FishingManager : MonoBehaviour
 
     private void Update()
     {
-        if (numberOfFishes < 50 && !water.isDirty)
+        if (setup)
         {
-            if (spawnTimer + timerGap <= Time.unscaledTime)
+            if (numberOfFishes < 50 && !water.isDirty && !working)
             {
-                spawnTimer = Time.unscaledTime;
+                if (spawnTimer + timerGap <= Time.unscaledTime)
+                {
+                    spawnTimer = Time.unscaledTime;
 
-                SpawnFish();
+                    SpawnFish();
+                }
             }
         }
     }
 
+    public void LoadStatus(Fishing fishing)
+    {
+        if(fishing.isDirty)
+        {
+            working = true;
+            water.ChangeDirty(false);
+        }
+        else
+        {
+            working = false;
+            water.ChangeClean(false);
+        }
 
+
+        for (int i = 0; i < fishing.fishNum; i++)
+        {
+            int r = Random.Range(900, 903);
+            Fish f = GetFish(r);
+            Vector3 pos = RandomLocation();
+            float rotRand = Random.Range(0, 360);
+            f.trans.position = pos;
+            f.trans.rotation = Quaternion.Euler(0,rotRand, 0);
+            if(fishing.isDirty)
+            {
+                f.Dead(true);
+                f.bDead = true;
+            }
+            else
+            {
+                f.Swim();
+            }
+        }
+        FishCount = fishing.fishNum;
+    }
     public void StartFishing()
     {
         if (!working && !water.isDirty)
@@ -173,6 +211,10 @@ public class FishingManager : MonoBehaviour
         Vector3 pos = RandomLocation();
 
         fish.transform.position = pos;
+    //    numberOfFishes++;
+        FishCount++;
+        GameInstance.GameIns.restaurantManager.miniGame.fishing.fishNum++;
+        GameInstance.GameIns.restaurantManager.miniGame.changed = true;
         fish.Swim();
     }
 
@@ -199,7 +241,6 @@ public class FishingManager : MonoBehaviour
         Fish fish = fishes[type].Dequeue();
         fish.gameObject.SetActive(true);
         activatedFishes[type].Add(fish);
-        FishCount++;
         return fish;
     }
 
@@ -207,7 +248,6 @@ public class FishingManager : MonoBehaviour
     {
         fish.gameObject.SetActive(false);
         activatedFishes[fish.animalStruct.id].Remove(fish);
-        FishCount--;
         fishes[fish.animalStruct.id].Enqueue(fish);
     }
  
@@ -280,10 +320,14 @@ public class FishingManager : MonoBehaviour
     {
         Vector3 target = InputManger.cachingCamera.WorldToScreenPoint(pos);
 
+        int r = Random.Range(5, 10);
+        int baseNum = GameInstance.GameIns.restaurantManager.restaurantCurrency.fishes;
+        GameInstance.GameIns.restaurantManager.restaurantCurrency.fishes += r;
+        GameInstance.GameIns.restaurantManager.restaurantCurrency.changed = true;
         yield return new WaitForSecondsRealtime(0.2f);
 
         Stack<RectTransform> stack = new Stack<RectTransform>();
-        for (int i = 0; i < 100; i++)
+        for (int i = 0; i < r; i++)
         {
             RectTransform icon = GetFishIcon().GetComponent<RectTransform>();
             icon.position = target;
@@ -306,6 +350,7 @@ public class FishingManager : MonoBehaviour
             yield return new WaitForSecondsRealtime(0.01f);
         }
 
+      //  GameInstance.GameIns.uiManager.fishText.text = GameInstance.GameIns.restaurantManager.restaurantCurrency.fishes.ToString();
     }
     IEnumerator SpreadFishes(RectTransform rect, Vector3 pos)
     {
@@ -337,8 +382,11 @@ public class FishingManager : MonoBehaviour
         icon.position = target;
 
         SoundManager.Instance.PlayAudio(GameInstance.GameIns.uISoundManager.Fish(), 0.4f);
-       
-        GameInstance.GameIns.restaurantManager.GetFish(1, false);
+
+        int before = GameInstance.GameIns.restaurantManager.restaurantCurrency.fishes;
+
+        int num = int.Parse(GameInstance.GameIns.uiManager.fishText.text);
+        GameInstance.GameIns.uiManager.fishText.text = (num + 1).ToString();
         RemoveFishIcon(icon.gameObject);
        
     }

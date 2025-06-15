@@ -262,7 +262,7 @@ public class UIManager : MonoBehaviour
             bGuideOn = false;
             drawBtn.gameObject.SetActive(false);
             drawSpeedUpBtn.gameObject.SetActive(false);
-            fishingBtn.gameObject.SetActive(true);
+            if(GameIns.restaurantManager.miniGame.activate && GameIns.restaurantManager.miniGame.type == MiniGameType.Fishing) fishingBtn.gameObject.SetActive(true);
             GameIns.app.ChangeScene_Restaurant();
         }
         else if (t == 2)

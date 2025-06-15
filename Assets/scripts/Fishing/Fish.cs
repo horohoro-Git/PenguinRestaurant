@@ -63,16 +63,17 @@ public class Fish : Animal
         Swim();
     }
 
-    void Dead()
+    public void Dead(bool load = false)
     {
         CheckVisible(false, true);
         skinnedMesh.enabled = true;
       
-        StartCoroutine(DeadFish());
+        StartCoroutine(DeadFish(load));
     }
 
-    IEnumerator DeadFish()
+    IEnumerator DeadFish(bool load)
     {
+      
         Quaternion startRot = modelTrans.rotation;
         Quaternion endRot = startRot * Quaternion.Euler(0, 0, 90);
         float t = 0f;
@@ -88,9 +89,18 @@ public class Fish : Animal
         }
 
         modelTrans.rotation = endRot;
+
+        if (!load)
+        {
+            SoundManager.Instance.PlayAudio(GameInstance.GameIns.fishingSoundManager.DeadSound(), 0.5f);
+            Emote e = GameInstance.GameIns.restaurantManager.GetEmote();
+            e.rectTransform.position = InputManger.cachingCamera.WorldToScreenPoint(body.transform.position) + Vector3.up * 50;
+            e.height = 100f;
+            e.image.sprite = GameInstance.GameIns.restaurantManager.emoteSprites[4004];
+            e.Emotion();
+        }
         float randomTimer = Random.Range(0.5f, 2f);
         yield return new WaitForSecondsRealtime(randomTimer);
-
 
         t = 0;
         float targetPos = 1f;
@@ -103,7 +113,6 @@ public class Fish : Animal
             t += Time.unscaledDeltaTime / 2f;
             yield return null;
         }
-
 
         bFloating = true;
         StartCoroutine(Floating());
@@ -165,8 +174,15 @@ public class Fish : Animal
         SoundManager.Instance.PlayAudio(GameInstance.GameIns.fishingSoundManager.DropletSound(), 0.2f);
      
         bFloating = false;
-
-
+        GameInstance.GameIns.fishingManager.FishCount--;
+        GameInstance.GameIns.restaurantManager.miniGame.fishing.fishNum--;
+        GameInstance.GameIns.restaurantManager.miniGame.changed = true;
+        if (GameInstance.GameIns.restaurantManager.miniGame.fishing.fishNum == 0)
+        {
+            GameInstance.GameIns.restaurantManager.miniGame.activate = false;
+            GameInstance.GameIns.restaurantManager.miniGame.type = MiniGameType.None;
+            GameInstance.GameIns.restaurantManager.miniGame.fishing = null;
+        }
         GameInstance.GameIns.fishingManager.CaughtFish(body.transform.position);
         GameInstance.GameIns.fishingManager.RemoveFish(this);
     }
