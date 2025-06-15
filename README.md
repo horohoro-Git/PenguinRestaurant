@@ -45,3 +45,4 @@ Animal Restaurant Tycoon Game
 06/12 Add the ability to pollute the river water and include living, moving fish in the mini-game
 06/13 Fixed water ripple visibility issue based on distance; fish can now be tapped to receive rewards
 06/14 Changed restaurant sound to 3D, added sound pooling, and adjusted render queue of afterimage particles hidden behind water
+06/15 Added dying fish sound and effect, and adjusted overlapping sound volumes

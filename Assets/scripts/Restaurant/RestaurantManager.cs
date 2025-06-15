@@ -31,15 +31,13 @@ public class RestaurantManager : MonoBehaviour
     public bool employable;
     public int restaurantValue = 0;
 
-  //  public PlayerData playerData { get; set; }
     public PlayerStruct playerStruct = new PlayerStruct(0, 0f, 0, 0, null, 0);
     public List<EmployeeLevelStruct> employeeData = new List<EmployeeLevelStruct>();
     public List<RestaurantParam> restaurantparams = new List<RestaurantParam>();
 
     public Dictionary<int, LevelData> levelData = new Dictionary<int, LevelData>();
     public CombineDatas combineDatas;
-  //  public Dictionary<MachineType, Dictionary<int, MachineLevelStruct>> machineLevelData = new Dictionary<MachineType, Dictionary<int, MachineLevelStruct>>();
-
+ 
     public List<EmployeeData> employeeDatas = new List<EmployeeData>();
     public EmployeeData currentEmployeeData;
     public Dictionary<MachineType, List<MachineData>> upgradeMachineDic = new Dictionary<MachineType, List<MachineData>>();
@@ -54,6 +52,7 @@ public class RestaurantManager : MonoBehaviour
     public Dictionary<int, GoodsStruct> goodsStruct = new Dictionary<int, GoodsStruct>();
 
     public static GameObject trayObjects;
+    public static GameObject emoteObjects;
     public Queue<GameObject> trays = new Queue<GameObject>();
     public Door door;
     public RestaurantCurrency restaurantCurrency;
@@ -79,9 +78,12 @@ public class RestaurantManager : MonoBehaviour
     [NonSerialized] public int fishChangedSoundKey;
     Coroutine changingMoneyCoroutine;
     Coroutine changingFishCoroutine;
-  //  public Dictionary<WorkSpaceType, int> workSpaces = new Dictionary<WorkSpaceType, int>(); 
- //   public Dictionary<MachineType, MachineLevelStruct>
-    // Start is called before the first frame update
+    public MiniGame miniGame;
+
+    public Emote emote;
+    public Queue<Emote> emotes = new Queue<Emote>();
+    public List<int> emoteSpriteKeys = new List<int>();
+    public Dictionary<int, Sprite> emoteSprites = new Dictionary<int, Sprite>();
     private void Awake()
     {
         moneyChangedSoundKey = 100011;
@@ -91,6 +93,9 @@ public class RestaurantManager : MonoBehaviour
         door.gameObject.SetActive(false);
         trayObjects = new GameObject();
         trayObjects.name = "trayObjects";
+        emoteObjects = new GameObject();
+        emoteObjects.AddComponent<Canvas>().renderMode = RenderMode.ScreenSpaceOverlay;
+        emoteObjects.name = "emotes";
         trayObjects.transform.position = Vector3.zero;
         GameInstance.GameIns.restaurantManager = this;
         /*   var burgerupgrade_resources = Resources.Load<TextAsset>("burger_upgrade_table");
@@ -136,6 +141,18 @@ public class RestaurantManager : MonoBehaviour
     }
     void Start()
     {
+        for(int i=0; i<emoteSpriteKeys.Count; i++)
+        {
+            emoteSprites[emoteSpriteKeys[i]] = AssetLoader.loadedAtlases["Town"].GetSprite(AssetLoader.spriteAssetKeys[emoteSpriteKeys[i]].ID);
+        }
+        for(int i=0; i< 30; i++)
+        {
+            Emote e = Instantiate(emote, emoteObjects.transform);
+            e.gameObject.SetActive(false);
+            emotes.Enqueue(e);
+        }
+
+
         for (int i = 0; i < 20; i++)
         {
 
@@ -149,6 +166,7 @@ public class RestaurantManager : MonoBehaviour
         restaurantparams = SaveLoadSystem.LoadRestaurantBuildingData();
         vendingData = SaveLoadSystem.LoadVendingMachineData();
         employees = SaveLoadSystem.LoadEmployees();
+        miniGame = SaveLoadSystem.LoadMiniGameStatus();
 
         restaurantCurrency.fishes += 100;
         restaurantCurrency.Money += BigInteger.Parse("316000");// 10000;
@@ -166,20 +184,27 @@ public class RestaurantManager : MonoBehaviour
         GameIns.store.NewGoods(goodsStruct);
 
         AutoSave(App.GlobalToken).Forget();
+
+        
+
+      
+      
+
     }
 
     private void Update()
     {
         restaurantTimer += Time.deltaTime * App.restaurantTimeScale;
+    
     }
 
     async UniTask AutoSave(CancellationToken cancellationToken = default)
     {
         while (true)
         {
-            // await UniTask.Delay(30000, cancellationToken: cancellationToken);
+            await UniTask.Delay(30000, DelayType.UnscaledDeltaTime, cancellationToken: cancellationToken);
 
-            await Utility.CustomUniTaskDelay(30f, cancellationToken);
+           // await Utility.CustomUniTaskDelay(30f, cancellationToken);
 
             if(employees.changed)
             {
@@ -205,6 +230,11 @@ public class RestaurantManager : MonoBehaviour
             {
                 vendingData.changed = false;
                 SaveLoadSystem.SaveVendingMachineData(vendingData);
+            }
+            if(miniGame.changed)
+            {
+                miniGame.changed = false;
+                SaveLoadSystem.SaveMiniGameStatus(miniGame);
             }
         }
     }
@@ -614,6 +644,23 @@ public class RestaurantManager : MonoBehaviour
 
             GameIns.store.StoreUpdate();
 
+            if (miniGame.activate)
+            {
+                switch (miniGame.type)
+                {
+                    case MiniGameType.None:
+                        break;
+                    case MiniGameType.Fishing:
+                        GameIns.fishingManager.LoadStatus(miniGame.fishing);
+                        OpenMiniGame((int)MiniGameType.Fishing);
+                        break;
+                }
+            }
+            else
+            {
+                OpenMiniGame(0);
+            }
+
             await LoadEmployees(cancellationToken);
         }
         catch (Exception e)
@@ -969,8 +1016,9 @@ public class RestaurantManager : MonoBehaviour
     public void AddFuel(FoodMachine foodMachine, int amount)
     {
         SoundManager.Instance.PlayAudioWithKey(GameIns.uISoundManager.Fishes(), 0.2f, fishChangedSoundKey);
-     
-        GetFish(-amount);
+        int before = restaurantCurrency.fishes;
+        restaurantCurrency.fishes += -amount;
+        GetFish(before, -amount);
         restaurantCurrency.changed = true;
         foodMachine.machineLevelData.fishes += amount;
         machineLevelDataChanged = true; 
@@ -1061,6 +1109,7 @@ public class RestaurantManager : MonoBehaviour
         SaveLoadSystem.SaveRestaurantData(restaurantData);
         SaveLoadSystem.SaveFoodMachineStats(machineLevelData);
         SaveLoadSystem.SaveVendingMachineData(vendingData);
+        SaveLoadSystem.SaveMiniGameStatus(miniGame);
     }
 
     private void OnApplicationPause(bool pauseStatus)
@@ -1072,6 +1121,7 @@ public class RestaurantManager : MonoBehaviour
             SaveLoadSystem.SaveRestaurantData(restaurantData);
             //     SaveLoadManager.Save(SaveState.ALL_SAVES);
             SaveLoadSystem.SaveVendingMachineData(vendingData);
+            SaveLoadSystem.SaveMiniGameStatus(miniGame);
         }
     }
 
@@ -1103,10 +1153,9 @@ public class RestaurantManager : MonoBehaviour
         return fuel;
     }
 
-    public void GetFish(int addFish, bool animate = true)
+    public void GetFish(int before, int addFish, bool animate = true)
     {
-        int before = restaurantCurrency.fishes;
-        restaurantCurrency.fishes += addFish;
+       
         if (animate)
         {
             if(changingFishCoroutine != null) StopCoroutine(changingFishCoroutine);
@@ -1195,5 +1244,51 @@ public class RestaurantManager : MonoBehaviour
         moneyString = Utility.GetFormattedMoney(restaurantCurrency.Money, moneyString);
         GameIns.uiManager.moneyText.text = moneyString.ToString();
         SoundManager.Instance.AudioStop(moneyChangedSoundKey);
+    }
+
+    public Emote GetEmote()
+    {
+        Emote e = null;
+        if(emotes.Count > 0)
+        {
+            e = emotes.Dequeue();
+            e.gameObject.SetActive(true);
+        }
+        else
+        {
+            e = Instantiate(emote, emoteObjects.transform);
+        }
+
+        return e;
+    }
+
+    public void ReturnEmote(Emote e)
+    {
+        if (emotes.Count > 30)
+        {
+            Destroy(e);
+        }
+        else
+        {
+            e.gameObject.SetActive(false);
+            emotes.Enqueue(e);
+        }
+    }
+
+    public void OpenMiniGame(int r)
+    {
+        if(r == 0) r = Random.Range(1, 2);
+        switch((MiniGameType)r)
+        {
+            case MiniGameType.Fishing:
+                miniGame.type = MiniGameType.Fishing;
+                miniGame.changed = true;
+                miniGame.activate = true;
+                if (miniGame.fishing == null) miniGame.fishing = new Fishing(0, false);
+
+                GameIns.fishingManager.setup = true;
+                if(GameIns.app.currentScene == SceneState.Restaurant) GameIns.uiManager.fishingBtn.gameObject.SetActive(true);
+                break;
+        }
     }
 }

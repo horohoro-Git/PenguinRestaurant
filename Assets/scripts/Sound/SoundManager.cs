@@ -11,6 +11,8 @@ public class SoundManager : MonoBehaviour
     public Queue<AudioSource> audioSources = new Queue<AudioSource>();
     public Dictionary<int, AudioSource> audioWithKey = new Dictionary<int, AudioSource>();
     List<AudioSource> restaurantAudios = new List<AudioSource>();
+
+    public Dictionary<AudioClip, int> currentPlayingAudios = new Dictionary<AudioClip, int>();  
     GameObject audios;
 
     [Range(5, 1000)]
@@ -97,12 +99,22 @@ public class SoundManager : MonoBehaviour
 
         audio.spatialBlend = 0;
         audio.clip = clip;
-        audio.volume = volume;
+        if (currentPlayingAudios.ContainsKey(clip))
+        {
+            currentPlayingAudios[clip]++;
+        }
+        else
+        {
+            currentPlayingAudios[clip] = 1;
+        }
+
+        audio.volume = volume / currentPlayingAudios[clip];
         audio.Play();
         float length = clip.length;
 
         await UniTask.Delay((int)(length * 1000), DelayType.UnscaledDeltaTime, cancellationToken: cancellationToken);
         audio.Stop();
+        currentPlayingAudios[clip]--;
         if (audioSources.Count > 1000)
         {
             Destroy(audio);
@@ -135,13 +147,22 @@ public class SoundManager : MonoBehaviour
         audio.maxDistance = max; //maxDistance;
         audio.minDistance = min;//minDistance;
         audio.clip = clip;
-        audio.volume = volume;
+        if (currentPlayingAudios.ContainsKey(clip))
+        {
+            currentPlayingAudios[clip]++;
+        }
+        else
+        {
+            currentPlayingAudios[clip] = 1;
+        }
+        audio.volume = volume / currentPlayingAudios[clip];
         audio.Play();
 
         restaurantAudios.Add(audio);
         float length = clip.length;
 
         await UniTask.Delay((int)(length * 1000), DelayType.UnscaledDeltaTime, cancellationToken: cancellationToken);
+        currentPlayingAudios[clip]--;
         audio.Stop();
         restaurantAudios.Remove(audio);
         if (audioSources.Count > 1000)

@@ -19,14 +19,27 @@ public class WaterQuality : MonoBehaviour
       //  StartCoroutine(ChangeDirtyQuality());
     }
 
-    public void ChangeDirty()
+    public void ChangeDirty(bool animate = true)
     {
-        StartCoroutine(ChangeDirtyQuality());
+        if(animate) StartCoroutine(ChangeDirtyQuality());
+        else
+        {
+       
+            material.SetColor("_ShallowColor", dirtyShallowColor);
+            material.SetColor("_HorizonColor", dirtyHorizonColor);
+            isDirty = true;
+        }
     }
 
-    public void ChangeClean()
+    public void ChangeClean(bool animate = true)
     {
-        StartCoroutine (ChangeCleanQuality());  
+        if (animate) StartCoroutine (ChangeCleanQuality());  
+        else
+        {
+            material.SetColor("_ShallowColor", cleanShallowColor);
+            material.SetColor("_HorizonColor", cleanHorizonColor);
+            isDirty = false;
+        }
     }
 
     IEnumerator ChangeDirtyQuality()
@@ -46,7 +59,8 @@ public class WaterQuality : MonoBehaviour
             yield return null;
         }
         isDirty = true;
-
+        GameInstance.GameIns.restaurantManager.miniGame.fishing.isDirty = true;
+        GameInstance.GameIns.restaurantManager.miniGame.changed = true;
         GameInstance.GameIns.fishingManager.KillAllFishes();
 
        // yield return StartCoroutine(ChangeCleanQuality());

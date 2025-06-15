@@ -295,6 +295,14 @@ public enum AssetType
 
 }
 
+public enum MiniGameType
+{
+    None,
+    Fishing
+
+
+}
+
 
 
 
@@ -627,6 +635,19 @@ public class Utility
             yield return null;
         }
     }
+
+    public static bool RandomSuccess(int target)
+    {
+        int r = Random.Range(0, 100);
+        if(target >= r)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
 }
 
 public class GameRegulation
@@ -667,16 +688,18 @@ public class RestaurantCurrency
     public string money;
     public int fishes;
     public int affinity;
+    public int sale_num;
     public bool changed;
 
     BigInteger? m;
     public BigInteger Money { get { if (!m.HasValue) m = BigInteger.Parse(money); return m.Value; } set { m = value; changed = true; } }
 
-    public RestaurantCurrency(string money, int fishes, int affinity)
+    public RestaurantCurrency(string money, int fishes, int affinity, int sale_num)
     {
         this.money = money;
         this.fishes = fishes;
         this.affinity = affinity;
+        this.sale_num = sale_num;
     }
 }
 
@@ -751,6 +774,32 @@ public class MachineLevelData : ITableID<int>
         this.fishes = fishes;
     }
 }
+
+
+public class MiniGame
+{
+    public MiniGameType type;
+    public bool activate;
+    public bool changed;
+    public Fishing fishing;
+    public MiniGame(MiniGameType type, bool activate)
+    {
+        this.type = type;
+        this.activate = activate;
+    }
+}
+
+public class Fishing
+{
+    public int fishNum;
+    public bool isDirty;
+    public Fishing(int fishNum, bool isDirty)
+    {
+        this.fishNum = fishNum;
+        this.isDirty = isDirty;
+    }
+}
+
 
 
 public interface ITableID<K>

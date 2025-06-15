@@ -675,6 +675,7 @@ public class SaveLoadSystem
                 writer.Write(currency.Money.ToString());
                 writer.Write(currency.fishes);
                 writer.Write(currency.affinity);
+                writer.Write(currency.sale_num);
             }
 
             File.WriteAllBytes(p, ms.ToArray());
@@ -701,13 +702,14 @@ public class SaveLoadSystem
                     string money = reader.ReadString();
                     int fishes = reader.ReadInt32();
                     int affinity = reader.ReadInt32();
-                    currency = new RestaurantCurrency(money, fishes, affinity);
+                    int sale_num = reader.ReadInt32();
+                    currency = new RestaurantCurrency(money, fishes, affinity, sale_num);
                 }
             }
         }
         else
         {
-            currency = new RestaurantCurrency("500", 0, 0);
+            currency = new RestaurantCurrency("500", 0, 0, 0);
             SaveRestaurantCurrency(currency);
         }
         return currency;
@@ -851,6 +853,89 @@ public class SaveLoadSystem
         }
 
         return levelDatas;
+    }
+
+
+    public static void SaveMiniGameStatus(MiniGame miniGame)
+    {
+        string dir = Path.Combine(path, "Save");
+        if (!Directory.Exists(dir))
+        {
+            Directory.CreateDirectory(dir);
+        }
+        string p = Path.Combine(path, "Save/m_Games.dat");
+        using (MemoryStream ms = new MemoryStream())
+        {
+            using (BinaryWriter writer = new BinaryWriter(ms))
+            {
+                int type = (int)miniGame.type;
+                bool activate = miniGame.activate;
+                writer.Write(type);
+                writer.Write(activate);
+
+
+                switch (miniGame.type)
+                {
+                    case MiniGameType.None:
+                        break;
+                    case MiniGameType.Fishing:
+                        Fishing fishing = miniGame.fishing;
+                        writer.Write(fishing.fishNum);
+                        writer.Write(fishing.isDirty);
+                        break;
+                }
+
+
+
+            }
+
+            File.WriteAllBytes(p, ms.ToArray());
+        }
+    }
+
+    public static MiniGame LoadMiniGameStatus()
+    {
+        string p = Path.Combine(path, "Save/m_Games.dat");
+        byte[] data;
+       
+        MiniGame miniGame = null;
+        if (File.Exists(p))
+        {
+            using (FileStream fs = new FileStream(p, FileMode.Open))
+            {
+                data = new byte[fs.Length];
+                fs.Read(data, 0, data.Length);
+                if (data.Length > 0)
+                {
+                    using (BinaryReader reader = new BinaryReader(new MemoryStream(data)))
+                    {
+
+                        MiniGameType type = (MiniGameType)reader.ReadInt32();
+                        bool activate = reader.ReadBoolean();
+                        miniGame = new MiniGame(type, activate);
+
+                        switch (type)
+                        {
+                            case MiniGameType.None:
+                                break;
+                            case MiniGameType.Fishing:
+                                int fishNum = reader.ReadInt32();
+                                bool isDirty = reader.ReadBoolean();
+                                Fishing fishing = new Fishing(fishNum, isDirty);
+                                miniGame.fishing = fishing;
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+             miniGame = new MiniGame(MiniGameType.None, false);
+        }
+
+
+        return miniGame;
     }
 }
          

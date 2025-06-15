@@ -334,17 +334,7 @@ public class App : MonoBehaviour
         //   Utility.CheckHirable(GameInstance.GameIns.inputManager.cameraRange.position, ref i, ref j);
         //   StartCoroutine(OrthographicNextFrame());
     }
-    IEnumerator OrthographicNextFrame()
-    {
-        yield return null;
-        Debug.Log(InputManger.cachingCamera.orthographicSize);
-        InputManger.cachingCamera.orthographicSize = 15;
-        Debug.Log(InputManger.cachingCamera.orthographicSize);
-        yield return null;
-        InputManger.cachingCamera.enabled = true;
-        yield return null;
-        GameInstance.GameIns.inputManager.inputDisAble = false;
-    }
+   
 
     public void ChangeScene_DrawScene()
     {
