@@ -317,13 +317,13 @@ public class App : MonoBehaviour
         Time.timeScale = 1;
         Time.fixedDeltaTime = 0.02f;
 //        InputManger.cachingCamera.enabled = false;
+        GameInstance.GameIns.playerCamera.brain.enabled = false;
         
         GameInstance.GameIns.inputManager.cameraTrans.position = pos;
         GameInstance.GameIns.inputManager.cameraTrans.rotation = Quaternion.Euler(0, 45, 0);
         InputManger.cachingCamera.transform.localPosition = new Vector3(0, 200, 0);
         InputManger.cachingCamera.transform.localRotation = Quaternion.Euler(60, 0, 0);
         //  GameInstance.GameIns.inputManager.DragScreen_WindowEditor(true);
-
         InputManger.cachingCamera.orthographic = true;
         InputManger.cachingCamera.orthographicSize = 15;
         GameInstance.GameIns.inputManager.inputDisAble = false;
@@ -348,14 +348,17 @@ public class App : MonoBehaviour
         Time.timeScale = 0;
         Time.fixedDeltaTime = 0f;
         restaurantTimeScale = 0f;
-     //   InputManger.cachingCamera.enabled = false;
-        InputManger.cachingCamera.orthographicSize = 15;
-        InputManger.cachingCamera.orthographic = true;
-      //  InputManger.cachingCamera.enabled = true;
-        GameInstance.GameIns.inputManager.cameraTrans.position = GameInstance.GetVector3(-80.35f, 0, -1080.7f);
-        GameInstance.GameIns.inputManager.cameraTrans.rotation = Quaternion.Euler(0, 45, 0);
-        InputManger.cachingCamera.transform.localPosition = new Vector3(0, 200, 0);
-        InputManger.cachingCamera.transform.localRotation = Quaternion.Euler(60, 0, 0);
+     //   InputManger.cachingCamera.orthographicSize = 15;
+        InputManger.cachingCamera.orthographic = false;
+        GameInstance.GameIns.playerCamera.brain.enabled = true;
+        GameInstance.GameIns.gatcharManager.virtualCamera1.Priority = 1;
+        GameInstance.GameIns.gatcharManager.virtualCamera2.Priority = 0;
+        GameInstance.GameIns.gatcharManager.virtualCamera3.Priority = 0;
+        GameInstance.GameIns.gatcharManager.virtualCamera4.Priority = 0;
+     //   GameInstance.GameIns.inputManager.cameraTrans.position = GameInstance.GetVector3(-80.35f, 0, -1080.7f);
+     //   GameInstance.GameIns.inputManager.cameraTrans.rotation = Quaternion.Euler(0, 45, 0);
+    //    InputManger.cachingCamera.transform.localPosition = new Vector3(0, 200, 0);
+     //   InputManger.cachingCamera.transform.localRotation = Quaternion.Euler(60, 0, 0);
         GameInstance.GameIns.uiManager.drawBtn.gameObject.SetActive(true);
         GameInstance.GameIns.uiManager.drawSpeedUpBtn.gameObject.SetActive(true);
         SoundManager.Instance.RestaurantSoundsOnoff(false);

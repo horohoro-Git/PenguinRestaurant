@@ -5,7 +5,7 @@ public class Rolling : MonoBehaviour
     private Animator animator;
     private bool isMoving = false; // 이동 상태를 추적
     private Vector3 targetPosition; // 목표 위치
-
+    Quaternion targetRotation;
     public float moveSpeed; // 이동 속도
     public int type;
 
@@ -14,9 +14,10 @@ public class Rolling : MonoBehaviour
     {
         animator = GetComponent<Animator>();
     }
-    public void Roll()
+    public void Roll(Vector3 pos, Vector3 rot)
     {
-        targetPosition = Vector3.zero + new Vector3(this.transform.position.x, 0, -1000);
+        targetPosition = Vector3.zero + pos;
+        targetRotation = Quaternion.Euler(rot);
         isMoving = true; // 이동 시작
        // animator.SetTrigger("Roll"); // Roll 애니메이션 시작
         animator.SetInteger(AnimationKeys.state, 1);
@@ -34,6 +35,7 @@ public class Rolling : MonoBehaviour
             if (Vector3.Distance(transform.position, targetPosition) < 1f)
             {
                 transform.position = targetPosition;
+                transform.rotation = targetRotation;
                 isMoving = false; // 이동 중지
                                   // animator.SetTrigger("Idle A"); // Idle A 애니메이션 실행
                 animator.SetInteger(AnimationKeys.state, 0);

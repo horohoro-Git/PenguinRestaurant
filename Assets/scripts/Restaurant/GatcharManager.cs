@@ -7,6 +7,9 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Cysharp.Threading.Tasks.Triggers;
 using System;
+using DG.Tweening;
+using Cinemachine;
+using UnityEditor.VersionControl;
 public class GatcharManager : MonoBehaviour
 {
 
@@ -24,10 +27,25 @@ public class GatcharManager : MonoBehaviour
     public bool isSpawning;
     public float spawnTerm = 0.2f;
     public float rollingSpeed = 10;
+    public GameObject advertise;
+    GameObject advertisementGO;
+
+    public CinemachineVirtualCamera virtualCamera1;
+    public CinemachineVirtualCamera virtualCamera2;
+    public CinemachineVirtualCamera virtualCamera3;
+    public CinemachineVirtualCamera virtualCamera4;
+
+    public List<Vector3> advertisePositions = new List<Vector3>();
+    public List<Vector3> advertiseRotations = new List<Vector3>();
 
     private bool isFast;
     private int mapInt;
     private int x = 5;
+    public List<Vector3> customerPositions = new List<Vector3>();
+    public List<Vector3> customerRotations = new List<Vector3>();
+    //5 : -96.5, -100, -1104, 20, -110, 0
+    //0 : -99.5, -100, -1102, 20, -180, 0
+    //-5: -102.5, -100, -1104, 20, -250, 0
     private List<GameObject> spawnedAnimals = new List<GameObject>();
     private List<int> spawnedAnimalTypes = new List<int>();
 
@@ -39,11 +57,13 @@ public class GatcharManager : MonoBehaviour
     public RectTransform shadowUI;
     Queue<Shadow> deactivateShadows = new Queue<Shadow>();
     List<Shadow> activateShadows = new List<Shadow>();
-    WaitForSecondsRealtime spawnTerms = new WaitForSecondsRealtime(0.4f);
     GameObject gatchaPenguin;
     Animator animator;
     Animator GetAnimator {  get { if (animator == null) animator = gatchaPenguin.GetComponent<Animator>(); return animator; } }
     Coroutine gatchaPenguinEmotion;
+
+    Dictionary<int, int> randomAnimalKey = new Dictionary<int, int>();
+   
     private void Awake()
     {
   //      t = cts.Token;
@@ -81,6 +101,22 @@ public class GatcharManager : MonoBehaviour
         if (mapType == MapType.town) mapInt = 0;
         else if (mapType == MapType.forest) mapInt = 6;
         else if (mapType == MapType.winter) mapInt = 12;
+
+        AnimalManager.gatchaTiers = SaveLoadSystem.LoadGatchaAnimals();
+        LoadAnimals();
+    }
+
+    void LoadAnimals()
+    {
+        foreach (var v in AnimalManager.gatchaTiers)
+        {
+            if (v.Value > 0)
+            {
+                Debug.Log(v.Key);
+                AnimalStruct asset = AssetLoader.animals[v.Key];
+                AnimalManager.animalStructs[v.Key] = asset;
+            }
+        }
     }
 
     Shadow GetShadow()
@@ -104,20 +140,172 @@ public class GatcharManager : MonoBehaviour
     {
         if (isSpawning) return;
         if (!Purchase()) return;
+
+        randomAnimalKey.Clear();
+        switch(mapType)
+        {
+            case MapType.town:
+                for (int i = 0; i < 3; i++)
+                {
+                    int r = UnityEngine.Random.Range(100, 106);
+                    if (!randomAnimalKey.ContainsKey(r))
+                    {
+                        randomAnimalKey[r] = 1;
+                    }
+                    else
+                    {
+                        randomAnimalKey[r]++;
+                    }
+                }
+                break;
+        }
+
+        foreach(var pair in randomAnimalKey)
+        {
+            if(pair.Value == 1)
+            {
+                if (AnimalManager.gatchaTiers.ContainsKey(pair.Key))
+                {
+                    if (AnimalManager.gatchaTiers[pair.Key] < 4)
+                    {
+                        AnimalManager.gatchaTiers[pair.Key]++;
+                        SaveLoadSystem.SaveGatchaAnimalsData();
+                    }
+                }
+                else
+                {
+                    AnimalManager.gatchaTiers[pair.Key] = 1;
+                    AnimalStruct asset = AssetLoader.animals[pair.Key];
+                    AnimalManager.animalStructs[pair.Key] = asset;
+                    SaveLoadSystem.SaveGatchaAnimalsData();
+                    //  GameInstance.GameIns.animalManager.AddNewAnimal(lockAnimals[keyValuePair.Key], keyValuePair.Key, animal);
+                }
+                
+                break;
+            }
+        }
+
+        GameInstance.GameIns.uiManager.drawBtn.gameObject.SetActive(false);
+        ClearRollings();
         popup_NewCustomer.SetActive(false);
         popup_TierUp.SetActive(false);
         popup.SetActive(false);
         isSpawning = true;
-        ClearRollings();
         x = 5;
+
+        GetAnimator.SetInteger(AnimationKeys.state, 0);
+        GetAnimator.SetInteger(AnimationKeys.emotion, 0);
+        if (gatchaPenguinEmotion != null) StopCoroutine(gatchaPenguinEmotion);
+        StartCoroutine(Advertisement());
+    }
+
+    IEnumerator Advertisement()
+    {
+        if(advertisementGO == null) advertisementGO = Instantiate(advertise);
+        else advertisementGO.SetActive(true);
+        if (!isFast)
+        {
+            advertisementGO.transform.position = gatchaPenguin.GetComponentInChildren<Head>().transform.position + Vector3.up * 0.7f;
+            advertisementGO.transform.SetParent(gatchaPenguin.GetComponentInChildren<Head>().transform);
+
+            virtualCamera1.Priority = 0;
+            virtualCamera2.Priority = 1;
+            virtualCamera3.Priority = 0;
+            virtualCamera4.Priority = 0;
+
+            yield return new WaitForSecondsRealtime(0.4f);
+
+
+            Vector3 target = new Vector3(-0.5f, 5f, -1005f);
+            advertisementGO.GetComponent<MeshRenderer>().material.SetFloat("_TopBend", 0);
+            advertisementGO.GetComponent<MeshRenderer>().material.SetFloat("_BottomBend", 0);
+
+            yield return new WaitForSecondsRealtime(0.2f);
+
+            GetAnimator.SetInteger(AnimationKeys.state, 1);
+            float timer = 0;
+            float cur = gatchaPenguin.transform.position.y;
+            float h = 3;
+            advertisementGO.transform.SetParent(null);
+            advertisementGO.transform.DOJump(target, 3, 1, 1f).SetUpdate(true);
+            while (timer <= 1)
+            {
+                float height = Mathf.Lerp(cur, h, timer);
+                Vector3 pos = gatchaPenguin.transform.position;
+                pos.y = height;
+                gatchaPenguin.transform.position = pos;
+                timer += Time.unscaledDeltaTime / 0.1f;
+                yield return null;
+            }
+            GetAnimator.SetInteger(AnimationKeys.state, 2);
+            timer = 0;
+            while (timer <= 1)
+            {
+                float height = Mathf.Lerp(h, cur, timer);
+                Vector3 pos = gatchaPenguin.transform.position;
+                pos.y = height;
+                gatchaPenguin.transform.position = pos;
+                timer += Time.unscaledDeltaTime / 0.2f;
+                yield return null;
+            }
+            advertisementGO.GetComponent<MeshRenderer>().material.SetFloat("_TopBend", 1);
+            advertisementGO.GetComponent<MeshRenderer>().material.SetFloat("_BottomBend", 1);
+
+
+            GetAnimator.SetInteger(AnimationKeys.state, 0);
+            yield return new WaitForSecondsRealtime(0.2f);
+
+            virtualCamera1.Priority = 0;
+            virtualCamera2.Priority = 0;
+            virtualCamera3.Priority = 1;
+            virtualCamera4.Priority = 0;
+
+            yield return new WaitForSecondsRealtime(0.5f);
+
+            for (int i = 0; i < advertisePositions.Count; i++)
+            {
+                Vector3 origin = advertisementGO.transform.position;
+                target = advertisePositions[i];
+                Quaternion originRot = advertisementGO.transform.rotation;
+                Quaternion targetRot = Quaternion.Euler(advertiseRotations[i]);
+                float f = 0;
+                float duration = 0.5f;
+                float elapsed = 0f;
+                while (f <= 1)
+                {
+                    float easedF = Mathf.SmoothStep(0f, 1f, f);
+                    Vector3 next = Vector3.Lerp(origin, target, easedF);
+                    advertisementGO.transform.position = next;
+                    Quaternion nextRot = Quaternion.Slerp(originRot, targetRot, easedF);
+                    advertisementGO.transform.rotation = nextRot;
+                    elapsed += Time.unscaledDeltaTime;
+                    f = elapsed / duration;
+                    yield return null;
+                }
+            }
+
+            virtualCamera1.Priority = 0;
+            virtualCamera2.Priority = 0;
+            virtualCamera3.Priority = 0;
+            virtualCamera4.Priority = 1;
+            advertisementGO.GetComponent<MeshRenderer>().material.SetFloat("_TopBend", 0);
+            advertisementGO.GetComponent<MeshRenderer>().material.SetFloat("_BottomBend", 0);
+
+        }
+        else
+        {
+            advertisementGO.transform.position = advertisePositions[advertisePositions.Count - 1];
+        }
         StartCoroutine(SpawnRollingsWithDelay());
+        
     }
 
     public bool Purchase()
     {
         if (GameInstance.GameIns.restaurantManager.restaurantCurrency.Money >= price)
         {
-            GameInstance.GameIns.restaurantManager.restaurantCurrency.Money -= (int)price;
+            //  GameInstance.GameIns.restaurantManager.restaurantCurrency.Money -= (int)price;
+            GameInstance.GameIns.restaurantManager.GetMoney((-price).ToString());
 
             SoundManager.Instance.PlayAudio(GameInstance.GameIns.gatchaSoundManager.Purchase(), 0.2f);
           
@@ -128,15 +316,25 @@ public class GatcharManager : MonoBehaviour
 
     IEnumerator SpawnRollingsWithDelay()
     {
-        for (int i = 0; i < 3; i++)
+        foreach(var v in randomAnimalKey)
         {
-            SpawnRolling();
-            yield return spawnTerms;
+            for(int i=0; i<v.Value; i++)
+            {
+                SpawnRolling(v.Key);
+                yield return new WaitForSecondsRealtime(spawnTerm);
+            }
         }
-
+     
         yield return StartCoroutine(WaitRollingsReachTarget());
+     
+        virtualCamera1.Priority = 1;
+        virtualCamera2.Priority = 0;
+        virtualCamera3.Priority = 0;
+        virtualCamera4.Priority = 0;
+        yield return new WaitForSecondsRealtime(0.2f);
         CheckGatchaAnimals();
         isSpawning = false;
+        if (GameInstance.GameIns.app.currentScene == SceneState.Draw) GameInstance.GameIns.uiManager.drawBtn.gameObject.SetActive(true);
     }
 
     IEnumerator WaitRollingsReachTarget()
@@ -160,9 +358,9 @@ public class GatcharManager : MonoBehaviour
         }
     }
 
-    void SpawnRolling()
+    void SpawnRolling(int type)
     {
-        Rolling rolling = GameInstance.GameIns.animalManager.GetGatchaAnimal(MapType.town);
+        Rolling rolling = GameInstance.GameIns.animalManager.GetGatchaAnimal(MapType.town, type);
         AnimalStruct animalStruct = AssetLoader.animals[rolling.type];
         Shadow s = GetShadow();
         s.model = rolling.transform;
@@ -171,37 +369,37 @@ public class GatcharManager : MonoBehaviour
         rolling.shadow = s;
         rolling.transform.position = new Vector3(x, 0, -980);
         rolling.transform.rotation = Quaternion.Euler(0, 180, 0);
+        int index = 1 + (x == 0 ? 1 : x) / 5;
         x -= 5;
-        rolling.Roll();
+        rolling.Roll(customerPositions[index], customerRotations[index]);
     }
 
     void CheckGatchaAnimals()
     {
-        Dictionary<int, int> animalCounts = new Dictionary<int, int>();
-        foreach (Rolling roll in rollings)
-        {
-            if(animalCounts.ContainsKey(roll.type))
-            {
-                animalCounts[roll.type]++;
 
-            }
-            else
-            {
-                animalCounts[roll.type] = 1;
-            }
-        }
-        foreach (var pair in animalCounts)
+        foreach (var pair in randomAnimalKey)
         {
             if(pair.Value == 1)
             {
-                GetAnimator.SetInteger(AnimationKeys.state, 1);
-                popup.SetActive(true);
+              //  GetAnimator.SetInteger(AnimationKeys.state, 1);
+             //   popup.SetActive(true);
                 if(AnimalManager.gatchaTiers.ContainsKey(pair.Key))
                 {
-                    if (AnimalManager.gatchaTiers[pair.Key] < 4)
+                    if (AnimalManager.gatchaTiers[pair.Key] == 1)
                     {
+                        popup.SetActive(true);
+                        GetAnimator.SetInteger(AnimationKeys.state, 1);
+                        SoundManager.Instance.PlayAudio(GameInstance.GameIns.gatchaSoundManager.Unlock(), 0.4f);
+                        AnimalStruct asset = AssetLoader.animals[pair.Key];
+                        string n = asset.asset_name + "_Sprite";
+                        NewAnimalImage.sprite = AssetLoader.loadedSprites[n];
+                        popup_NewCustomer.SetActive(true);
+                    }
+                    else if (AnimalManager.gatchaTiers[pair.Key] < 4)
+                    {
+                        popup.SetActive(true);
                         GetAnimator.SetInteger(AnimationKeys.emotion, 1);
-                        AnimalManager.gatchaTiers[pair.Key]++;
+                        GetAnimator.SetInteger(AnimationKeys.state, 1);
                         int tier = AnimalManager.gatchaTiers[pair.Key];
                         SoundManager.Instance.PlayAudio(GameInstance.GameIns.gatchaSoundManager.GradeUp(), 0.4f);
                      
@@ -209,8 +407,7 @@ public class GatcharManager : MonoBehaviour
 
                         AnimalStruct asset = AssetLoader.animals[pair.Key];
                         string n = asset.asset_name + "_Sprite";
-                        TierUpAnimalImage.sprite = AssetLoader.loadedSprites[n];   //this.sprites[pair.Key];
-
+                        TierUpAnimalImage.sprite = AssetLoader.loadedSprites[n]; 
                         if (tier == 2) backGlow.color = Color.blue;
                         else if (tier == 3) backGlow.color = new Color(0.5f, 0f, 0.5f);
                         else if (tier == 4) backGlow.color = Color.yellow;
@@ -219,6 +416,7 @@ public class GatcharManager : MonoBehaviour
                 }
                 else
                 {
+                    popup.SetActive(true);
                     SoundManager.Instance.PlayAudio(GameInstance.GameIns.gatchaSoundManager.Unlock(), 0.4f);
                   
                     AnimalManager.gatchaTiers[pair.Key] = 1;
@@ -374,6 +572,7 @@ public class GatcharManager : MonoBehaviour
             GameInstance.GameIns.animalManager.RemoveGatchaAnimal(r);
 
         }
+        if(advertisementGO != null) advertisementGO.SetActive(false);
     }
 
     private void ClearAnimals()

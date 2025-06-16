@@ -213,7 +213,7 @@ public class AnimalManager : MonoBehaviour
         MoveCalculator.CheckArea(GameInstance.GameIns.calculatorScale, true);
 
         animalStructs = SaveLoadSystem.LoadAnimalsData();
-        gatchaTiers = SaveLoadSystem.LoadTier();
+      //  gatchaTiers = SaveLoadSystem.LoadTier();
         for (int i = 0; i < 10; i++)
         {
             Employee controller = Instantiate(employeeController, animalParent.transform).GetComponentInChildren<Employee>();
@@ -648,14 +648,14 @@ public class AnimalManager : MonoBehaviour
         }
         
     }
-    public Rolling GetGatchaAnimal(MapType type)
+    public Rolling GetGatchaAnimal(MapType type, int rands)
     {
-        int rands = 0;
+   //     int rands = 0;
         switch (type)
         {
             case MapType.town:
                 {
-                    rands = UnityEngine.Random.Range(100, 106);
+           //         rands = UnityEngine.Random.Range(100, 106);
                     break;
                 }
         

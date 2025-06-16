@@ -283,6 +283,61 @@ public class SaveLoadSystem
         return restaurant;
     }
 
+    //뽑기 동물 데이터 저장
+    public static void SaveGatchaAnimalsData()
+    {
+        string dir = Path.Combine(path, "Save");
+        if (!Directory.Exists(dir))
+        {
+            Directory.CreateDirectory(dir);
+        }
+        string p = Path.Combine(path, "Save/GatchaAnimals.dat");
+        using (MemoryStream ms = new MemoryStream())
+        {
+            using (BinaryWriter writer = new BinaryWriter(ms))
+            {
+                Dictionary<int, int> animals = AnimalManager.gatchaTiers;
+                foreach (var animal in animals)
+                {
+                    writer.Write(animal.Key);   //동물 타입
+                    writer.Write(animal.Value); //동물 등급
+                }
+            }
+            File.WriteAllBytes(p, ms.ToArray());
+        }
+    }
+
+    //뽑기 동물 데이터 로드
+    public static Dictionary<int, int> LoadGatchaAnimals()
+    {
+        Dictionary<int, int> animals = new Dictionary<int, int>();
+        string p = Path.Combine(path, "Save/GatchaAnimals.dat");
+        byte[] data;
+        if (File.Exists(p))
+        {
+            using (FileStream fs = new FileStream(p, FileMode.Open))
+            {
+                data = new byte[fs.Length];
+                fs.Read(data, 0, data.Length);
+
+                using (BinaryReader reader = new BinaryReader(new MemoryStream(data)))
+                {
+                    while (reader.BaseStream.Position < reader.BaseStream.Length)
+                    {
+                        int type = reader.ReadInt32();
+                        int grade = reader.ReadInt32();
+                        animals[type] = grade;
+                    }
+                }
+            }
+        }
+        else
+        {
+            animals[100] = 1;
+        }
+        return animals;
+    }
+
     //동물 데이터 저장
     public static void SaveAnimalsData(Dictionary<int, AnimalStruct> animals)
     {
