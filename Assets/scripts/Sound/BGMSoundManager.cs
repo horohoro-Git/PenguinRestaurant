@@ -45,7 +45,6 @@ public class BGMSoundManager : SoundManager
 
         f = 0;
         audio.clip = bgmClips[index];
-        audio.priority = 0;
         audio.Play();
         while (f <= 0.1f)
         {

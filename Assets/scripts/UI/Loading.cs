@@ -57,13 +57,13 @@ public class Loading : MonoBehaviour
 
     IEnumerator FadeOut()
     {
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSecondsRealtime(1f);
         cam.enabled = false;
         float t = 0;
         float a = 1;
         while (t < 2)
         {
-            t += Time.deltaTime;
+            t += Time.unscaledDeltaTime;
             a = (1 * ((2 - t) / 2));
             image.color = new Color(1,1, 1, a);
             text.color = new Color(1,1, 1, a);  

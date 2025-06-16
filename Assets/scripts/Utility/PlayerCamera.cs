@@ -1,3 +1,4 @@
+using Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,6 +9,8 @@ public class PlayerCamera : MonoBehaviour
     public AudioListener audioListener;
     public Transform GetTransform;
     private Vector3 moveDir = Vector3.zero;
+    public CinemachineBrain brain;
+    public CinemachineBlendListCamera listCamera;
     public float bounceForce = 3f;
 
     public Camera cam;
