@@ -47,3 +47,4 @@ Animal Restaurant Tycoon Game
 06/14 Changed restaurant sound to 3D, added sound pooling, and adjusted render queue of afterimage particles hidden behind water
 06/15 Added dying fish sound and effect, and adjusted overlapping sound volumes
 06/16 Added a cutscene to the draw sequence and made rewards generated at the start of the draw
+06/17 Added flyer image variations in the gacha scene, filled empty areas around the map, and made gacha cost increase with each new collection entry
