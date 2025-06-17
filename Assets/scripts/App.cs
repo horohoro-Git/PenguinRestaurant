@@ -331,6 +331,7 @@ public class App : MonoBehaviour
         GameInstance.GameIns.applianceUIManager.UIClearAll(true);
         GameInstance.GameIns.gatcharManager.ClearRollings();
         SoundManager.Instance.RestaurantSoundsOnoff(true);
+        GameInstance.GameIns.gatcharManager.ResetToken();
         //   Utility.CheckHirable(GameInstance.GameIns.inputManager.cameraRange.position, ref i, ref j);
         //   StartCoroutine(OrthographicNextFrame());
     }

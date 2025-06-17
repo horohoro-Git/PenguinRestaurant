@@ -5,11 +5,14 @@ using System.Threading;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using Cysharp.Threading.Tasks.Triggers;
-using System;
 using DG.Tweening;
 using Cinemachine;
-using UnityEditor.VersionControl;
+using System.Numerics;
+using Vector2 = UnityEngine.Vector2;
+using Vector3 = UnityEngine.Vector3;
+using Quaternion = UnityEngine.Quaternion;
+using System.Text;
+using Unity.VisualScripting;
 public class GatcharManager : MonoBehaviour
 {
 
@@ -29,6 +32,10 @@ public class GatcharManager : MonoBehaviour
     public float rollingSpeed = 10;
     public GameObject advertise;
     GameObject advertisementGO;
+
+    BigInteger gatchaPrice;
+
+    public List<Texture2D> adTextures = new List<Texture2D>();
 
     public CinemachineVirtualCamera virtualCamera1;
     public CinemachineVirtualCamera virtualCamera2;
@@ -63,7 +70,10 @@ public class GatcharManager : MonoBehaviour
     Coroutine gatchaPenguinEmotion;
 
     Dictionary<int, int> randomAnimalKey = new Dictionary<int, int>();
-   
+
+    CancellationTokenSource gatchaToken = new CancellationTokenSource();
+    CancellationTokenSource emotionToken = new CancellationTokenSource();
+    StringBuilder sb = new StringBuilder();
     private void Awake()
     {
   //      t = cts.Token;
@@ -106,17 +116,43 @@ public class GatcharManager : MonoBehaviour
         LoadAnimals();
     }
 
+    public void ResetToken()
+    {
+        isSpawning = false;
+        gatchaToken.Cancel();
+        emotionToken.Cancel();
+        gatchaPenguin.transform.position = penguinPoint.position;
+        ClearRollings();
+        popup_NewCustomer.SetActive(false);
+        popup_TierUp.SetActive(false);
+        popup.SetActive(false);
+        advertisementGO.GetComponent<MeshRenderer>().material.SetFloat("_TopBend", 0);
+        advertisementGO.GetComponent<MeshRenderer>().material.SetFloat("_BottomBend", 0);
+        advertisementGO.SetActive(false);
+        x = 5;
+
+        GetAnimator.SetInteger(AnimationKeys.state, 0);
+        GetAnimator.SetInteger(AnimationKeys.emotion, 0);
+
+    }
     void LoadAnimals()
     {
+        int num = 0;
         foreach (var v in AnimalManager.gatchaTiers)
         {
             if (v.Value > 0)
             {
-                Debug.Log(v.Key);
                 AnimalStruct asset = AssetLoader.animals[v.Key];
                 AnimalManager.animalStructs[v.Key] = asset;
+                num += v.Value;
             }
         }
+
+        gatchaPrice = 100 + Mathf.FloorToInt(Mathf.Pow((num - 1), 1.6f)) * 15;
+        GameInstance.GameIns.uiManager.drawPriceText.text = gatchaPrice.ToString();
+   
+        sb = Utility.GetFormattedMoney(gatchaPrice, sb);
+        gatchaPrice = BigInteger.Parse(sb.ToString());
     }
 
     Shadow GetShadow()
@@ -135,7 +171,13 @@ public class GatcharManager : MonoBehaviour
         deactivateShadows.Enqueue(s);
         activateShadows.Remove(s);
     }
-    
+
+    private void OnApplicationQuit()
+    {
+        if(gatchaToken != null) gatchaToken.Cancel();
+        if(emotionToken != null) emotionToken.Cancel();
+    }
+
     public void StartGatcha()
     {
         if (isSpawning) return;
@@ -160,6 +202,7 @@ public class GatcharManager : MonoBehaviour
                 break;
         }
 
+        bool success = false;
         foreach(var pair in randomAnimalKey)
         {
             if(pair.Value == 1)
@@ -170,6 +213,7 @@ public class GatcharManager : MonoBehaviour
                     {
                         AnimalManager.gatchaTiers[pair.Key]++;
                         SaveLoadSystem.SaveGatchaAnimalsData();
+                        success = true;
                     }
                 }
                 else
@@ -178,6 +222,7 @@ public class GatcharManager : MonoBehaviour
                     AnimalStruct asset = AssetLoader.animals[pair.Key];
                     AnimalManager.animalStructs[pair.Key] = asset;
                     SaveLoadSystem.SaveGatchaAnimalsData();
+                    success = true;
                     //  GameInstance.GameIns.animalManager.AddNewAnimal(lockAnimals[keyValuePair.Key], keyValuePair.Key, animal);
                 }
                 
@@ -195,17 +240,187 @@ public class GatcharManager : MonoBehaviour
 
         GetAnimator.SetInteger(AnimationKeys.state, 0);
         GetAnimator.SetInteger(AnimationKeys.emotion, 0);
-        if (gatchaPenguinEmotion != null) StopCoroutine(gatchaPenguinEmotion);
-        StartCoroutine(Advertisement());
+
+        if(gatchaToken != null) gatchaToken.Cancel();
+        gatchaToken = new CancellationTokenSource();
+        AdvertisementAsync(success, gatchaToken.Token).Forget();
+     
+        if(success)
+        {
+            int num = 0;
+            foreach (var v in AnimalManager.gatchaTiers)
+            {
+                if (v.Value > 0)
+                {
+                    num += v.Value;
+                }
+            }
+
+            gatchaPrice = 100 + Mathf.FloorToInt(Mathf.Pow((num - 1), 1.6f)) * 15;
+            GameInstance.GameIns.uiManager.drawPriceText.text = gatchaPrice.ToString();
+
+            sb = Utility.GetFormattedMoney(gatchaPrice, sb);
+            gatchaPrice = BigInteger.Parse(sb.ToString());
+        }
     }
 
-    IEnumerator Advertisement()
+    public async UniTask AdvertisementAsync(bool success, CancellationToken cancellationToken = default)
+    {
+        if (advertisementGO == null) advertisementGO = Instantiate(advertise);
+        else advertisementGO.SetActive(true);
+
+        int randomTex = Random.Range(0, adTextures.Count);
+        advertisementGO.GetComponent<MeshRenderer>().material.SetTexture("_MainTex", adTextures[randomTex]);
+        if (!isFast)
+        {
+            advertisementGO.transform.position = gatchaPenguin.GetComponentInChildren<Head>().transform.position + Vector3.up * 0.4f;
+            advertisementGO.transform.rotation = Quaternion.Euler(Vector3.zero);
+            advertisementGO.transform.SetParent(gatchaPenguin.GetComponentInChildren<Head>().transform);
+
+            virtualCamera1.Priority = 0;
+            virtualCamera2.Priority = 1;
+            virtualCamera3.Priority = 0;
+            virtualCamera4.Priority = 0;
+
+            await UniTask.Delay(400, DelayType.UnscaledDeltaTime, cancellationToken:  cancellationToken);   
+
+            bool throwSound = true;
+            if (success)
+            {
+                int r = UnityEngine.Random.Range(0, 100);
+                if (r < 40)
+                {
+                    SoundManager.Instance.PlayAudio(GameInstance.GameIns.gatchaSoundManager.Wink(), 0.4f);
+                    GetAnimator.SetInteger(AnimationKeys.emotion, 1);
+                    throwSound = false;
+                    await UniTask.Delay(500, DelayType.UnscaledDeltaTime, cancellationToken: cancellationToken);
+                }
+            }
+
+            Vector3 target = new Vector3(-0.5f, 5f, -1005f);
+            advertisementGO.GetComponent<MeshRenderer>().material.SetFloat("_TopBend", 0);
+            advertisementGO.GetComponent<MeshRenderer>().material.SetFloat("_BottomBend", 0);
+
+            await UniTask.Delay(200, DelayType.UnscaledDeltaTime, cancellationToken: cancellationToken);
+
+            GetAnimator.SetInteger(AnimationKeys.state, 1);
+            float timer = 0;
+            float cur = gatchaPenguin.transform.position.y;
+            float h = 3;
+            advertisementGO.transform.SetParent(null);
+            advertisementGO.transform.DOJump(target, 3, 1, 1f).SetUpdate(true);
+
+            if (throwSound) SoundManager.Instance.PlayAudio(GameInstance.GameIns.gameSoundManager.Quack(), 0.2f);
+            SoundManager.Instance.PlayAudio(GameInstance.GameIns.gatchaSoundManager.Paper(), 0.4f);
+
+            while (timer <= 1)
+            {
+                float height = Mathf.Lerp(cur, h, timer);
+                Vector3 pos = gatchaPenguin.transform.position;
+                pos.y = height;
+                gatchaPenguin.transform.position = pos;
+                timer += Time.unscaledDeltaTime / 0.1f;
+                await UniTask.NextFrame(cancellationToken: cancellationToken);  
+            }
+            GetAnimator.SetInteger(AnimationKeys.state, 2);
+            await UniTask.NextFrame(cancellationToken: cancellationToken);
+            timer = 0;
+            while (timer <= 1)
+            {
+                float height = Mathf.Lerp(h, cur, timer);
+                Vector3 pos = gatchaPenguin.transform.position;
+                pos.y = height;
+                gatchaPenguin.transform.position = pos;
+                timer += Time.unscaledDeltaTime / 0.2f;
+                await UniTask.NextFrame(cancellationToken: cancellationToken);
+            }
+            advertisementGO.GetComponent<MeshRenderer>().material.SetFloat("_TopBend", 1);
+            advertisementGO.GetComponent<MeshRenderer>().material.SetFloat("_BottomBend", 1);
+
+
+            GetAnimator.SetInteger(AnimationKeys.state, 0);
+            await UniTask.Delay(200, DelayType.UnscaledDeltaTime, cancellationToken: cancellationToken);
+
+            virtualCamera1.Priority = 0;
+            virtualCamera2.Priority = 0;
+            virtualCamera3.Priority = 1;
+            virtualCamera4.Priority = 0;
+
+            await UniTask.Delay(500, DelayType.UnscaledDeltaTime, cancellationToken: cancellationToken);
+
+            for (int i = 0; i < advertisePositions.Count; i++)
+            {
+
+                Vector3 origin = advertisementGO.transform.position;
+                target = advertisePositions[i];
+                Quaternion originRot = advertisementGO.transform.rotation;
+                Quaternion targetRot = Quaternion.Euler(advertiseRotations[i]);
+                float f = 0;
+                float duration = 0.5f;
+                float elapsed = 0f;
+                while (f <= 1)
+                {
+                    float easedF = Mathf.SmoothStep(0f, 1f, f);
+                    Vector3 next = Vector3.Lerp(origin, target, easedF);
+                    advertisementGO.transform.position = next;
+                    Quaternion nextRot = Quaternion.Slerp(originRot, targetRot, easedF);
+                    advertisementGO.transform.rotation = nextRot;
+                    elapsed += Time.unscaledDeltaTime;
+                    f = elapsed / duration;
+                    await UniTask.NextFrame(cancellationToken: cancellationToken);
+                }
+            }
+
+            SoundManager.Instance.PlayAudio(GameInstance.GameIns.gatchaSoundManager.Paper(), 0.4f);
+
+            virtualCamera1.Priority = 0;
+            virtualCamera2.Priority = 0;
+            virtualCamera3.Priority = 0;
+            virtualCamera4.Priority = 1;
+            advertisementGO.GetComponent<MeshRenderer>().material.SetFloat("_TopBend", 0);
+            advertisementGO.GetComponent<MeshRenderer>().material.SetFloat("_BottomBend", 0);
+
+        }
+        else
+        {
+            advertisementGO.transform.position = advertisePositions[advertisePositions.Count - 1];
+        }
+        SpawnRollingsWithDelayAsync(cancellationToken).Forget();
+    }
+
+    async UniTask SpawnRollingsWithDelayAsync(CancellationToken cancellationToken = default)
+    {
+        foreach (var v in randomAnimalKey)
+        {
+            for (int i = 0; i < v.Value; i++)
+            {
+                SpawnRolling(v.Key);
+              //  yield return new WaitForSecondsRealtime(spawnTerm);
+               await UniTask.Delay((int)(spawnTerm * 1000), DelayType.UnscaledDeltaTime, cancellationToken: cancellationToken);
+            }
+        }
+
+        await WaitRollingsReachTargetAsync(cancellationToken);
+
+       // yield return StartCoroutine(WaitRollingsReachTarget());
+
+        virtualCamera1.Priority = 1;
+        virtualCamera2.Priority = 0;
+        virtualCamera3.Priority = 0;
+        virtualCamera4.Priority = 0;
+        await UniTask.Delay(200, DelayType.UnscaledDeltaTime, cancellationToken: cancellationToken);
+        CheckGatchaAnimals();
+        isSpawning = false;
+        if (GameInstance.GameIns.app.currentScene == SceneState.Draw) GameInstance.GameIns.uiManager.drawBtn.gameObject.SetActive(true);
+    }
+
+    IEnumerator Advertisement(bool success)
     {
         if(advertisementGO == null) advertisementGO = Instantiate(advertise);
         else advertisementGO.SetActive(true);
         if (!isFast)
         {
-            advertisementGO.transform.position = gatchaPenguin.GetComponentInChildren<Head>().transform.position + Vector3.up * 0.7f;
+            advertisementGO.transform.position = gatchaPenguin.GetComponentInChildren<Head>().transform.position + Vector3.up * 0.4f;
             advertisementGO.transform.SetParent(gatchaPenguin.GetComponentInChildren<Head>().transform);
 
             virtualCamera1.Priority = 0;
@@ -215,7 +430,19 @@ public class GatcharManager : MonoBehaviour
 
             yield return new WaitForSecondsRealtime(0.4f);
 
-
+            bool throwSound = true;
+            if (success)
+            {
+                int r = UnityEngine.Random.Range(0, 100);
+                if (r < 40)
+                {
+                    SoundManager.Instance.PlayAudio(GameInstance.GameIns.gatchaSoundManager.Wink(), 0.4f);
+                    GetAnimator.SetInteger(AnimationKeys.emotion, 1);
+                    throwSound = false;
+                    yield return new WaitForSecondsRealtime(0.5f);
+                }
+            }
+         
             Vector3 target = new Vector3(-0.5f, 5f, -1005f);
             advertisementGO.GetComponent<MeshRenderer>().material.SetFloat("_TopBend", 0);
             advertisementGO.GetComponent<MeshRenderer>().material.SetFloat("_BottomBend", 0);
@@ -228,6 +455,10 @@ public class GatcharManager : MonoBehaviour
             float h = 3;
             advertisementGO.transform.SetParent(null);
             advertisementGO.transform.DOJump(target, 3, 1, 1f).SetUpdate(true);
+
+            if(throwSound) SoundManager.Instance.PlayAudio(GameInstance.GameIns.gameSoundManager.Quack(), 0.2f);
+            SoundManager.Instance.PlayAudio(GameInstance.GameIns.gatchaSoundManager.Paper(), 0.4f);
+
             while (timer <= 1)
             {
                 float height = Mathf.Lerp(cur, h, timer);
@@ -238,6 +469,7 @@ public class GatcharManager : MonoBehaviour
                 yield return null;
             }
             GetAnimator.SetInteger(AnimationKeys.state, 2);
+            yield return null;
             timer = 0;
             while (timer <= 1)
             {
@@ -264,6 +496,7 @@ public class GatcharManager : MonoBehaviour
 
             for (int i = 0; i < advertisePositions.Count; i++)
             {
+                
                 Vector3 origin = advertisementGO.transform.position;
                 target = advertisePositions[i];
                 Quaternion originRot = advertisementGO.transform.rotation;
@@ -284,6 +517,8 @@ public class GatcharManager : MonoBehaviour
                 }
             }
 
+            SoundManager.Instance.PlayAudio(GameInstance.GameIns.gatchaSoundManager.Paper(), 0.4f);
+
             virtualCamera1.Priority = 0;
             virtualCamera2.Priority = 0;
             virtualCamera3.Priority = 0;
@@ -302,10 +537,11 @@ public class GatcharManager : MonoBehaviour
 
     public bool Purchase()
     {
-        if (GameInstance.GameIns.restaurantManager.restaurantCurrency.Money >= price)
+        if (GameInstance.GameIns.restaurantManager.restaurantCurrency.Money >= gatchaPrice)
         {
+            Debug.Log((-gatchaPrice).ToString());
             //  GameInstance.GameIns.restaurantManager.restaurantCurrency.Money -= (int)price;
-            GameInstance.GameIns.restaurantManager.GetMoney((-price).ToString());
+            GameInstance.GameIns.restaurantManager.GetMoney((-gatchaPrice).ToSafeString());
 
             SoundManager.Instance.PlayAudio(GameInstance.GameIns.gatchaSoundManager.Purchase(), 0.2f);
           
@@ -335,6 +571,27 @@ public class GatcharManager : MonoBehaviour
         CheckGatchaAnimals();
         isSpawning = false;
         if (GameInstance.GameIns.app.currentScene == SceneState.Draw) GameInstance.GameIns.uiManager.drawBtn.gameObject.SetActive(true);
+    }
+
+    async UniTask WaitRollingsReachTargetAsync(CancellationToken cancellationToken = default)
+    {
+        while (true)
+        {
+            bool allReached = true;
+
+            foreach (Rolling animal in rollings)
+            {
+                if (animal != null && animal.IsMoving() == true)
+                {
+                    allReached = false;
+                    break;
+                }
+            }
+
+            if (allReached) break;
+
+            await UniTask.NextFrame(cancellationToken: cancellationToken);
+        }
     }
 
     IEnumerator WaitRollingsReachTarget()
@@ -395,7 +652,7 @@ public class GatcharManager : MonoBehaviour
                         NewAnimalImage.sprite = AssetLoader.loadedSprites[n];
                         popup_NewCustomer.SetActive(true);
                     }
-                    else if (AnimalManager.gatchaTiers[pair.Key] < 4)
+                    else if (AnimalManager.gatchaTiers[pair.Key] <= 4)
                     {
                         popup.SetActive(true);
                         GetAnimator.SetInteger(AnimationKeys.emotion, 1);
@@ -427,12 +684,25 @@ public class GatcharManager : MonoBehaviour
                     AnimalManager.animalStructs[pair.Key] = asset;
                   //  GameInstance.GameIns.animalManager.AddNewAnimal(lockAnimals[keyValuePair.Key], keyValuePair.Key, animal);
                 }
-                if(gatchaPenguinEmotion != null) StopCoroutine(gatchaPenguinEmotion);
-                gatchaPenguinEmotion = StartCoroutine(EmotionDelay());
               
+                if(emotionToken != null) emotionToken.Cancel();
+                emotionToken = new CancellationTokenSource();
+                EmotionDelayAsync(emotionToken.Token).Forget();
                 break;
             }
         }
+    }
+
+    async UniTask EmotionDelayAsync(CancellationToken cancellationToken = default)
+    {
+        float f = 0;
+        while (f < 5)
+        {
+            f += Time.unscaledDeltaTime;
+            await UniTask.NextFrame(cancellationToken: cancellationToken);
+        }
+        GetAnimator.SetInteger(AnimationKeys.state, 0);
+        GetAnimator.SetInteger(AnimationKeys.emotion, 0);
     }
 
     IEnumerator EmotionDelay()

@@ -1199,8 +1199,8 @@ public class RestaurantManager : MonoBehaviour
     {
         BigInteger bigInteger = BigInteger.Parse(addMoney);
         BigInteger before = restaurantCurrency.Money;
-        restaurantCurrency.money += bigInteger;
-
+        restaurantCurrency.Money += bigInteger;
+      //  Debug.Log(restaurantCurrency.Money.ToString());
         if(animate)
         {
             if (changingMoneyCoroutine != null) StopCoroutine(changingMoneyCoroutine);
@@ -1232,8 +1232,8 @@ public class RestaurantManager : MonoBehaviour
         {
             while (f <= 0.5f)
             {
-                BigInteger test = (before - changed) + (changed * (BigInteger)(f * 2 * 1000)) / 1000;
-                Debug.Log(test.ToString());
+                BigInteger test = (before) + (changed * (BigInteger)(f * 2 * 1000)) / 1000;
+              //  Debug.Log(test.ToString());
                 moneyString = Utility.GetFormattedMoney(test, moneyString);
                 GameIns.uiManager.moneyText.text = moneyString.ToString();
                 f += Time.unscaledDeltaTime;
