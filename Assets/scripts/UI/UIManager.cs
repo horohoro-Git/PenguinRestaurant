@@ -24,6 +24,7 @@ public class UIManager : MonoBehaviour
     public RectTransform optionPopup;
     public Image changeSceneImage;
     public Button drawBtn;
+    public TMP_Text drawPriceText;
     public Button drawSpeedUpBtn;
     public Button fishingBtn;
     public Button fishingStartButton;
