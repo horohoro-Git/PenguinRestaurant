@@ -1094,7 +1094,7 @@ public class RestaurantManager : MonoBehaviour
             // float move_speed = newAnimalController.employeeLevel.move_speed;
             // float max_holds = newAnimalController.employeeLevel.max_weight;
             //   val += move_speed * max_holds * 15.625f;
-            val += 100 * (newAnimalController.employeeLevel.level - 1); 
+            val += 100 * (newAnimalController.employeeLevelData.level - 1); 
         }
        // Debug.Log(val);
         return val;
@@ -1216,7 +1216,6 @@ public class RestaurantManager : MonoBehaviour
     IEnumerator ChangingMoney(BigInteger before, BigInteger changed)
     {
         float f = 0;
-    //    Debug.LogWarning(restaurantCurrency.money);
         if(changed > 0)
         {
             while (f <= 0.5f)
@@ -1233,7 +1232,6 @@ public class RestaurantManager : MonoBehaviour
             while (f <= 0.5f)
             {
                 BigInteger test = (before) + (changed * (BigInteger)(f * 2 * 1000)) / 1000;
-              //  Debug.Log(test.ToString());
                 moneyString = Utility.GetFormattedMoney(test, moneyString);
                 GameIns.uiManager.moneyText.text = moneyString.ToString();
                 f += Time.unscaledDeltaTime;

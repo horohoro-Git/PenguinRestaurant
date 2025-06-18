@@ -229,6 +229,8 @@ public struct GoodsStruct : ITableID<int>
     public string price;
     public int num;
     public int require;
+    public float pow;
+    public string sale;
     public bool soldout;
     BigInteger? price_value;
     public string Price { get { return price; } set { price = value; price_value = null; } } 
@@ -237,6 +239,23 @@ public struct GoodsStruct : ITableID<int>
     public readonly int ID => id;
 
     public readonly string Name => asset_name;
+}
+
+public struct MachineLevelOffset : ITableID<int>
+{
+    public int id;
+    public float price_pow;
+    public float price_mul;
+    public float price_div;
+    public float sale_pow;
+    public float sale_mul;
+    public float sale_div;
+    public float reduce_timer;
+    public float increase_height;
+
+    public readonly int ID => id;
+
+    public readonly string Name => throw new System.NotImplementedException();
 }
 
 public struct ItemStruct : ITableID<int>
@@ -252,12 +271,15 @@ public struct ItemStruct : ITableID<int>
 
 public struct EmployeeLevelStruct : ITableID<int>
 {
-    public int level;
+    public int id;
     public float move_speed;
     public int max_weight;
     public int exp;
-    public int current_exp;
-    public readonly int ID => level;
+    public float increase_speed;
+    public float increase_weight;
+    public float increase_exp_pow;
+    public float increase_exp_mul;
+    public readonly int ID => id;
 
     public readonly string Name => throw new System.NotImplementedException();
 }
@@ -720,6 +742,8 @@ public class EmployeeLevelData
     public int level;
     public int exp;
     public int targetEXP;
+    public float speed;
+    public int max_weight;
     public EmployeeLevelData(int level, int exp, int targetEXP)
     {
         this.level = level;
@@ -774,7 +798,6 @@ public class MachineLevelData : ITableID<int>
         this.fishes = fishes;
     }
 }
-
 
 public class MiniGame
 {

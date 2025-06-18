@@ -172,15 +172,18 @@ public class Store : MonoBehaviour
         {
             if(g.Value.goods.type != 0)
             {
-                if (goodsDic[g.Key].Count == 0)
+                int num = goodsDic[g.Key].Count;
+                if (num == 0)
                 {
                     g.Value.goods.soldout = true;
                     g.Value.soldout_text.gameObject.SetActive(true);
                 }
+                g.Value.UpdatePrice(num);
             }
         }
         Refresh();
     }
+
 
     public void Extended(int id)
     {

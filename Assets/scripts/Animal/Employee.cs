@@ -56,7 +56,11 @@ public class Employee : AnimalController
     public EmployeeData EmployeeData { get { return employeeData; } set { employeeData = value; if (ui != null) ui.UpdateLevel(employeeData.level); } }
 
     EmployeeLevelStruct LevelStruct;
-    public EmployeeLevelStruct employeeLevel { get { return LevelStruct; } set { LevelStruct = value; if (ui != null) ui.UpdateLevel(LevelStruct.level); } }
+    public EmployeeLevelStruct employeeLevel;//
+                                             //
+                                             //
+                                             //{ get { return LevelStruct; } set { LevelStruct = value; if (ui != null) ui.UpdateLevel(LevelStruct.level); } }
+    
     int exp;
     public bool pause;
     public int EXP
@@ -1938,7 +1942,7 @@ public class Employee : AnimalController
                         if (EXP >= 100)
                         {
                             EXP = 0;
-                            GameInstance.GameIns.restaurantManager.UpgradePenguin(employeeLevel.level + 1, false, this); //펭귄의 레벨 업 및 능력치 변경하기
+                            GameInstance.GameIns.restaurantManager.UpgradePenguin(employeeLevelData.level + 1, false, this); //펭귄의 레벨 업 및 능력치 변경하기
                         }
                     }
                     GameInstance.GameIns.applianceUIManager.ResetSchadule(reward);
