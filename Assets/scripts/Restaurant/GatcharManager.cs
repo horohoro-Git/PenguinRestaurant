@@ -116,19 +116,61 @@ public class GatcharManager : MonoBehaviour
         LoadAnimals();
     }
 
+    public void CheckMoney()
+    {
+        if (GameInstance.GameIns.restaurantManager.restaurantCurrency.Money >= gatchaPrice)
+        {
+            GameInstance.GameIns.uiManager.drawPriceText.color = Color.yellow;
+
+        }
+        else
+        {
+            GameInstance.GameIns.uiManager.drawPriceText.color = Color.red;
+
+        }
+    }
+
+    public bool CheckCompleteGatcha()
+    {
+        switch (mapType)
+        {
+            case MapType.town:
+                {
+                    for (int i = 100; i <= 106; i++)
+                    {
+                        if (AnimalManager.gatchaTiers.ContainsKey(i))
+                        {
+                            if (AnimalManager.gatchaTiers[i] < 4) return false;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                }
+                break;
+        
+        }
+
+        return true;
+    }
+
     public void ResetToken()
     {
         isSpawning = false;
-        gatchaToken.Cancel();
-        emotionToken.Cancel();
-        gatchaPenguin.transform.position = penguinPoint.position;
+        if (gatchaToken != null) gatchaToken.Cancel();
+        if(emotionToken != null)  emotionToken.Cancel();
+        if(gatchaPenguin != null) gatchaPenguin.transform.position = penguinPoint.position;
         ClearRollings();
         popup_NewCustomer.SetActive(false);
         popup_TierUp.SetActive(false);
         popup.SetActive(false);
-        advertisementGO.GetComponent<MeshRenderer>().material.SetFloat("_TopBend", 0);
-        advertisementGO.GetComponent<MeshRenderer>().material.SetFloat("_BottomBend", 0);
-        advertisementGO.SetActive(false);
+        if (advertisementGO != null)
+        {
+            advertisementGO.GetComponent<MeshRenderer>().material.SetFloat("_TopBend", 0);
+            advertisementGO.GetComponent<MeshRenderer>().material.SetFloat("_BottomBend", 0);
+            advertisementGO.SetActive(false);
+        }
         x = 5;
 
         GetAnimator.SetInteger(AnimationKeys.state, 0);
@@ -149,10 +191,10 @@ public class GatcharManager : MonoBehaviour
         }
 
         gatchaPrice = 100 + Mathf.FloorToInt(Mathf.Pow((num - 1), 1.6f)) * 15;
-        GameInstance.GameIns.uiManager.drawPriceText.text = gatchaPrice.ToString();
-   
         sb = Utility.GetFormattedMoney(gatchaPrice, sb);
-        gatchaPrice = BigInteger.Parse(sb.ToString());
+        GameInstance.GameIns.uiManager.drawPriceText.text = sb.ToString();
+   
+        gatchaPrice = Utility.StringToBigInteger(sb.ToString());
     }
 
     Shadow GetShadow()
@@ -225,7 +267,6 @@ public class GatcharManager : MonoBehaviour
                     success = true;
                     //  GameInstance.GameIns.animalManager.AddNewAnimal(lockAnimals[keyValuePair.Key], keyValuePair.Key, animal);
                 }
-                
                 break;
             }
         }
@@ -241,7 +282,16 @@ public class GatcharManager : MonoBehaviour
         GetAnimator.SetInteger(AnimationKeys.state, 0);
         GetAnimator.SetInteger(AnimationKeys.emotion, 0);
 
-        if(gatchaToken != null) gatchaToken.Cancel();
+        if (advertisementGO == null)
+        {
+            advertisementGO = Instantiate(advertise);
+        }
+        else advertisementGO.SetActive(true);
+
+        advertisementGO.GetComponent<MeshRenderer>().material.SetFloat("_TopBend", 0);
+        advertisementGO.GetComponent<MeshRenderer>().material.SetFloat("_BottomBend", 0);
+
+        if (gatchaToken != null) gatchaToken.Cancel();
         gatchaToken = new CancellationTokenSource();
         AdvertisementAsync(success, gatchaToken.Token).Forget();
      
@@ -255,19 +305,16 @@ public class GatcharManager : MonoBehaviour
                     num += v.Value;
                 }
             }
-
             gatchaPrice = 100 + Mathf.FloorToInt(Mathf.Pow((num - 1), 1.6f)) * 15;
-            GameInstance.GameIns.uiManager.drawPriceText.text = gatchaPrice.ToString();
-
             sb = Utility.GetFormattedMoney(gatchaPrice, sb);
-            gatchaPrice = BigInteger.Parse(sb.ToString());
+            GameInstance.GameIns.uiManager.drawPriceText.text = sb.ToString();
+            gatchaPrice = Utility.StringToBigInteger(sb.ToString());
         }
     }
 
     public async UniTask AdvertisementAsync(bool success, CancellationToken cancellationToken = default)
     {
-        if (advertisementGO == null) advertisementGO = Instantiate(advertise);
-        else advertisementGO.SetActive(true);
+       
 
         int randomTex = Random.Range(0, adTextures.Count);
         advertisementGO.GetComponent<MeshRenderer>().material.SetTexture("_MainTex", adTextures[randomTex]);
@@ -298,8 +345,7 @@ public class GatcharManager : MonoBehaviour
             }
 
             Vector3 target = new Vector3(-0.5f, 5f, -1005f);
-            advertisementGO.GetComponent<MeshRenderer>().material.SetFloat("_TopBend", 0);
-            advertisementGO.GetComponent<MeshRenderer>().material.SetFloat("_BottomBend", 0);
+           
 
             await UniTask.Delay(200, DelayType.UnscaledDeltaTime, cancellationToken: cancellationToken);
 
@@ -385,35 +431,43 @@ public class GatcharManager : MonoBehaviour
         {
             advertisementGO.transform.position = advertisePositions[advertisePositions.Count - 1];
         }
-        SpawnRollingsWithDelayAsync(cancellationToken).Forget();
+        SpawnRollingsWithDelayAsync(success, cancellationToken).Forget();
     }
 
-    async UniTask SpawnRollingsWithDelayAsync(CancellationToken cancellationToken = default)
+    async UniTask SpawnRollingsWithDelayAsync(bool success, CancellationToken cancellationToken = default)
     {
         foreach (var v in randomAnimalKey)
         {
             for (int i = 0; i < v.Value; i++)
             {
                 SpawnRolling(v.Key);
-              //  yield return new WaitForSecondsRealtime(spawnTerm);
-               await UniTask.Delay((int)(spawnTerm * 1000), DelayType.UnscaledDeltaTime, cancellationToken: cancellationToken);
+                //  yield return new WaitForSecondsRealtime(spawnTerm);
+                await UniTask.Delay((int)(spawnTerm * 1000), DelayType.UnscaledDeltaTime, cancellationToken: cancellationToken);
             }
         }
 
         await WaitRollingsReachTargetAsync(cancellationToken);
 
-       // yield return StartCoroutine(WaitRollingsReachTarget());
+        // yield return StartCoroutine(WaitRollingsReachTarget());
 
         virtualCamera1.Priority = 1;
         virtualCamera2.Priority = 0;
         virtualCamera3.Priority = 0;
         virtualCamera4.Priority = 0;
         await UniTask.Delay(200, DelayType.UnscaledDeltaTime, cancellationToken: cancellationToken);
-        CheckGatchaAnimals();
+        CheckGatchaAnimals(success);
         isSpawning = false;
-        if (GameInstance.GameIns.app.currentScene == SceneState.Draw) GameInstance.GameIns.uiManager.drawBtn.gameObject.SetActive(true);
+        if (GameInstance.GameIns.app.currentScene == SceneState.Draw && !CheckCompleteGatcha())
+        {
+            if(!GameInstance.GameIns.uiManager.drawBtn.gameObject.activeSelf) GameInstance.GameIns.uiManager.drawBtn.gameObject.SetActive(true);
+            if(!GameInstance.GameIns.uiManager.drawSpeedUpBtn.gameObject.activeSelf) GameInstance.GameIns.uiManager.drawSpeedUpBtn.gameObject.SetActive(true);
+        }
+        else
+        {
+            if (GameInstance.GameIns.uiManager.drawBtn.gameObject.activeSelf) GameInstance.GameIns.uiManager.drawBtn.gameObject.SetActive(false);
+            if (GameInstance.GameIns.uiManager.drawSpeedUpBtn.gameObject.activeSelf) GameInstance.GameIns.uiManager.drawSpeedUpBtn.gameObject.SetActive(false);
+        }
     }
-
     IEnumerator Advertisement(bool success)
     {
         if(advertisementGO == null) advertisementGO = Instantiate(advertise);
@@ -568,7 +622,7 @@ public class GatcharManager : MonoBehaviour
         virtualCamera3.Priority = 0;
         virtualCamera4.Priority = 0;
         yield return new WaitForSecondsRealtime(0.2f);
-        CheckGatchaAnimals();
+        CheckGatchaAnimals(true);
         isSpawning = false;
         if (GameInstance.GameIns.app.currentScene == SceneState.Draw) GameInstance.GameIns.uiManager.drawBtn.gameObject.SetActive(true);
     }
@@ -631,64 +685,66 @@ public class GatcharManager : MonoBehaviour
         rolling.Roll(customerPositions[index], customerRotations[index]);
     }
 
-    void CheckGatchaAnimals()
+    void CheckGatchaAnimals(bool success)
     {
-
-        foreach (var pair in randomAnimalKey)
+        if (success)
         {
-            if(pair.Value == 1)
+            foreach (var pair in randomAnimalKey)
             {
-              //  GetAnimator.SetInteger(AnimationKeys.state, 1);
-             //   popup.SetActive(true);
-                if(AnimalManager.gatchaTiers.ContainsKey(pair.Key))
+                if (pair.Value == 1)
                 {
-                    if (AnimalManager.gatchaTiers[pair.Key] == 1)
+                    //  GetAnimator.SetInteger(AnimationKeys.state, 1);
+                    //   popup.SetActive(true);
+                    if (AnimalManager.gatchaTiers.ContainsKey(pair.Key))
+                    {
+                        if (AnimalManager.gatchaTiers[pair.Key] == 1)
+                        {
+                            popup.SetActive(true);
+                            GetAnimator.SetInteger(AnimationKeys.state, 1);
+                            SoundManager.Instance.PlayAudio(GameInstance.GameIns.gatchaSoundManager.Unlock(), 0.4f);
+                            AnimalStruct asset = AssetLoader.animals[pair.Key];
+                            string n = asset.asset_name + "_Sprite";
+                            NewAnimalImage.sprite = AssetLoader.loadedSprites[n];
+                            popup_NewCustomer.SetActive(true);
+                        }
+                        else if (AnimalManager.gatchaTiers[pair.Key] <= 4)
+                        {
+                            popup.SetActive(true);
+                            GetAnimator.SetInteger(AnimationKeys.emotion, 1);
+                            GetAnimator.SetInteger(AnimationKeys.state, 1);
+                            int tier = AnimalManager.gatchaTiers[pair.Key];
+                            SoundManager.Instance.PlayAudio(GameInstance.GameIns.gatchaSoundManager.GradeUp(), 0.4f);
+
+                            popup_TierUp.SetActive(true);
+
+                            AnimalStruct asset = AssetLoader.animals[pair.Key];
+                            string n = asset.asset_name + "_Sprite";
+                            TierUpAnimalImage.sprite = AssetLoader.loadedSprites[n];
+                            if (tier == 2) backGlow.color = Color.blue;
+                            else if (tier == 3) backGlow.color = new Color(0.5f, 0f, 0.5f);
+                            else if (tier == 4) backGlow.color = Color.yellow;
+
+                        }
+                    }
+                    else
                     {
                         popup.SetActive(true);
-                        GetAnimator.SetInteger(AnimationKeys.state, 1);
                         SoundManager.Instance.PlayAudio(GameInstance.GameIns.gatchaSoundManager.Unlock(), 0.4f);
+
+                        AnimalManager.gatchaTiers[pair.Key] = 1;
                         AnimalStruct asset = AssetLoader.animals[pair.Key];
                         string n = asset.asset_name + "_Sprite";
-                        NewAnimalImage.sprite = AssetLoader.loadedSprites[n];
+                        NewAnimalImage.sprite = AssetLoader.loadedSprites[n];// this.sprites[pair.Key];
                         popup_NewCustomer.SetActive(true);
+                        AnimalManager.animalStructs[pair.Key] = asset;
+                        //  GameInstance.GameIns.animalManager.AddNewAnimal(lockAnimals[keyValuePair.Key], keyValuePair.Key, animal);
                     }
-                    else if (AnimalManager.gatchaTiers[pair.Key] <= 4)
-                    {
-                        popup.SetActive(true);
-                        GetAnimator.SetInteger(AnimationKeys.emotion, 1);
-                        GetAnimator.SetInteger(AnimationKeys.state, 1);
-                        int tier = AnimalManager.gatchaTiers[pair.Key];
-                        SoundManager.Instance.PlayAudio(GameInstance.GameIns.gatchaSoundManager.GradeUp(), 0.4f);
-                     
-                        popup_TierUp.SetActive(true);
 
-                        AnimalStruct asset = AssetLoader.animals[pair.Key];
-                        string n = asset.asset_name + "_Sprite";
-                        TierUpAnimalImage.sprite = AssetLoader.loadedSprites[n]; 
-                        if (tier == 2) backGlow.color = Color.blue;
-                        else if (tier == 3) backGlow.color = new Color(0.5f, 0f, 0.5f);
-                        else if (tier == 4) backGlow.color = Color.yellow;
-
-                    }
+                    if (emotionToken != null) emotionToken.Cancel();
+                    emotionToken = new CancellationTokenSource();
+                    EmotionDelayAsync(emotionToken.Token).Forget();
+                    break;
                 }
-                else
-                {
-                    popup.SetActive(true);
-                    SoundManager.Instance.PlayAudio(GameInstance.GameIns.gatchaSoundManager.Unlock(), 0.4f);
-                  
-                    AnimalManager.gatchaTiers[pair.Key] = 1;
-                    AnimalStruct asset = AssetLoader.animals[pair.Key];
-                    string n = asset.asset_name + "_Sprite";
-                    NewAnimalImage.sprite = AssetLoader.loadedSprites[n];// this.sprites[pair.Key];
-                    popup_NewCustomer.SetActive(true);
-                    AnimalManager.animalStructs[pair.Key] = asset;
-                  //  GameInstance.GameIns.animalManager.AddNewAnimal(lockAnimals[keyValuePair.Key], keyValuePair.Key, animal);
-                }
-              
-                if(emotionToken != null) emotionToken.Cancel();
-                emotionToken = new CancellationTokenSource();
-                EmotionDelayAsync(emotionToken.Token).Forget();
-                break;
             }
         }
     }

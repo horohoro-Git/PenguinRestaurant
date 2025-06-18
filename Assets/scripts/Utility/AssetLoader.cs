@@ -29,6 +29,7 @@ public class AssetLoader : MonoBehaviour
     public static Dictionary<int, MachineLevelData> machines_levels = new Dictionary<int, MachineLevelData>();
 
     public static Dictionary<int, EmployeeLevelStruct> employees_levels = new Dictionary<int, EmployeeLevelStruct>();
+    public static Dictionary<int, MachineLevelOffset> machineLevelOffsets = new Dictionary<int, MachineLevelOffset>();
     public static Dictionary<int, AnimalStruct> animals = new Dictionary<int, AnimalStruct>();
     public static Dictionary<int, GoodsStruct> goods = new Dictionary<int, GoodsStruct>();
     public static Dictionary<int, StringStruct> itemAssetKeys = new Dictionary<int, StringStruct>();
@@ -50,9 +51,9 @@ public class AssetLoader : MonoBehaviour
 
     public GameRegulation gameRegulation;
 
-    string[] tables = new string[10]
+    string[] tables = new string[11]
     {
-       "all", "employees", "machines", "animals", "level","furniture", "sprites", "atlases", "shop", "fishing"
+       "all", "employees", "machines", "machine_level_offsets", "animals", "level","furniture", "sprites", "atlases", "shop", "fishing"
     };
     Dictionary<string, string> tableContents = new Dictionary<string, string>();
 
@@ -223,6 +224,7 @@ public class AssetLoader : MonoBehaviour
                         machines_levels = SaveLoadSystem.GetDictionaryDataClass<int, MachineLevelData>(tableContents["machines"]);
                         levelData = SaveLoadSystem.GetDictionaryDataClass<int, LevelData>(tableContents["level"]);
                         restaurantParams = SaveLoadSystem.GetListData<RestaurantParam>(tableContents["furniture"]);
+                        machineLevelOffsets = SaveLoadSystem.GetDictionaryData<int, MachineLevelOffset>(tableContents["machine_level_offsets"]);
                        
                     });
                     foreach (KeyValuePair<int, ItemStruct> keyValuePair in items) itemAssetKeys[keyValuePair.Key] = new StringStruct(keyValuePair.Value.asset_name);

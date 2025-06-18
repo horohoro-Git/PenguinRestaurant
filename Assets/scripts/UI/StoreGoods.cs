@@ -9,6 +9,9 @@ using static Store;
 using System;
 using TMPro;
 using UnityEngine.InputSystem;
+using System.Numerics;
+using Vector3 = UnityEngine.Vector3;
+using System.Text;
 
 public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler
 {
@@ -28,7 +31,7 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
     public GoodsStruct goods;
 
 
-   
+    StringBuilder stringBuilder = new StringBuilder();
     void Awake()
     {
         rect = GetComponent<RectTransform>();
@@ -51,6 +54,30 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
         }
 
     }
+
+    public void UpdatePrice(int remains)
+    {
+        if (remains == 0)
+        {
+            price_text.gameObject.SetActive(false);
+        }
+        else
+        {
+            Debug.Log(goods.id + " " + remains);
+            int count = goods.num - remains;
+            if (count == 0 && goods.sale != "0") price_text.text = "¹«·á";
+            else
+            {
+                BigInteger bigInteger = goods.Price_Value;
+                int pow = (int)(goods.pow * 100);
+                bigInteger = bigInteger + (bigInteger * pow * (count)) / 100;
+                stringBuilder = Utility.GetFormattedMoney(bigInteger, stringBuilder);
+                price_text.text = stringBuilder.ToString();
+            }
+        }
+    }
+
+
     public void OnBeginDrag(PointerEventData eventData)
     {
         if(goods.Price_Value > GameIns.restaurantManager.restaurantCurrency.Money) return;

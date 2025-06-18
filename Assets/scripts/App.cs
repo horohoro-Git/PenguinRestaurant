@@ -332,6 +332,10 @@ public class App : MonoBehaviour
         GameInstance.GameIns.gatcharManager.ClearRollings();
         SoundManager.Instance.RestaurantSoundsOnoff(true);
         GameInstance.GameIns.gatcharManager.ResetToken();
+        GameInstance.GameIns.gatcharManager.virtualCamera1.Priority = 1;
+        GameInstance.GameIns.gatcharManager.virtualCamera2.Priority = 0;
+        GameInstance.GameIns.gatcharManager.virtualCamera3.Priority = 0;
+        GameInstance.GameIns.gatcharManager.virtualCamera4.Priority = 0;
         //   Utility.CheckHirable(GameInstance.GameIns.inputManager.cameraRange.position, ref i, ref j);
         //   StartCoroutine(OrthographicNextFrame());
     }
@@ -356,12 +360,21 @@ public class App : MonoBehaviour
         GameInstance.GameIns.gatcharManager.virtualCamera2.Priority = 0;
         GameInstance.GameIns.gatcharManager.virtualCamera3.Priority = 0;
         GameInstance.GameIns.gatcharManager.virtualCamera4.Priority = 0;
-     //   GameInstance.GameIns.inputManager.cameraTrans.position = GameInstance.GetVector3(-80.35f, 0, -1080.7f);
-     //   GameInstance.GameIns.inputManager.cameraTrans.rotation = Quaternion.Euler(0, 45, 0);
-    //    InputManger.cachingCamera.transform.localPosition = new Vector3(0, 200, 0);
-     //   InputManger.cachingCamera.transform.localRotation = Quaternion.Euler(60, 0, 0);
-        GameInstance.GameIns.uiManager.drawBtn.gameObject.SetActive(true);
-        GameInstance.GameIns.uiManager.drawSpeedUpBtn.gameObject.SetActive(true);
+        //   GameInstance.GameIns.inputManager.cameraTrans.position = GameInstance.GetVector3(-80.35f, 0, -1080.7f);
+        //   GameInstance.GameIns.inputManager.cameraTrans.rotation = Quaternion.Euler(0, 45, 0);
+        //    InputManger.cachingCamera.transform.localPosition = new Vector3(0, 200, 0);
+        //   InputManger.cachingCamera.transform.localRotation = Quaternion.Euler(60, 0, 0);
+        if (!GameInstance.GameIns.gatcharManager.CheckCompleteGatcha())
+        {
+            if (!GameInstance.GameIns.uiManager.drawBtn.gameObject.activeSelf) GameInstance.GameIns.uiManager.drawBtn.gameObject.SetActive(true);
+            if (!GameInstance.GameIns.uiManager.drawSpeedUpBtn.gameObject.activeSelf) GameInstance.GameIns.uiManager.drawSpeedUpBtn.gameObject.SetActive(true);
+        }
+        else
+        {
+            if (GameInstance.GameIns.uiManager.drawBtn.gameObject.activeSelf) GameInstance.GameIns.uiManager.drawBtn.gameObject.SetActive(false);
+            if (GameInstance.GameIns.uiManager.drawSpeedUpBtn.gameObject.activeSelf) GameInstance.GameIns.uiManager.drawSpeedUpBtn.gameObject.SetActive(false);
+        }
+        GameInstance.GameIns.gatcharManager.CheckMoney();
         SoundManager.Instance.RestaurantSoundsOnoff(false);
     }
   

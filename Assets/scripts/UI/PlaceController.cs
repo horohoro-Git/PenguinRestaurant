@@ -185,7 +185,6 @@ public class PlaceController : MonoBehaviour
             if (!purchasedObject)
             {
                 //값을 지불
-          
                 SoundManager.Instance.PlayAudio(GameInstance.GameIns.uISoundManager.FurniturePurchase(), 0.2f);
                 GameInstance.GameIns.restaurantManager.restaurantCurrency.Money -= storeGoods.goods.Price_Value;
                 GameInstance.GameIns.restaurantManager.GetMoney((-storeGoods.goods.Price_Value).ToString());
@@ -196,6 +195,12 @@ public class PlaceController : MonoBehaviour
             GameInstance.GameIns.gridManager.RemoveSelect();
             storeGoods.PlaceGoods(rotateOffsets[level], level, currentFurniture);
             storeGoods.RemoveGoodsPreview();
+            if (!purchasedObject)
+            {
+                int num = GameInstance.GameIns.store.goodsDic[storeGoods.goods.id].Count;
+
+                if (num == 0) storeGoods.price_text.gameObject.SetActive(false); else storeGoods.UpdatePrice(num);
+            }
             GameInstance.GameIns.gridManager.VisibleGrid(false);
         }
     }

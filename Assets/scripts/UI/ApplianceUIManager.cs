@@ -445,7 +445,8 @@ public class ApplianceUIManager : MonoBehaviour
             if (bShow)
             {
                 animalController = animal;
-                EmployeeLevelStruct employeeData = animalController.employeeLevel;// gameInstance.GameIns.restaurantManager.currentEmployeeData;
+           //     EmployeeLevelStruct employeeData = animalController.employeeLevel;// gameInstance.GameIns.restaurantManager.currentEmployeeData;
+                EmployeeLevelData employeeLevelData = animalController.employeeLevelData;
                 foodMachine = null;
                 otherUI.SetActive(false);
                 //UnlockHire(false);
@@ -453,7 +454,7 @@ public class ApplianceUIManager : MonoBehaviour
                 if (infoCoroutine != null) StopCoroutine(infoCoroutine);
                 applianceImage.sprite = employeeIcon;
                 // upgradeCostText.text = $"업그레이드 비용 : {employeeData.}원";
-                upgradeInfoText.text = $"레벨 : {employeeData.level}\n이동 속도 : {employeeData.move_speed}\n행동 속도 : {employeeData.move_speed}/s\n최대 운반량 : {employeeData.max_weight}개";
+                upgradeInfoText.text = $"레벨 : {employeeLevelData.level}\n이동 속도 : {employeeLevelData.speed}\n행동 속도 : {employeeLevelData.speed}/s\n최대 운반량 : {employeeLevelData.max_weight}개";
             }
         }
     }
