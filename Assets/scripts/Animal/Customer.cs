@@ -7,6 +7,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Reflection;
 using System.Runtime.ConstrainedExecution;
 using System.Threading;
@@ -14,7 +15,9 @@ using UnityEngine;
 using UnityEngine.InputSystem.XR;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.UIElements;
-
+using Vector3 = UnityEngine.Vector3;
+using Quaternion = UnityEngine.Quaternion;
+using System.Text;
 // 한글
 
 public class Customer : AnimalController
@@ -74,6 +77,8 @@ public class Customer : AnimalController
     public GameObject endPoint;
 
     CancellationTokenSource cancellationTokenSource;
+
+    StringBuilder stringBuilder = new StringBuilder();
 
     private void Awake()
     {
@@ -513,30 +518,53 @@ public class Customer : AnimalController
             GameInstance.GameIns.uiManager.UpdateOrder(this, counter.counterType);
 
             //비용 지불
-            float foodPrices = 0;
+            BigInteger foodPrices = 0;
             int tipNum = 0;
             int foodNum = 0;
             for (int j = 0; j < foodStacks.Count; j++)
             {
-                for (int k = 0; k < foodStacks[j].foodStack.Count; k++)
+                foreach (var v in foodStacks[j].foodStack)
                 {
-                    //         foodPrices += foodStacks[j].foodStack[k].foodPrice;
+                    int animalTier = AnimalManager.gatchaTiers[animalStruct.id];
+                    animalTier = (animalTier - 1) * 2;
+                    animalTier = animalTier == 0 ? 1 : animalTier;
+                    BigInteger price = v.foodPrice * animalTier * AnimalManager.gatchaValues;
+                    int leftover = (int)(price % 100);
+                    price /= 100;
+                    foodPrices += price;
+                    GameInstance.GameIns.restaurantManager.restaurantCurrency.leftover += leftover;
+                    if (GameInstance.GameIns.restaurantManager.restaurantCurrency.leftover >= 100)
+                    {
+                        GameInstance.GameIns.restaurantManager.restaurantCurrency.leftover -= 100;
+                        foodPrices += 1;
+                    }
+
                     int tip = UnityEngine.Random.Range(1, 11);
                     if (tip == 1) tipNum++;
-
                     foodNum++;
                 }
+
             }
 
-            if (hasMoney)
-            {
-                GameInstance.GameIns.restaurantManager.restaurantCurrency.money += (int)foodPrices;
-                GameInstance.GameIns.restaurantManager.restaurantCurrency.fishes += tipNum;
-             //   GameInstance.GameIns.uiManager.UpdateMoneyText(GameInstance.GameIns.restaurantManager.restaurantCurrency.money);
+            stringBuilder = Utility.GetFormattedMoney(foodPrices, stringBuilder);
+            Debug.Log(stringBuilder.ToString() +" Prices");
 
-                SaveLoadManager.Save(SaveLoadManager.SaveState.ONLY_SAVE_PLAYERDATA);
-                hasMoney = false;
-            }
+            FloatingCost fc = GameInstance.GameIns.restaurantManager.GetFloatingCost();
+            fc.rectTransform.position = InputManger.cachingCamera.WorldToScreenPoint(trans.position) + Vector3.up * 50;
+            fc.text.text = stringBuilder.ToString();
+            fc.height = 100;
+            fc.Floating();
+
+            GameInstance.GameIns.restaurantManager.GetMoney(foodPrices.ToString());
+
+            GameInstance.GameIns.restaurantManager.GetFish(GameInstance.GameIns.restaurantManager.restaurantCurrency.fishes, tipNum);
+            GameInstance.GameIns.restaurantManager.restaurantCurrency.fishes += tipNum;
+            GameInstance.GameIns.restaurantManager.restaurantCurrency.changed = true;
+            //   GameInstance.GameIns.uiManager.UpdateMoneyText(GameInstance.GameIns.restaurantManager.restaurantCurrency.money);
+
+            SaveLoadManager.Save(SaveLoadManager.SaveState.ONLY_SAVE_PLAYERDATA);
+            hasMoney = false;
+
 
             List<Table> tables = GameInstance.GameIns.workSpaceManager.tables.ToList();
             //foodMachine  거리 오름차순 개수 내림차순

@@ -272,7 +272,7 @@ public class SaveLoadManager
                 {
                     levelData.Add(new LevelData(i + 1, 1,0));
                 }
-                else levelData.Add(new LevelData(GameInstance.GameIns.animalManager.employeeControllers[i].id, GameInstance.GameIns.animalManager.employeeControllers[i].EmployeeData.level, GameInstance.GameIns.animalManager.employeeControllers[i].EXP));
+             //   else levelData.Add(new LevelData(GameInstance.GameIns.animalManager.employeeControllers[i].id, GameInstance.GameIns.animalManager.employeeControllers[i].EmployeeData.level, GameInstance.GameIns.animalManager.employeeControllers[i].EXP));
             }
        
         }

@@ -634,7 +634,7 @@ public class SaveLoadSystem
                         int id = reader.ReadInt32();
                         int level = reader.ReadInt32();
                         string price = reader.ReadString();
-                        int sale_proceed = reader.ReadInt32();
+                        string sale_proceed = reader.ReadString();
                         float cooking_time = reader.ReadSingle();
                         int max_height = reader.ReadInt32();
                         int type = reader.ReadInt32();
@@ -665,7 +665,7 @@ public class SaveLoadSystem
                     int id = machine.Value.id;
                     int level = machine.Value.level;
                     string price = machine.Value.price;
-                    int sale_proceed = machine.Value.sale_proceed;
+                    string sale_proceed = machine.Value.sale_proceed;
                     float cooking_time = machine.Value.cooking_time;
                     int max_height = machine.Value.max_height;
                     int type = (int)machine.Key;
@@ -726,10 +726,10 @@ public class SaveLoadSystem
         {
             using (BinaryWriter writer = new BinaryWriter(ms))
             {
-                Debug.Log(currency.Money.ToString());
                 writer.Write(currency.Money.ToString());
                 writer.Write(currency.fishes);
                 writer.Write(currency.affinity);
+                writer.Write(currency.leftover);
                 writer.Write(currency.sale_num);
             }
 
@@ -757,14 +757,15 @@ public class SaveLoadSystem
                     string money = reader.ReadString();
                     int fishes = reader.ReadInt32();
                     int affinity = reader.ReadInt32();
+                    int leftover = reader.ReadInt32();
                     int sale_num = reader.ReadInt32();
-                    currency = new RestaurantCurrency(money, fishes, affinity, sale_num);
+                    currency = new RestaurantCurrency(money, fishes, affinity, leftover, sale_num);
                 }
             }
         }
         else
         {
-            currency = new RestaurantCurrency("500", 0, 0, 0);
+            currency = new RestaurantCurrency("500", 0, 0, 0, 0);
             SaveRestaurantCurrency(currency);
         }
         return currency;

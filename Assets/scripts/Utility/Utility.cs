@@ -232,6 +232,7 @@ public struct GoodsStruct : ITableID<int>
     public float pow;
     public string sale;
     public bool soldout;
+    public string defaultPrice;
     BigInteger? price_value;
     public string Price { get { return price; } set { price = value; price_value = null; } } 
     public BigInteger Price_Value { get { if(!price_value.HasValue) price_value = Utility.StringToBigInteger(price); return price_value.Value; } }
@@ -711,16 +712,18 @@ public class RestaurantCurrency
     public int fishes;
     public int affinity;
     public int sale_num;
+    public int leftover;
     public bool changed;
 
     BigInteger? m;
     public BigInteger Money { get { if (!m.HasValue) m = BigInteger.Parse(money); return m.Value; } set { m = value; changed = true; } }
 
-    public RestaurantCurrency(string money, int fishes, int affinity, int sale_num)
+    public RestaurantCurrency(string money, int fishes, int affinity, int leftover, int sale_num)
     {
         this.money = money;
         this.fishes = fishes;
         this.affinity = affinity;
+        this.leftover = leftover;
         this.sale_num = sale_num;
     }
 }
@@ -772,12 +775,16 @@ public class MachineLevelData : ITableID<int>
     public int id;
     public int level;
     public string price;
-    public int sale_proceed;
+    public string sale_proceed;
     public float cooking_time;
     public int max_height;
     public int type;
 
     public int fishes;
+    public string calculatedPrice;
+    public BigInteger calculatedSales;
+    public float calculatedCookingTimer;
+    public int calculatedHeight;
 
     public string Price { get { return price; } set { price = value; price_value = null; } }
     BigInteger? price_value;
@@ -786,7 +793,7 @@ public class MachineLevelData : ITableID<int>
 
     public string Name => throw new System.NotImplementedException();
 
-    public MachineLevelData(int id, int level, string price, int sale_proceed, float cooking_time, int max_height, int type, int fishes)
+    public MachineLevelData(int id, int level, string price, string sale_proceed, float cooking_time, int max_height, int type, int fishes)
     {
         this.id = id;
         this.level = level;

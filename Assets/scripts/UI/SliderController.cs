@@ -36,8 +36,8 @@ public class SliderController : MonoBehaviour
     bool isEXPCoroutineRunning;
 
 
-    public int GetEXP { get { if (targetEmployee == null) return 0; else return targetEmployee.EXP; } set { if (targetEmployee == null) return; else targetEmployee.EXP = value; } }
-
+    public int GetEXP { get { if (targetEmployee == null) return 0; else return targetEmployee.EXP; } }
+    public int TargetEXP { get { if (targetEmployee == null) return 0; else return targetEmployee.employeeLevelData.targetEXP; } }
     // Start is called before the first frame update
     void Start()
     {
@@ -138,21 +138,21 @@ public class SliderController : MonoBehaviour
     {
         while (true)
         {
-            if(GetEXP != targetEXP && currentEXP == GetEXP)
+            if(GetEXP < TargetEXP && currentEXP == GetEXP)
             {
                 isEXPCoroutineRunning = false;
                 yield break;
             }
-            if (targetEXP > currentEXP)
+            if (TargetEXP > currentEXP)
             {
-                int least1 = (int)(((float)currentEXP / targetEXP) * 100);
-                int least2 = (int)(((float)GetEXP / targetEXP) * 100);
+                int least1 = (int)(((float)currentEXP / TargetEXP) * 100);
+                int least2 = (int)(((float)GetEXP / TargetEXP) * 100);
                 least2 = least2 > 100 ? 100 : least2;
 
                 float f = 0;
                 progress = least1;
                 double s = 0;
-                currentEXP = least2;
+                currentEXP = GetEXP;
 
                 while (f < 0.4f)
                 {
@@ -178,14 +178,13 @@ public class SliderController : MonoBehaviour
                 yield return null;
                 continue;
             }
-            if(GetEXP >= targetEXP)
+            if(GetEXP >= TargetEXP)
             {
 
               
                 
                 float f = 0;
-                GetEXP -= targetEXP;
-
+              
                 //·¹º§ ¾÷
                 targetEmployee.LevelUp();
 
@@ -218,7 +217,11 @@ public class SliderController : MonoBehaviour
                 expZ = (float)(0.01026 * (100 - progress));
                 yield return null;
             }
-           
+
+
+            //isEXPCoroutineRunning = false;
+            //Debug.LogWarning("Error " + GetEXP + " " + TargetEXP + " " + currentEXP);
+            yield return null;
         }
     }
 

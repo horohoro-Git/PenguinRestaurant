@@ -53,7 +53,7 @@ public class Employee : AnimalController
     public GameObject garbage;
 
     private EmployeeData employeeData;
-    public EmployeeData EmployeeData { get { return employeeData; } set { employeeData = value; if (ui != null) ui.UpdateLevel(employeeData.level); } }
+   // public EmployeeData EmployeeData { get { return employeeData; } set { employeeData = value; if (ui != null) ui.UpdateLevel(employeeData.level); } }
 
     EmployeeLevelStruct LevelStruct;
     public EmployeeLevelStruct employeeLevel;//
@@ -70,12 +70,15 @@ public class Employee : AnimalController
         {
             if(employeeLevelData != null)
             {
-                employeeLevelData.exp = value;
-                GameIns.restaurantManager.employees.changed = true;
+                if (employeeLevelData.level < 10)
+                {
+                   
+                    employeeLevelData.exp = value;//value + 10;
+                    GameIns.restaurantManager.employees.changed = true;
+                    exp = value;// value + 10;
+                    ui.EXPChanged();
+                }
             }
-            exp = value;
-            ui.EXPChanged();
-       
         }
     }
     public EmployeeLevelData employeeLevelData;
@@ -2649,13 +2652,20 @@ public class Employee : AnimalController
     {
        
         employeeLevelData.level++;
+       // employeeLevelData.speed = 
         SoundManager.Instance.PlayAudio(GameIns.gameSoundManager.LevelUp(), 0.2f);
-        EXP = 0;
-        employeeLevel = AssetLoader.employees_levels[employeeLevelData.level];
-        //Animal animal = GetComponentInParent<Animal>();
-       // Employee animalController = animal.GetComponentInChildren<Employee>();
+        EXP = EXP - employeeLevelData.targetEXP;
+        //     employeeLevel = AssetLoader.employees_levels[employeeLevelData.level];
+        EmployeeLevelStruct es = AssetLoader.employees_levels[0];
+        employeeLevelData.targetEXP = (int)(es.exp + Mathf.FloorToInt(Mathf.Pow(employeeLevelData.level - 1, es.increase_exp_pow)) * es.increase_exp_mul);
 
-       // GameInstance.GameIns.restaurantManager.UpgradePenguin(GameInstance.GameIns.restaurantManager.combineDatas.employeeData[animalController.id - 1].level, false, animalController);
+        employeeLevelData.max_weight = es.max_weight + Mathf.FloorToInt((employeeLevelData.level - 1) / es.increase_weight);
+        employeeLevelData.speed = es.move_speed + (employeeLevelData.level - 1) * 0.2f;
+        if (ui != null) ui.UpdateLevel(employeeLevelData.level);
+        //Animal animal = GetComponentInParent<Animal>();
+        // Employee animalController = animal.GetComponentInChildren<Employee>();
+
+        // GameInstance.GameIns.restaurantManager.UpgradePenguin(GameInstance.GameIns.restaurantManager.combineDatas.employeeData[animalController.id - 1].level, false, animalController);
         //SliderController sliderController = animal.GetComponentInChildren<SliderController>();
         // sliderController.
     }

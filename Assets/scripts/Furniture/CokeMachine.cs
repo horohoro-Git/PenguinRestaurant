@@ -115,6 +115,7 @@ public class CokeMachine : FoodMachine
         yield return StartCoroutine(Utility.CustomCoroutineDelay(0.3f));
 
         createdFood = food;
+        CreatedFood(createdFood);
         food = null;
         foodStack.foodStack.Push(createdFood);
 

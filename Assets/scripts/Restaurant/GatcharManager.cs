@@ -180,6 +180,9 @@ public class GatcharManager : MonoBehaviour
     void LoadAnimals()
     {
         int num = 0;
+        float values = 0;
+        int animalsNum = 0;
+        int totalTier = 0;
         foreach (var v in AnimalManager.gatchaTiers)
         {
             if (v.Value > 0)
@@ -187,8 +190,12 @@ public class GatcharManager : MonoBehaviour
                 AnimalStruct asset = AssetLoader.animals[v.Key];
                 AnimalManager.animalStructs[v.Key] = asset;
                 num += v.Value;
+                animalsNum++;
+                totalTier += v.Value;
             }
         }
+
+        AnimalManager.gatchaValues = 100 + 10 * animalsNum + 5 * totalTier;
 
         gatchaPrice = 100 + Mathf.FloorToInt(Mathf.Pow((num - 1), 1.6f)) * 15;
         sb = Utility.GetFormattedMoney(gatchaPrice, sb);

@@ -97,6 +97,7 @@ public class BurgerMachine : FoodMachine
         yield return StartCoroutine(Utility.CustomCoroutineDelay(0.1f));
         tempBurger = null;
         createdBurger = food;
+        CreatedFood(createdBurger);
         foodStack.foodStack.Push(food);
 
         food.transform.DOJump(foodTransform.position + Vector3.up * (foodStack.foodStack.Count - 1) * height, 2,1, 0.4f);

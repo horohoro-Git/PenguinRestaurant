@@ -84,6 +84,10 @@ public class RestaurantManager : MonoBehaviour
     public Queue<Emote> emotes = new Queue<Emote>();
     public List<int> emoteSpriteKeys = new List<int>();
     public Dictionary<int, Sprite> emoteSprites = new Dictionary<int, Sprite>();
+
+    public FloatingCost floatingCost;
+    public Queue<FloatingCost> floatingCosts = new Queue<FloatingCost>();
+
     private void Awake()
     {
         moneyChangedSoundKey = 100011;
@@ -138,6 +142,7 @@ public class RestaurantManager : MonoBehaviour
 
 
         machineLevelData = SaveLoadSystem.LoadFoodMachineStats();
+        ApplyLoadedFoodMachineStat();
     }
     void Start()
     {
@@ -150,6 +155,12 @@ public class RestaurantManager : MonoBehaviour
             Emote e = Instantiate(emote, emoteObjects.transform);
             e.gameObject.SetActive(false);
             emotes.Enqueue(e);
+        }
+        for(int i=0; i<10; i++)
+        {
+            FloatingCost fc = Instantiate(floatingCost, emoteObjects.transform);
+            fc.gameObject.SetActive(false);
+            floatingCosts.Enqueue(fc);
         }
 
 
@@ -445,6 +456,30 @@ public class RestaurantManager : MonoBehaviour
         StartCoroutine(ApplyPlacedNextFrame(furniture));    
     }
 
+    public void ApplyLoadedFoodMachineStat()
+    {
+        foreach (var v in machineLevelData)
+        {
+            int level = v.Value.level;
+            int id = v.Value.id;
+            int index = id + (level >= 41 ? 41 : level >= 31 ? 31 : 1);
+
+            MachineLevelOffset offset = AssetLoader.machineLevelOffsets[index];
+
+            BigInteger upgradePrice = v.Value.Price_Value + Mathf.FloorToInt(Mathf.Pow((level - 1), offset.price_pow) * offset.price_mul);
+            moneyString = Utility.GetFormattedMoney(upgradePrice, moneyString);
+            v.Value.calculatedPrice = moneyString.ToString();
+            BigInteger salePrice = Utility.StringToBigInteger(v.Value.sale_proceed); 
+            if(offset.sale_div == 0)  salePrice += Mathf.FloorToInt(Mathf.Pow((level - 1), offset.sale_pow) * offset.sale_mul);
+            else salePrice += Mathf.FloorToInt(Mathf.Pow((level - 1), offset.sale_pow) * offset.sale_mul) / Mathf.FloorToInt((level - 1) * 0.07f);
+            v.Value.calculatedSales = salePrice;
+
+            v.Value.calculatedCookingTimer = v.Value.cooking_time - (level - 1) * offset.reduce_timer;
+            if (v.Value.calculatedCookingTimer < 3f) v.Value.calculatedCookingTimer = 3f;
+            v.Value.calculatedHeight = v.Value.max_height + Mathf.FloorToInt((level - 1) * offset.increase_height);
+
+        }
+    }
     IEnumerator ApplyPlacedNextFrame(Furniture furniture)
     {
         yield return null;
@@ -699,8 +734,12 @@ public class RestaurantManager : MonoBehaviour
                 }
                 animal.employeeLevelData = employees.employeeLevelDatas[i];
                 animal.trans.position = GameInstance.GetVector3(X, 0, Z);
+                animal.employeeLevel = AssetLoader.employees_levels[0];
+                animal.employeeLevelData.targetEXP = animal.employeeLevel.exp + Mathf.FloorToInt(Mathf.Pow((animal.employeeLevelData.level - 1), animal.employeeLevel.increase_exp_mul) * animal.employeeLevel.increase_exp_mul);
+                animal.employeeLevelData.speed = animal.employeeLevel.move_speed + (animal.employeeLevelData.level - 1) * 0.2f;
+                animal.employeeLevelData.max_weight = animal.employeeLevel.max_weight + (animal.employeeLevelData.level - 1) / 2;
                 animal.EXP = employees.employeeLevelDatas[i].exp;
-                animal.employeeLevel = AssetLoader.employees_levels[employees.employeeLevelDatas[i].level];
+                animal.ui.UpdateLevel(animal.employeeLevelData.level);
                 animal.employeeCallback?.Invoke(animal);
 
                 await UniTask.NextFrame(cancellationToken: cancellationToken);
@@ -781,15 +820,18 @@ public class RestaurantManager : MonoBehaviour
 
     public void EmployeeNum()
     {
-        for (int i = 0; i < 8; i++)
+       // for (int i = 0; i < 8; i++)
         {
             Employee animal = GameInstance.GameIns.animalManager.SpawnEmployee();
-            EmployeeLevelData levelData = new EmployeeLevelData(1, 0, 100);
+            EmployeeLevelData levelData = new EmployeeLevelData(1, 0, 5);
             employees.employeeLevelDatas.Add(levelData);
+            employees.changed = true;
+            animal.employeeLevel = AssetLoader.employees_levels[0];
+            levelData.speed = animal.employeeLevel.move_speed;
+            levelData.max_weight = animal.employeeLevel.max_weight;
             animal.employeeLevelData = levelData;
 
             //  animal.EmployeeData = employeeDatas[combineDatas.employeeData[animal.id - 1].level - 1];
-            animal.employeeLevel = AssetLoader.employees_levels[1];
             //  SoundManager.Instance.PlayAudio3D(GameInstance.GameIns.gameSoundManager.Quack(), 0.1f, 100, 5, trans.position);
 
             SoundManager.Instance.PlayAudio(GameIns.gameSoundManager.Quack(), 0.2f);
@@ -983,22 +1025,39 @@ public class RestaurantManager : MonoBehaviour
         }
     }
 
-    public void UpgradeFoodMachine(FoodMachine foodMachine)
+    public void UpgradeFoodMachine(FoodMachine foodMachine, FurnitureInfo info)
     {
-        if (restaurantCurrency.Money >= foodMachine.machineLevelData.Price_Value)
+        BigInteger price = Utility.StringToBigInteger(foodMachine.machineLevelData.calculatedPrice);
+        if (restaurantCurrency.Money >= price)
         {
             bool exists = SoundManager.Instance.PlayAudioWithKey(GameIns.uISoundManager.Money(), 0.2f, moneyChangedSoundKey);
        
-            restaurantCurrency.Money -= foodMachine.machineLevelData.Price_Value;
-            GetMoney((-foodMachine.machineLevelData.Price_Value).ToSafeString()); 
+            GetMoney((-price).ToSafeString()); 
             MachineType type = foodMachine.machineType;
         
-            int currentLevel = foodMachine.machineLevelData.level;
+            
+            foodMachine.machineLevelData.level++;
+            machineLevelDataChanged = true;
 
-            //foodMachine.machineLevelStruct = //GameInstance.GameIns.restaurantManager.machineLevelData[type][currentLevel + 1];
+            int level = foodMachine.machineLevelData.level;
+            int id = foodMachine.machineLevelData.id;
+            int index = id + (level >= 41 ? 41 : level >= 31 ? 31 : 1);
 
-           // GameInstance.GameIns.applianceUIManager.ShowApplianceInfo(foodMachine);
+            MachineLevelOffset offset = AssetLoader.machineLevelOffsets[index];
 
+            BigInteger upgradePrice = foodMachine.machineLevelData.Price_Value + Mathf.FloorToInt(Mathf.Pow((level - 1), offset.price_pow) * offset.price_mul);
+            moneyString = Utility.GetFormattedMoney(upgradePrice, moneyString);
+            foodMachine.machineLevelData.calculatedPrice = moneyString.ToString();
+            BigInteger salePrice = Utility.StringToBigInteger(foodMachine.machineLevelData.sale_proceed);
+            if (offset.sale_div == 0) salePrice += Mathf.FloorToInt(Mathf.Pow((level - 1), offset.sale_pow) * offset.sale_mul);
+            else salePrice += Mathf.FloorToInt(Mathf.Pow((level - 1), offset.sale_pow) * offset.sale_mul) / Mathf.FloorToInt((level - 1) * 0.07f);
+            foodMachine.machineLevelData.calculatedSales = salePrice;
+
+            foodMachine.machineLevelData.calculatedCookingTimer = foodMachine.machineLevelData.cooking_time - (level - 1) * offset.reduce_timer;
+            if (foodMachine.machineLevelData.calculatedCookingTimer < 3f) foodMachine.machineLevelData.calculatedCookingTimer = 3f;
+            foodMachine.machineLevelData.calculatedHeight = foodMachine.machineLevelData.max_height + Mathf.FloorToInt((level - 1) * offset.increase_height);
+
+            info.UpdateInfo(foodMachine);
 
             if ((employees.num < 8 && employeeHire[employees.num] <= GetRestaurantValue()))
             {
@@ -1264,13 +1323,42 @@ public class RestaurantManager : MonoBehaviour
     {
         if (emotes.Count > 30)
         {
-            Destroy(e);
+            Destroy(e.gameObject);
         }
         else
         {
             e.gameObject.SetActive(false);
             emotes.Enqueue(e);
         }
+    }
+
+    public FloatingCost GetFloatingCost()
+    {
+        FloatingCost fc = null;
+        if (floatingCosts.Count > 0)
+        {
+            fc = floatingCosts.Dequeue();   
+            fc.gameObject.SetActive(true);
+        }
+        else
+        {
+            fc = Instantiate(floatingCost, emoteObjects.transform);
+        }
+        return fc;
+    }
+
+    public void ReturnFloatingCost(FloatingCost fc)
+    {
+        if(floatingCosts.Count > 10)
+        {
+            Destroy(fc.gameObject);
+        }
+        else
+        {
+            fc.gameObject.SetActive(false);
+            floatingCosts.Enqueue(fc);
+        }
+      
     }
 
     public void OpenMiniGame(int r)

@@ -4,10 +4,12 @@ using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Numerics;
+using System.Text;
 using System.Threading;
 using Unity.VisualScripting;
 using UnityEngine;
-
+using Vector3 = UnityEngine.Vector3;
 public class FoodMachine : Furniture
 {
 
@@ -62,6 +64,8 @@ public class FoodMachine : Furniture
 
     [NonSerialized] public FuelGage fuelGage;
     public int soundClip;
+
+    StringBuilder sb = new StringBuilder();
 
     private void Awake()
     {
@@ -269,12 +273,34 @@ public class FoodMachine : Furniture
         if (levelDatas.ContainsKey(machineType))
         {
             this.machineLevelData = levelDatas[machineType];
+           
         }
         else
         {
             this.machineLevelData = AssetLoader.machines_levels[(int)machineType];
             levelDatas[machineType] = this.machineLevelData;
+            int level = this.machineLevelData.level;
+            int id = this.machineLevelData.id;
+            int index = id + (level >= 41 ? 41 : level >= 31 ? 31 : 1);
 
+            MachineLevelOffset offset = AssetLoader.machineLevelOffsets[index];
+
+            BigInteger upgradePrice = this.machineLevelData.Price_Value + Mathf.FloorToInt(Mathf.Pow((level - 1), offset.price_pow) * offset.price_mul);
+            sb = Utility.GetFormattedMoney(upgradePrice, sb);
+            this.machineLevelData.calculatedPrice = sb.ToString();
+            BigInteger salePrice = Utility.StringToBigInteger(this.machineLevelData.sale_proceed);
+            if (offset.sale_div == 0) salePrice += Mathf.FloorToInt(Mathf.Pow((level - 1), offset.sale_pow) * offset.sale_mul);
+            else salePrice += Mathf.FloorToInt(Mathf.Pow((level - 1), offset.sale_pow) * offset.sale_mul) / Mathf.FloorToInt((level - 1) * 0.07f);
+            this.machineLevelData.calculatedSales = salePrice;
+
+            this.machineLevelData.calculatedCookingTimer = this.machineLevelData.cooking_time - (level - 1) * offset.reduce_timer;
+            if (this.machineLevelData.calculatedCookingTimer < 3f) this.machineLevelData.calculatedCookingTimer = 3f;
+            this.machineLevelData.calculatedHeight = this.machineLevelData.max_height + Mathf.FloorToInt((level - 1) * offset.increase_height);
+
+        }
+        if (!load)
+        {
+            GameInstance.GameIns.restaurantManager.machineLevelDataChanged = true;
         }
        /* if (!load)
         {
@@ -382,6 +408,12 @@ public class FoodMachine : Furniture
     }
 
 
+    public void CreatedFood(Food food)
+    {
+        food.foodPrice = machineLevelData.calculatedSales;
+
+    }
+
     //float coroutineTimer = 0;
     IEnumerator Cook()
     {
@@ -412,7 +444,7 @@ public class FoodMachine : Furniture
                     else if (machineType == MachineType.DonutMachine) foodHight = 0.5f;
                     Vector3 addheight = GameInstance.GetVector3(0, (foodStack.foodStack.Count) * foodHight, 0);
                     f.transforms.position = foodTransform.position + addheight;
-                    f.foodPrice = machineLevelData.sale_proceed;
+                 //   f.foodPrice = machineLevelData.sale_proceed;
                     foodStack.foodStack.Push(f);
                   //  if(a==10) yield break;
                     //    if (foodStack.foodStack.Count == 10000) on = true;

@@ -45,6 +45,7 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
         this.goods = goods;
         image_name.text = goods.name;
         price_text.text = goods.Price;
+        this.goods.defaultPrice = goods.Price;
         itemImage.GetComponent<Image>().sprite = loadedAtlases["Furnitures"].GetSprite(spriteAssetKeys[goods.id].ID);
 
         if (goods.type != WorkSpaceType.None && GameIns.store.goodsDic[goods.id].Count == 0)
@@ -65,14 +66,20 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
         {
             Debug.Log(goods.id + " " + remains);
             int count = goods.num - remains;
-            if (count == 0 && goods.sale != "0") price_text.text = "무료";
+            if (count == 0 && goods.sale != "0")
+            {
+                price_text.text = "무료";
+                goods.Price = "0";
+            }
             else
             {
-                BigInteger bigInteger = goods.Price_Value;
+              
+                BigInteger bigInteger = Utility.StringToBigInteger(goods.defaultPrice);
                 int pow = (int)(goods.pow * 100);
                 bigInteger = bigInteger + (bigInteger * pow * (count)) / 100;
                 stringBuilder = Utility.GetFormattedMoney(bigInteger, stringBuilder);
                 price_text.text = stringBuilder.ToString();
+                goods.Price = stringBuilder.ToString();
             }
         }
     }
@@ -220,9 +227,6 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
             if(f == null) f = GameIns.store.goodsDic[goods.ID].Dequeue().GetComponent<Furniture>();
             bool firstPlaced = !f.spawned;
 
-        //    f.spawned = true;
-          //  GameInstance.GameIns.workSpaceManager.AddWorkSpace(f);
-           
             f.rotateLevel = level;
             Vector3 target = currnet.transform.position;
             f.transform.position = target;
@@ -263,6 +267,13 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
 
     public void Purchase()
     {
-      //  GameInstance.GameIns.inputManager.draggingFurniture = 
+        SoundManager.Instance.PlayAudio(GameIns.uISoundManager.FurniturePurchase(), 0.2f);
+      //  GameIns.restaurantManager.restaurantCurrency.Money -= goods.Price_Value;
+        GameIns.restaurantManager.GetMoney((-goods.Price_Value).ToString());
+        SaveLoadSystem.SaveRestaurantCurrency(GameIns.restaurantManager.restaurantCurrency);
+        int num = GameIns.store.goodsDic[goods.id].Count;
+
+        if (num == 0) price_text.gameObject.SetActive(false); else UpdatePrice(num);
+        //  GameInstance.GameIns.inputManager.draggingFurniture = 
     }
 }
