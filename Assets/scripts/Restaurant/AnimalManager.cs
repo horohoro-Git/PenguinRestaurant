@@ -40,6 +40,7 @@ public class AnimalManager : MonoBehaviour
 
     public static Dictionary<int, AnimalStruct> animalStructs = new Dictionary<int, AnimalStruct>();
     public static Dictionary<int, int> gatchaTiers = new Dictionary<int, int>();
+    public static int gatchaValues = 0;
 
     [SerializeField]
     Transform employeeStart;

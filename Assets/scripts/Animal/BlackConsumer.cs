@@ -613,7 +613,7 @@ public class BlackConsumer : AnimalController
                     float angle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
                     modelTrans.rotation = Quaternion.AngleAxis(angle, Vector3.up);
                     // animatedAnimal.transforms.rotation = Quaternion.AngleAxis(angle, Vector3.up);
-                    await UniTask.NextFrame();
+                    await UniTask.NextFrame(cancellationToken: cancellationToken);
                 }
             }
 

@@ -182,14 +182,7 @@ public class PlaceController : MonoBehaviour
         if (canPlace)
         {
             SoundManager.Instance.PlayAudio(GameInstance.GameIns.uISoundManager.UIClick(), 0.2f);
-            if (!purchasedObject)
-            {
-                //값을 지불
-                SoundManager.Instance.PlayAudio(GameInstance.GameIns.uISoundManager.FurniturePurchase(), 0.2f);
-                GameInstance.GameIns.restaurantManager.restaurantCurrency.Money -= storeGoods.goods.Price_Value;
-                GameInstance.GameIns.restaurantManager.GetMoney((-storeGoods.goods.Price_Value).ToString());
-                SaveLoadSystem.SaveRestaurantCurrency(GameInstance.GameIns.restaurantManager.restaurantCurrency);
-            }
+         
             GameInstance.GameIns.gridManager.ApplyGird();
             if(purchasedObject) GameInstance.GameIns.gridManager.RemoveCell();
             GameInstance.GameIns.gridManager.RemoveSelect();
@@ -197,9 +190,7 @@ public class PlaceController : MonoBehaviour
             storeGoods.RemoveGoodsPreview();
             if (!purchasedObject)
             {
-                int num = GameInstance.GameIns.store.goodsDic[storeGoods.goods.id].Count;
-
-                if (num == 0) storeGoods.price_text.gameObject.SetActive(false); else storeGoods.UpdatePrice(num);
+                storeGoods.Purchase();
             }
             GameInstance.GameIns.gridManager.VisibleGrid(false);
         }
@@ -228,6 +219,7 @@ public class PlaceController : MonoBehaviour
         offset.transform.rotation = Quaternion.Euler(0, rotates[level], 0);
         offset.transform.localPosition = rotateOffsets[level];
     }
+    
 
     private void HandleInputDown(Vector2 inputPosition)
     {

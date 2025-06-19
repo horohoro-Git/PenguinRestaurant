@@ -211,6 +211,7 @@ public class DonutMachine : FoodMachine
         yield return StartCoroutine(Utility.CustomCoroutineDelay(0.3f));
 
         createdFood = current;
+        CreatedFood(createdFood);
         current = null;
         foodStack.foodStack.Push(createdFood);
 

@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
+using System.Numerics;
 using UnityEngine;
 
 public class Food : MonoBehaviour
@@ -16,10 +18,10 @@ public class Food : MonoBehaviour
 
     [NonReorderable]
     public int foodIndex;
-    [NonReorderable]
-    public float foodPrice = 0f;
+   // [NonReorderable]
+   // public float foodPrice = 0f;
 
-
+    [NonSerialized] public BigInteger foodPrice;
     // Start is called before the first frame update
     void Awake()
     {

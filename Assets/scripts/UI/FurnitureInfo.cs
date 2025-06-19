@@ -97,7 +97,7 @@ public class FurnitureInfo : MonoBehaviour
     public void Upgrade()
     {
 
-        if (currentFurniture) GameInstance.GameIns.restaurantManager.UpgradeFoodMachine(currentFurniture.GetComponent<FoodMachine>());
+        if (currentFurniture) GameInstance.GameIns.restaurantManager.UpgradeFoodMachine(currentFurniture.GetComponent<FoodMachine>(), this);
       
     }
 }

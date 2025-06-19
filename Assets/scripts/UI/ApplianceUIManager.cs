@@ -500,12 +500,12 @@ public class ApplianceUIManager : MonoBehaviour
 
     void Upgrade()
     {
-        if (foodMachine) GameInstance.GameIns.restaurantManager.UpgradeFoodMachine(foodMachine);
+/*        if (foodMachine) GameInstance.GameIns.restaurantManager.UpgradeFoodMachine(foodMachine);
         else
         {
             if (GameInstance.GameIns.restaurantManager.restaurantCurrency.fishes > 0 && animalController.reward == null)
                 Feed();
-        }
+        }*/
     }
 
     Coroutine scheduleCoroutine;

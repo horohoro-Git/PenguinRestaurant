@@ -82,8 +82,8 @@ public class FurnitureInfo_Type : MonoBehaviour
         furnitureImage.sprite = loadedAtlases["Furnitures"].GetSprite(spriteAssetKeys[furniture.id].ID); //machines[(int)foodMachine.machineLevelStruct.type - 1];
         if(fm != null)
         {
-            upgradeCost.text = $"업그레이드 비용 : {fm.machineLevelData.price}원";
-            upgradablesStatus.text = $"레벨 : {fm.machineLevelData.level}\n음식 판매가격 : {fm.machineLevelData.sale_proceed}원\n생산 속도 : {fm.machineLevelData.cooking_time}/s\n최대 생산량: {fm.machineLevelData.max_height}개"; 
+            upgradeCost.text = $"업그레이드 비용 : {fm.machineLevelData.calculatedPrice}원";
+            upgradablesStatus.text = $"레벨 : {fm.machineLevelData.level}\n음식 판매가격 : {fm.machineLevelData.calculatedSales}원\n생산 속도 : {fm.machineLevelData.calculatedCookingTimer}/s\n최대 생산량: {fm.machineLevelData.calculatedHeight}개"; 
 
         }
         if(furniture.spaceType != WorkSpaceType.None)
