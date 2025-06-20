@@ -64,7 +64,6 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
         }
         else
         {
-            Debug.Log(goods.id + " " + remains);
             int count = goods.num - remains;
             if (count == 0 && goods.sale != "0")
             {

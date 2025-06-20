@@ -24,7 +24,8 @@ Shader "Custom/HoloShader"
         ZTest LEqual      
         ZWrite On        
         Blend SrcAlpha OneMinusSrcAlpha 
-
+       // Blend SrcAlpha One 
+      // Blend One One
         Pass
         {
             Name "ForwardLit"
@@ -114,8 +115,13 @@ Shader "Custom/HoloShader"
                 float alpha = lerp(minAlpha, maxAlpha, fresnel * scanEffect);
                 color.a *= 0.5;
 
-                half4 finalColor = half4(blendColor.rgb, alpha * color.a);
-                return finalColor;
+               // half4 finalColor = half4(blendColor.rgb, alpha * color.a);
+                float3 finalColor = blendColor.rgb * (1.0 + fresnel * 2.0);
+               // float luminance = dot(finalColor, float3(0.3, 0.6, 0.1)); // RGB → Grayscale 변환
+               // float3 saturatedColor = lerp(luminance, finalColor, 1.5); // 채도 1.5배 증가
+                return half4(finalColor * 2, saturate(alpha * 1));
+              //  return finalColor;
+                //return half4(saturatedColor, alpha * color.a);
             }
 
             ENDHLSL

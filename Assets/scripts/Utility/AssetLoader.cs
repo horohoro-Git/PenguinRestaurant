@@ -301,12 +301,12 @@ public class AssetLoader : MonoBehaviour
                     if (assetRequest.asset is T castedAsset)
                     {
                         outputs[keyValue.Value.Name] = castedAsset;
-                        Debug.Log(keyValue + " loaded");
+                   //     Debug.Log(keyValue + " loaded");
                     }
                 }
                 else
                 {
-                    Debug.Log(keyValue + " loaded fail");
+                 //   Debug.Log(keyValue + " loaded fail");
                     unloadNum++;
                 }
             }

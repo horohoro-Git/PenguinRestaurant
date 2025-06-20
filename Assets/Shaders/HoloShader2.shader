@@ -113,9 +113,10 @@ Shader "Custom/HoloShader2"
 
                 float alpha = lerp(minAlpha, maxAlpha, fresnel * scanEffect);
                 color.a *= 0.5;
-
-                half4 finalColor = half4(blendColor.rgb, alpha * color.a);
-                return finalColor;
+                float3 finalColor = blendColor.rgb * (1.0 + fresnel * 2.0);
+                return half4(finalColor * 2.0, saturate(alpha * 1.0));
+               // half4 finalColor = half4(blendColor.rgb, alpha * color.a);
+                //return finalColor;
             }
 
             ENDHLSL

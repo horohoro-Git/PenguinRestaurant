@@ -17,6 +17,7 @@ using UnityEngine.Rendering.Universal;
 using UnityEngine.UIElements;
 using Vector3 = UnityEngine.Vector3;
 using Quaternion = UnityEngine.Quaternion;
+using Random = UnityEngine.Random;
 using System.Text;
 // 한글
 
@@ -486,9 +487,6 @@ public class Customer : AnimalController
                 }
             }
 
-
-               
-
                 //요구 사항 표시
             counter.customer = this;
             animator.SetInteger("state", 0);
@@ -547,9 +545,9 @@ public class Customer : AnimalController
             }
 
             stringBuilder = Utility.GetFormattedMoney(foodPrices, stringBuilder);
-            Debug.Log(stringBuilder.ToString() +" Prices");
 
             FloatingCost fc = GameInstance.GameIns.restaurantManager.GetFloatingCost();
+         
             fc.rectTransform.position = InputManger.cachingCamera.WorldToScreenPoint(trans.position) + Vector3.up * 50;
             fc.text.text = stringBuilder.ToString();
             fc.height = 100;
@@ -562,9 +560,9 @@ public class Customer : AnimalController
             GameInstance.GameIns.restaurantManager.restaurantCurrency.changed = true;
             //   GameInstance.GameIns.uiManager.UpdateMoneyText(GameInstance.GameIns.restaurantManager.restaurantCurrency.money);
 
-            SaveLoadManager.Save(SaveLoadManager.SaveState.ONLY_SAVE_PLAYERDATA);
             hasMoney = false;
 
+            await UniTask.Delay(500, cancellationToken: cancellationToken);
 
             List<Table> tables = GameInstance.GameIns.workSpaceManager.tables.ToList();
             //foodMachine  거리 오름차순 개수 내림차순
@@ -875,7 +873,7 @@ public class Customer : AnimalController
                             if (!table.hasProblem)
                             {
                                 float timer = animalStruct.eat_speed;
-                                if (RestaurantManager.restaurantTimer >= tm + timer * 10)
+                                if (RestaurantManager.restaurantTimer >= tm + timer / 10)
                                 {
                                     tm = RestaurantManager.restaurantTimer;
 
@@ -884,8 +882,9 @@ public class Customer : AnimalController
                                     // animator.SetInteger("state", 2);
                                     animal.PlayTriggerAnimation(AnimationKeys.Eat);
                                 }
-                                await Utility.CustomUniTaskDelay(timer, cancellationToken);
-                             //   await UniTask.Delay(timer);
+                                //await UniTask.NextFrame(cancellationToken: cancellationToken); //Utility.CustomUniTaskDelay(timer, cancellationToken);
+                                //await UniTask.Delay((int)(timer * 10), cancellationToken: cancellationToken);
+                                await Utility.CustomUniTaskDelay(timer / 100, cancellationToken);
                             }
                             else
                             {
@@ -898,6 +897,12 @@ public class Customer : AnimalController
                                         if(cancellationTokenSource != null) cancellationTokenSource.Cancel();
                                         cancellationTokenSource = new CancellationTokenSource();
                                         EmoteTimer(0, AnimationKeys.Sad, true, cancellationTokenSource.Token).Forget();
+                                        FloatingEmote(4002);
+                                        if(GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation > 0)
+                                        {
+                                            GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation--;
+                                            GameInstance.GameIns.restaurantManager.CalculateSpawnTimer();
+                                        }
                                     }
 
                                  /*   int remains = 0;
@@ -913,6 +918,8 @@ public class Customer : AnimalController
                                         if (cancellationTokenSource != null) cancellationTokenSource.Cancel();
                                         cancellationTokenSource = new CancellationTokenSource();
                                         EmoteTimer(0, AnimationKeys.Trauma, true, cancellationTokenSource.Token).Forget();
+
+                                        FloatingEmote(4003);
 
                                         await Utility.CustomUniTaskDelay(3f, cancellationToken);
                                        // await UniTask.Delay(3000, cancellationToken: cancellationToken);
@@ -930,7 +937,7 @@ public class Customer : AnimalController
                                     }
 
                                 }
-
+                             
                                 for(int j =0; j< table.seats.Length; j++)
                                 {
                                     if (table.seats[j].animal == null)
@@ -949,7 +956,6 @@ public class Customer : AnimalController
                                     }
                                 }
                                 
-
                             }
                             //if (table.foodStacks[0].foodStack.Count == 0) break;
                         }
@@ -972,8 +978,8 @@ public class Customer : AnimalController
                                 go.transforms.SetParent(table.trashPlate.transforms);
                                 table.garbageList.Add(go);
 
-                                float x = UnityEngine.Random.Range(-1f, 1f);
-                                float z = UnityEngine.Random.Range(-1f, 1f);
+                                float x = Random.Range(-1f, 1f);
+                                float z = Random.Range(-1f, 1f);
                                 go.transforms.position = table.up.position + GameInstance.GetVector3(x, 0, z);
                             }
                         }
@@ -990,6 +996,14 @@ public class Customer : AnimalController
                    // await UniTask.Delay(500, cancellationToken: cancellationToken);
                     ParticleManager.ClearParticle(particle);
                     SoundManager.Instance.PlayAudio3D(GameInstance.GameIns.gameSoundManager.Happy(), 0.1f, 100, 5, trans.position);
+                    int reputation = Random.Range(0, 10);
+                    if(reputation < 5)
+                    {
+                        GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation += 1;
+                        GameInstance.GameIns.restaurantManager.CalculateSpawnTimer();
+                        GameInstance.GameIns.restaurantManager.restaurantCurrency.changed = true;
+                    }
+                    FloatingEmote(4000);
 
                     if (cancellationTokenSource != null) cancellationTokenSource.Cancel();
                     cancellationTokenSource = new CancellationTokenSource();
@@ -1084,7 +1098,7 @@ public class Customer : AnimalController
         {
             waitTimer = 0;
             //customerAction = CustomerAction.NONE;
-            GameInstance.GameIns.animalManager.AttacCustomerTask(this);
+            GameInstance.GameIns.animalManager.AttachCustomerTask(this);
         }
     }
 
@@ -1124,5 +1138,15 @@ public class Customer : AnimalController
         nodes.Clear();
         foodStacks.Clear();
         currentAnimal = null;
+    }
+
+
+    void FloatingEmote(int key)
+    {
+        Emote e = GameInstance.GameIns.restaurantManager.GetEmote();
+        e.rectTransform.position = InputManger.cachingCamera.WorldToScreenPoint(trans.position) + Vector3.up * 50;
+        e.image.sprite = GameInstance.GameIns.restaurantManager.emoteSprites[key];
+        e.height = 100;
+        e.Emotion();
     }
 }

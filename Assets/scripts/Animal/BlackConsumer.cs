@@ -39,12 +39,12 @@ public class BlackConsumer : AnimalController
                 break;
             case BlackConsumerState.FindingTarget:
                 List<Table> tables = workSpaceManager.tables;
-                tables = tables.OrderBy(t => t.transform.position - trans.position).ToList();
+               // tables = tables.OrderBy(t => t.transform.position - trans.position).ToList();
+                tables = tables.OrderBy(t => Vector3.Distance(t.transform.position, trans.position)).ToList();
                 for (int i = 0; i < tables.Count; i++)
                 {
                     if (tables[i].foodStacks[0].foodStack.Count > 0)
                     {
-                        Debug.Log(tables[i].foodStacks[0].foodStack.Count);
                         targetTable = tables[i];
                         FoundTheTarget();
                         return;
@@ -97,6 +97,7 @@ public class BlackConsumer : AnimalController
     {
         try
         {
+            Debug.Log("Enter");
             int x = 0;
             int y = 0;
             float size = GameIns.calculatorScale.distanceSize;
@@ -130,12 +131,13 @@ public class BlackConsumer : AnimalController
             while (true)
             {
                 Stack<Vector3> moveTargets = await CalculateNodes_Async(target, false, cancellationToken);
+                Debug.Log("Enter");
                 if (moveTargets != null && moveTargets.Count > 0)
                 {
                     Vector3 test = moveTargets.Peek();
                     if (test.z == 100 && test.x == 100)
                     {
-
+                        Debug.Log("EnterFail");
                         Wait();
                         return;
                     }
@@ -149,20 +151,16 @@ public class BlackConsumer : AnimalController
                             reCalculate = false;
                             continue;
                         }
-
                     }
 
                     await UniTask.Delay(200, cancellationToken: cancellationToken);
 
-                    //        state = BlackConsumerState.Steal;
-                    //         consumerCallback?.Invoke(this);
                 }
                 else
                 {
                     Wait();
                 }
                 return;
-                //  Escape: continue;
             }
         }
         catch
@@ -319,8 +317,6 @@ public class BlackConsumer : AnimalController
         {
             while (true)
             {
-                Debug.Log(target);
-              //  while (pause) await UniTask.Delay(100, cancellationToken: cancellationToken);
                 Stack<Vector3> moveTargets = await CalculateNodes_Async(target, false, cancellationToken);
                 if (moveTargets != null && moveTargets.Count > 0)
                 {
@@ -412,7 +408,8 @@ public class BlackConsumer : AnimalController
                         await UniTask.NextFrame(cancellationToken: cancellationToken);
                         Food f = targetTable.placedFoods[seatIndex].GetComponent<Food>();
                         FoodManager.EatFood(f);
-
+                        targetTable.numberOfFoods--;
+                        targetTable.numberOfGarbage++;
                         targetTable.placedFoods[seatIndex] = null;
                         await UniTask.Delay(200, cancellationToken: cancellationToken);
                     }
@@ -429,6 +426,8 @@ public class BlackConsumer : AnimalController
                     await Eating(cancellationToken: cancellationToken);
                     await UniTask.NextFrame(cancellationToken: cancellationToken);
                     FoodManager.EatFood(f);
+                    targetTable.numberOfFoods--;
+                    targetTable.numberOfGarbage++;
 
                     targetTable.placedFoods[seatIndex] = null;
 
@@ -450,7 +449,11 @@ public class BlackConsumer : AnimalController
 
                 targetTable.stolen = true;
                 SoundManager.Instance.PlayAudio3D(GameIns.gameSoundManager.LaughAt(), 0.1f, 100, 5, trans.position);
-               
+                Emote e = GameIns.restaurantManager.GetEmote();
+                e.image.sprite = GameInstance.GameIns.restaurantManager.emoteSprites[4001];
+                e.rectTransform.position = InputManger.cachingCamera.WorldToScreenPoint(trans.position) + Vector3.up * 50;
+                e.height = 100;
+                e.Emotion();
                 animator.SetBool("bounceTrigger", true);
                 animator.SetTrigger("bounce");
                 //audioSource.clip = 
@@ -483,18 +486,19 @@ public class BlackConsumer : AnimalController
     {
         try
         {
-            float tm = 0;
-            int timer = (int)(10 * animalStruct.eat_speed);
+            float tm = RestaurantManager.restaurantTimer;
+            float timer = animalStruct.eat_speed;
             for (int i = 0; i < 100; i++)
             {
-                if (tm + animalStruct.eat_speed / 10 <= Time.time)
+                if (tm + timer / 10 <= RestaurantManager.restaurantTimer)
                 {
-                    tm = Time.time;
+                    tm = RestaurantManager.restaurantTimer;
                     SoundManager.Instance.PlayAudio3D(GameIns.gameSoundManager.Eat(), 0.1f, 100, 5, trans.position);
                     
                     animator.SetTrigger(AnimationKeys.eat);
                 }
-                await UniTask.Delay(timer, cancellationToken: cancellationToken);
+                await Utility.CustomUniTaskDelay(timer / 100, cancellationToken);
+                //await UniTask.Delay((int)(timer * 10), cancellationToken: cancellationToken);
             }
         }
         catch (Exception ex) 
@@ -508,7 +512,7 @@ public class BlackConsumer : AnimalController
         try
         {
             animator.SetTrigger(AnimationKeys.hit);
-            await UniTask.Delay(1000, cancellationToken: cancellationToken);
+            await UniTask.Delay(1500, cancellationToken: cancellationToken);
             while (true)
             {
                 
@@ -571,6 +575,7 @@ public class BlackConsumer : AnimalController
                  a = a.parentNode;
                  await UniTask.NextFrame();
              }*/
+            Debug.Log("BlackConsumer_Move");
             n.Pop();
             await UniTask.NextFrame(cancellationToken: cancellationToken);
             while (n.Count > 0)
@@ -683,11 +688,5 @@ public class BlackConsumer : AnimalController
             consumerCallback?.Invoke(this);
         }
     }
-    public void DoTroll()
-    {
-        WorkSpaceManager workSpace = GameIns.workSpaceManager;
-
-        
-
-    }
+  
 }

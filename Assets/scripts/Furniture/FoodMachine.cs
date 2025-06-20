@@ -361,7 +361,7 @@ public class FoodMachine : Furniture
 
             while (true)
             {
-                if (machineLevelData == null || foodStack.foodStack.Count >= machineLevelData.max_height)
+                if (machineLevelData == null || foodStack.foodStack.Count >= machineLevelData.calculatedHeight)
                 {
                     await Utility.CustomUniTaskDelay(0.2f, cancellationToken);
                   //  await UniTask.Delay(200, cancellationToken: cancellationToken);

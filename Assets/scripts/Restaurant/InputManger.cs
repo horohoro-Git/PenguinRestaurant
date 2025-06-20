@@ -109,8 +109,8 @@ public class InputManger : MonoBehaviour
     PointerEventData pointerEventData;
 
     UnlockableBuyer buyer;
-    int refX;
-    int refY;
+    int refX = -999;
+    int refY = -999;
     bool checkingHirePos;
     public static List<Vector3> spawnDetects = new List<Vector3>();
     Employee draggingEmployee;
@@ -138,14 +138,13 @@ public class InputManger : MonoBehaviour
                                                        // animalManager.SpawnAnimal(AnimalController.PlayType.Employee, new FoodsAnimalsWant()); // 또 다른 직원 동물 생성
                                                        // animalManager.SpawnAnimal(AnimalController.PlayType.Employee, new FoodsAnimalsWant()); // 또 다른 직원 동물 생성
         zOffset = cameraTrans.position.z - Camera.main.transform.position.z;
-
-
         originSize = Camera.main.orthographicSize;
+        cachingCamera = Camera.main;    
     }
 
     void Update()
     {
-        // Utility.CheckHirable(cameraRange.position, ref refX, ref refY, true, true);
+         Utility.CheckHirable(cameraRange.position, ref refX, ref refY, true, true);
         /*  if (Input.GetKey(KeyCode.O))
           {
              // for (int i = 0; i < 1; i++)

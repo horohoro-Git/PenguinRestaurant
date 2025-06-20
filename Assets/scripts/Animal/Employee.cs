@@ -1128,13 +1128,14 @@ public class Employee : AnimalController
             trashCanList.Clear();
             trashCanList = workSpaceManager.trashCans;
             trashCanList = trashCanList.OrderBy(trashcan => (trashcan.transforms.position - trans.position).magnitude).ToList();
+            Debug.Log("Trashcan");
             if(trashCanList.Count > 0)
             {
                 Work(trashCanList[0].throwPos.position, trashCanList[0]);
                 return;
 
             }
-
+            Debug.Log("Trashcan Non");
             //쓰레기 통이 없음
             Work();
         }
@@ -1839,6 +1840,7 @@ public class Employee : AnimalController
                     }
                     else
                     {
+                        Debug.Log("Employee_Trashcan2");
                         await Employee_Move(moveTargets, position, cancellationToken);
 
                         if (reCalculate)
@@ -1878,6 +1880,7 @@ public class Employee : AnimalController
                 }
                 else
                 {
+                    Debug.Log("Employee_Trashcan3");
                     Work();
                 }
                 return;

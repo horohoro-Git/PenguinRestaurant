@@ -210,7 +210,7 @@ public class AnimalManager : MonoBehaviour
 
     private void Start()
     {
-        GameInstance.GameIns.calculatorScale.distanceSize = 0.4f;
+        GameInstance.GameIns.calculatorScale.distanceSize = 0.3f;
         MoveCalculator.CheckArea(GameInstance.GameIns.calculatorScale, true);
 
         animalStructs = SaveLoadSystem.LoadAnimalsData();
@@ -479,7 +479,7 @@ public class AnimalManager : MonoBehaviour
         return animal;
     }
 
-    public Shadow AttackShadow(Animal animal)
+    public Shadow AttachShadow(Animal animal)
     {
         Shadow shadow = deactivateShadows.Dequeue();
         activateShadows.Add(shadow);
@@ -605,17 +605,13 @@ public class AnimalManager : MonoBehaviour
         //Destroy(this);
     }
 
-    public void UpdateEmployeeUpgrade(Employee animal)
-    {
-       // animal.employeeLevel = GameInstance.GameIns.restaurantManager.employeeDatas[animal.id - 1];
-    }
 
     public void AttachEmployeeTask(Employee employee)
     {
         employeeCallback.Invoke(employee);
         //employeeTasks.Enqueue(employee);
     }
-    public void AttacCustomerTask(Customer customer)
+    public void AttachCustomerTask(Customer customer)
     {
         customerCallback.Invoke(customer);
        // customerTasks.Enqueue(employee);

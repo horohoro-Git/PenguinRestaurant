@@ -50,3 +50,4 @@ Animal Restaurant Tycoon Game
 06/17 Added flyer image variations in the gacha scene, filled empty areas around the map, and made gacha cost increase with each new collection entry
 06/18 Increase furniture placement cost based on the number placed, and add growth formulas for cooking tools
 06/19 Display the purchase cost above the customer's head using UI, now showing up to two decimal places
+06/20 Added shop reputation system that influences customer spawn intervals, along with position adjustments and bug fixes
