@@ -266,7 +266,7 @@ public class MoveCalculator
 
                 if (ValidCheck(targetY, targetX) && block[GetIndex(targetX, targetY)])
                 {
-                    //Debug.Log("EndBlocked");
+                    Debug.Log("EndBlocked");
                     return null;
                 }
                 //  start.parentNode = start;   
@@ -313,7 +313,7 @@ public class MoveCalculator
                                         a.parentNode = null;
                                         a = t;
                                     }
-
+                                    Debug.Log("Calculated");
                                     return returnVectors;
                                 }
 

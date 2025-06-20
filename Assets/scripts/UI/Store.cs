@@ -43,7 +43,6 @@ public class Store : MonoBehaviour
         {
             if (v.Value.type != WorkSpaceType.None)
             {
-                Debug.Log(v.Key);
                 goodsDic[v.Key] = new Queue<GameObject>();
                 for (int i = 0; i < v.Value.num; i++)
                 {

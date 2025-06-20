@@ -41,7 +41,7 @@ public class FishingManager : MonoBehaviour
             
                                 if(GameInstance.GameIns.uiManager)
                                 {
-                                    GameInstance.GameIns.uiManager.fishesNumText.text = "(" + numberOfFishes.ToString() + " / 50)";
+                                    GameInstance.GameIns.uiManager.fishesNumText.text = "(" + numberOfFishes.ToString() + " / 20)";
                                 }
                           } }
 
@@ -89,7 +89,7 @@ public class FishingManager : MonoBehaviour
     {
         if (setup)
         {
-            if (numberOfFishes < 50 && !water.isDirty && !working)
+            if (numberOfFishes < 20 && !water.isDirty && !working)
             {
                 if (spawnTimer + timerGap <= Time.unscaledTime)
                 {

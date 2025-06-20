@@ -51,6 +51,7 @@ public class AnimalSpawner : MonoBehaviour
         animalManager = gameInstance.animalManager;
         gameInstance.workSpaceManager.spwaners.Add(this);
 
+       
         if (animalManager.mode == AnimalManager.Mode.GameMode) Spawn().Forget();
     }
 
@@ -63,6 +64,25 @@ public class AnimalSpawner : MonoBehaviour
     {
         try
         {
+            bool checkSpawner = false;
+            while (!checkSpawner)
+            {
+                switch (type)
+                {
+                    case SpawnerType.FastFood:
+                        if (GameInstance.GameIns.workSpaceManager.unlockFoods[(int)MachineType.BurgerMachine - 1]) checkSpawner = true;
+                        else if(GameInstance.GameIns.workSpaceManager.unlockFoods[(int)MachineType.CokeMachine - 1]) checkSpawner = true;
+                        break;
+                    case SpawnerType.DonutShop:
+                        if (GameInstance.GameIns.workSpaceManager.unlockFoods[(int)MachineType.CoffeeMachine - 1]) checkSpawner = true;
+                        else if (GameInstance.GameIns.workSpaceManager.unlockFoods[(int)MachineType.DonutMachine - 1]) checkSpawner = true;
+                        break;
+                
+                }
+                await UniTask.NextFrame(cancellationToken: cancellationToken);
+            }
+            RestaurantManager.spawnerNum += 1;
+            GameInstance.GameIns.restaurantManager.CalculateSpawnTimer();
             await UniTask.Delay(3000, cancellationToken: cancellationToken);
             while (true)
             {
@@ -112,13 +132,14 @@ public class AnimalSpawner : MonoBehaviour
                                    // ac.trans.position = //transform.position;
                                     if(!waitingCustomers.ContainsKey(ac.customerIndex)) waitingCustomers[ac.customerIndex] = ac;
                                     await UniTask.Delay(100, cancellationToken: cancellationToken);
-                                    GameInstance.GameIns.animalManager.AttacCustomerTask(ac);
+                                    GameInstance.GameIns.animalManager.AttachCustomerTask(ac);
 
                                     float value = GameInstance.GameIns.restaurantManager.GetRestaurantValue();
                                     float timerValue = 1650 / value + 2;
 
-                                 //   await UniTask.Delay((int)timerValue, cancellationToken: cancellationToken);
-                                    await UniTask.Delay(5000);
+                                    //   await UniTask.Delay((int)timerValue, cancellationToken: cancellationToken);
+                                    Debug.Log(RestaurantManager.spawnTimer);
+                                    await UniTask.Delay(RestaurantManager.spawnTimer, cancellationToken: cancellationToken);
                                     //yield return new WaitForSeconds(timerValue);
                                 }
                                 break;
@@ -159,11 +180,11 @@ public class AnimalSpawner : MonoBehaviour
 
                                     // ac.trans.position = transform.position;
                                     if (!waitingCustomers.ContainsKey(ac.customerIndex)) waitingCustomers[ac.customerIndex] = ac;
-                                    GameInstance.GameIns.animalManager.AttacCustomerTask(ac);
+                                    GameInstance.GameIns.animalManager.AttachCustomerTask(ac);
 
                                     float value = GameInstance.GameIns.restaurantManager.GetRestaurantValue();
                                     float timerValue = 1650 / value + 2;
-                                    await UniTask.Delay(5000);
+                                    await UniTask.Delay(RestaurantManager.spawnTimer, cancellationToken: cancellationToken);
                                   //  await UniTask.Delay((int)timerValue, cancellationToken: cancellationToken);
                                 }
                                 break;

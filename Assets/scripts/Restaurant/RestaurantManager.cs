@@ -74,6 +74,8 @@ public class RestaurantManager : MonoBehaviour
     public VendingMachineData vendingData;
 
     public static float restaurantTimer;
+    public static int spawnTimer;
+    public static int spawnerNum;
     [NonSerialized] public int moneyChangedSoundKey;
     [NonSerialized] public int fishChangedSoundKey;
     Coroutine changingMoneyCoroutine;
@@ -198,7 +200,7 @@ public class RestaurantManager : MonoBehaviour
 
         
 
-      
+       
       
 
     }
@@ -648,7 +650,6 @@ public class RestaurantManager : MonoBehaviour
                         Transform counterOffset = furniture.GetComponent<Counter>().offset;
                         counterOffset.transform.localPosition = localPos;
                         counterOffset.transform.rotation = rot;
-                        Debug.Log(rot);
                         break;
                     case WorkSpaceType.Trashcan:
                         Transform trashCanOffset = furniture.GetComponent<TrashCan>().offset;
@@ -695,7 +696,7 @@ public class RestaurantManager : MonoBehaviour
             {
                 OpenMiniGame(0);
             }
-
+            CalculateSpawnTimer();
             await LoadEmployees(cancellationToken);
         }
         catch (Exception e)
@@ -1359,6 +1360,23 @@ public class RestaurantManager : MonoBehaviour
             floatingCosts.Enqueue(fc);
         }
       
+    }
+
+    public void CalculateSpawnTimer()
+    {
+        if(restaurantCurrency.reputation == 0)
+        {
+            spawnTimer = 30000 + (int)(30000 * (spawnerNum - 1) * 0.5f);
+        }
+        else
+        {
+            float f = restaurantCurrency.reputation / 100f;
+
+            int timer = (int)Mathf.Lerp(30000, 10000, f);
+            timer = timer + (int)(timer * (spawnerNum - 1) * 0.5f);
+            spawnTimer = timer;
+        }
+
     }
 
     public void OpenMiniGame(int r)

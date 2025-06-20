@@ -46,11 +46,11 @@ public class GridManager : MonoBehaviour
         CreateCells();
         CreateLines();
        // Debug.Log(worldPoint);
-        int x = Mathf.FloorToInt((-3 - GameIns.calculatorScale.minX) / GameIns.calculatorScale.distanceSize);
+      /*  int x = Mathf.FloorToInt((-3 - GameIns.calculatorScale.minX) / GameIns.calculatorScale.distanceSize);
         int y = Mathf.FloorToInt((-10 - GameIns.calculatorScale.minY) / GameIns.calculatorScale.distanceSize);
         int gridCellX = Mathf.FloorToInt((x - 0.7f + 2.5f * 0.5f));
         int gridCellY = Mathf.FloorToInt((y - 1.2f + 2.5f * 0.5f));
-        Debug.Log(x + " " + y + " " + gridCellX + " " + gridCellY);
+        Debug.Log(x + " " + y + " " + gridCellX + " " + gridCellY);*/
     }
 
    /* private void Update()
@@ -232,8 +232,8 @@ public class GridManager : MonoBehaviour
                 float x = Mathf.FloorToInt(boxCollider.transform.position.x / cellSize) * cellSize;
                 float z = Mathf.FloorToInt(boxCollider.transform.position.z / cellSize) * cellSize;
                 Vector2 vector2 = new Vector2(x, z);
-                int gridX = Mathf.FloorToInt((x - calculatorScale.minX) / 2.5f);
-                int gridY = Mathf.FloorToInt((z - calculatorScale.minY) / 2.5f);
+                int gridX = Mathf.FloorToInt((x - calculatorScale.minX) / 3);
+                int gridY = Mathf.FloorToInt((z - calculatorScale.minY) / 3);
                 if (!cellDic.ContainsKey(vector2))
                 {
                     MaterialBlockController cell_GO = GetCell();
@@ -252,8 +252,8 @@ public class GridManager : MonoBehaviour
         go.canPlace = true;
         foreach (var c in go.temp)
         {
-            int gridX = Mathf.FloorToInt((c.x - GameIns.calculatorScale.minX) / 2.5f);
-            int gridY = Mathf.FloorToInt((c.y - GameIns.calculatorScale.minY) / 2.5f);
+            int gridX = Mathf.FloorToInt((c.x - GameIns.calculatorScale.minX) / 3);
+            int gridY = Mathf.FloorToInt((c.y - GameIns.calculatorScale.minY) / 3);
             int index = MoveCalculator.GetIndex(gridX, gridY);
             if (index < grids.Length) grids[index] = false;
           //  c.Value.gameObject.SetActive(true);
@@ -265,8 +265,8 @@ public class GridManager : MonoBehaviour
     {
         foreach (var c in go.temp)
         {
-            int gridX = Mathf.FloorToInt((c.x - GameIns.calculatorScale.minX) / 2.5f);
-            int gridY = Mathf.FloorToInt((c.y - GameIns.calculatorScale.minY) / 2.5f);
+            int gridX = Mathf.FloorToInt((c.x - GameIns.calculatorScale.minX) / 3);
+            int gridY = Mathf.FloorToInt((c.y - GameIns.calculatorScale.minY) / 3);
             int index = MoveCalculator.GetIndex(gridX, gridY);
             if (index < grids.Length) grids[index] = true;
           
@@ -287,14 +287,14 @@ public class GridManager : MonoBehaviour
         {
             if (boxCollider.gameObject.layer == 17)
             {
-                Vector3 size = GameInstance.GetVector3(calculatorScale.distanceSize * 2.5f, calculatorScale.distanceSize * 2.5f, calculatorScale.distanceSize * 2.5f);
+                Vector3 size = GameInstance.GetVector3(calculatorScale.distanceSize * 3f, calculatorScale.distanceSize * 3f, calculatorScale.distanceSize * 3f);
 
                 float x = Mathf.FloorToInt(boxCollider.transform.position.x / cellSize) * cellSize;
                 float z = Mathf.FloorToInt(boxCollider.transform.position.z / cellSize) * cellSize;
 
                 Vector2 vector2 = new Vector2(x, z);
-                int gridX = Mathf.FloorToInt((x - calculatorScale.minX) / 2.5f);
-                int gridY = Mathf.FloorToInt((z - calculatorScale.minY) / 2.5f);
+                int gridX = Mathf.FloorToInt((x - calculatorScale.minX) / 3f);
+                int gridY = Mathf.FloorToInt((z - calculatorScale.minY) / 3f);
                 if (!cellDic.ContainsKey(vector2))
                 {
                     MaterialBlockController cell_GO = GetCell();
@@ -395,8 +395,8 @@ public class GridManager : MonoBehaviour
     {
         foreach (var c in cellDic)
         {
-            int gridX = Mathf.FloorToInt((c.Key.x - GameIns.calculatorScale.minX) / 2.5f);
-            int gridY = Mathf.FloorToInt((c.Key.y - GameIns.calculatorScale.minY) / 2.5f);
+            int gridX = Mathf.FloorToInt((c.Key.x - GameIns.calculatorScale.minX) / 3f);
+            int gridY = Mathf.FloorToInt((c.Key.y - GameIns.calculatorScale.minY) / 3f);
             int index = MoveCalculator.GetIndex(gridX, gridY);
             if (index < grids.Length) grids[index] = true;
             c.Value.gameObject.SetActive(false);

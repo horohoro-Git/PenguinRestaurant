@@ -22,6 +22,10 @@ public class EnemySpawner : MonoBehaviour
 
     async UniTask EnemySpawn(CancellationToken cancellationToken = default)
     {
+        while (RestaurantManager.spawnTimer == 0)
+        {
+            await UniTask.NextFrame(cancellationToken: cancellationToken);
+        }
         AnimalManager animalManager = GameInstance.GameIns.animalManager;
         WorkSpaceManager workSpace = GameInstance.GameIns.workSpaceManager;
         try
