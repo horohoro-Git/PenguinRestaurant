@@ -59,11 +59,12 @@ public class FurnitureInfo : MonoBehaviour
     public void Replace()
     {
         if (currentFurniture)
-        { 
+        {  
+            Queue<int> placedArea = MoveCalculator.GetCheckAreaWithBounds(GameInstance.GameIns.calculatorScale, currentFurniture.GetComponentInChildren<Collider>());
             currentFurniture.gameObject.SetActive(false);
             PlaceController placeController = GameInstance.GameIns.store.GetGoods(currentFurniture.id);
            
-
+            placeController.placedArea = placedArea;
             placeController.transform.position = currentFurniture.originPos;
             if (currentFurniture.TryGetComponent(out IObjectOffset fm))
             {
@@ -82,6 +83,7 @@ public class FurnitureInfo : MonoBehaviour
             GameInstance.GameIns.applianceUIManager.appliancePanel.gameObject.SetActive(false);
             GameInstance.GameIns.applianceUIManager.StopInfo();
             GameInstance.GameIns.gridManager.VisibleGrid(true);
+
         }
     }
 

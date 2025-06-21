@@ -137,8 +137,7 @@ public class AnimalSpawner : MonoBehaviour
                                     float value = GameInstance.GameIns.restaurantManager.GetRestaurantValue();
                                     float timerValue = 1650 / value + 2;
 
-                                    //   await UniTask.Delay((int)timerValue, cancellationToken: cancellationToken);
-                                    Debug.Log(RestaurantManager.spawnTimer);
+                                
                                     await UniTask.Delay(RestaurantManager.spawnTimer, cancellationToken: cancellationToken);
                                     //yield return new WaitForSeconds(timerValue);
                                 }

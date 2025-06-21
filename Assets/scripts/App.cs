@@ -132,7 +132,6 @@ public class App : MonoBehaviour
 
             if (GameInstance.GameIns.assetLoader.sceneLoaded)
             {
-                Debug.Log("Load");
                 await GameLoaded(GlobalToken);
             }
             else

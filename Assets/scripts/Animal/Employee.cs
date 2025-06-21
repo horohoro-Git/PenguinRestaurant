@@ -923,36 +923,39 @@ public class Employee : AnimalController
                             Customer customer = counterList[i].customer;
                             for (int k = 0; k < foodMachineList.Count; k++)
                             {
-                                //  int tmp = 0;
-                                for (int l = 0; l < counterList[i].foodStacks.Count; l++)
+                                if (foodMachineList[k].bActivated)
                                 {
-                                    int tmp = 20 - (counterList[i].foodStacks[l].foodStack.Count + counterList[i].foodStacks[l].getNum);
-                                    tmp = tmp > employeeLevel.max_weight ? employeeLevel.max_weight : tmp;
-                                    if (counterList[i].customer.foodStacks[j].type != foodMachineList[k].machineType) continue;
-                                    /*if (foodMachineList[k].foodStack.foodStack.Count + counterList[i].foodStacks[l].foodStack.Count + customer.foodStacks[j].foodStack.Count >= customer.foodStacks[j].needFoodNum &&
-                                   (foodMachineList[k].employee == null || foodMachineList[k].employee == this) && counterList[i].foodStacks[l].type == counterList[i].customer.foodStacks[j].type &&
-                                   customer.foodStacks[j].needFoodNum > customer.foodStacks[j].foodStack.Count + counterList[i].foodStacks[l].foodStack.Count)*/
-                                    if ((foodMachineList[k].employee == null || foodMachineList[k].employee == this) && counterList[i].foodStacks[l].type == counterList[i].customer.foodStacks[j].type &&
-                                   customer.foodStacks[j].needFoodNum > customer.foodStacks[j].foodStack.Count + counterList[i].foodStacks[l].foodStack.Count && foodMachineList[k].foodStack.foodStack.Count > 0)
+                                    //  int tmp = 0;
+                                    for (int l = 0; l < counterList[i].foodStacks.Count; l++)
                                     {
-                                        counterList[i].foodStacks[l].getNum += tmp;
-                                        foodMachineList[k].employee = this;
-                                        foodMachineList[k].getNum += tmp;
-                                        employeeState = EmployeeState.FoodMachine;
-                                        target = foodMachineList[k].workingSpot.position;
-                                        deliveryCounter = counterList[i];
-                                        Vector3 t = counterList[i].workingSpot_SmallTables[l].transforms.position;
-                                        //  counterList[i].foodStacks[l].getNum = tmp;
-                                        Work(target, foodMachineList[k], t, counterList[i]);
-                                        return;
+                                        int tmp = 20 - (counterList[i].foodStacks[l].foodStack.Count + counterList[i].foodStacks[l].getNum);
+                                        tmp = tmp > employeeLevel.max_weight ? employeeLevel.max_weight : tmp;
+                                        if (counterList[i].customer.foodStacks[j].type != foodMachineList[k].machineType) continue;
+                                        /*if (foodMachineList[k].foodStack.foodStack.Count + counterList[i].foodStacks[l].foodStack.Count + customer.foodStacks[j].foodStack.Count >= customer.foodStacks[j].needFoodNum &&
+                                       (foodMachineList[k].employee == null || foodMachineList[k].employee == this) && counterList[i].foodStacks[l].type == counterList[i].customer.foodStacks[j].type &&
+                                       customer.foodStacks[j].needFoodNum > customer.foodStacks[j].foodStack.Count + counterList[i].foodStacks[l].foodStack.Count)*/
+                                        if ((foodMachineList[k].employee == null || foodMachineList[k].employee == this) && counterList[i].foodStacks[l].type == counterList[i].customer.foodStacks[j].type &&
+                                       customer.foodStacks[j].needFoodNum > customer.foodStacks[j].foodStack.Count + counterList[i].foodStacks[l].foodStack.Count && foodMachineList[k].foodStack.foodStack.Count > 0)
+                                        {
+                                            counterList[i].foodStacks[l].getNum += tmp;
+                                            foodMachineList[k].employee = this;
+                                            foodMachineList[k].getNum += tmp;
+                                            employeeState = EmployeeState.FoodMachine;
+                                            target = foodMachineList[k].workingSpot.position;
+                                            deliveryCounter = counterList[i];
+                                            Vector3 t = counterList[i].workingSpot_SmallTables[l].transforms.position;
+                                            //  counterList[i].foodStacks[l].getNum = tmp;
+                                            Work(target, foodMachineList[k], t, counterList[i]);
+                                            return;
+                                        }
+                                        /*  else if(foodMachineList[k].foodStack.foodStack.Count + counterList[i].foodStacks[l].foodStack.Count + customer.foodStacks[j].foodStack.Count < customer.foodStacks[j].needFoodNum &&
+                                         (foodMachineList[k].employee == null || foodMachineList[k].employee == this) && counterList[i].foodStacks[l].type == counterList[i].customer.foodStacks[j].type &&
+                                         customer.foodStacks[j].needFoodNum > customer.foodStacks[j].foodStack.Count + counterList[i].foodStacks[l].foodStack.Count)
+                                          {
+                                              tmp--;
+                                              goto ExitLoops;
+                                          }*/
                                     }
-                                    /*  else if(foodMachineList[k].foodStack.foodStack.Count + counterList[i].foodStacks[l].foodStack.Count + customer.foodStacks[j].foodStack.Count < customer.foodStacks[j].needFoodNum &&
-                                     (foodMachineList[k].employee == null || foodMachineList[k].employee == this) && counterList[i].foodStacks[l].type == counterList[i].customer.foodStacks[j].type &&
-                                     customer.foodStacks[j].needFoodNum > customer.foodStacks[j].foodStack.Count + counterList[i].foodStacks[l].foodStack.Count)
-                                      {
-                                          tmp--;
-                                          goto ExitLoops;
-                                      }*/
                                 }
                                 /*
                                         if (tmp > 0)
@@ -1047,7 +1050,7 @@ public class Employee : AnimalController
                 {
                     for (int j = 0; j < foodMachineList.Count; j++)
                     {
-                        if (fStacks[i].type != MachineType.PackingTable && fStacks[i].type == foodMachineList[j].machineType &&
+                        if (foodMachineList[j].bActivated && fStacks[i].type != MachineType.PackingTable && fStacks[i].type == foodMachineList[j].machineType &&
                           foodMachineList[j].foodStack.foodStack.Count > 0 && (foodMachineList[j].employee == null || foodMachineList[j].employee == this))
                         {
                             for (int k = 0; k < counterList.Count; k++)
@@ -1387,12 +1390,12 @@ public class Employee : AnimalController
                             if (currentStackCount >= employeeLevel.max_weight || foodMachine.foodStack.foodStack.Count == 0)
                             {
                                 foodMachine.employee = null;
+                                foodMachine.getNum = 0;
                                 if (debuging) Debug.Log("직원 조리기구 종료");
                             
                                 break;
                             }
                             Food f = foodMachine.foodStack.foodStack.Pop();
-
                             if (debuging) Debug.Log("직원 조리기구에서 음식을 가져가는 중");
 
                             MachineType t = foodMachine.machineType;

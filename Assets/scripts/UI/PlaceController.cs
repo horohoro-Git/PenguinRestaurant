@@ -52,6 +52,7 @@ public class PlaceController : MonoBehaviour
     [NonSerialized] public StoreGoods storeGoods;
 
     Mouse currentMouse;
+    public Queue<int> placedArea = new Queue<int>();
     private void Start()
     {
         applyImage.gameObject.layer = 5;
@@ -184,7 +185,12 @@ public class PlaceController : MonoBehaviour
             SoundManager.Instance.PlayAudio(GameInstance.GameIns.uISoundManager.UIClick(), 0.2f);
          
             GameInstance.GameIns.gridManager.ApplyGird();
-            if(purchasedObject) GameInstance.GameIns.gridManager.RemoveCell();
+            if (purchasedObject)
+            {
+                GameInstance.GameIns.gridManager.RemoveCell();
+                MoveCalculator.ApplyCheckAreaWithBounds(placedArea, false);
+                placedArea.Clear();
+            }
             GameInstance.GameIns.gridManager.RemoveSelect();
             storeGoods.PlaceGoods(rotateOffsets[level], level, currentFurniture);
             storeGoods.RemoveGoodsPreview();
@@ -199,7 +205,11 @@ public class PlaceController : MonoBehaviour
     public void Cancel()
     {
         SoundManager.Instance.PlayAudio(GameInstance.GameIns.uISoundManager.UIClick(), 0.2f);
-        if (purchasedObject) GameInstance.GameIns.gridManager.Revert(this);
+        if (purchasedObject)
+        {
+            GameInstance.GameIns.gridManager.Revert(this);
+            placedArea.Clear();
+        }
         GameInstance.GameIns.gridManager.RemoveCell();
         GameInstance.GameIns.gridManager.RemoveSelect();
         storeGoods.RemoveGoodsPreview();

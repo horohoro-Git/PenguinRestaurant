@@ -1,6 +1,7 @@
 using CryingSnow.FastFoodRush;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using DG.Tweening.CustomPlugins;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -66,6 +67,7 @@ public class FoodMachine : Furniture
     public int soundClip;
 
     StringBuilder sb = new StringBuilder();
+    [NonSerialized] public bool bActivated;
 
     private void Awake()
     {
@@ -110,13 +112,7 @@ public class FoodMachine : Furniture
         {
             fuelGage.gameObject.SetActive(false);
         }
-        if(GameInstance.GameIns.workSpaceManager)
-        {
-            if(GameInstance.GameIns.workSpaceManager.foodMachines.Contains(this))
-            {
-                GameInstance.GameIns.workSpaceManager.foodMachines.Remove(this);
-            }
-        }
+        bActivated = false;
         if (tray != null && GameInstance.GameIns.app != null && App.GlobalToken != null)
         {
             DespawnTray(App.GlobalToken).Forget();
@@ -127,7 +123,6 @@ public class FoodMachine : Furniture
     {
         GameInstance.GameIns.workSpaceManager.unlockFoods[(int)machineType - 1] = true;
         GameInstance.GameIns.workSpaceManager.foodMachines.Add(this);
-
         if (!spawned)
         {
             Invoke("LateStart", 0.5f);
@@ -223,11 +218,16 @@ public class FoodMachine : Furniture
             {
                 v.gameObject.SetActive(true);
             }
+
+            bActivated = true;
         }
         catch (Exception ex)
         {
             Debug.LogException(ex);
         }
+
+       
+      
     }
     async UniTask DespawnTray(CancellationToken cancellationToken = default)
     {

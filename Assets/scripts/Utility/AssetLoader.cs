@@ -63,7 +63,7 @@ public class AssetLoader : MonoBehaviour
         GameInstance.GameIns.assetLoader = this;
         SpriteAtlasManager.atlasRequested += (tag, callback) =>
         {
-            Debug.Log($"[TAG]: {tag}");
+         //   Debug.Log($"[TAG]: {tag}");
             if(loadedAtlases.ContainsKey(tag)) callback(loadedAtlases[tag]);
 
         };
@@ -282,7 +282,6 @@ public class AssetLoader : MonoBehaviour
 
             if (request != null)
             {
-                Debug.Log(tables[i]);
                 TextAsset itemTextAsset = (TextAsset)request.asset;
                 tableContents.Add(tables[i], itemTextAsset.text);
             }
