@@ -208,6 +208,7 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
             if(currnet.purchasedObject)
             {
                 currnet.currentFurniture.gameObject.SetActive(true);
+               
             }
             currnet.purchasedObject = false;    
             currnet.currentFurniture = null;    
@@ -252,8 +253,8 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
                 {
                     fm.Set(false);
                 }
-                SaveLoadSystem.SaveRestaurantBuildingData();
             }
+            SaveLoadSystem.SaveRestaurantBuildingData();
             if (GameIns.store.goodsDic[goods.ID].Count == 0)
             {
                 goods.soldout = true;

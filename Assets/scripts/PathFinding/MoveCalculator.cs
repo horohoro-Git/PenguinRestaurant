@@ -95,6 +95,54 @@ public class MoveCalculator
 
     }
 
+    public static Queue<int> GetCheckAreaWithBounds(CalculatorScale calculatorScale, Collider collider)
+    {
+        Queue<int> result = new Queue<int>();
+
+        if (collider != null)
+        {
+            float minX = calculatorScale.minX;
+            float minY = calculatorScale.minY;
+            float distanceSize = calculatorScale.distanceSize;
+
+            Bounds bounds = collider.bounds;
+            Vector3 center = bounds.center;
+            Vector3 extents = bounds.extents;
+
+            Debug.Log(bounds + " " + center + " " + extents);
+            float tMinX = center.x - extents.x;
+            float tMinY = center.z - extents.z;
+            float tMaxX = center.x + extents.x;
+            float tMaxY = center.z + extents.z;
+            int minIndexX = Mathf.FloorToInt((tMinX - minX) / distanceSize) - 1;
+            int maxIndexX = Mathf.FloorToInt((tMaxX - minX) / distanceSize) + 2;
+            int minIndexY = Mathf.FloorToInt((tMinY - minY) / distanceSize) - 1;
+            int maxIndexY = Mathf.FloorToInt((tMaxY - minY) / distanceSize) + 2;
+
+            for (int i = minIndexX; i <= maxIndexX; i++)
+            {
+                for (int j = minIndexY; j <= maxIndexY; j++)
+                {
+                    result.Enqueue(GetIndex(i, j));
+                  //  blockedAreas[GetIndex(i, j)] = update;
+                  //  blockedAreas_Employee[GetIndex(i, j)] = update;
+                }
+            }
+        }
+        return result;
+    }
+
+    public static void ApplyCheckAreaWithBounds(Queue<int> areas, bool update)
+    {
+        while(areas.Count > 0)
+        {
+            int area = areas.Dequeue();
+
+            blockedAreas[area] = update;
+            blockedAreas_Employee[area] = update;
+        }
+    }
+
     public static void CheckAreaWithBounds(CalculatorScale calculatorScale, Collider collider, bool update)
     {
         if(collider != null)
@@ -102,7 +150,7 @@ public class MoveCalculator
             float minX = calculatorScale.minX;
             float minY = calculatorScale.minY;
             float distanceSize = calculatorScale.distanceSize;
-     
+            
             Bounds bounds = collider.bounds;
             Vector3 center = bounds.center;
             Vector3 extents = bounds.extents;
@@ -188,7 +236,7 @@ public class MoveCalculator
                 if(check2) blockedAreas_Employee[GetIndex(j,i)] = true;
             }
         }
-       int xx = 0;
+        int xx = 0;
         int yy = 0;
         if(GameInstance.GameIns != null && GameInstance.GameIns.inputManager != null && GameInstance.GameIns.inputManager.cameraRange != null) CheckHirable(GameInstance.GameIns.inputManager.cameraRange.position, ref xx, ref yy, true);
     }
@@ -313,7 +361,6 @@ public class MoveCalculator
                                         a.parentNode = null;
                                         a = t;
                                     }
-                                    Debug.Log("Calculated");
                                     return returnVectors;
                                 }
 
