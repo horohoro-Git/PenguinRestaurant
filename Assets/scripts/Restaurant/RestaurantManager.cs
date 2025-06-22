@@ -318,6 +318,9 @@ public class RestaurantManager : MonoBehaviour
         Escape: 
         MoveCalculator.CheckArea(GameIns.calculatorScale, true);
         SaveLoadSystem.SaveRestaurantBuildingData();
+        int testX = -999;
+        int testY = -999;
+        Utility.CheckHirable(GameIns.inputManager.cameraRange.position, ref testX, ref testY, false, true);
     }
 
     public void LevelUp(bool load = false, bool checkArea = true)
@@ -712,16 +715,52 @@ public class RestaurantManager : MonoBehaviour
         {
             await UniTask.NextFrame(cancellationToken: cancellationToken);
             int num = employees.employeeLevelDatas.Count;
+            int x=0, y=0;
+            Utility.CheckHirable(Vector3.zero, ref x, ref y, false, true, true);
+
+       //     Debug.Log(InputManger.spawnDetects.Count);
+
+
             for (int i = 0; i < num; i++)
             {
-                Employee animal = GameInstance.GameIns.animalManager.SpawnEmployee();
+                int r = Random.Range(0, InputManger.spawnDetects.Count);
+
+                Vector3 t = InputManger.spawnDetects[r];
+
+                Employee animal = GameIns.animalManager.SpawnEmployee();
+                animal.employeeLevelData = employees.employeeLevelDatas[i];
+                animal.trans.position = t;
+                animal.employeeLevel = AssetLoader.employees_levels[0];
+                animal.employeeLevelData.targetEXP = animal.employeeLevel.exp + Mathf.FloorToInt(Mathf.Pow((animal.employeeLevelData.level - 1), animal.employeeLevel.increase_exp_mul) * animal.employeeLevel.increase_exp_mul);
+                animal.employeeLevelData.speed = animal.employeeLevel.move_speed + (animal.employeeLevelData.level - 1) * 0.2f;
+                animal.employeeLevelData.max_weight = animal.employeeLevel.max_weight + Mathf.FloorToInt((animal.employeeLevelData.level - 1) / 2);
+                animal.EXP = employees.employeeLevelDatas[i].exp;
+                animal.ui.UpdateLevel(animal.employeeLevelData.level);
+                animal.employeeCallback?.Invoke(animal);
+
+                await UniTask.NextFrame(cancellationToken: cancellationToken);
+            }
+
+            InputManger.spawnDetects = new List<Vector3>();
+      /*      while (true)
+            {
+                int r = Random.Range(0, InputManger.spawnDetects.Count);
+
+                Vector3 t = InputManger.spawnDetects[r];
+
+                Employee animal = GameIns.animalManager.SpawnEmployee();
                 bool check = false;
                 float X = 0;
                 float Z = 0;
                 while (!check)
                 {
-                    X = UnityEngine.Random.Range(-18, 22);
-                    Z = UnityEngine.Random.Range(-22, 21);
+                    X = Random.Range(-18, 22);
+                    Z = Random.Range(-22, 21);
+
+                    float minX = GameIns.calculatorScale.minX;
+                    float minY = GameIns.calculatorScale.minY;
+                    float distanceSize = GameIns.calculatorScale.distanceSize;
+
                     Vector3 center = GameInstance.GetVector3(X, 0, Z);
                     Vector3 halfExtents = GameInstance.GetVector3(0.5f, 0.5f, 0.5f);
                     if (Physics.CheckBox(center, halfExtents, Quaternion.identity, 1 << 6 | 1 << 7 | 1 << 8 | 1 << 16 | 1 << 19 | 1 << 21))
@@ -738,14 +777,14 @@ public class RestaurantManager : MonoBehaviour
                 animal.employeeLevel = AssetLoader.employees_levels[0];
                 animal.employeeLevelData.targetEXP = animal.employeeLevel.exp + Mathf.FloorToInt(Mathf.Pow((animal.employeeLevelData.level - 1), animal.employeeLevel.increase_exp_mul) * animal.employeeLevel.increase_exp_mul);
                 animal.employeeLevelData.speed = animal.employeeLevel.move_speed + (animal.employeeLevelData.level - 1) * 0.2f;
-                animal.employeeLevelData.max_weight = animal.employeeLevel.max_weight + (animal.employeeLevelData.level - 1) / 2;
+                animal.employeeLevelData.max_weight = animal.employeeLevel.max_weight + Mathf.FloorToInt((animal.employeeLevelData.level - 1) / 2);
                 animal.EXP = employees.employeeLevelDatas[i].exp;
                 animal.ui.UpdateLevel(animal.employeeLevelData.level);
                 animal.employeeCallback?.Invoke(animal);
 
                 await UniTask.NextFrame(cancellationToken: cancellationToken);
             }
-
+*/
             if ((num < 8 && employeeHire[num] <= GetRestaurantValue()))
             {
                 GameInstance.GameIns.applianceUIManager.UnlockHire(true);
@@ -788,8 +827,6 @@ public class RestaurantManager : MonoBehaviour
         {
             employees.num++;
 
-            //SaveLoadManager.Save(SaveLoadManager.SaveState.ONLY_SAVE_PLAYERDATA);//
-            Debug.Log("A");
             EmployeeNum();
         }
        // EmployeeNum();
@@ -821,7 +858,7 @@ public class RestaurantManager : MonoBehaviour
 
     public void EmployeeNum()
     {
-       // for (int i = 0; i < 8; i++)
+     //   for (int i = 0; i < 8; i++)
         {
             Employee animal = GameInstance.GameIns.animalManager.SpawnEmployee();
             EmployeeLevelData levelData = new EmployeeLevelData(1, 0, 5);
@@ -1068,8 +1105,6 @@ public class RestaurantManager : MonoBehaviour
             {
                 GameInstance.GameIns.applianceUIManager.UnlockHire(false);
             }
-            //   SaveLoadManager.Save(SaveState.ONLY_SAVE_UPGRADE);//
-            //  SaveLoadManager.Save(SaveState.ONLY_SAVE_PLAYERDATA);//
         }
     }
 
@@ -1081,6 +1116,7 @@ public class RestaurantManager : MonoBehaviour
         GetFish(before, -amount);
         restaurantCurrency.changed = true;
         foodMachine.machineLevelData.fishes += amount;
+        foodMachine.fuelGage.UpdateGage(amount, false);
         machineLevelDataChanged = true; 
     }
 
@@ -1215,7 +1251,6 @@ public class RestaurantManager : MonoBehaviour
 
     public void GetFish(int before, int addFish, bool animate = true)
     {
-       
         if (animate)
         {
             if(changingFishCoroutine != null) StopCoroutine(changingFishCoroutine);

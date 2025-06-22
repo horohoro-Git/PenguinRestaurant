@@ -283,26 +283,27 @@ public class GridManager : MonoBehaviour
 
         //   colliders.Clear();
         if (go.colliders.Count == 0) go.GetComponentsInChildren(true, go.colliders);
+        Debug.Log(go.colliders.Count);
         foreach (BoxCollider boxCollider in go.colliders)
         {
             if (boxCollider.gameObject.layer == 17)
             {
-                Vector3 size = GameInstance.GetVector3(calculatorScale.distanceSize * 3f, calculatorScale.distanceSize * 3f, calculatorScale.distanceSize * 3f);
+                Vector3 size = GameInstance.GetVector3(calculatorScale.distanceSize * 2.5f, calculatorScale.distanceSize * 2.5f, calculatorScale.distanceSize * 2.5f);
 
                 float x = Mathf.FloorToInt(boxCollider.transform.position.x / cellSize) * cellSize;
                 float z = Mathf.FloorToInt(boxCollider.transform.position.z / cellSize) * cellSize;
 
                 Vector2 vector2 = new Vector2(x, z);
-                int gridX = Mathf.FloorToInt((x - calculatorScale.minX) / 3f);
-                int gridY = Mathf.FloorToInt((z - calculatorScale.minY) / 3f);
+                int gridX = Mathf.FloorToInt((x - calculatorScale.minX) / 2.5f);
+                int gridY = Mathf.FloorToInt((z - calculatorScale.minY) / 2.5f);
                 if (!cellDic.ContainsKey(vector2))
                 {
                     MaterialBlockController cell_GO = GetCell();
 
                     if ((gridX + gridY * GameIns.calculatorScale.sizeX) < grids.Length && (gridX + gridY * GameIns.calculatorScale.sizeX) >= 0 && !grids[MoveCalculator.GetIndex(gridX, gridY)])
                     {
-                        bool check = Physics.CheckBox(boxCollider.gameObject.transform.position, size, Quaternion.Euler(0, 0, 0), 1 << 6 | 1 << 7 | 1 << 8 | 1 << 16 | 1 << 19 | 1 << 21);
-
+                        bool check = Physics.CheckBox(boxCollider.gameObject.transform.position, new Vector3(1.25f, 1.25f, 1.25f), Quaternion.Euler(0, 0, 0), 1 << 6 | 1 << 7 | 1 << 8 | 1 << 16 | 1 << 19 | 1 << 21);
+                         
                         cell_GO.transform.position = new Vector3(x + gridOffsets.x, 0.2f, z + gridOffsets.y);
                         if (check)
                         {
@@ -312,13 +313,11 @@ public class GridManager : MonoBehaviour
                         else
                         {
                             cell_GO.Set(0, green);
-
                         }
                         cellDic[vector2] = cell_GO;
                     }
                     else
                     {
-                      
                         cell_GO.transform.position = new Vector3(x + gridOffsets.x, 0.2f, z + gridOffsets.y);
                         cell_GO.Set(1, red);
                         cellDic[vector2] = cell_GO;
@@ -331,7 +330,7 @@ public class GridManager : MonoBehaviour
                     {
                         if ((gridX + gridY * GameIns.calculatorScale.sizeX) < grids.Length && (gridX + gridY * GameIns.calculatorScale.sizeX) >= 0 && !grids[MoveCalculator.GetIndex(gridX, gridY)])
                         {
-                            bool check = Physics.CheckBox(boxCollider.gameObject.transform.position, size, Quaternion.Euler(0, 0, 0), 1 << 6 | 1 << 7 | 1 << 8 | 1 << 16);
+                            bool check = Physics.CheckBox(boxCollider.gameObject.transform.position, new Vector3(1.25f, 1.25f, 1.25f), Quaternion.Euler(0, 0, 0), 1 << 6 | 1 << 7 | 1 << 8 | 1 << 16);
                             if (check)
                             {
                                 cellDic[vector2].Set(1, red);
@@ -395,8 +394,8 @@ public class GridManager : MonoBehaviour
     {
         foreach (var c in cellDic)
         {
-            int gridX = Mathf.FloorToInt((c.Key.x - GameIns.calculatorScale.minX) / 3f);
-            int gridY = Mathf.FloorToInt((c.Key.y - GameIns.calculatorScale.minY) / 3f);
+            int gridX = Mathf.FloorToInt((c.Key.x - GameIns.calculatorScale.minX) / 2.5f);
+            int gridY = Mathf.FloorToInt((c.Key.y - GameIns.calculatorScale.minY) / 2.5f);
             int index = MoveCalculator.GetIndex(gridX, gridY);
             if (index < grids.Length) grids[index] = true;
             c.Value.gameObject.SetActive(false);

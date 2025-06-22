@@ -109,7 +109,6 @@ public class MoveCalculator
             Vector3 center = bounds.center;
             Vector3 extents = bounds.extents;
 
-            Debug.Log(bounds + " " + center + " " + extents);
             float tMinX = center.x - extents.x;
             float tMinY = center.z - extents.z;
             float tMaxX = center.x + extents.x;

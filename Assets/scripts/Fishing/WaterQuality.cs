@@ -16,6 +16,7 @@ public class WaterQuality : MonoBehaviour
     private void Start()
     {
         material = GetComponent<MeshRenderer>().material;
+        material.renderQueue = 3000;
       //  StartCoroutine(ChangeDirtyQuality());
     }
 

@@ -383,7 +383,7 @@ public class Utility
         return true;
     }
 
-    public static bool CheckHirable(Vector3 center, ref int x, ref int y, bool check, bool forcedCheck = false)
+    public static bool CheckHirable(Vector3 center, ref int x, ref int y, bool check, bool forcedCheck = false, bool justLoad = false)
     {
         Vector3 loc = center;
 
@@ -400,7 +400,7 @@ public class Utility
         Camera cam = null;
         if (InputManger.cachingCamera == null) cam = Camera.main;
         else cam = InputManger.cachingCamera;
-        float radiusInGrid = (cam.orthographicSize / 2.5f) / tileSize;
+        float radiusInGrid = justLoad == false ? (cam.orthographicSize / 2.5f) / tileSize : (22  / tileSize);
         float radiusSqr = radiusInGrid * radiusInGrid;
 
         int minX = Mathf.FloorToInt(cameraPosX - radiusInGrid);
@@ -424,8 +424,8 @@ public class Utility
                     float worldZ = GameIns.calculatorScale.minY + yy * tileSize;
                     Vector3 worldPos = new Vector3(worldX, 0, worldZ);
 
-                  //  Color debugColor = isBlocked ? Color.red : Color.green;
-                  //  Debug.DrawRay(worldPos, Vector3.up * 0.5f, debugColor, 0.1f);
+                    //Color debugColor = isBlocked ? Color.red : Color.green;
+                    //Debug.DrawRay(worldPos, Vector3.up * 0.5f, debugColor, 0.1f);
                     if (!isBlocked) InputManger.spawnDetects.Add(worldPos);
                 }
             }

@@ -553,6 +553,7 @@ public class Customer : AnimalController
             fc.height = 100;
             fc.Floating();
 
+            SoundManager.Instance.PlayAudioWithKey(GameInstance.GameIns.uISoundManager.Money(), 0.2f, GameInstance.GameIns.restaurantManager.moneyChangedSoundKey);
             GameInstance.GameIns.restaurantManager.GetMoney(foodPrices.ToString());
 
             GameInstance.GameIns.restaurantManager.GetFish(GameInstance.GameIns.restaurantManager.restaurantCurrency.fishes, tipNum);
@@ -937,8 +938,10 @@ public class Customer : AnimalController
                                     }
 
                                 }
-                             
-                                for(int j =0; j< table.seats.Length; j++)
+
+                                Emote(false, AnimationKeys.Normal);
+
+                                for (int j =0; j< table.seats.Length; j++)
                                 {
                                     if (table.seats[j].animal == null)
                                     {

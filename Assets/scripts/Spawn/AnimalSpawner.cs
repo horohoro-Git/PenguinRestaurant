@@ -113,9 +113,8 @@ public class AnimalSpawner : MonoBehaviour
 
 
                                     int selectedIndex = UnityEngine.Random.Range(0, 2);
-                                    int another = 1 - selectedIndex;
-
-                                    SpawnPoint temp = spawnPoints[another];
+                               
+                               /*     SpawnPoint temp = spawnPoints[another];
                                     spawnPoints[another] = spawnPoints[selectedIndex];
                                     spawnPoints[selectedIndex] = temp;
                                     
@@ -127,10 +126,14 @@ public class AnimalSpawner : MonoBehaviour
                                             ac.endPoint = spawnPoints[i].gameObject;
                                             break;
                                         }
-                                    }
+                                    }*/
+                              
 
-                                   // ac.trans.position = //transform.position;
-                                    if(!waitingCustomers.ContainsKey(ac.customerIndex)) waitingCustomers[ac.customerIndex] = ac;
+                                    ac.trans.position = spawnPoints[selectedIndex].transform.position;
+                                    ac.endPoint = spawnPoints[selectedIndex].gameObject;
+
+                                    // ac.trans.position = //transform.position;
+                                    if (!waitingCustomers.ContainsKey(ac.customerIndex)) waitingCustomers[ac.customerIndex] = ac;
                                     await UniTask.Delay(100, cancellationToken: cancellationToken);
                                     GameInstance.GameIns.animalManager.AttachCustomerTask(ac);
 
@@ -164,19 +167,20 @@ public class AnimalSpawner : MonoBehaviour
                                     int selectedIndex = UnityEngine.Random.Range(0, 2);
                                     int another = 1 - selectedIndex;
 
-                                    SpawnPoint temp = spawnPoints[another];
-                                    spawnPoints[another] = spawnPoints[selectedIndex];
-                                    spawnPoints[selectedIndex] = temp;
+                                    /*     SpawnPoint temp = spawnPoints[another];
+                                         spawnPoints[another] = spawnPoints[selectedIndex];
+                                         spawnPoints[selectedIndex] = temp;
 
-                                    for (int i = 0; i < spawnPoints.Count; i++)
-                                    {
-                                        if (spawnPoints[i].SpawnTarget())
-                                        {
-                                            ac.trans.position = spawnPoints[i].transform.position;
-                                            break;
-                                        }
-                                    }
-
+                                         for (int i = 0; i < spawnPoints.Count; i++)
+                                         {
+                                             if (spawnPoints[i].SpawnTarget())
+                                             {
+                                                 ac.trans.position = spawnPoints[i].transform.position;
+                                                 break;
+                                             }
+                                         }*/
+                                    ac.trans.position = spawnPoints[selectedIndex].transform.position;
+                                    ac.endPoint = spawnPoints[selectedIndex].gameObject;
                                     // ac.trans.position = transform.position;
                                     if (!waitingCustomers.ContainsKey(ac.customerIndex)) waitingCustomers[ac.customerIndex] = ac;
                                     GameInstance.GameIns.animalManager.AttachCustomerTask(ac);
