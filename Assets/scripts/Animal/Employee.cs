@@ -148,10 +148,10 @@ public class Employee : AnimalController
     // Update is called once per frame
     void Update()
     {
-     /*   if(Input.GetMouseButtonDown(0))
-        {
-            EXP += 20;
-        }*/
+        /*   if(Input.GetMouseButtonDown(0))
+           {
+               EXP += 20;
+           }*/
         if(pause && !falling)
         {
             Vector3 screenPos;
@@ -1058,7 +1058,7 @@ public class Employee : AnimalController
                                 for (int l = 0; l < counterList[k].foodStacks.Count; l++)
                                 {
                                     int tmp = 20 - (fStacks[i].foodStack.Count + fStacks[i].getNum);
-                                    tmp = tmp > employeeLevel.max_weight ? employeeLevel.max_weight : tmp;
+                                    tmp = tmp > employeeLevelData.max_weight ? employeeLevelData.max_weight : tmp;
                                     if (fStacks[i].id == counterList[k].foodStacks[l].id && tmp > 0)
                                     {
                                         fStacks[i].getNum += tmp;
@@ -1384,10 +1384,9 @@ public class Employee : AnimalController
                         foodStack = foodStacks[foodMachine.machineType];
                         while (true)
                         {
-                          
-                  
+
                             int currentStackCount = foodStack.foodStack.Count; // 음식 개수 저장
-                            if (currentStackCount >= employeeLevel.max_weight || foodMachine.foodStack.foodStack.Count == 0)
+                            if (currentStackCount >= employeeLevelData.max_weight || foodMachine.foodStack.foodStack.Count == 0)
                             {
                                 foodMachine.employee = null;
                                 foodMachine.getNum = 0;
@@ -2658,14 +2657,15 @@ public class Employee : AnimalController
     {
        
         employeeLevelData.level++;
-       // employeeLevelData.speed = 
+        // employeeLevelData.speed = 
+        Debug.Log("LevelUp");
         SoundManager.Instance.PlayAudio(GameIns.gameSoundManager.LevelUp(), 0.2f);
         EXP = EXP - employeeLevelData.targetEXP;
         //     employeeLevel = AssetLoader.employees_levels[employeeLevelData.level];
         EmployeeLevelStruct es = AssetLoader.employees_levels[0];
         employeeLevelData.targetEXP = (int)(es.exp + Mathf.FloorToInt(Mathf.Pow(employeeLevelData.level - 1, es.increase_exp_pow)) * es.increase_exp_mul);
 
-        employeeLevelData.max_weight = es.max_weight + Mathf.FloorToInt((employeeLevelData.level - 1) / es.increase_weight);
+        employeeLevelData.max_weight = es.max_weight + Mathf.FloorToInt((employeeLevelData.level - 1) / 2);
         employeeLevelData.speed = es.move_speed + (employeeLevelData.level - 1) * 0.2f;
         if (ui != null) ui.UpdateLevel(employeeLevelData.level);
         //Animal animal = GetComponentInParent<Animal>();

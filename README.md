@@ -52,3 +52,4 @@ Animal Restaurant Tycoon Game
 06/19 Display the purchase cost above the customer's head using UI, now showing up to two decimal places
 06/20 Added shop reputation system that influences customer spawn intervals, along with position adjustments and bug fixes
 06/21 Improved an issue where blocked paths weren't updated during furniture relocation, and fixed a bug where relocated cooking appliances were excluded from staff behavior routines
+06/22 Adjusted object placement to match actual size, fixed staff spawning inside buildings on game load, and resolved water appearing white on mobile devices

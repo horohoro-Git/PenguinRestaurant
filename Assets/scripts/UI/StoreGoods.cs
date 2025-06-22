@@ -163,13 +163,20 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
                     if (instancingImage.gameObject.activeSelf)
                     {
                         instancingImage.gameObject.SetActive(false);
-                        GameIns.restaurantManager.Extension();
+                        BigInteger price = Utility.StringToBigInteger(goods.Price);
+                        if (GameIns.restaurantManager.restaurantCurrency.Money >= price)
+                        {
+                            SoundManager.Instance.PlayAudio(GameIns.uISoundManager.FurniturePurchase(), 0.2f);
+                            GameIns.restaurantManager.GetMoney((-price).ToString());
+                            GameIns.restaurantManager.restaurantCurrency.changed = true;
+                            GameIns.restaurantManager.Extension();
 
-                        goods.soldout = true;
-                        soldout_text.gameObject.SetActive(true);
-                        itemImage.GetComponent<Image>().raycastTarget = false;
-                        GameIns.store.require.Add(goods.ID);
-                        GameIns.store.Refresh();
+                            goods.soldout = true;
+                            soldout_text.gameObject.SetActive(true);
+                            itemImage.GetComponent<Image>().raycastTarget = false;
+                            GameIns.store.require.Add(goods.ID);
+                            GameIns.store.Refresh();
+                        }
                     }
                 }
 
