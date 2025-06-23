@@ -29,7 +29,7 @@ public class BlackConsumer : AnimalController
     CancellationTokenSource cancellationTokenSource;
     public ParticleSystem particles;
     public AudioSource hitAudio;
-
+    [NonSerialized] public EnemySpawner enemySpawner;
     public void CauseTrouble()
     {
         WorkSpaceManager workSpaceManager = GameIns.workSpaceManager;
@@ -540,10 +540,14 @@ public class BlackConsumer : AnimalController
                         modelTrans.rotation = targetTable.seats[seatIndex].transforms.rotation;
                     }
 
-                    await UniTask.Delay(200, cancellationToken: cancellationToken);
+                    GameIns.restaurantManager.trashData.trashNum -= 50;
 
-            //        state = BlackConsumerState.Steal;
-           //         consumerCallback?.Invoke(this);
+                    await UniTask.Delay(200, cancellationToken: cancellationToken);
+                    animator.SetTrigger(AnimationKeys.Normal);
+                    animator.SetInteger(AnimationKeys.state, 0);
+                    
+                    gameObject.SetActive(false);
+                    enemySpawner.bSpawned = false;
                 }
                 else
                 {

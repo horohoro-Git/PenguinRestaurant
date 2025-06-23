@@ -9,7 +9,9 @@ public class CoroutneManager
     public static WaitForSeconds waitForzerofive = new WaitForSeconds(0.5f);
     public static WaitForSeconds waitForzeroone = new WaitForSeconds(0.1f);
     public static WaitForSeconds waitForzerothree = new WaitForSeconds(0.3f);
+    public static WaitForSeconds waitForzerotwo = new WaitForSeconds(0.2f);
     public static WaitForSeconds waitFortwo = new WaitForSeconds(2f);
+    public static WaitForSeconds waitForThree = new WaitForSeconds(3f);
     public static WaitForSeconds waitForone = new WaitForSeconds(1f);
     public static WaitForSeconds waitForfive = new WaitForSeconds(5f);
    // public static WaitForSecondsRealtime waitForfive_real = new WaitForSecondsRealtime(5f);

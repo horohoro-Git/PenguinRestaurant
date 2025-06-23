@@ -8,6 +8,8 @@ using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
+using Random = UnityEngine.Random;
+using Image = UnityEngine.UI.Image;
 
 public class Table : Furniture
 {
@@ -115,6 +117,7 @@ public class Table : Furniture
             await UniTask.WhenAll(tasks);
             isDirty = false;
             interacting = false;
+            canTouchable = true;
         }
         catch (OperationCanceledException)
         {
@@ -138,9 +141,9 @@ public class Table : Furniture
             float elapsedTime = 0;
             Vector3 startPoint = go.transforms.position;
             Vector3 screenTarget = RectTransformUtility.WorldToScreenPoint(
-    InputManger.cachingCamera,
-    GameInstance.GameIns.applianceUIManager.rewardChest.transform.position
-);
+            InputManger.cachingCamera,
+            GameInstance.GameIns.applianceUIManager.rewardChest.transform.position
+            );
 
            // Vector3 endPoint = InputManger.cachingCamera.ScreenToWorldPoint(GameInstance.GameIns.applianceUIManager.rewardChest.transform.position);
             Vector3 endPoint = InputManger.cachingCamera.ScreenToWorldPoint(screenTarget);
@@ -169,6 +172,12 @@ public class Table : Furniture
 
                 await UniTask.NextFrame(cancellationToken: cancellationToken);
             }
+
+            int r = Random.Range(1, 4);
+            GameInstance.GameIns.restaurantManager.trashData.trashPoint += r;
+            if (GameInstance.GameIns.restaurantManager.trashData.trashPoint > 100) GameInstance.GameIns.restaurantManager.trashData.trashPoint = 0;
+            GameInstance.GameIns.applianceUIManager.rewardChest_Fill.GetComponent<Image>().fillAmount = GameInstance.GameIns.restaurantManager.trashData.trashPoint * 0.01f;
+            GameInstance.GameIns.restaurantManager.trashData.changed = true;
         }
         catch (OperationCanceledException)
         {

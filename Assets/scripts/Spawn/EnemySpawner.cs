@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
@@ -8,7 +9,7 @@ public class EnemySpawner : MonoBehaviour
 {
     float spawnTimer;
     BlackConsumer currentBlackConsumer;
-    bool bSpawned;
+    [NonSerialized] public bool bSpawned;
     private void Awake()
     {
      
@@ -46,15 +47,19 @@ public class EnemySpawner : MonoBehaviour
                 {
                     if(!bSpawned)
                     {
-                        bSpawned = true;
-                        currentBlackConsumer = GameInstance.GameIns.animalManager.blackConsumer;
-                        currentBlackConsumer.spawnerTrans = transform;
-                        currentBlackConsumer.trans.position = transform.position;
-                        currentBlackConsumer.animalStruct = AssetLoader.animals[201];
-                        currentBlackConsumer.gameObject.SetActive(true);
-                        GameInstance.GameIns.lodManager.AddLODGroup(currentBlackConsumer.ID, currentBlackConsumer.lodGroup);
-                        currentBlackConsumer.state = BlackConsumerState.FindingTarget;
-                        currentBlackConsumer.consumerCallback?.Invoke(currentBlackConsumer);
+                        if (GameInstance.GameIns.restaurantManager.trashData.trashNum > 50)
+                        {
+                            bSpawned = true;
+                            currentBlackConsumer = GameInstance.GameIns.animalManager.blackConsumer;
+                            currentBlackConsumer.enemySpawner = this;
+                            currentBlackConsumer.spawnerTrans = transform;
+                            currentBlackConsumer.trans.position = transform.position;
+                            currentBlackConsumer.animalStruct = AssetLoader.animals[201];
+                            currentBlackConsumer.gameObject.SetActive(true);
+                            GameInstance.GameIns.lodManager.AddLODGroup(currentBlackConsumer.ID, currentBlackConsumer.lodGroup);
+                            currentBlackConsumer.state = BlackConsumerState.FindingTarget;
+                            currentBlackConsumer.consumerCallback?.Invoke(currentBlackConsumer);
+                        }
                     }
                
                 }

@@ -251,9 +251,9 @@ public class SliderController : MonoBehaviour
         Bar.SetParent(AnimalManager.SubUIParent.transform);
         levelTextTrans.SetParent(AnimalManager.SubUIParent.transform);
 
-        sliderBG.sprite = AssetLoader.loadedAtlases["Town"].GetSprite("slider_bar_color_0"); //AssetLoader.atlasSprites["slider_bar_color_0"];
-        sliderBorder.sprite = AssetLoader.loadedAtlases["Town"].GetSprite("slider_bg_0"); // AssetLoader.atlasSprites["slider_bg_0"];
-        sliderBar.sprite = AssetLoader.loadedAtlases["Town"].GetSprite("slider_bar_color_0");// AssetLoader.atlasSprites["slider_bar_color_0"];
+        sliderBG.sprite = AssetLoader.loadedAtlases["UI"].GetSprite("slider_bar_color_0"); //AssetLoader.atlasSprites["slider_bar_color_0"];
+        sliderBorder.sprite = AssetLoader.loadedAtlases["UI"].GetSprite("slider_bg_0"); // AssetLoader.atlasSprites["slider_bg_0"];
+        sliderBar.sprite = AssetLoader.loadedAtlases["UI"].GetSprite("slider_bar_color_0");// AssetLoader.atlasSprites["slider_bar_color_0"];
        // Canvas.ForceUpdateCanvases();
     }
 

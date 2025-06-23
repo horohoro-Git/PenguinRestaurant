@@ -20,7 +20,7 @@ public class FishingManager : MonoBehaviour
 
     Queue<WaterSplash> waterSplashQueue = new Queue<WaterSplash>();
 
-    Queue<GameObject> fishRewardIconQueue = new Queue<GameObject>();
+  //  Queue<GameObject> fishRewardIconQueue = new Queue<GameObject>();
 
     public Barrel barrel;
     public Transform barrelPoint;
@@ -76,12 +76,12 @@ public class FishingManager : MonoBehaviour
         }
      //   SpawnFish();
 
-        for(int i=0; i<1000; i++)
+    /*    for(int i=0; i<1000; i++)
         {
             GameObject fishIconObject = Instantiate(fishIcon, canvas.transform);
             fishIconObject.SetActive(false);
             fishRewardIconQueue.Enqueue(fishIconObject);
-        }
+        }*/
     }
    
 
@@ -89,7 +89,7 @@ public class FishingManager : MonoBehaviour
     {
         if (setup)
         {
-            if (numberOfFishes < 20 && !water.isDirty && !working)
+            if (FishCount < 20 && !water.isDirty && !working)
             {
                 if (spawnTimer + timerGap <= Time.unscaledTime)
                 {
@@ -99,6 +99,11 @@ public class FishingManager : MonoBehaviour
                 }
             }
         }
+    }
+
+    public void ResetFishing()
+    {
+        water.ChangeClean(false);
     }
 
     public void LoadStatus(Fishing fishing)
@@ -287,27 +292,7 @@ public class FishingManager : MonoBehaviour
     }
 
 
-    public GameObject GetFishIcon()
-    {
-        GameObject f;
-        if (fishRewardIconQueue.Count > 0)
-        {
-            f = fishRewardIconQueue.Dequeue();
-            f.SetActive(true);
-        }
-        else
-        {
-
-            f = Instantiate(fishIcon, canvas.transform);
-        }
-        return f;
-    }
-
-    public void RemoveFishIcon(GameObject icon)
-    {
-        icon.SetActive(false);
-        fishRewardIconQueue.Enqueue(icon);
-    }
+  
 
     public void CaughtFish(Vector3 pos)
     {
@@ -329,7 +314,7 @@ public class FishingManager : MonoBehaviour
         Stack<RectTransform> stack = new Stack<RectTransform>();
         for (int i = 0; i < r; i++)
         {
-            RectTransform icon = GetFishIcon().GetComponent<RectTransform>();
+            RectTransform icon = GameInstance.GameIns.restaurantManager.GetFishIcon().GetComponent<RectTransform>();
             icon.position = target;
             stack.Push(icon);
         }
@@ -387,7 +372,7 @@ public class FishingManager : MonoBehaviour
 
         int num = int.Parse(GameInstance.GameIns.uiManager.fishText.text);
         GameInstance.GameIns.uiManager.fishText.text = (num + 1).ToString();
-        RemoveFishIcon(icon.gameObject);
+        GameInstance.GameIns.restaurantManager.RemoveFishIcon(icon.gameObject);
        
     }
 

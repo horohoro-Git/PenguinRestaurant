@@ -13,6 +13,7 @@ using UnityEngine.Networking;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
 using Quaternion = UnityEngine.Quaternion;
+using DG.Tweening.CustomPlugins;
 
 public class SaveLoadSystem
 {
@@ -732,6 +733,7 @@ public class SaveLoadSystem
                 writer.Write(currency.reputation);
                 writer.Write(currency.leftover);
                 writer.Write(currency.sale_num);
+                writer.Write(currency.minigameStack);
             }
 
             File.WriteAllBytes(p, ms.ToArray());
@@ -761,13 +763,14 @@ public class SaveLoadSystem
                     int reputation = reader.ReadInt32();
                     int leftover = reader.ReadInt32();
                     int sale_num = reader.ReadInt32();
-                    currency = new RestaurantCurrency(money, fishes, affinity, reputation, leftover, sale_num);
+                    int minigameStack = reader.ReadInt32(); 
+                    currency = new RestaurantCurrency(money, fishes, affinity, reputation, leftover, sale_num, minigameStack);
                 }
             }
         }
         else
         {
-            currency = new RestaurantCurrency("500", 0, 0, 0, 0, 0);
+            currency = new RestaurantCurrency("500", 0, 0, 0, 0, 0, 0);
             SaveRestaurantCurrency(currency);
         }
         return currency;
@@ -914,6 +917,59 @@ public class SaveLoadSystem
     }
 
 
+    public static void SaveTrashData(TrashData trashData)
+    {
+        string dir = Path.Combine(path, "Save");
+        if (!Directory.Exists(dir))
+        {
+            Directory.CreateDirectory(dir);
+        }
+        string p = Path.Combine(path, "Save/trash.dat");
+        using (MemoryStream ms = new MemoryStream())
+        {
+            using (BinaryWriter writer = new BinaryWriter(ms))
+            {
+                int num = trashData.trashNum;
+                int point = trashData.trashPoint;
+                writer.Write(num);
+                writer.Write(point);
+            }
+            File.WriteAllBytes(p, ms.ToArray());
+        }
+    }
+
+    public static TrashData LoadTrashData()
+    {
+        string p = Path.Combine(path, "Save/trash.dat");
+        byte[] data;
+
+        TrashData trashData = null;
+        if (File.Exists(p))
+        {
+            using (FileStream fs = new FileStream(p, FileMode.Open))
+            {
+                data = new byte[fs.Length];
+                fs.Read(data, 0, data.Length);
+                if (data.Length > 0)
+                {
+                    using (BinaryReader reader = new BinaryReader(new MemoryStream(data)))
+                    {
+                        int num = reader.ReadInt32();
+                        int point = reader.ReadInt32();
+                        trashData = new TrashData(num, point);
+                    }
+                }
+            }
+        }
+        else
+        {
+            trashData = new TrashData(0,0);
+        }
+
+
+        return trashData;
+    }
+    
     public static void SaveMiniGameStatus(MiniGame miniGame)
     {
         string dir = Path.Combine(path, "Save");

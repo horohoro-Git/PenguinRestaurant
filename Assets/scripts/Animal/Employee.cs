@@ -72,10 +72,16 @@ public class Employee : AnimalController
             {
                 if (employeeLevelData.level < 10)
                 {
-                   
                     employeeLevelData.exp = value;//value + 10;
                     GameIns.restaurantManager.employees.changed = true;
                     exp = value;// value + 10;
+                    ui.EXPChanged();
+                }
+                else
+                {
+                    employeeLevelData.exp = 0;
+                    GameIns.restaurantManager.employees.changed = true;
+                    exp = 0;
                     ui.EXPChanged();
                 }
             }
@@ -859,38 +865,39 @@ public class Employee : AnimalController
 
                 //테이블을 청소
 
-
-                for (int i = 0; i < tableList.Count; i++)
+                if (workSpaceManager.trashCans.Count > 0)
                 {
-                    if (tableList[i].isDirty && !tableList[i].interacting && (tableList[i].employeeContoller == null || tableList[i].employeeContoller == this))
+                    for (int i = 0; i < tableList.Count; i++)
                     {
-                        tableList[i].employeeContoller = this;
-                        employeeState = EmployeeState.Table;
-
-                        float min = 9999;
-                        Seat seat = null;
-                        int index = 0;
-                        for(int j = 0; j< tableList[i].seats.Length; j++)
+                        if (tableList[i].isDirty && !tableList[i].interacting && (tableList[i].employeeContoller == null || tableList[i].employeeContoller == this))
                         {
-                            float dif = Vector3.Distance(trans.position, tableList[i].seats[j].transform.position);
-                            if(dif < min)
+                            tableList[i].employeeContoller = this;
+                            employeeState = EmployeeState.Table;
+
+                            float min = 9999;
+                            Seat seat = null;
+                            int index = 0;
+                            for (int j = 0; j < tableList[i].seats.Length; j++)
                             {
-                                index = j;
-                                min = dif;
-                                seat = tableList[i].seats[j];
+                                float dif = Vector3.Distance(trans.position, tableList[i].seats[j].transform.position);
+                                if (dif < min)
+                                {
+                                    index = j;
+                                    min = dif;
+                                    seat = tableList[i].seats[j];
+                                }
                             }
-                        }
 
-                        if (seat != null)
-                        {
-                            target = seat.transform.position;
-                            seat.animal = this;
-                            Work(target, tableList[i], index);
+                            if (seat != null)
+                            {
+                                target = seat.transform.position;
+                                seat.animal = this;
+                                Work(target, tableList[i], index);
+                            }
+                            return;
                         }
-                        return;
                     }
                 }
-
 
                 /*     tableList.Clear();
                      for (int i = 0; i < workSpaceManager.tables.Count; i++) tableList.Add(workSpaceManager.tables[i]);
@@ -1425,6 +1432,22 @@ public class Employee : AnimalController
 
             await UniTask.Delay(300, cancellationToken: cancellationToken);
 
+            bool hasFood = false;
+            foreach(var v in foodStacks)
+            {
+                if(v.Value.foodStack.Count > 0)
+                {
+                    hasFood = true;
+                    break;
+                }
+            }
+            if (!hasFood)
+            {
+                busy = false;
+                await UniTask.Delay(200, cancellationToken: cancellationToken);
+                employeeCallback?.Invoke(this);
+                return;
+            }
             
             while (true)
             {
@@ -1489,7 +1512,6 @@ public class Employee : AnimalController
                             SoundManager.Instance.PlayAudio3D(GameIns.gameSoundManager.ThrowSound(), 0.2f, 100, 5, trans.position);
                          
                             await UniTask.Delay(300, cancellationToken: cancellationToken);
-
                             EXP += 1;
                             if(pause) goto Escape;
                         }
@@ -1861,7 +1883,7 @@ public class Employee : AnimalController
                     {
                         Garbage garbage = garbageList.Pop();
                         garbage.Release();
-                        Vector3 pos = trash.transforms.position;
+                        Vector3 pos = trash.offset.transform.position;
                         float r = UnityEngine.Random.Range(1, 2.5f);
                         int index = garbageList.Count;
 #if HAS_DOTWEEN
@@ -1870,6 +1892,8 @@ public class Employee : AnimalController
                         OnGarbageClearComplete(garbage));
                         SoundManager.Instance.PlayAudio3D(GameIns.gameSoundManager.ThrowSound(), 0.2f, 100, 5, trans.position);
 #endif
+                        GameIns.restaurantManager.trashData.trashNum++;
+                        GameIns.restaurantManager.trashData.changed = true;
                         await UniTask.Delay(300, cancellationToken: cancellationToken);
                         EXP += 2;
                        
@@ -2448,7 +2472,7 @@ public class Employee : AnimalController
                         // PlayAnim(animal.animationDic[animation_Run], animation_Run);
                         cur = (target - trans.position).magnitude;
                         Vector3 dir = (target - trans.position).normalized;
-                        trans.position = Vector3.MoveTowards(trans.position, target, employeeLevel.move_speed * Time.deltaTime);
+                        trans.position = Vector3.MoveTowards(trans.position, target, employeeLevelData.speed * Time.deltaTime);
                         float angle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
                         modelTrans.rotation = Quaternion.AngleAxis(angle, Vector3.up);
                         // animatedAnimal.transforms.rotation = Quaternion.AngleAxis(angle, Vector3.up);
@@ -2472,7 +2496,7 @@ public class Employee : AnimalController
                     }
                     animator.SetInteger("state", 1);
                     animal.PlayAnimation(AnimationKeys.Walk);
-                    trans.position = Vector3.MoveTowards(trans.position, newLoc, employeeLevel.move_speed * Time.deltaTime);
+                    trans.position = Vector3.MoveTowards(trans.position, newLoc, employeeLevelData.speed * Time.deltaTime);
                     if (Vector3.Distance(trans.position, newLoc) <= 0.01f) break;
                     Vector3 dir = newLoc - trans.position;
                     float angle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
@@ -2657,10 +2681,11 @@ public class Employee : AnimalController
     {
        
         employeeLevelData.level++;
+
         // employeeLevelData.speed = 
         Debug.Log("LevelUp");
         SoundManager.Instance.PlayAudio(GameIns.gameSoundManager.LevelUp(), 0.2f);
-        EXP = EXP - employeeLevelData.targetEXP;
+        EXP = employeeLevelData.level == 10 ? 0 : EXP - employeeLevelData.targetEXP;
         //     employeeLevel = AssetLoader.employees_levels[employeeLevelData.level];
         EmployeeLevelStruct es = AssetLoader.employees_levels[0];
         employeeLevelData.targetEXP = (int)(es.exp + Mathf.FloorToInt(Mathf.Pow(employeeLevelData.level - 1, es.increase_exp_pow)) * es.increase_exp_mul);

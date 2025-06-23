@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -16,7 +17,7 @@ public class Furniture : MonoBehaviour
     public Vector3 offsetPoint;
 
     public int rotateLevel;
-
+    [NonSerialized] public bool canTouchable = true;
     public virtual void Start()
     {
         if(!spawned)

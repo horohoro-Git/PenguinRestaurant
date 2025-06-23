@@ -375,6 +375,8 @@ public class App : MonoBehaviour
         }
         GameInstance.GameIns.gatcharManager.CheckMoney();
         SoundManager.Instance.RestaurantSoundsOnoff(false);
+
+        GameInstance.GameIns.uiManager.fishingBtn.gameObject.SetActive(false);  
     }
   
 

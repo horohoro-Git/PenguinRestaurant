@@ -19,7 +19,7 @@ public class FuelGage : MonoBehaviour
     {
         animator = GetComponentInChildren<Animator>();
         rectTransform = GetComponent<RectTransform>();
-        exclamation.sprite = AssetLoader.loadedAtlases["Town"].GetSprite("exclamation");
+        exclamation.sprite = AssetLoader.loadedAtlases["UI"].GetSprite("exclamation");
         
     }
 

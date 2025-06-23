@@ -17,6 +17,7 @@ using System.Numerics;
 using Vector3 = UnityEngine.Vector3;
 using Quaternion = UnityEngine.Quaternion;
 using Random = UnityEngine.Random;
+using UnityEngine.UI;
 
 public class RestaurantManager : MonoBehaviour
 {
@@ -71,7 +72,8 @@ public class RestaurantManager : MonoBehaviour
     public FuelGage fuelGage;
     public Queue<FuelGage> fuelGages = new Queue<FuelGage>();
 
-    public VendingMachineData vendingData;
+    [NonSerialized] public VendingMachineData vendingData;
+    [NonSerialized] public TrashData trashData;
 
     public static float restaurantTimer;
     public static int spawnTimer;
@@ -90,6 +92,9 @@ public class RestaurantManager : MonoBehaviour
     public FloatingCost floatingCost;
     public Queue<FloatingCost> floatingCosts = new Queue<FloatingCost>();
 
+    public GameObject fishIcon;
+    public Queue<GameObject> fishRewardIconQueue = new Queue<GameObject>();
+    public RectTransform fishIconCanvas;
     private void Awake()
     {
         moneyChangedSoundKey = 100011;
@@ -150,7 +155,7 @@ public class RestaurantManager : MonoBehaviour
     {
         for(int i=0; i<emoteSpriteKeys.Count; i++)
         {
-            emoteSprites[emoteSpriteKeys[i]] = AssetLoader.loadedAtlases["Town"].GetSprite(AssetLoader.spriteAssetKeys[emoteSpriteKeys[i]].ID);
+            emoteSprites[emoteSpriteKeys[i]] = AssetLoader.loadedAtlases["UI"].GetSprite(AssetLoader.spriteAssetKeys[emoteSpriteKeys[i]].ID);
         }
         for(int i=0; i< 30; i++)
         {
@@ -180,6 +185,7 @@ public class RestaurantManager : MonoBehaviour
         vendingData = SaveLoadSystem.LoadVendingMachineData();
         employees = SaveLoadSystem.LoadEmployees();
         miniGame = SaveLoadSystem.LoadMiniGameStatus();
+        trashData = SaveLoadSystem.LoadTrashData();
 
         restaurantCurrency.fishes += 100;
         restaurantCurrency.Money += BigInteger.Parse("316000");// 10000;
@@ -198,17 +204,18 @@ public class RestaurantManager : MonoBehaviour
 
         AutoSave(App.GlobalToken).Forget();
 
-        
-
-       
-      
-
+        for (int i = 0; i < 1000; i++)
+        {
+            GameObject fishIconObject = Instantiate(fishIcon, fishIconCanvas.transform);
+            fishIconObject.SetActive(false);
+            fishRewardIconQueue.Enqueue(fishIconObject);
+        }
     }
 
     private void Update()
     {
         restaurantTimer += Time.deltaTime * App.restaurantTimeScale;
-    
+        
     }
 
     async UniTask AutoSave(CancellationToken cancellationToken = default)
@@ -248,6 +255,11 @@ public class RestaurantManager : MonoBehaviour
             {
                 miniGame.changed = false;
                 SaveLoadSystem.SaveMiniGameStatus(miniGame);
+            }
+            if(trashData.changed)
+            {
+                trashData.changed = false;
+                SaveLoadSystem.SaveTrashData(trashData);
             }
         }
     }
@@ -695,10 +707,9 @@ public class RestaurantManager : MonoBehaviour
                         break;
                 }
             }
-            else
-            {
-                OpenMiniGame(0);
-            }
+          
+            GameIns.uiManager.reputation.text = restaurantCurrency.reputation.ToString();
+            GameIns.applianceUIManager.rewardChest_Fill.GetComponent<Image>().fillAmount = trashData.trashPoint * 0.01f; 
             CalculateSpawnTimer();
             await LoadEmployees(cancellationToken);
         }
@@ -834,25 +845,26 @@ public class RestaurantManager : MonoBehaviour
 
     private bool isFishUpdating = false;
 
-    public void GetFish()
+    public void GetReward()
     {
-        if (isFishUpdating) return; // 중복 호출 방지
-        isFishUpdating = true;
+   //     if (trashData.trashPoint != 100) return;
 
-        float fillAmount = GameInstance.GameIns.applianceUIManager.rewardChest_Fill.GetComponent<UnityEngine.UI.Image>().fillAmount;
-        int trashcanFish = Mathf.FloorToInt(fillAmount * 20); // 소수점 절삭
+        /*
+        float fillAmount = GameInstance.GameIns.applianceUIManager.rewardChest_Fill.GetComponent<Image>().fillAmount;
+        int trashcanFish = Mathf.FloorToInt(fillAmount * 20);
 
-        // Update fishesNum
         int oldFishesNum = restaurantCurrency.fishes;
         restaurantCurrency.fishes += trashcanFish;
 
-        // Update UI
         GameInstance.GameIns.uiManager.fishText.text = restaurantCurrency.fishes.ToString();
 
-        // Reset fillAmount
-        GameInstance.GameIns.applianceUIManager.rewardChest_Fill.GetComponent<UnityEngine.UI.Image>().fillAmount = 0;
-
-        isFishUpdating = false;
+        GameInstance.GameIns.applianceUIManager.rewardChest_Fill.GetComponent<Image>().fillAmount = 0;
+        */
+        GameIns.applianceUIManager.rewardChest.SetActive(false);
+        GameIns.applianceUIManager.rewardChest_Fill.SetActive(false);
+        GameIns.applianceUIManager.clickerReward.gameObject.SetActive(true);
+        GameIns.applianceUIManager.clickerReward.trashcanImage.sprite = AssetLoader.loadedSprites[AssetLoader.spriteAssetKeys[5001].ID];
+        GameIns.applianceUIManager.clickerReward.StartClicker();
     }
 
 
@@ -1146,6 +1158,7 @@ public class RestaurantManager : MonoBehaviour
                    }
                }
            }*/
+        val += restaurantData.extension_level * 600;
         for (int i = 0; i < restaurantparams.Count; i++)
         {
         //    if (restaurantparams[i].unlock)
@@ -1180,7 +1193,7 @@ public class RestaurantManager : MonoBehaviour
       //      int maxheight = machineLevelData[machineType][l].max_height; //machindb[workSpaceManager.foodMachines[i].machineLevelStruct.level - 1].food_production_max_height;
       //      float speed = machineLevelData[machineType][l].cooking_time; //machindb[workSpaceManager.foodMachines[i].machineLevelStruct.level - 1].food_production_speed;
 
-            val += 100 * (l - 1);
+            val += 20 * (l - 1);
         }
 
         for(int i=0; i< GameInstance.GameIns.animalManager.employeeControllers.Count; i++)
@@ -1190,7 +1203,7 @@ public class RestaurantManager : MonoBehaviour
             // float move_speed = newAnimalController.employeeLevel.move_speed;
             // float max_holds = newAnimalController.employeeLevel.max_weight;
             //   val += move_speed * max_holds * 15.625f;
-            val += 100 * (newAnimalController.employeeLevelData.level - 1); 
+            val += 50 * (newAnimalController.employeeLevelData.level - 1); 
         }
        // Debug.Log(val);
         return val;
@@ -1206,6 +1219,7 @@ public class RestaurantManager : MonoBehaviour
         SaveLoadSystem.SaveFoodMachineStats(machineLevelData);
         SaveLoadSystem.SaveVendingMachineData(vendingData);
         SaveLoadSystem.SaveMiniGameStatus(miniGame);
+        if(trashData != null) SaveLoadSystem.SaveTrashData(trashData);
     }
 
     private void OnApplicationPause(bool pauseStatus)
@@ -1218,6 +1232,7 @@ public class RestaurantManager : MonoBehaviour
             //     SaveLoadManager.Save(SaveState.ALL_SAVES);
             SaveLoadSystem.SaveVendingMachineData(vendingData);
             SaveLoadSystem.SaveMiniGameStatus(miniGame);
+            if (trashData != null) SaveLoadSystem.SaveTrashData(trashData);
         }
     }
 
@@ -1414,9 +1429,9 @@ public class RestaurantManager : MonoBehaviour
 
     }
 
-    public void OpenMiniGame(int r)
+    public void OpenMiniGame(int r = 0)
     {
-        if(r == 0) r = Random.Range(1, 2);
+        r = Random.Range(1, 2);
         switch((MiniGameType)r)
         {
             case MiniGameType.Fishing:
@@ -1426,8 +1441,31 @@ public class RestaurantManager : MonoBehaviour
                 if (miniGame.fishing == null) miniGame.fishing = new Fishing(0, false);
 
                 GameIns.fishingManager.setup = true;
+                GameIns.fishingManager.ResetFishing();
                 if(GameIns.app.currentScene == SceneState.Restaurant) GameIns.uiManager.fishingBtn.gameObject.SetActive(true);
                 break;
         }
+    }
+
+    public GameObject GetFishIcon()
+    {
+        GameObject f;
+        if (fishRewardIconQueue.Count > 0)
+        {
+            f = fishRewardIconQueue.Dequeue();
+            f.SetActive(true);
+        }
+        else
+        {
+
+            f = Instantiate(fishIcon, fishIconCanvas.transform);
+        }
+        return f;
+    }
+
+    public void RemoveFishIcon(GameObject icon)
+    {
+        icon.SetActive(false);
+        fishRewardIconQueue.Enqueue(icon);
     }
 }

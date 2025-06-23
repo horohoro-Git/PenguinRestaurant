@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using UnityEngine.EventSystems;
 using System;
 using static AssetLoader;
+using Random = UnityEngine.Random;
 public class ApplianceUIManager : MonoBehaviour
 {
     public TMP_Text text;
@@ -23,6 +24,7 @@ public class ApplianceUIManager : MonoBehaviour
     public GameObject trashCan;
     public GameObject rewardChest;
     public GameObject rewardChest_Fill;
+    public RewardTrashcan clickerReward;
     public GameObject otherUI;
     public Store shopUI;
     public FurnitureInfo furnitureUI;
@@ -81,7 +83,7 @@ public class ApplianceUIManager : MonoBehaviour
         });
         rewardChestBtn.onClick.AddListener(() =>
         {
-            GameInstance.GameIns.restaurantManager.GetFish();
+            GameInstance.GameIns.restaurantManager.GetReward();
         });
 
         appliancePanel.SetActive(false);
@@ -165,6 +167,99 @@ public class ApplianceUIManager : MonoBehaviour
      
         }
     }
+
+
+    public void Reward(int num)
+    {
+
+        int r = Random.Range(5, 11);
+
+        int r2 = Random.Range(num, num * 3 + 1);
+
+        int sum = r + r2;
+
+        StartCoroutine(Rewarding(sum));
+    }
+
+    IEnumerator Rewarding(int num)
+    {
+    //    Vector3 target = InputManger.cachingCamera.WorldToScreenPoint(pos);
+
+       
+        int baseNum = GameInstance.GameIns.restaurantManager.restaurantCurrency.fishes;
+        GameInstance.GameIns.restaurantManager.restaurantCurrency.fishes += num;
+        GameInstance.GameIns.restaurantManager.restaurantCurrency.changed = true;
+        yield return new WaitForSecondsRealtime(0.8f);
+
+        Stack<RectTransform> stack = new Stack<RectTransform>();
+        for (int i = 0; i < num; i++)
+        {
+            RectTransform icon = GameInstance.GameIns.restaurantManager.GetFishIcon().GetComponent<RectTransform>();
+          //  icon.position = target;
+            stack.Push(icon);
+        }
+
+        yield return new WaitForSecondsRealtime(0.2f);
+
+        foreach (var v in stack)
+        {
+            StartCoroutine(SpreadFishes(v));
+        }
+
+        yield return new WaitForSecondsRealtime(0.5f);
+
+        while (stack.Count > 0)
+        {
+            RectTransform icon = stack.Pop();
+            StartCoroutine(Rewarding(icon));
+            yield return new WaitForSecondsRealtime(0.01f);
+        }
+
+        //  GameInstance.GameIns.uiManager.fishText.text = GameInstance.GameIns.restaurantManager.restaurantCurrency.fishes.ToString();
+    }
+    IEnumerator SpreadFishes(RectTransform rect)
+    {
+        float x = Random.Range(-200, 200);
+        float y = Random.Range(-200, 200);
+        Vector3 pos = new Vector3(540, 960);
+        Vector3 target = new Vector3(540, 960);
+        target.x += x;
+        target.y += y;
+        float f = 0;
+        while (f <= 1)
+        {
+            rect.position = Vector3.Lerp(pos, target, f);
+            f += Time.unscaledDeltaTime / 0.2f;
+            yield return null;
+        }
+    }
+    IEnumerator Rewarding(RectTransform icon)
+    {
+        Vector3 cur = icon.position;
+        Vector3 target = GameInstance.GameIns.uiManager.fishImage.position;
+
+        float f = 0;
+        while (f <= 1)
+        {
+            icon.position = Vector3.Lerp(cur, target, f);
+            f += Time.unscaledDeltaTime / 0.2f;
+            yield return null;
+        }
+        icon.position = target;
+
+        SoundManager.Instance.PlayAudio(GameInstance.GameIns.uISoundManager.Fish(), 0.4f);
+
+        int before = GameInstance.GameIns.restaurantManager.restaurantCurrency.fishes;
+
+        int num = int.Parse(GameInstance.GameIns.uiManager.fishText.text);
+        GameInstance.GameIns.uiManager.fishText.text = (num + 1).ToString();
+        GameInstance.GameIns.restaurantManager.RemoveFishIcon(icon.gameObject);
+
+    }
+
+
+
+
 
     IEnumerator InputInfos_A(bool onlyAnimal = true)
     {

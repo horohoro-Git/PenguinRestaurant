@@ -179,6 +179,7 @@ public class Fish : Animal
         GameInstance.GameIns.restaurantManager.miniGame.changed = true;
         if (GameInstance.GameIns.restaurantManager.miniGame.fishing.fishNum == 0)
         {
+            GameInstance.GameIns.fishingManager.setup = false;
             GameInstance.GameIns.restaurantManager.miniGame.activate = false;
             GameInstance.GameIns.restaurantManager.miniGame.type = MiniGameType.None;
             GameInstance.GameIns.restaurantManager.miniGame.fishing = null;

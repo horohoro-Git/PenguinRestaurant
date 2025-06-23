@@ -29,6 +29,7 @@ public class UIManager : MonoBehaviour
     public Button fishingBtn;
     public Button fishingStartButton;
     public TMP_Text fishesNumText;
+    public TMP_Text reputation;
     public GameObject animalGuide;
     public Image fadeImage;
 
@@ -68,10 +69,10 @@ public class UIManager : MonoBehaviour
     void Start()
     {
         eventSystem = EventSystem.current;
-        atlasSprites[10001] = loadedAtlases["Town"].GetSprite(spriteAssetKeys[10001].Name);
-        atlasSprites[10002] = loadedAtlases["Town"].GetSprite(spriteAssetKeys[10002].Name);
-        atlasSprites[10003] = loadedAtlases["Town"].GetSprite(spriteAssetKeys[10003].Name);
-        atlasSprites[10004] = loadedAtlases["Town"].GetSprite(spriteAssetKeys[10004].Name);
+        atlasSprites[10001] = loadedAtlases["UI"].GetSprite(spriteAssetKeys[10001].Name);
+        atlasSprites[10002] = loadedAtlases["UI"].GetSprite(spriteAssetKeys[10002].Name);
+        atlasSprites[10003] = loadedAtlases["UI"].GetSprite(spriteAssetKeys[10003].Name);
+        atlasSprites[10004] = loadedAtlases["UI"].GetSprite(spriteAssetKeys[10004].Name);
        
 
         animalGuideButton.onClick.AddListener(() =>
