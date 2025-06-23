@@ -47,7 +47,7 @@ public class Shadow : MonoBehaviour
 
     public void Setup()
     {
-        shadowImage.sprite = AssetLoader.loadedAtlases["Town"].GetSprite("shadow_circle"); //AssetLoader.atlasSprites["shadow_circle"];
+        shadowImage.sprite = AssetLoader.loadedAtlases["UI"].GetSprite("shadow_circle"); //AssetLoader.atlasSprites["shadow_circle"];
     }
     public void SetSize(Vector2 size, float offset_x, float offset_z)
     {

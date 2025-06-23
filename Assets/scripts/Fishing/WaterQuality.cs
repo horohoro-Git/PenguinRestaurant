@@ -40,6 +40,8 @@ public class WaterQuality : MonoBehaviour
             material.SetColor("_ShallowColor", cleanShallowColor);
             material.SetColor("_HorizonColor", cleanHorizonColor);
             isDirty = false;
+            GameInstance.GameIns.restaurantManager.miniGame.fishing.isDirty = false;
+            GameInstance.GameIns.restaurantManager.miniGame.changed = true;
         }
     }
 

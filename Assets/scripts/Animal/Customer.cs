@@ -544,6 +544,20 @@ public class Customer : AnimalController
 
             }
 
+            if (!GameInstance.GameIns.restaurantManager.miniGame.activate)
+            {
+                GameInstance.GameIns.restaurantManager.restaurantCurrency.minigameStack += foodNum;
+
+                int r = Random.Range(0, GameInstance.GameIns.restaurantManager.restaurantCurrency.minigameStack);
+
+                if(r > 50)
+                {
+                    GameInstance.GameIns.restaurantManager.restaurantCurrency.minigameStack = 0;
+                    GameInstance.GameIns.restaurantManager.miniGame.activate = true;
+                    GameInstance.GameIns.restaurantManager.OpenMiniGame();
+                }
+            }
+            
             stringBuilder = Utility.GetFormattedMoney(foodPrices, stringBuilder);
 
             FloatingCost fc = GameInstance.GameIns.restaurantManager.GetFloatingCost();
@@ -902,6 +916,8 @@ public class Customer : AnimalController
                                         if(GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation > 0)
                                         {
                                             GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation--;
+                                            GameInstance.GameIns.uiManager.reputation.text = GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation.ToString();
+                                            GameInstance.GameIns.restaurantManager.restaurantCurrency.changed = true;
                                             GameInstance.GameIns.restaurantManager.CalculateSpawnTimer();
                                         }
                                     }
@@ -1003,6 +1019,7 @@ public class Customer : AnimalController
                     if(reputation < 5)
                     {
                         GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation += 1;
+                        GameInstance.GameIns.uiManager.reputation.text = GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation.ToString();
                         GameInstance.GameIns.restaurantManager.CalculateSpawnTimer();
                         GameInstance.GameIns.restaurantManager.restaurantCurrency.changed = true;
                     }

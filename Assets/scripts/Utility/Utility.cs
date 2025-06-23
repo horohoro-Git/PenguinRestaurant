@@ -711,15 +711,16 @@ public class RestaurantCurrency
     public string money;
     public int fishes;
     public int affinity;
-    public int sale_num;
     public int reputation;
     public int leftover;
+    public int sale_num;
+    public int minigameStack;
     public bool changed;
 
     BigInteger? m;
     public BigInteger Money { get { if (!m.HasValue) m = BigInteger.Parse(money); return m.Value; } set { m = value; changed = true; } }
 
-    public RestaurantCurrency(string money, int fishes, int affinity, int reputation, int leftover, int sale_num)
+    public RestaurantCurrency(string money, int fishes, int affinity, int reputation, int leftover, int sale_num, int minigameStack)
     {
         this.money = money;
         this.fishes = fishes;
@@ -727,6 +728,7 @@ public class RestaurantCurrency
         this.reputation = reputation;
         this.leftover = leftover;
         this.sale_num = sale_num;
+        this.minigameStack = minigameStack;
     }
 }
 
@@ -756,6 +758,20 @@ public class EmployeeLevelData
         this.targetEXP = targetEXP;
     }
 }
+
+public class TrashData
+{
+    public int trashNum;
+    public int trashPoint;
+    public bool changed;
+
+    public TrashData(int trashNum, int trashPoint)
+    {
+        this.trashNum = trashNum;
+        this.trashPoint = trashPoint;
+    }
+}
+
 
 public class VendingMachineData
 {

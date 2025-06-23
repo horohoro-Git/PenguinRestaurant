@@ -283,7 +283,6 @@ public class GridManager : MonoBehaviour
 
         //   colliders.Clear();
         if (go.colliders.Count == 0) go.GetComponentsInChildren(true, go.colliders);
-        Debug.Log(go.colliders.Count);
         foreach (BoxCollider boxCollider in go.colliders)
         {
             if (boxCollider.gameObject.layer == 17)

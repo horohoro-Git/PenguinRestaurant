@@ -311,7 +311,7 @@ public class InputManger : MonoBehaviour
     {
         Ray ray = cachingCamera.ScreenPointToRay(pos);
         RaycastHit hit;
-        if (Physics.Raycast(ray, out hit, Mathf.Infinity, 1 << 3 | 1 << 11 | 1 << 10 | 1 << 22))
+        if (Physics.Raycast(ray, out hit, Mathf.Infinity, 1 << 3 | 1 << 11 | 1 << 13 | 1 << 10 | 1 << 22))
         {
             GameObject go = hit.collider.gameObject;
             if (go.TryGetComponent<UnlockableBuyer>(out UnlockableBuyer unlockableBuyer))
@@ -351,6 +351,7 @@ public class InputManger : MonoBehaviour
                 if (table.isDirty && !table.interacting)
                 {
                     clickedTable = table;
+                    clickedTable.canTouchable = false;
                     clickedTable.interacting = true;
                     clickedTable.CleanTableManually();
                     //   targetVector = dragTouch.position;
@@ -369,7 +370,10 @@ public class InputManger : MonoBehaviour
             GameObject go = hit.collider.gameObject;
             if (Utility.TryGetComponentInParent<Furniture>(go, out Furniture furniture))
             {
-                GameInstance.GameIns.applianceUIManager.ShowApplianceInfo(furniture);
+                if (furniture.canTouchable)
+                {
+                    GameInstance.GameIns.applianceUIManager.ShowApplianceInfo(furniture);
+                }
             }
         }
     }
