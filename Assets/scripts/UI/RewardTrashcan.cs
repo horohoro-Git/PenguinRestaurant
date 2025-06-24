@@ -30,6 +30,7 @@ public class RewardTrashcan : MonoBehaviour
                 pos.x += r1;
                 pos.y += r2;
                 rect.position = pos;
+                SoundManager.Instance.PlayAudio(GameInstance.GameIns.gameSoundManager.TrashcanHit(), 0.2f);
             }
         });
     }
@@ -43,6 +44,7 @@ public class RewardTrashcan : MonoBehaviour
 
     IEnumerator Clicker()
     {
+        SoundManager.Instance.PlayAudio(GameInstance.GameIns.uISoundManager.UIPop(), 0.4f);
         yield return CoroutneManager.waitForzerotwo;
 
         clickable = true;
@@ -61,7 +63,7 @@ public class RewardTrashcan : MonoBehaviour
         rect.position = origin;
 
         trashcanImage.sprite = AssetLoader.loadedSprites[AssetLoader.spriteAssetKeys[5005].ID];
-
+        SoundManager.Instance.PlayAudio(GameInstance.GameIns.gameSoundManager.Chest(0), 0.2f);
         yield return null;
 
         Vector2 v = Vector2.zero;
@@ -76,6 +78,7 @@ public class RewardTrashcan : MonoBehaviour
             yield return null;
         }
         yield return CoroutneManager.waitForzeroone;
+        SoundManager.Instance.PlayAudio(GameInstance.GameIns.gameSoundManager.Chest(1), 0.2f);
         f = 0;
         Vector2 scale2 = rect.sizeDelta;
         Vector2 target2 = new Vector2(250, 250);
@@ -88,6 +91,7 @@ public class RewardTrashcan : MonoBehaviour
         }
       //  yield return null;
           yield return CoroutneManager.waitForzerotwo;
+        SoundManager.Instance.PlayAudio(GameInstance.GameIns.gameSoundManager.Chest(2), 0.2f);
         f = 0;
         Vector2 scale3 = rect.sizeDelta;
         Vector2 target3 = new Vector2(4000,4000);
@@ -101,6 +105,7 @@ public class RewardTrashcan : MonoBehaviour
      //   yield return CoroutneManager.waitForzerothree;
         rect.sizeDelta = new Vector2(1000,1000);
 
+        SoundManager.Instance.PlayAudio(GameInstance.GameIns.gameSoundManager.Chest(3 ), 0.2f);
         ShowResult();
 
         yield return CoroutneManager.waitForone;
@@ -111,14 +116,14 @@ public class RewardTrashcan : MonoBehaviour
 
     void ShowResult()
     {
-        if (clickNum > 5)
+        if (clickNum > 10)
+        {
+            trashcanImage.sprite = loadedSprites[spriteAssetKeys[5004].ID];
+        }
+        else if (clickNum > 5)
         {
             trashcanImage.sprite = loadedSprites[spriteAssetKeys[5003].ID];
-        }
-        else if (clickNum > 10)
-        {
 
-            trashcanImage.sprite = loadedSprites[spriteAssetKeys[5004].ID];
         }
         else
         {

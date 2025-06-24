@@ -54,3 +54,4 @@ Animal Restaurant Tycoon Game
 06/21 Improved an issue where blocked paths weren't updated during furniture relocation, and fixed a bug where relocated cooking appliances were excluded from staff behavior routines
 06/22 Adjusted object placement to match actual size, fixed staff spawning inside buildings on game load, and resolved water appearing white on mobile devices
 06/23 Enter the clicker mini-game when the trash bin is full and fix several bugs
+06/24 Added sound to the reward box and applied a highlight when the reward is available

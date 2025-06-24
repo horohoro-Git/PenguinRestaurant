@@ -709,7 +709,13 @@ public class RestaurantManager : MonoBehaviour
             }
           
             GameIns.uiManager.reputation.text = restaurantCurrency.reputation.ToString();
-            GameIns.applianceUIManager.rewardChest_Fill.GetComponent<Image>().fillAmount = trashData.trashPoint * 0.01f; 
+
+            GameIns.applianceUIManager.rewardChest_Fill.uiImage.fillAmount = trashData.trashPoint * 0.01f; 
+            if(trashData.trashPoint == 100)
+            {
+                GameIns.applianceUIManager.rewardChest_Fill.ChangeHighlight(true);
+            }
+
             CalculateSpawnTimer();
             await LoadEmployees(cancellationToken);
         }
@@ -847,7 +853,7 @@ public class RestaurantManager : MonoBehaviour
 
     public void GetReward()
     {
-   //     if (trashData.trashPoint != 100) return;
+        if (trashData.trashPoint != 100) return;
 
         /*
         float fillAmount = GameInstance.GameIns.applianceUIManager.rewardChest_Fill.GetComponent<Image>().fillAmount;
@@ -858,10 +864,13 @@ public class RestaurantManager : MonoBehaviour
 
         GameInstance.GameIns.uiManager.fishText.text = restaurantCurrency.fishes.ToString();
 
-        GameInstance.GameIns.applianceUIManager.rewardChest_Fill.GetComponent<Image>().fillAmount = 0;
         */
+        trashData.trashPoint = 0;
+        trashData.changed = true;
+        GameInstance.GameIns.applianceUIManager.rewardChest_Fill.uiImage.fillAmount = 0;
         GameIns.applianceUIManager.rewardChest.SetActive(false);
-        GameIns.applianceUIManager.rewardChest_Fill.SetActive(false);
+        GameIns.applianceUIManager.rewardChest_Fill.ChangeHighlight(false);
+        GameIns.applianceUIManager.rewardChest_Fill.gameObject.SetActive(false);
         GameIns.applianceUIManager.clickerReward.gameObject.SetActive(true);
         GameIns.applianceUIManager.clickerReward.trashcanImage.sprite = AssetLoader.loadedSprites[AssetLoader.spriteAssetKeys[5001].ID];
         GameIns.applianceUIManager.clickerReward.StartClicker();

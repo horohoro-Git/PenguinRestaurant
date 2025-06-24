@@ -21,6 +21,8 @@ public class GameSoundManager : MonoBehaviour
     public List<int> sadScreamScreamSoundKeys = new List<int>();
     public List<int> levelupSoundKeys = new List<int>();
     public Dictionary<int, AudioClip> machinesSounds = new Dictionary<int, AudioClip>();
+    public List<int> trashcanHitSoundKeys = new List<int>();
+    public List<int> chestSoundKeys = new List<int>();
     [NonSerialized] public List<AudioClip> dropPlateSounds = new List<AudioClip>();
     [NonSerialized] public List<AudioClip> throwSounds = new List<AudioClip>();
     [NonSerialized] public List<AudioClip> createSounds = new List<AudioClip>();
@@ -34,7 +36,8 @@ public class GameSoundManager : MonoBehaviour
     [NonSerialized] public List<AudioClip> angryScreamSounds = new List<AudioClip>();
     [NonSerialized] public List<AudioClip> sadScreamSounds = new List<AudioClip>();
     [NonSerialized] public List<AudioClip> levelupSounds = new List<AudioClip>();
-
+    [NonSerialized] public List<AudioClip> trashcanHitSounds = new List<AudioClip>();
+    [NonSerialized] public List<AudioClip> chestSounds = new List<AudioClip>();
 
 
     private void Awake()
@@ -56,6 +59,8 @@ public class GameSoundManager : MonoBehaviour
         for (int i = 0; i < angryScreamSoundKeys.Count; i++) angryScreamSounds.Add(AssetLoader.loadedSounds[AssetLoader.sounds[angryScreamSoundKeys[i]].Name]);
         for (int i = 0; i < sadScreamScreamSoundKeys.Count; i++) sadScreamSounds.Add(AssetLoader.loadedSounds[AssetLoader.sounds[sadScreamScreamSoundKeys[i]].Name]);
         for (int i = 0; i < levelupSoundKeys.Count; i++) levelupSounds.Add(AssetLoader.loadedSounds[AssetLoader.sounds[levelupSoundKeys[i]].Name]);
+        for (int i = 0; i < trashcanHitSoundKeys.Count; i++) trashcanHitSounds.Add(AssetLoader.loadedSounds[AssetLoader.sounds[trashcanHitSoundKeys[i]].Name]);
+        for (int i = 0; i < chestSoundKeys.Count; i++) chestSounds.Add(AssetLoader.loadedSounds[AssetLoader.sounds[chestSoundKeys[i]].Name]);
     }
 
     public AudioClip DropPlate()
@@ -131,5 +136,16 @@ public class GameSoundManager : MonoBehaviour
     {
         int r = UnityEngine.Random.Range(0, levelupSounds.Count);
         return levelupSounds[r];
+    }
+
+    public AudioClip TrashcanHit()
+    {
+        int r = UnityEngine.Random.Range(0, trashcanHitSounds.Count);
+        return trashcanHitSounds[r];
+    }
+
+    public AudioClip Chest(int index)
+    {
+        return chestSounds[index];
     }
 }
