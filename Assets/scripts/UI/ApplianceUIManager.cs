@@ -23,7 +23,7 @@ public class ApplianceUIManager : MonoBehaviour
     public Button rewardChestBtn;
     public GameObject trashCan;
     public GameObject rewardChest;
-    public GameObject rewardChest_Fill;
+    public FullFilledTrashcan rewardChest_Fill;
     public RewardTrashcan clickerReward;
     public GameObject otherUI;
     public Store shopUI;
@@ -189,22 +189,31 @@ public class ApplianceUIManager : MonoBehaviour
         int baseNum = GameInstance.GameIns.restaurantManager.restaurantCurrency.fishes;
         GameInstance.GameIns.restaurantManager.restaurantCurrency.fishes += num;
         GameInstance.GameIns.restaurantManager.restaurantCurrency.changed = true;
-        yield return new WaitForSecondsRealtime(0.8f);
+        yield return new WaitForSecondsRealtime(0.5f);
+
+        rewardChestBtn.gameObject.SetActive(true);
+        rewardChest_Fill.gameObject.SetActive(true);
 
         Stack<RectTransform> stack = new Stack<RectTransform>();
+
+        Vector2 pos = new Vector2(540, 960);
+        Vector2 target = new Vector2(540, 960);
         for (int i = 0; i < num; i++)
         {
+            float x = Random.Range(-200, 200);
+            float y = Random.Range(-200, 200);
             RectTransform icon = GameInstance.GameIns.restaurantManager.GetFishIcon().GetComponent<RectTransform>();
+            icon.position =  new Vector2(pos.x + x , pos.y + y);
           //  icon.position = target;
             stack.Push(icon);
         }
 
-        yield return new WaitForSecondsRealtime(0.2f);
+        /*yield return new WaitForSecondsRealtime(0.2f);
 
         foreach (var v in stack)
         {
             StartCoroutine(SpreadFishes(v));
-        }
+        }*/
 
         yield return new WaitForSecondsRealtime(0.5f);
 

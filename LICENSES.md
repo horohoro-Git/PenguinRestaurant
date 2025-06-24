@@ -70,4 +70,35 @@ Source: https://freesound.org/people/duckduckpony/sounds/204033/
 "Footsteps water light 008" by duckduckpony on Freesound.org
 Licensed under CC BY 4.0
 Source: https://freesound.org/people/duckduckpony/sounds/204035/
+<<<<<<< HEAD
+>>>>>>> develop
+=======
+
+"Appliance microwave door close 05" by dwoboyle on Freesound.org
+Licensed under CC BY 4.0
+Source: https://freesound.org/people/dwoboyle/sounds/144230/
+
+"Appliance microwave door close 04" by dwoboyle on Freesound.org
+Licensed under CC BY 4.0
+Source: https://freesound.org/people/dwoboyle/sounds/144231/
+
+"Appliance microwave door close 03" by dwoboyle on Freesound.org
+Licensed under CC BY 4.0
+Source: https://freesound.org/people/dwoboyle/sounds/144224/
+
+"Treasure_chest" by fullstacksound on Freesound.org
+Licensed under CC BY 4.0
+Source: https://freesound.org/people/fullstacksound/sounds/662458/
+
+"TF_one_inspired_megatron_heavy_panel_sound_transformation_04252025" by ArtNinja on Freesound.org
+Licensed under CC BY 4.0
+Source: https://freesound.org/people/ArtNinja/sounds/801936/
+
+"TF_cyberverse_heavy_robot_footstep_recreation_02232025" by ArtNinja on Freesound.org
+Licensed under CC BY 4.0
+Source: https://freesound.org/people/ArtNinja/sounds/789755/
+
+"scifi_door_impact_sounds_733499" by ArtNinja on Freesound.org
+Licensed under CC BY 4.0
+Source: https://freesound.org/people/ArtNinja/sounds/733499/
 >>>>>>> develop

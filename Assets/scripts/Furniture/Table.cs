@@ -174,9 +174,26 @@ public class Table : Furniture
             }
 
             int r = Random.Range(1, 4);
+            int prev = GameInstance.GameIns.restaurantManager.trashData.trashPoint;
             GameInstance.GameIns.restaurantManager.trashData.trashPoint += r;
-            if (GameInstance.GameIns.restaurantManager.trashData.trashPoint > 100) GameInstance.GameIns.restaurantManager.trashData.trashPoint = 0;
-            GameInstance.GameIns.applianceUIManager.rewardChest_Fill.GetComponent<Image>().fillAmount = GameInstance.GameIns.restaurantManager.trashData.trashPoint * 0.01f;
+            if (GameInstance.GameIns.restaurantManager.trashData.trashPoint > 100)
+            {
+                GameInstance.GameIns.restaurantManager.trashData.trashPoint = 100;
+                if(prev < 100) GameInstance.GameIns.applianceUIManager.rewardChest_Fill.ChangeHighlight(true);
+            }
+            else
+            {
+                if (GameInstance.GameIns.restaurantManager.trashData.trashPoint == 100)
+                {
+                    GameInstance.GameIns.applianceUIManager.rewardChest_Fill.ChangeHighlight(true);
+                }
+                else
+                {
+                    GameInstance.GameIns.applianceUIManager.rewardChest_Fill.ChangeHighlight(false);
+                }
+            }
+
+            GameInstance.GameIns.applianceUIManager.rewardChest_Fill.uiImage.fillAmount = GameInstance.GameIns.restaurantManager.trashData.trashPoint * 0.01f;
             GameInstance.GameIns.restaurantManager.trashData.changed = true;
         }
         catch (OperationCanceledException)
