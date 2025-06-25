@@ -39,6 +39,7 @@ public class WaterSplash : MonoBehaviour
             yield return null;
         }
 
-        GameInstance.GameIns.fishingManager.RemoveSplash(this);
+        ParticleManager.ClearParticle(gameObject, ParticleType.Fishing);
+        //GameInstance.GameIns.fishingManager.RemoveSplash(this);
     }
 }

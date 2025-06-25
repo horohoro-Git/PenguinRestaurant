@@ -35,11 +35,8 @@ public class WorkSpaceManager : MonoBehaviour
         GarbageManager.NewGarbage(garbage, 50);
         for (int i = 0; i < particle.Length; i++)
         {
-            ParticleManager.NewParticle(particle[i], 50);
+            ParticleManager.NewParticle(particle[i], 100, (ParticleType)i);
         }
-
-      //  FoodManager.NewRewardsBox(rewardsBox, 5);
-
 
     }
 

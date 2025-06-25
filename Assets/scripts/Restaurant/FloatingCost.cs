@@ -13,12 +13,11 @@ public class FloatingCost : MonoBehaviour
     {
         rectTransform = GetComponent<RectTransform>();
         text = GetComponent<TMP_Text>();
-        text.fontSize = 55;
+        text.fontSize = 1;
     }
    
     public void Floating()
     {
-       // StartCoroutine(FloatingHeight());
         StartCoroutine(FloatingRoutine());
     }
 
@@ -53,7 +52,7 @@ public class FloatingCost : MonoBehaviour
                 imageColor.a = Mathf.Lerp(startColor, endColor, (f - 0.5f) * 2);
                 text.color = imageColor;
             }
-            f += Time.unscaledDeltaTime;
+            f += Time.unscaledDeltaTime / 1;
             yield return null;
         }
 

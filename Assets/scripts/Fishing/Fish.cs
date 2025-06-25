@@ -166,7 +166,7 @@ public class Fish : Animal
 
     public void Caught()
     {
-        WaterSplash waterSplash = GameInstance.GameIns.fishingManager.GetSplash();
+        WaterSplash waterSplash = ParticleManager.CreateParticle(ParticleType.Fishing).GetComponent<WaterSplash>(); //GameInstance.GameIns.fishingManager.GetSplash();
         waterSplash.transform.position = body.transform.position;
         waterSplash.transform.localScale = new Vector3(2, 2, 2);
         waterSplash.PlayParticle();

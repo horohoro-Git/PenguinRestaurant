@@ -403,7 +403,7 @@ public class BlackConsumer : AnimalController
                         targetTable.placedFoods[seatIndex].transform.DOJump(t, 1, 1, 0.2f);
                         await UniTask.Delay(300, cancellationToken: cancellationToken);
 
-                        await Eating(cancellationToken: cancellationToken);
+                        await Eating(targetTable.placedFoods[seatIndex].transform, cancellationToken: cancellationToken);
 
                         await UniTask.NextFrame(cancellationToken: cancellationToken);
                         Food f = targetTable.placedFoods[seatIndex].GetComponent<Food>();
@@ -423,7 +423,7 @@ public class BlackConsumer : AnimalController
                     await UniTask.Delay(300, cancellationToken: cancellationToken);
 
                     targetTable.placedFoods[seatIndex] = f.gameObject;
-                    await Eating(cancellationToken: cancellationToken);
+                    await Eating(targetTable.placedFoods[seatIndex].transform, cancellationToken: cancellationToken);
                     await UniTask.NextFrame(cancellationToken: cancellationToken);
                     FoodManager.EatFood(f);
                     targetTable.numberOfFoods--;
@@ -451,9 +451,9 @@ public class BlackConsumer : AnimalController
                 SoundManager.Instance.PlayAudio3D(GameIns.gameSoundManager.LaughAt(), 0.1f, 100, 5, trans.position);
                 Emote e = GameIns.restaurantManager.GetEmote();
                 e.image.sprite = GameInstance.GameIns.restaurantManager.emoteSprites[4001];
-                e.rectTransform.position = InputManger.cachingCamera.WorldToScreenPoint(trans.position) + Vector3.up * 50;
-                e.height = 100;
-                e.Emotion();
+                e.rectTransform.position = trans.position + Vector3.up * 4; //InputManger.cachingCamera.WorldToScreenPoint(trans.position) + Vector3.up * 50;
+                e.height = 3;
+                e.Emotion(1.5f);
                 animator.SetBool("bounceTrigger", true);
                 animator.SetTrigger("bounce");
                 //audioSource.clip = 
@@ -482,7 +482,7 @@ public class BlackConsumer : AnimalController
         }
        
     }
-    async UniTask Eating(CancellationToken cancellationToken = default)
+    async UniTask Eating(Transform transforms, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -496,6 +496,9 @@ public class BlackConsumer : AnimalController
                     SoundManager.Instance.PlayAudio3D(GameIns.gameSoundManager.Eat(), 0.1f, 100, 5, trans.position);
                     
                     animator.SetTrigger(AnimationKeys.eat);
+                    Eat eat = ParticleManager.CreateParticle(ParticleType.Eating).GetComponent<Eat>();
+                    eat.transform.position = transforms.position;
+                    eat.PlayEating();
                 }
                 await Utility.CustomUniTaskDelay(timer / 100, cancellationToken);
                 //await UniTask.Delay((int)(timer * 10), cancellationToken: cancellationToken);

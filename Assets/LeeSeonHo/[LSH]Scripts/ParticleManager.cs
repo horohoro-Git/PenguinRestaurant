@@ -6,36 +6,43 @@ using static UnityEngine.ParticleSystem;
 
 public static class ParticleManager
 {
-    static Queue<GameObject> deActivatedParticles = new Queue<GameObject>();
-    static List<GameObject> activatedParticles = new List<GameObject>();
+    static Dictionary<ParticleType, Queue<GameObject>> deActivatedParticles = new Dictionary<ParticleType, Queue<GameObject>>();
+    static Dictionary<ParticleType, List<GameObject>> activatedParticles = new Dictionary<ParticleType, List<GameObject>>();
 
-    public static void NewParticle(GameObject particle, int count)
+    static GameObject particleCollects;
+    public static void NewParticle(GameObject particle, int count, ParticleType particleType)
     {
-        GameObject particleCollects = new GameObject();
-        particleCollects.name = "ParticleCollects";
-        particleCollects.transform.position = Vector3.zero;
+        activatedParticles[particleType] = new List<GameObject>();
+        deActivatedParticles[particleType] = new Queue<GameObject>();
+
+        if (particleCollects == null)
+        {
+            particleCollects = new GameObject();
+            particleCollects.name = "ParticleCollects";
+            particleCollects.transform.position = Vector3.zero;
+        }
         for (int i = 0; i < count; i++)
         {
             GameObject p = GameObject.Instantiate(particle, particleCollects.transform);
 
-            p.gameObject.SetActive(false);
-            deActivatedParticles.Enqueue(p);
+            p.SetActive(false);
+            deActivatedParticles[particleType].Enqueue(p);
         }
     }
 
-    public static GameObject CreateParticle()
+    public static GameObject CreateParticle(ParticleType particleType)
     {
-        GameObject p = deActivatedParticles.Dequeue();
-        p.gameObject.SetActive(true);
-        activatedParticles.Add(p);
+        GameObject p = deActivatedParticles[particleType].Dequeue();
+        p.SetActive(true);
+        activatedParticles[particleType].Add(p);
         return p;
     }
 
-    public static void ClearParticle(GameObject particle)
+    public static void ClearParticle(GameObject particle, ParticleType particleType)
     {
-        particle.gameObject.SetActive(false);
-        deActivatedParticles.Enqueue(particle);
-        activatedParticles.Remove(particle);
+        particle.SetActive(false);
+        deActivatedParticles[particleType].Enqueue(particle);
+        activatedParticles[particleType].Remove(particle);
     }
    /* public static void AllClear()
     {

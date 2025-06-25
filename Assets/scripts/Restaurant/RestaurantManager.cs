@@ -16,6 +16,7 @@ using System.Text;
 using System.Numerics;
 using Vector3 = UnityEngine.Vector3;
 using Quaternion = UnityEngine.Quaternion;
+using Vector2 = UnityEngine.Vector2;
 using Random = UnityEngine.Random;
 using UnityEngine.UI;
 
@@ -105,7 +106,9 @@ public class RestaurantManager : MonoBehaviour
         trayObjects = new GameObject();
         trayObjects.name = "trayObjects";
         emoteObjects = new GameObject();
-        emoteObjects.AddComponent<Canvas>().renderMode = RenderMode.ScreenSpaceOverlay;
+        emoteObjects.AddComponent<Canvas>().renderMode = RenderMode.WorldSpace; //RenderMode.ScreenSpaceOverlay;
+        RectTransform r = emoteObjects.GetComponent<RectTransform>();
+        r.sizeDelta = new Vector2(1080, 1920);
         emoteObjects.name = "emotes";
         trayObjects.transform.position = Vector3.zero;
         GameInstance.GameIns.restaurantManager = this;

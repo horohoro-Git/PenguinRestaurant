@@ -17,7 +17,7 @@ public class ObjectLifeSpan : MonoBehaviour
         else
         {
             lifeTime = 0;
-            ParticleManager.ClearParticle(this.gameObject);
+            ParticleManager.ClearParticle(this.gameObject, ParticleType.Eating);
         }
     }
 }
