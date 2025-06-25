@@ -55,3 +55,4 @@ Animal Restaurant Tycoon Game
 06/22 Adjusted object placement to match actual size, fixed staff spawning inside buildings on game load, and resolved water appearing white on mobile devices
 06/23 Enter the clicker mini-game when the trash bin is full and fix several bugs
 06/24 Added sound to the reward box and applied a highlight when the reward is available
+06/25 Convert the emoji and currency gain UI to world space and add particle effects when animals eat food

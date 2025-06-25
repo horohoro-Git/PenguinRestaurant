@@ -47,10 +47,17 @@ public enum MapType
     forest,
     winter
 }
+
 public enum LOD_Type
 {
     LOD0,
     LOD1
+}
+
+public enum ParticleType
+{
+    Eating,
+    Fishing
 }
 
 public enum BlackConsumerState

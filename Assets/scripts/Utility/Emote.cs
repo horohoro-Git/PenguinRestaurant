@@ -20,12 +20,12 @@ public class Emote : MonoBehaviour
         rectTransform.position = rectTransform.position + Vector3.up * Time.unscaledDeltaTime;
     }
 
-    public void Emotion()
+    public void Emotion(float emoteSpeed = 0.5f)
     {
-        StartCoroutine(EmotionRoutine());
+        StartCoroutine(EmotionRoutine(emoteSpeed));
     }
 
-    IEnumerator EmotionRoutine()
+    IEnumerator EmotionRoutine(float emoteSpeed)
     {
         float f = 0;
         float origin = rectTransform.position.y;
@@ -43,7 +43,7 @@ public class Emote : MonoBehaviour
             imageColor.a = Mathf.Lerp(startColor, endColor, f);
             image.color = imageColor;
 
-            f += Time.unscaledDeltaTime / 0.5f;
+            f += Time.unscaledDeltaTime / emoteSpeed;
             yield return null;
         }
 

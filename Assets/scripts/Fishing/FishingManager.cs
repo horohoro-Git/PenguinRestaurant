@@ -9,7 +9,7 @@ public class FishingManager : MonoBehaviour
     public GameObject fishGOs;
     public Transform penguinPoint;
     public WaterQuality water;
-    public WaterSplash splash;
+  //  public WaterSplash splash;
     public RectTransform canvas;
     public GameObject fishIcon;
     Dictionary<int, ItemStruct> fishingAnimals = new Dictionary<int, ItemStruct>(); 
@@ -18,7 +18,7 @@ public class FishingManager : MonoBehaviour
 
     Dictionary<int, List<Fish>> activatedFishes = new Dictionary<int, List<Fish>>();
 
-    Queue<WaterSplash> waterSplashQueue = new Queue<WaterSplash>();
+ //   Queue<WaterSplash> waterSplashQueue = new Queue<WaterSplash>();
 
   //  Queue<GameObject> fishRewardIconQueue = new Queue<GameObject>();
 
@@ -68,12 +68,12 @@ public class FishingManager : MonoBehaviour
         penguin.transform.rotation = Quaternion.Euler(0, 180, 0);
         NewFishes();
 
-        for(int i=0; i<20; i++)
+       /* for(int i=0; i<20; i++)
         {
             WaterSplash waterSplash = Instantiate(splash, splashes);
             waterSplash.gameObject.SetActive(false);
             waterSplashQueue.Enqueue(waterSplash);
-        }
+        }*/
      //   SpawnFish();
 
     /*    for(int i=0; i<1000; i++)
@@ -277,19 +277,19 @@ public class FishingManager : MonoBehaviour
         }
     }
 
-    public WaterSplash GetSplash()
+  /*  public WaterSplash GetSplash()
     {
         WaterSplash waterSplash = waterSplashQueue.Dequeue();
         waterSplash.gameObject.SetActive(true);
         
         return waterSplash;
-    }
+    }*/
 
-    public void RemoveSplash(WaterSplash waterSplash)
+  /*  public void RemoveSplash(WaterSplash waterSplash)
     {
         waterSplash.gameObject.SetActive(false);    
         waterSplashQueue.Enqueue(waterSplash);
-    }
+    }*/
 
 
   

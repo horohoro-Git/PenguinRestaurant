@@ -561,10 +561,10 @@ public class Customer : AnimalController
             stringBuilder = Utility.GetFormattedMoney(foodPrices, stringBuilder);
 
             FloatingCost fc = GameInstance.GameIns.restaurantManager.GetFloatingCost();
-         
-            fc.rectTransform.position = InputManger.cachingCamera.WorldToScreenPoint(trans.position) + Vector3.up * 50;
+
+            fc.rectTransform.position = trans.position + Vector3.up * 4; //InputManger.cachingCamera.WorldToScreenPoint(trans.position) + Vector3.up * 50;
             fc.text.text = stringBuilder.ToString();
-            fc.height = 100;
+            fc.height = 3;
             fc.Floating();
 
             SoundManager.Instance.PlayAudioWithKey(GameInstance.GameIns.uISoundManager.Money(), 0.2f, GameInstance.GameIns.restaurantManager.moneyChangedSoundKey);
@@ -848,8 +848,7 @@ public class Customer : AnimalController
                     //식사
                    
                    // PlayAnim(animal.animationDic["Eat"], "Eat");
-                    GameObject particle = ParticleManager.CreateParticle();
-                    
+                   
                     while (table.foodStacks[0].foodStack.Count > 0)
                     {
                     GoUp:
@@ -881,7 +880,6 @@ public class Customer : AnimalController
                         }
                         float tm = RestaurantManager.restaurantTimer;
                         bool stealing = false;
-                        bool stolen = false;
                         for (int i = 0; i < 100; i++)
                         {
                             
@@ -894,11 +892,13 @@ public class Customer : AnimalController
 
                                     SoundManager.Instance.PlayAudio3D(GameInstance.GameIns.gameSoundManager.Eat(), 0.05f, 100, 5, trans.position);
                                     animator.SetTrigger(AnimationKeys.eat);
-                                    // animator.SetInteger("state", 2);
                                     animal.PlayTriggerAnimation(AnimationKeys.Eat);
+
+                                    Eat eat = ParticleManager.CreateParticle(ParticleType.Eating).GetComponent<Eat>();
+                                    eat.transform.position = f.transforms.position;
+                                    eat.PlayEating();
                                 }
-                                //await UniTask.NextFrame(cancellationToken: cancellationToken); //Utility.CustomUniTaskDelay(timer, cancellationToken);
-                                //await UniTask.Delay((int)(timer * 10), cancellationToken: cancellationToken);
+
                                 await Utility.CustomUniTaskDelay(timer / 100, cancellationToken);
                             }
                             else
@@ -922,12 +922,6 @@ public class Customer : AnimalController
                                         }
                                     }
 
-                                 /*   int remains = 0;
-                                    for(int k  = 0; k < table.placedFoods.Length; k++)
-                                    {
-                                        if(table.placedFoods[k] != null) remains++;
-                                    }
-                                    remains += table.foodStacks[0].foodStack.Count;*/
                                     if (table.stolen)
                                     {
                                         SoundManager.Instance.PlayAudio3D(GameInstance.GameIns.gameSoundManager.Sad(), 0.1f, 100, 5, trans.position);
@@ -1002,18 +996,13 @@ public class Customer : AnimalController
                                 go.transforms.position = table.up.position + GameInstance.GetVector3(x, 0, z);
                             }
                         }
-                        particle.gameObject.transform.position = mousePoint.position;
-
-                        particle.GetComponent<ParticleSystem>().Play();
-
-                       // await UniTask.Delay(200, cancellationToken: cancellationToken);
+                   
                         await Utility.CustomUniTaskDelay(0.2f, cancellationToken);
 
                     }
                     customerState = CustomerState.Table;
                     await Utility.CustomUniTaskDelay(0.5f, cancellationToken);
-                   // await UniTask.Delay(500, cancellationToken: cancellationToken);
-                    ParticleManager.ClearParticle(particle);
+
                     SoundManager.Instance.PlayAudio3D(GameInstance.GameIns.gameSoundManager.Happy(), 0.1f, 100, 5, trans.position);
                     int reputation = Random.Range(0, 10);
                     if(reputation < 5)
@@ -1028,7 +1017,6 @@ public class Customer : AnimalController
                     if (cancellationTokenSource != null) cancellationTokenSource.Cancel();
                     cancellationTokenSource = new CancellationTokenSource();
                     EmoteTimer(5f, AnimationKeys.Happy, false, cancellationTokenSource.Token).Forget();
-                  //  await UniTask.Delay(3000, cancellationToken: cancellationToken);
                     await Utility.CustomUniTaskDelay(3f, cancellationToken);
                     animator.SetInteger("state", 0);
                     animal.PlayAnimation(AnimationKeys.Idle);
@@ -1164,9 +1152,9 @@ public class Customer : AnimalController
     void FloatingEmote(int key)
     {
         Emote e = GameInstance.GameIns.restaurantManager.GetEmote();
-        e.rectTransform.position = InputManger.cachingCamera.WorldToScreenPoint(trans.position) + Vector3.up * 50;
+        e.rectTransform.position = trans.position + Vector3.up * 4;
         e.image.sprite = GameInstance.GameIns.restaurantManager.emoteSprites[key];
-        e.height = 100;
-        e.Emotion();
+        e.height = 3;
+        e.Emotion(1.5f);
     }
 }

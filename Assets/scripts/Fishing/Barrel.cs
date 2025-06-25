@@ -30,7 +30,7 @@ public class Barrel : MonoBehaviour
     {
         SoundManager.Instance.PlayAudio(GameInstance.GameIns.fishingSoundManager.WaterSplashSound(), 0.2f);
 
-        WaterSplash waterSplash = GameInstance.GameIns.fishingManager.GetSplash();
+        WaterSplash waterSplash = ParticleManager.CreateParticle(ParticleType.Fishing).GetComponent<WaterSplash>(); //GameInstance.GameIns.fishingManager.GetSplash();
         waterSplash.transform.position = transform.position;
         waterSplash.transform.localScale = new Vector3(3, 3, 3);
         waterSplash.PlayParticle();
