@@ -32,21 +32,22 @@ public class PanelAnimalsController : MonoBehaviour
     {
         foreach (var type in AnimalManager.gatchaTiers)
         {
-            if(type.Value > 0)
+            (int, List<int>) val = type.Value;
+            if(val.Item1 > 0)
             {
                 AnimalStruct animal = AssetLoader.animals[type.Key];
                 int index = type.Key - 100;
                 if (cardDic.ContainsKey(index))
                 {
                     //키드 업데이트
-                    cardDic[index].tier = type.Value;
+                    cardDic[index].tier = val.Item1;
                     cardDic[index].speed = animal.speed;
                     cardDic[index].eatSpeed = animal.eat_speed;
                     cardDic[index].minOrder = animal.min_order;
                     cardDic[index].maxOrder = animal.max_order;
-                    cardDic[index].cardBg.sprite = cardBg[type.Value - 1];
-                    cardDic[index].backGlow.color = backGlowColor[type.Value - 1];
-                    cardDic[index].glow.color = glowColor[type.Value - 1];
+                    cardDic[index].cardBg.sprite = cardBg[val.Item1 - 1];
+                    cardDic[index].backGlow.color = backGlowColor[val.Item1 - 1];
+                    cardDic[index].glow.color = glowColor[val.Item1 - 1];
                 }
                 else
                 {
@@ -59,14 +60,14 @@ public class PanelAnimalsController : MonoBehaviour
                     card.customerInfoPopup = customers_popup;
                     card.name = animal.name;
                     card.textName.text = animal.name;
-                    card.tier = type.Value;
+                    card.tier = val.Item1;
                     card.speed = animal.speed;
                     card.eatSpeed = animal.eat_speed;
                     card.minOrder = animal.min_order;
                     card.maxOrder = animal.max_order;
-                    card.cardBg.sprite = cardBg[type.Value - 1];
-                    card.backGlow.color = backGlowColor[type.Value - 1];
-                    card.glow.color = glowColor[type.Value - 1];
+                    card.cardBg.sprite = cardBg[val.Item1 - 1];
+                    card.backGlow.color = backGlowColor[val.Item1 - 1];
+                    card.glow.color = glowColor[val.Item1 - 1];
                     cardDic[index] = card;
                 }
                 //AnimalStruct animal = AssetLoader.animals[type.Key];

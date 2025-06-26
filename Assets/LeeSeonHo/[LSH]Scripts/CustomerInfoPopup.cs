@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -29,18 +30,17 @@ public class CustomerInfoPopup : MonoBehaviour
     public TextMeshProUGUI speed_text;
     public TextMeshProUGUI eatSpeed_text;
     public TextMeshProUGUI order_text;
-    public TextMeshProUGUI likeFood_text;
-    public TextMeshProUGUI hateFood_text;
+    public TextMeshProUGUI friendly;
+    public TextMeshProUGUI personality;
     public Slider speedSlider;
     public Slider eatSpeedSlider;
     public Slider orderSlider;
     public TextMeshProUGUI speedSlider_text;
     public TextMeshProUGUI eatSpeedSlider_text;
     public TextMeshProUGUI orderSlider_text;
-
+    StringBuilder personalityText;
     public void SetCustomerInfo()
     {
-        Debug.Log(id);
         animalFace.sprite = AssetLoader.loadedSprites[AssetLoader.spriteAssetKeys[id].Name];// animalTextures[id];
         name_text.text = name;
         speed_text.text = speed.ToString();
@@ -60,7 +60,39 @@ public class CustomerInfoPopup : MonoBehaviour
         else if (maxOrder >= 10 && maxOrder < 15) order_text.text = "많음";
         else if (maxOrder >= 15) order_text.text = "매우 많음";
 
-        switch (likeFood)
+        (int, List<int>) tier = AnimalManager.gatchaTiers[id];
+
+        switch(tier.Item1)
+        {
+            case 1:
+                friendly.text = "호기심";
+                break;
+            case 2:
+                friendly.text = "애정";
+                break;
+            case 3:
+                friendly.text = "신뢰";
+                break;
+            case 4:
+                friendly.text = "단골";
+                break;
+        }
+
+        if (personalityText == null) personalityText = new StringBuilder();
+        personalityText.Clear();
+        for (int i = 0; i < tier.Item2.Count; i++)
+        {
+            Debug.Log(tier.Item2[i]);
+            if (tier.Item2[i] == 1)
+            {
+                if(personalityText.Length > 0) personalityText.Append(", ");
+
+                personalityText.Append(AssetLoader.animalPersonalities[i].Name);
+               
+            }
+        }
+        personality.text = personalityText.ToString();  
+       /* switch (likeFood)
         {
             case 1: likeFood_text.text = "햄버거"; likeFoodImg.sprite = foodTextures[1]; break;
             case 2: likeFood_text.text = "콜라"; likeFoodImg.sprite = foodTextures[2]; break;
@@ -78,9 +110,9 @@ public class CustomerInfoPopup : MonoBehaviour
             case 4: hateFood_text.text = "도넛"; hateFoodImg.sprite = foodTextures[4]; break;
 
             default: hateFood_text.text = "없음"; hateFoodImg.sprite = foodTextures[0]; break;
-        }
+        }*/
 
-        switch (tier)
+        switch (tier.Item1)
         {
             case 1: profileBg.sprite = profileTextures[1]; backGlow.color = backGlowColor[1]; break;
             case 2: profileBg.sprite = profileTextures[2]; backGlow.color = backGlowColor[2]; break;

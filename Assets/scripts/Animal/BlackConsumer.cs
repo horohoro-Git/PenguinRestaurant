@@ -11,13 +11,10 @@ using static UnityEngine.GraphicsBuffer;
 using static MoveCalculator;
 public class BlackConsumer : AnimalController
 {
-    //AudioSource audioSource;
-  //  int id = 0;
     public int ID { get { if (id == 0) id = GetInstanceID(); return id; } }
     bool bRunaway;
     public LODGroup lodGroup;
-    // public AnimalStruct animalStruct { get; set; }
-   // AudioSource audioSource;
+
     public BlackConsumerState state;
     public Action<BlackConsumer> consumerCallback;
  //   Animator animator;

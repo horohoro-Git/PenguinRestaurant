@@ -140,7 +140,7 @@ public class GatcharManager : MonoBehaviour
                     {
                         if (AnimalManager.gatchaTiers.ContainsKey(i))
                         {
-                            if (AnimalManager.gatchaTiers[i] < 4) return false;
+                            if (AnimalManager.gatchaTiers[i].Item1 < 4) return false;
                         }
                         else
                         {
@@ -185,13 +185,13 @@ public class GatcharManager : MonoBehaviour
         int totalTier = 0;
         foreach (var v in AnimalManager.gatchaTiers)
         {
-            if (v.Value > 0)
+            if (v.Value.Item1 > 0)
             {
                 AnimalStruct asset = AssetLoader.animals[v.Key];
                 AnimalManager.animalStructs[v.Key] = asset;
-                num += v.Value;
+                num += v.Value.Item1;
                 animalsNum++;
-                totalTier += v.Value;
+                totalTier += v.Value.Item1;
             }
         }
 
@@ -258,16 +258,26 @@ public class GatcharManager : MonoBehaviour
             {
                 if (AnimalManager.gatchaTiers.ContainsKey(pair.Key))
                 {
-                    if (AnimalManager.gatchaTiers[pair.Key] < 4)
+                    if (AnimalManager.gatchaTiers[pair.Key].Item1 < 4)
                     {
-                        AnimalManager.gatchaTiers[pair.Key]++;
+                        (int, List<int>) tmp = AnimalManager.gatchaTiers[pair.Key];
+                        tmp.Item1++;
+                        int r = Random.Range(0, 4);
+                        tmp.Item2[r] = 1;
+                        AnimalManager.gatchaTiers[pair.Key] = tmp;
                         SaveLoadSystem.SaveGatchaAnimalsData();
                         success = true;
                     }
                 }
                 else
                 {
-                    AnimalManager.gatchaTiers[pair.Key] = 1;
+                    int tier = 1;
+                    List<int> personality = new List<int>();
+                    for (int i = 0; i < 4; i++) personality.Add(0);
+                 
+                    int r = Random.Range(0, 4);
+                    personality[r] = 1;
+                    AnimalManager.gatchaTiers[pair.Key] = (tier, personality);
                     AnimalStruct asset = AssetLoader.animals[pair.Key];
                     AnimalManager.animalStructs[pair.Key] = asset;
                     SaveLoadSystem.SaveGatchaAnimalsData();
@@ -307,9 +317,9 @@ public class GatcharManager : MonoBehaviour
             int num = 0;
             foreach (var v in AnimalManager.gatchaTiers)
             {
-                if (v.Value > 0)
+                if (v.Value.Item1 > 0)
                 {
-                    num += v.Value;
+                    num += v.Value.Item1;
                 }
             }
             gatchaPrice = 100 + Mathf.FloorToInt(Mathf.Pow((num - 1), 1.6f)) * 15;
@@ -704,7 +714,7 @@ public class GatcharManager : MonoBehaviour
                     //   popup.SetActive(true);
                     if (AnimalManager.gatchaTiers.ContainsKey(pair.Key))
                     {
-                        if (AnimalManager.gatchaTiers[pair.Key] == 1)
+                        if (AnimalManager.gatchaTiers[pair.Key].Item1 == 1)
                         {
                             popup.SetActive(true);
                             GetAnimator.SetInteger(AnimationKeys.state, 1);
@@ -714,12 +724,12 @@ public class GatcharManager : MonoBehaviour
                             NewAnimalImage.sprite = AssetLoader.loadedSprites[n];
                             popup_NewCustomer.SetActive(true);
                         }
-                        else if (AnimalManager.gatchaTiers[pair.Key] <= 4)
+                        else if (AnimalManager.gatchaTiers[pair.Key].Item1 <= 4)
                         {
                             popup.SetActive(true);
                             GetAnimator.SetInteger(AnimationKeys.emotion, 1);
                             GetAnimator.SetInteger(AnimationKeys.state, 1);
-                            int tier = AnimalManager.gatchaTiers[pair.Key];
+                            int tier = AnimalManager.gatchaTiers[pair.Key].Item1;
                             SoundManager.Instance.PlayAudio(GameInstance.GameIns.gatchaSoundManager.GradeUp(), 0.4f);
 
                             popup_TierUp.SetActive(true);
@@ -737,8 +747,9 @@ public class GatcharManager : MonoBehaviour
                     {
                         popup.SetActive(true);
                         SoundManager.Instance.PlayAudio(GameInstance.GameIns.gatchaSoundManager.Unlock(), 0.4f);
-
-                        AnimalManager.gatchaTiers[pair.Key] = 1;
+                        (int, List<int>) tmp = AnimalManager.gatchaTiers[pair.Key];
+                        tmp.Item1 = 1;
+                        AnimalManager.gatchaTiers[pair.Key] = tmp;
                         AnimalStruct asset = AssetLoader.animals[pair.Key];
                         string n = asset.asset_name + "_Sprite";
                         NewAnimalImage.sprite = AssetLoader.loadedSprites[n];// this.sprites[pair.Key];

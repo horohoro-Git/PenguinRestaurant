@@ -1,6 +1,8 @@
 
+using Cysharp.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 //using TMPro.EditorUtilities;
 public class Counter : Furniture, IObjectOffset
@@ -84,6 +86,9 @@ public class Counter : Furniture, IObjectOffset
         GameInstance.GameIns.workSpaceManager.counters.Add(this);
 
         base.Start();
+
+        ShowSells(App.GlobalToken).Forget();
+
         Door door = GameInstance.GameIns.restaurantManager.door;
 
         if(!door.setup)
@@ -139,5 +144,16 @@ public class Counter : Furniture, IObjectOffset
         }
 
         
+      
+
+    }
+
+    async UniTask ShowSells(CancellationToken cancellationToken = default)
+    {
+        await UniTask.Delay(500, cancellationToken: cancellationToken);
+
+        SpriteRenderer[] spriteRenderers = GetComponentsInChildren<SpriteRenderer>();
+        for (int i = 0; i < spriteRenderers.Length; i++) spriteRenderers[i].enabled = true;
+     
     }
 }

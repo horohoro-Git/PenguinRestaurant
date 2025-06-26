@@ -523,10 +523,10 @@ public class Customer : AnimalController
             {
                 foreach (var v in foodStacks[j].foodStack)
                 {
-                    int animalTier = AnimalManager.gatchaTiers[animalStruct.id];
-                    animalTier = (animalTier - 1) * 2;
-                    animalTier = animalTier == 0 ? 1 : animalTier;
-                    BigInteger price = v.foodPrice * animalTier * AnimalManager.gatchaValues;
+                    (int, List<int>) animalTier = AnimalManager.gatchaTiers[animalStruct.id];
+                    animalTier.Item1 = (animalTier.Item1 - 1) * 2;
+                    animalTier.Item1 = animalTier.Item1 == 0 ? 1 : animalTier.Item1;
+                    BigInteger price = v.foodPrice * animalTier.Item1 * AnimalManager.gatchaValues;
                     int leftover = (int)(price % 100);
                     price /= 100;
                     foodPrices += price;

@@ -1140,7 +1140,7 @@ public class RestaurantManager : MonoBehaviour
         GetFish(before, -amount);
         restaurantCurrency.changed = true;
         foodMachine.machineLevelData.fishes += amount;
-        foodMachine.fuelGage.UpdateGage(amount, false);
+        foodMachine.fuelGage.UpdateGage(foodMachine, amount, false);
         machineLevelDataChanged = true; 
     }
 
