@@ -161,7 +161,15 @@ public class SaveLoadSystem
                         float size_height = reader.ReadSingle();
                         float offset_x = reader.ReadSingle();
                         float offset_z = reader.ReadSingle();
-                        animalsDic[id] = new AnimalStruct(id, name, asset_name, tier, speed, eat_speed, min_order, max_order, is_customer, size_width, size_height, offset_x, offset_z);
+
+                        List<int> personalities = new List<int>();
+                        for(int i=0; i < 4; i++)
+                        {
+                            personalities.Add(reader.ReadInt32());
+                        }
+
+
+                        animalsDic[id] = new AnimalStruct(id, name, asset_name, tier, speed, eat_speed, min_order, max_order, is_customer, size_width, size_height, offset_x, offset_z, personalities);
                     }
                 }
             }
@@ -170,8 +178,18 @@ public class SaveLoadSystem
         {
             // AnimalStruct animalStruct = AssetLoader.animals[100];
             animalsDic[10] = AssetLoader.animals[10];
-            animalsDic[100] = AssetLoader.animals[100];
-          //  Debug.Log("No player data found. Creating new data." + animalStruct.asset_name);
+            AnimalStruct animStruct = AssetLoader.animals[100];
+            List<int> personalities = new List<int>();
+            personalities.Add(1);
+            for (int i = 0; i < 3; i++)
+            {
+                personalities.Add(0);
+            }
+            animStruct.personalities = personalities;
+
+            animalsDic[100] = animStruct;
+
+            //  Debug.Log("No player data found. Creating new data." + animalStruct.asset_name);
         }
 
         return animalsDic;
@@ -297,11 +315,18 @@ public class SaveLoadSystem
         {
             using (BinaryWriter writer = new BinaryWriter(ms))
             {
-                Dictionary<int, int> animals = AnimalManager.gatchaTiers;
+                Dictionary<int, (int, List<int>)> animals = AnimalManager.gatchaTiers;
                 foreach (var animal in animals)
                 {
                     writer.Write(animal.Key);   //동물 타입
-                    writer.Write(animal.Value); //동물 등급
+
+                    (int, List<int>) val = animal.Value;
+                    writer.Write(val.Item1); //동물 등급
+
+                    for(int i=0;i<4; i++)
+                    {
+                        writer.Write(val.Item2[i]);
+                    }
                 }
             }
             File.WriteAllBytes(p, ms.ToArray());
@@ -309,9 +334,9 @@ public class SaveLoadSystem
     }
 
     //뽑기 동물 데이터 로드
-    public static Dictionary<int, int> LoadGatchaAnimals()
+    public static Dictionary<int, (int, List<int>)> LoadGatchaAnimals()
     {
-        Dictionary<int, int> animals = new Dictionary<int, int>();
+        Dictionary<int, (int, List<int>)> animals = new Dictionary<int, (int, List<int>)>();
         string p = Path.Combine(path, "Save/GatchaAnimals.dat");
         byte[] data;
         if (File.Exists(p))
@@ -327,14 +352,26 @@ public class SaveLoadSystem
                     {
                         int type = reader.ReadInt32();
                         int grade = reader.ReadInt32();
-                        animals[type] = grade;
+
+                        List<int> personalities = new List<int>();
+                        for(int i =0; i< 4; i++)
+                        {
+                            personalities.Add(reader.ReadInt32());
+                        }
+                        animals[type] = (grade, personalities);
                     }
                 }
             }
         }
         else
         {
-            animals[100] = 1;
+            List<int> personalities = new List<int>();
+            personalities.Add(1);
+            for (int i = 0; i < 3; i++)
+            {
+                personalities.Add(0);
+            }
+            animals[100] = (1, personalities);
         }
         return animals;
     }

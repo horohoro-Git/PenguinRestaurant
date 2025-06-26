@@ -37,6 +37,7 @@ public class FoodMachine : Furniture
     public MachineLevelData machineLevelData;
     public Transform transforms;
     public Transform modelTrans;
+    protected bool noFishes;
     public MachineData machineData {
         get { return mData; }
 
@@ -313,7 +314,8 @@ public class FoodMachine : Furniture
             fuelGage = GameInstance.GameIns.restaurantManager.GetGage();
             fuelGage.gameObject.SetActive(true);
             fuelGage.foodMachine = this;
-            fuelGage.UpdateGage(this.machineLevelData.fishes, true);
+            fuelGage.UpdateGage(this, machineLevelData.fishes, true);
+            if (machineLevelData.fishes > 0) fuelGage.ShowGage(true);
             //    fuelGage.foreground.fillAmount = (float)10 / 100;
             //fuelGage.UpdateGage(machineLevelData.fishes);
         }
@@ -371,13 +373,17 @@ public class FoodMachine : Furniture
                 if (machineLevelData != null && machineLevelData.fishes >= 1 )
                 {
                     machineLevelData.fishes -= 1;
-                    fuelGage.UpdateGage(-1, false);
+                    fuelGage.UpdateGage(this, -1, false);
+                    if (fuelGage) fuelGage.ShowGage(false);
+                    noFishes = true;
                 }
                 else
                 {
-                    await Utility.CustomUniTaskDelay(0.2f, cancellationToken);
+                    if(fuelGage) fuelGage.ShowGage(true);
+                    noFishes = false;
+                  //  await Utility.CustomUniTaskDelay(0.2f, cancellationToken);
                    // await UniTask.Delay(200, cancellationToken: cancellationToken);
-                    continue;
+                  //  continue;
                 }
 
                 audioSource.clip = GameInstance.GameIns.gameSoundManager.MachineSound(soundClip);
@@ -388,7 +394,7 @@ public class FoodMachine : Furniture
                 audioSource.minDistance = SoundManager.Instance.min;
                 audioSource.Play();
 
-                float cookingTimer = machineLevelData.cooking_time;
+                float cookingTimer = machineLevelData.cooking_time * (noFishes == true ? 1 : 2);
 
                 cookingAction?.Invoke(cookingTimer);
 

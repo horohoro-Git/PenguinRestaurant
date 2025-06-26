@@ -56,3 +56,4 @@ Animal Restaurant Tycoon Game
 06/23 Enter the clicker mini-game when the trash bin is full and fix several bugs
 06/24 Added sound to the reward box and applied a highlight when the reward is available
 06/25 Convert the emoji and currency gain UI to world space and add particle effects when animals eat food
+06/26 Display cooking equipment shortage icon only when fish is lacking, update the icon graphic, add animal rank names, and include animal personality traits

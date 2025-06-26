@@ -203,12 +203,12 @@ public struct AnimalStruct : ITableID<int>
     public float size_height;
     public float offset_x;
     public float offset_z;
-
+    public List<int> personalities;
     public readonly int ID => id;
 
     public readonly string Name => name;
 
-    public AnimalStruct(int id, string name, string asset_name, int tier, float speed, float eat_speed, int min_order, int max_order, bool is_customer, float size_width, float size_height, float offset_x, float offset_z)
+    public AnimalStruct(int id, string name, string asset_name, int tier, float speed, float eat_speed, int min_order, int max_order, bool is_customer, float size_width, float size_height, float offset_x, float offset_z, List<int> personalities)
     {
         this.id = id;
         this.name = name;
@@ -223,6 +223,7 @@ public struct AnimalStruct : ITableID<int>
         this.size_height = size_height;
         this.offset_x = offset_x;
         this.offset_z = offset_z;
+        this.personalities = personalities;
     }
 
 }

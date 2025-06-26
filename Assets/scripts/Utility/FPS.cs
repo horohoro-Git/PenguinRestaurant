@@ -29,10 +29,6 @@ public class FPS : MonoBehaviour
  //   private float lastFrameTime = 0f;
 
     WaitForSeconds tenSecnonds = new WaitForSeconds(10);
-    private void Start()
-    {
-     
-    }
 
     float lastRecordedTime = 0f;
  //   float sampleInterval = 1f;
