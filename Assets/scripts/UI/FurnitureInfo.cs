@@ -50,9 +50,11 @@ public class FurnitureInfo : MonoBehaviour
     {
         if (currentFurniture)
         {
-            StringBuilder sb = new StringBuilder();
-            Utility.GetFormattedMoney(currentFurniture.GetComponent<VendingMachine>().data.Money, sb);
-            Debug.Log(sb.ToString());
+            if (currentFurniture.GetComponent<VendingMachine>().data.Money > 0)
+            {
+                GameInstance.GameIns.restaurantManager.GetMoney(currentFurniture.GetComponent<VendingMachine>().data.Money.ToString());
+                SoundManager.Instance.PlayAudioWithKey(GameInstance.GameIns.uISoundManager.Money(), 0.2f, GameInstance.GameIns.restaurantManager.moneyChangedSoundKey);
+            }
         }
     }
 

@@ -118,7 +118,8 @@ public class AnimalController : MonoBehaviour
             if (restaurantManager == null) restaurantManager = GameInstance.GameIns.restaurantManager;
             return restaurantManager;
         }}
-  
+
+    [NonSerialized] public AnimalPersonality animalPersonality;
     public virtual void SetDefault()
     {
         animator = null;

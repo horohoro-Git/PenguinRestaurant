@@ -1691,11 +1691,11 @@ public class Employee : AnimalController
                                         Food f = foodStack.foodStack.Pop();
                                         float r = UnityEngine.Random.Range(1, 2.5f);
                                         int currentStackCount = foodStacks[t].foodStack.Count; // 음식 개수 저장
-                                        Vector3 pos = counter.customer.headPoint.position + GameInstance.GetVector3(0, 0.7f * index, 0);
+                                        Vector3 pos = counter.customer.headPoint.position + GameInstance.GetVector3(0, 0.7f * (index - 1), 0);
 #if HAS_DOTWEEN
                                         DOTween.Kill(f.transforms);
                                         f.transforms.DOJump(pos, r, 1, 0.2f).OnComplete(() =>
-                                        OnFoodStackComplete(f, pos, counter.customer.foodStacks[j], index, counter.customer.headPoint));
+                                        OnFoodStackComplete(f, pos, counter.customer.foodStacks[j], (index - 1), counter.customer.headPoint));
                                       
                                         SoundManager.Instance.PlayAudio3D(GameIns.gameSoundManager.ThrowSound(), 0.2f, 100, 5, trans.position);
 #endif

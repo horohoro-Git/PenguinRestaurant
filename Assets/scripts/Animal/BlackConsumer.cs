@@ -487,7 +487,8 @@ public class BlackConsumer : AnimalController
             float timer = animalStruct.eat_speed;
             for (int i = 0; i < 100; i++)
             {
-                if (tm + timer / 10 <= RestaurantManager.restaurantTimer)
+                //if (tm + timer / 10 <= RestaurantManager.restaurantTimer)
+                if(i != 0 && i % 9 == 0)
                 {
                     tm = RestaurantManager.restaurantTimer;
                     SoundManager.Instance.PlayAudio3D(GameIns.gameSoundManager.Eat(), 0.1f, 100, 5, trans.position);

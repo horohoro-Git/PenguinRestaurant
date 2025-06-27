@@ -91,8 +91,12 @@ public class FurnitureInfo_Type : MonoBehaviour
             int max = goods[furniture.id].num;
             int n = GameInstance.GameIns.store.goodsDic[furniture.id].Count;
             placedNum.text = "배치된 수 " + (max - n) + " / " + max;
+            furnitureName.text = AssetLoader.goods[furniture.id].name;
         }
-    
+        else
+        {
+            furnitureName.text = "자판기";
+        }
     }
     public void ResetSlider()
     {
@@ -100,7 +104,11 @@ public class FurnitureInfo_Type : MonoBehaviour
     }
     public void ResetReward()
     {
-        gettableGold.text = "0";
-        furnitureInfo.rewardNum = "0";
+        if (currentFurniture.GetComponent<VendingMachine>().data.Money > 0)
+        {
+            gettableGold.text = "0";
+            furnitureInfo.rewardNum = "0";
+            currentFurniture.GetComponent<VendingMachine>().data.Money = 0;
+        }
     }
 }
