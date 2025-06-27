@@ -323,7 +323,7 @@ public class SaveLoadSystem
                     (int, List<int>) val = animal.Value;
                     writer.Write(val.Item1); //동물 등급
 
-                    for(int i=0;i<4; i++)
+                    for(int i=0;i<7; i++)
                     {
                         writer.Write(val.Item2[i]);
                     }
@@ -354,7 +354,7 @@ public class SaveLoadSystem
                         int grade = reader.ReadInt32();
 
                         List<int> personalities = new List<int>();
-                        for(int i =0; i< 4; i++)
+                        for(int i =0; i< 7; i++)
                         {
                             personalities.Add(reader.ReadInt32());
                         }
@@ -367,7 +367,7 @@ public class SaveLoadSystem
         {
             List<int> personalities = new List<int>();
             personalities.Add(1);
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 6; i++)
             {
                 personalities.Add(0);
             }
@@ -826,6 +826,7 @@ public class SaveLoadSystem
             {
                 writer.Write(vendingData.Money.ToString());
                 writer.Write(vendingData.unlocked);
+                writer.Write(DateTime.UtcNow.Ticks);
             }
 
             File.WriteAllBytes(p, ms.ToArray());
@@ -849,13 +850,13 @@ public class SaveLoadSystem
                 using (BinaryReader reader = new BinaryReader(new MemoryStream(data)))
                 {
                     string money = reader.ReadString();
-                    vending = new VendingMachineData(money, reader.ReadBoolean());
+                    vending = new VendingMachineData(money, reader.ReadBoolean(), reader.ReadInt64());
                 }
             }
         }
         else
         {
-            vending = new VendingMachineData("0", false);
+            vending = new VendingMachineData("0", false, 0);
             SaveVendingMachineData(vending);
         }
         return vending;

@@ -70,6 +70,18 @@ public enum BlackConsumerState
     Kidding,
     SubDue
 }
+
+public enum AnimalPersonality
+{
+    Normal,
+    Foodie,
+    Relaxed,
+    Loyal,
+    Impatient,
+    LightEater,
+    HardToPlease
+}
+
 public class RestaurantParam
 {
     public int id;
@@ -784,15 +796,17 @@ public class TrashData
 public class VendingMachineData
 {
     public string money;
+    public long lastTime;
     public bool unlocked;
     BigInteger? m;
     public BigInteger Money { get { if (!m.HasValue) m = BigInteger.Parse(money); return m.Value; } set { m = value; changed = true; } }
     public bool changed;
 
-    public VendingMachineData(string money,  bool unlocked)
+    public VendingMachineData(string money,  bool unlocked, long lastTime)
     {
         this.money = money;
         this.unlocked = unlocked;
+        this.lastTime = lastTime;
     }
 }
 

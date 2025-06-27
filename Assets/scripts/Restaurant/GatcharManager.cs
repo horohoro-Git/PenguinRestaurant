@@ -179,29 +179,7 @@ public class GatcharManager : MonoBehaviour
     }
     void LoadAnimals()
     {
-        int num = 0;
-        float values = 0;
-        int animalsNum = 0;
-        int totalTier = 0;
-        foreach (var v in AnimalManager.gatchaTiers)
-        {
-            if (v.Value.Item1 > 0)
-            {
-                AnimalStruct asset = AssetLoader.animals[v.Key];
-                AnimalManager.animalStructs[v.Key] = asset;
-                num += v.Value.Item1;
-                animalsNum++;
-                totalTier += v.Value.Item1;
-            }
-        }
-
-        AnimalManager.gatchaValues = 100 + 10 * animalsNum + 5 * totalTier;
-
-        gatchaPrice = 100 + Mathf.FloorToInt(Mathf.Pow((num - 1), 1.6f)) * 15;
-        sb = Utility.GetFormattedMoney(gatchaPrice, sb);
-        GameInstance.GameIns.uiManager.drawPriceText.text = sb.ToString();
-   
-        gatchaPrice = Utility.StringToBigInteger(sb.ToString());
+        SetPrice();
     }
 
     Shadow GetShadow()
@@ -256,26 +234,38 @@ public class GatcharManager : MonoBehaviour
         {
             if(pair.Value == 1)
             {
-                if (AnimalManager.gatchaTiers.ContainsKey(pair.Key))
+                success = CheckSuccess(pair.Key);
+          /*      if (AnimalManager.gatchaTiers.ContainsKey(pair.Key))
                 {
                     if (AnimalManager.gatchaTiers[pair.Key].Item1 < 4)
                     {
                         (int, List<int>) tmp = AnimalManager.gatchaTiers[pair.Key];
                         tmp.Item1++;
-                        int r = Random.Range(0, 4);
+                        int r = Random.Range(0, 7);
                         tmp.Item2[r] = 1;
                         AnimalManager.gatchaTiers[pair.Key] = tmp;
                         SaveLoadSystem.SaveGatchaAnimalsData();
                         success = true;
+                    }
+                    else
+                    {
+                        (int, List<int>) tmp = AnimalManager.gatchaTiers[pair.Key];
+                        int r = Random.Range(0, 7);
+                        if (tmp.Item2[r] == 0)
+                        {
+                            tmp.Item2[r] = 1;
+                            AnimalManager.gatchaTiers[pair.Key] = tmp;
+                            SaveLoadSystem.SaveGatchaAnimalsData();
+                        }
                     }
                 }
                 else
                 {
                     int tier = 1;
                     List<int> personality = new List<int>();
-                    for (int i = 0; i < 4; i++) personality.Add(0);
+                    for (int i = 0; i < 7; i++) personality.Add(0);
                  
-                    int r = Random.Range(0, 4);
+                    int r = Random.Range(0, 7);
                     personality[r] = 1;
                     AnimalManager.gatchaTiers[pair.Key] = (tier, personality);
                     AnimalStruct asset = AssetLoader.animals[pair.Key];
@@ -283,7 +273,7 @@ public class GatcharManager : MonoBehaviour
                     SaveLoadSystem.SaveGatchaAnimalsData();
                     success = true;
                     //  GameInstance.GameIns.animalManager.AddNewAnimal(lockAnimals[keyValuePair.Key], keyValuePair.Key, animal);
-                }
+                }*/
                 break;
             }
         }
@@ -314,21 +304,79 @@ public class GatcharManager : MonoBehaviour
      
         if(success)
         {
-            int num = 0;
-            foreach (var v in AnimalManager.gatchaTiers)
-            {
-                if (v.Value.Item1 > 0)
-                {
-                    num += v.Value.Item1;
-                }
-            }
-            gatchaPrice = 100 + Mathf.FloorToInt(Mathf.Pow((num - 1), 1.6f)) * 15;
-            sb = Utility.GetFormattedMoney(gatchaPrice, sb);
-            GameInstance.GameIns.uiManager.drawPriceText.text = sb.ToString();
-            gatchaPrice = Utility.StringToBigInteger(sb.ToString());
+            SetPrice();
         }
     }
 
+    public void SetPrice()
+    {
+        int num = 0;
+        int animalsNum = 0;
+        int totalTier = 0;
+        foreach (var v in AnimalManager.gatchaTiers)
+        {
+            if (v.Value.Item1 > 0)
+            {
+                AnimalStruct asset = AssetLoader.animals[v.Key];
+                AnimalManager.animalStructs[v.Key] = asset;
+                num += v.Value.Item1;
+                animalsNum++;
+                totalTier += v.Value.Item1;
+            }
+        }
+
+        AnimalManager.gatchaValues = 100 + 10 * animalsNum + 5 * totalTier;
+
+        gatchaPrice = 100 + Mathf.FloorToInt(Mathf.Pow((num - 1), 1.6f)) * 15;
+        sb = Utility.GetFormattedMoney(gatchaPrice, sb);
+        GameInstance.GameIns.uiManager.drawPriceText.text = sb.ToString();
+
+        gatchaPrice = Utility.StringToBigInteger(sb.ToString());
+      
+    }
+    public bool CheckSuccess(int key)
+    {
+        if (AnimalManager.gatchaTiers.ContainsKey(key))
+        {
+            if (AnimalManager.gatchaTiers[key].Item1 < 4)
+            {
+                (int, List<int>) tmp = AnimalManager.gatchaTiers[key];
+                tmp.Item1++;
+                int r = Random.Range(0, 7);
+                tmp.Item2[r] = 1;
+                AnimalManager.gatchaTiers[key] = tmp;
+                SaveLoadSystem.SaveGatchaAnimalsData();
+                return true;
+            }
+            else
+            {
+                (int, List<int>) tmp = AnimalManager.gatchaTiers[key];
+                int r = Random.Range(0, 7);
+                if (tmp.Item2[r] == 0)
+                {
+                    tmp.Item2[r] = 1;
+                    AnimalManager.gatchaTiers[key] = tmp;
+                    SaveLoadSystem.SaveGatchaAnimalsData();
+                }
+            }
+
+            return false;
+        }
+        else
+        {
+            int tier = 1;
+            List<int> personality = new List<int>();
+            for (int i = 0; i < 7; i++) personality.Add(0);
+
+            int r = Random.Range(0, 7);
+            personality[r] = 1;
+            AnimalManager.gatchaTiers[key] = (tier, personality);
+            AnimalStruct asset = AssetLoader.animals[key];
+            AnimalManager.animalStructs[key] = asset;
+            SaveLoadSystem.SaveGatchaAnimalsData();
+            return true;
+        }
+    }
     public async UniTask AdvertisementAsync(bool success, CancellationToken cancellationToken = default)
     {
        

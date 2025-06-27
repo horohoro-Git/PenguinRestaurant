@@ -185,11 +185,12 @@ public class Customer : AnimalController
             FoodStackManager.FM.RemoveFoodStack(foodStack);
 
         }
+        int maxNum = animalStruct.max_order + 1 + (animalPersonality == AnimalPersonality.Foodie ? 2 : 0) - (animalPersonality == AnimalPersonality.LightEater ? (animalStruct.max_order - animalStruct.min_order > 2 ? 2 : animalStruct.max_order - animalStruct.min_order) : 0);
         if (foodsAnimalsWant.burger)
         {
             FoodStack foodStack = FoodStackManager.FM.GetFoodStack();
             // ClearPlate(foodStack);
-            foodStack.needFoodNum = UnityEngine.Random.Range(animalStruct.min_order, animalStruct.max_order);
+            foodStack.needFoodNum = UnityEngine.Random.Range(animalStruct.min_order, maxNum);
             foodStack.type = MachineType.BurgerMachine;
             foodStacks.Add(foodStack);
         }
@@ -198,7 +199,7 @@ public class Customer : AnimalController
         {
             FoodStack foodStack = FoodStackManager.FM.GetFoodStack();
             //ClearPlate(foodStack);
-            foodStack.needFoodNum = UnityEngine.Random.Range(animalStruct.min_order, animalStruct.max_order);
+            foodStack.needFoodNum = UnityEngine.Random.Range(animalStruct.min_order, maxNum);
             foodStack.type = MachineType.CokeMachine;
             foodStacks.Add(foodStack);
         }
@@ -207,7 +208,7 @@ public class Customer : AnimalController
         {
             FoodStack foodStack = FoodStackManager.FM.GetFoodStack();
             //   ClearPlate(foodStack);
-            foodStack.needFoodNum = UnityEngine.Random.Range(animalStruct.min_order, animalStruct.max_order);
+            foodStack.needFoodNum = UnityEngine.Random.Range(animalStruct.min_order, maxNum);
             foodStack.type = MachineType.CoffeeMachine;
             foodStacks.Add(foodStack);
         }
@@ -216,7 +217,7 @@ public class Customer : AnimalController
         {
             FoodStack foodStack = FoodStackManager.FM.GetFoodStack();
             //  ClearPlate(foodStack);
-            foodStack.needFoodNum = UnityEngine.Random.Range(animalStruct.min_order, animalStruct.max_order);
+            foodStack.needFoodNum = UnityEngine.Random.Range(animalStruct.min_order, maxNum);
             foodStack.type = MachineType.DonutMachine;
 
             foodStacks.Add(foodStack);
@@ -482,7 +483,8 @@ public class Customer : AnimalController
 
                     animator.SetInteger("state", 1);
                     animal.PlayAnimation(AnimationKeys.Walk);
-                    trans.position = Vector3.MoveTowards(trans.position, p, animalStruct.speed * Time.deltaTime);
+                    float subSpeed = animalPersonality == AnimalPersonality.Relaxed ? 0.8f : (animalPersonality == AnimalPersonality.Impatient ? 1.2f : 1);
+                    trans.position = Vector3.MoveTowards(trans.position, p, animalStruct.speed * Time.deltaTime * subSpeed);
                     await UniTask.NextFrame(cancellationToken: cancellationToken);
                 }
             }
@@ -664,6 +666,7 @@ public class Customer : AnimalController
             cancellationToken.ThrowIfCancellationRequested();
             n.Pop();
 
+            float subSpeed = animalPersonality == AnimalPersonality.Relaxed ? 0.8f : (animalPersonality == AnimalPersonality.Impatient ? 1.2f : 1);
             await UniTask.NextFrame(cancellationToken: cancellationToken);
             while (n.Count > 0)
             {
@@ -700,7 +703,8 @@ public class Customer : AnimalController
                         // PlayAnim(animal.animationDic["Run"], "Run");
                         cur = (target - trans.position).magnitude;
                         Vector3 dir = (target - trans.position).normalized;
-                        trans.position = Vector3.MoveTowards(trans.position, target, animalStruct.speed * Time.deltaTime);
+
+                        trans.position = Vector3.MoveTowards(trans.position, target, animalStruct.speed * Time.deltaTime * subSpeed);
                         float angle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
                         modelTrans.rotation = Quaternion.AngleAxis(angle, Vector3.up);
                     }
@@ -753,7 +757,7 @@ public class Customer : AnimalController
                 {
                     animator.SetInteger("state", 1);
                     animal.PlayAnimation(AnimationKeys.Walk);
-                    trans.position = Vector3.MoveTowards(trans.position, newLoc, animalStruct.speed * Time.deltaTime);
+                    trans.position = Vector3.MoveTowards(trans.position, newLoc, animalStruct.speed * Time.deltaTime * subSpeed);
                     if (Vector3.Distance(trans.position, newLoc) <= 0.01f) break;
                     Vector3 dir = newLoc - trans.position;
                     float angle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
@@ -811,7 +815,7 @@ public class Customer : AnimalController
                             reCalculate = false;
                             continue;
                         }
-                                                
+                        await UniTask.NextFrame(cancellationToken: cancellationToken);
                         modelTrans.rotation = table.seats[index].transform.rotation;
                     }
                   
@@ -886,7 +890,8 @@ public class Customer : AnimalController
                             if (!table.hasProblem)
                             {
                                 float timer = animalStruct.eat_speed;
-                                if (RestaurantManager.restaurantTimer >= tm + timer / 10)
+                               // if (RestaurantManager.restaurantTimer >= tm + timer / 10)
+                                if(i != 0 && i % 9 == 0)
                                 {
                                     tm = RestaurantManager.restaurantTimer;
 
@@ -1003,20 +1008,80 @@ public class Customer : AnimalController
                     customerState = CustomerState.Table;
                     await Utility.CustomUniTaskDelay(0.5f, cancellationToken);
 
-                    SoundManager.Instance.PlayAudio3D(GameInstance.GameIns.gameSoundManager.Happy(), 0.1f, 100, 5, trans.position);
                     int reputation = Random.Range(0, 10);
-                    if(reputation < 5)
+                    int targetRep = animalPersonality == AnimalPersonality.Loyal ? 10 : (animalPersonality == AnimalPersonality.HardToPlease ? 5 : 8); 
+                    if(reputation < targetRep)
                     {
+                        int gradeUp = Random.Range(0, 100);
+
+                        if (gradeUp == 0)
+                        {
+                            //등급업
+                           // if (AnimalManager.gatchaTiers[id].Item1 < 4)
+                            {
+                                int tier = AnimalManager.gatchaTiers[id].Item1;
+                                (int, List<int>) tmp = AnimalManager.gatchaTiers[id];
+                                int personality = Random.Range(0, 7);
+                                bool success = tmp.Item1 < 4 ? true : false;
+                                if(success) tmp.Item1++;
+                                tmp.Item2[personality] = 1;
+                                AnimalManager.gatchaTiers[id] = tmp;
+
+                                if (success)
+                                {
+                                    GameInstance.GameIns.gatcharManager.popup.SetActive(true);
+                                    SoundManager.Instance.PlayAudio(GameInstance.GameIns.gatchaSoundManager.GradeUp(), 0.4f);
+
+                                    GameInstance.GameIns.gatcharManager.popup_TierUp.SetActive(true);
+
+                                    AnimalStruct asset = AssetLoader.animals[id];
+                                    string n = asset.asset_name + "_Sprite";
+                                    GameInstance.GameIns.gatcharManager.TierUpAnimalImage.sprite = AssetLoader.loadedSprites[n];
+                                    if (tier == 2) GameInstance.GameIns.gatcharManager.backGlow.color = Color.blue;
+                                    else if (tier == 3) GameInstance.GameIns.gatcharManager.backGlow.color = new Color(0.5f, 0f, 0.5f);
+                                    else if (tier == 4) GameInstance.GameIns.gatcharManager.backGlow.color = Color.yellow;
+                                    GameInstance.GameIns.gatcharManager.SetPrice();
+                                    SaveLoadSystem.SaveGatchaAnimalsData();
+                                }
+                            }
+                        }
+                        else if (gradeUp == 1)
+                        {
+                            //새로운 손님 추가
+                            if (App.CurrentLevel == 0)
+                            {
+                                int randomCustomer = Random.Range(100, 106);
+                                if (!AnimalManager.gatchaTiers.ContainsKey(randomCustomer))
+                                {
+                                    GameInstance.GameIns.gatcharManager.popup.SetActive(true);
+                                    SoundManager.Instance.PlayAudio(GameInstance.GameIns.gatchaSoundManager.Unlock(), 0.4f);
+                                    (int, List<int>) tmp = AnimalManager.gatchaTiers[randomCustomer];
+                                    tmp.Item1 = 1;
+                                    int personality = Random.Range(0, 7);
+                                    for (int i = 0; i < 7; i++) tmp.Item2.Add(0);
+                                    tmp.Item2[personality] = 1;
+                                    AnimalManager.gatchaTiers[randomCustomer] = tmp;
+                                    AnimalStruct asset = AssetLoader.animals[randomCustomer];
+                                    string n = asset.asset_name + "_Sprite";
+                                    GameInstance.GameIns.gatcharManager.NewAnimalImage.sprite = AssetLoader.loadedSprites[n];// this.sprites[pair.Key];
+                                    GameInstance.GameIns.gatcharManager.popup_NewCustomer.SetActive(true);
+                                    AnimalManager.animalStructs[randomCustomer] = asset;
+                                    GameInstance.GameIns.gatcharManager.SetPrice();
+                                    SaveLoadSystem.SaveGatchaAnimalsData();
+                                }
+                            }
+                        }
+
+                        SoundManager.Instance.PlayAudio3D(GameInstance.GameIns.gameSoundManager.Happy(), 0.1f, 100, 5, trans.position);
                         GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation += 1;
                         GameInstance.GameIns.uiManager.reputation.text = GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation.ToString();
                         GameInstance.GameIns.restaurantManager.CalculateSpawnTimer();
                         GameInstance.GameIns.restaurantManager.restaurantCurrency.changed = true;
+                        FloatingEmote(4000);
+                        if (cancellationTokenSource != null) cancellationTokenSource.Cancel();
+                        cancellationTokenSource = new CancellationTokenSource();
+                        EmoteTimer(5f, AnimationKeys.Happy, false, cancellationTokenSource.Token).Forget();
                     }
-                    FloatingEmote(4000);
-
-                    if (cancellationTokenSource != null) cancellationTokenSource.Cancel();
-                    cancellationTokenSource = new CancellationTokenSource();
-                    EmoteTimer(5f, AnimationKeys.Happy, false, cancellationTokenSource.Token).Forget();
                     await Utility.CustomUniTaskDelay(3f, cancellationToken);
                     animator.SetInteger("state", 0);
                     animal.PlayAnimation(AnimationKeys.Idle);

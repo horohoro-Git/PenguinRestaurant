@@ -8,6 +8,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.ProBuilder.Shapes;
 using UnityEngine.UIElements;
+using Random = UnityEngine.Random;
 //using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
 //?œê?
 
@@ -110,9 +111,9 @@ public class AnimalSpawner : MonoBehaviour
                                     foodsAnimalsWant.spawnerType = SpawnerType.FastFood;
                                     Customer ac = animalManager.SpawnCustomer(foodsAnimalsWant);
                                     ac.animalSpawner = this;
+                                    ac.animalPersonality = (AnimalPersonality)Random.Range(0, 7);
 
-
-                                    int selectedIndex = UnityEngine.Random.Range(0, 2);
+                                    int selectedIndex = Random.Range(0, 2);
                                
                                /*     SpawnPoint temp = spawnPoints[another];
                                     spawnPoints[another] = spawnPoints[selectedIndex];
@@ -163,6 +164,7 @@ public class AnimalSpawner : MonoBehaviour
                                     foodsAnimalsWant.spawnerType = SpawnerType.DonutShop;
                                     Customer ac = animalManager.SpawnCustomer(foodsAnimalsWant);
                                     ac.animalSpawner = this;
+                                    ac.animalPersonality = (AnimalPersonality)Random.Range(0, 7);
 
                                     int selectedIndex = UnityEngine.Random.Range(0, 2);
                                     int another = 1 - selectedIndex;

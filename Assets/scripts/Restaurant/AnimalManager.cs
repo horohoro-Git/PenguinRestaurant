@@ -387,8 +387,9 @@ public class AnimalManager : MonoBehaviour
             ints.Add(i.Key);
         }
         int randomNum = UnityEngine.Random.Range(0, ints.Count);
-        int res = ints[randomNum];
 
+        int res = ints[randomNum];
+      
         if (deactivateCustomerControllers.Count > 0 && allAnimals[res].deactivateAnimals.Count > 0)
         {
             Customer customer = deactivateCustomerControllers.Dequeue();

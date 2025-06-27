@@ -80,15 +80,16 @@ public class CustomerInfoPopup : MonoBehaviour
 
         if (personalityText == null) personalityText = new StringBuilder();
         personalityText.Clear();
+        int count = 0;
         for (int i = 0; i < tier.Item2.Count; i++)
         {
-            Debug.Log(tier.Item2[i]);
             if (tier.Item2[i] == 1)
             {
+                count++;
                 if(personalityText.Length > 0) personalityText.Append(", ");
-
+                if (count == 5) if (personalityText.Length > 0) personalityText.Append("\n");
+              
                 personalityText.Append(AssetLoader.animalPersonalities[i].Name);
-               
             }
         }
         personality.text = personalityText.ToString();  
