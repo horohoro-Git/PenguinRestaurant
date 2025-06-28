@@ -877,7 +877,7 @@ public class SaveLoadSystem
                 {
                     int num = reader.ReadInt32();
 
-                    employees = new Employees(new List<EmployeeLevelData>());
+                    employees = new Employees(num, new List<EmployeeLevelData>());
 
                     //List<EmployeeLevelData> employeeLevelDatas = new List<EmployeeLevelData>();
                     for(int i=0; i<num; i++)
@@ -890,7 +890,7 @@ public class SaveLoadSystem
         }
         else
         {
-            employees = new Employees(new List<EmployeeLevelData>());
+            employees = new Employees(0, new List<EmployeeLevelData>());
             SaveEmployees(employees);
         }
         return employees;
@@ -908,7 +908,7 @@ public class SaveLoadSystem
         {
             using (BinaryWriter writer = new BinaryWriter(ms))
             {
-                int num = employees.employeeLevelDatas.Count;
+                int num = employees.num;
                 writer.Write(num);
 
                 for (int i = 0; i < num; i++)

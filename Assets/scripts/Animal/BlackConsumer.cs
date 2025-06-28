@@ -21,7 +21,7 @@ public class BlackConsumer : AnimalController
 
     Table targetTable;
     int seatIndex = 0;
-    bool bDead = false;
+    [NonSerialized] public bool bDead = false;
     [NonSerialized] public Transform spawnerTrans;
     CancellationTokenSource cancellationTokenSource;
     public ParticleSystem particles;
@@ -29,6 +29,7 @@ public class BlackConsumer : AnimalController
     [NonSerialized] public EnemySpawner enemySpawner;
     public void CauseTrouble()
     {
+        Debug.Log("AAA");
         WorkSpaceManager workSpaceManager = GameIns.workSpaceManager;
         switch(state)
         {
@@ -202,6 +203,7 @@ public class BlackConsumer : AnimalController
     void RunAway()
     {
         if (cancellationTokenSource != null) cancellationTokenSource.Cancel();
+       
         cancellationTokenSource = new CancellationTokenSource();
         BlackConsumer_GoHome(cancellationTokenSource.Token).Forget();
     }
@@ -232,7 +234,7 @@ public class BlackConsumer : AnimalController
                 target = trans.position + v3 * speed;
 
                 int xx = Mathf.FloorToInt((target.x - minX) / size);
-                int yy = Mathf.FloorToInt((target.y - minY) / size);
+                int yy = Mathf.FloorToInt((target.z - minY) / size);
                 Debug.Log(xx + " " + yy);
                 if(!GetBlockEmployee[GetIndex(xx,yy)])
                 {
@@ -303,7 +305,7 @@ public class BlackConsumer : AnimalController
         }
         catch (Exception ex)
         {
-            Debug.LogError($"Error in Employee_Patrol: {ex.Message}");
+            Debug.Log($"Error in Employee_Patrol: {ex.Message}");
             throw;
         }
     }
@@ -504,7 +506,7 @@ public class BlackConsumer : AnimalController
         }
         catch (Exception ex) 
         {
-            Debug.LogException(ex);
+            Debug.Log(ex);
         }
     }
 
@@ -538,17 +540,20 @@ public class BlackConsumer : AnimalController
                             continue;
                         }
 
-                        modelTrans.rotation = targetTable.seats[seatIndex].transforms.rotation;
+                      //  modelTrans.rotation = targetTable.seats[seatIndex].transforms.rotation;
                     }
 
                     GameIns.restaurantManager.trashData.trashNum -= 50;
-
+                    if (GameIns.restaurantManager.trashData.trashNum < 0) GameIns.restaurantManager.trashData.trashNum = 0;
+                    GameIns.restaurantManager.trashData.changed = true;
                     await UniTask.Delay(200, cancellationToken: cancellationToken);
                     animator.SetTrigger(AnimationKeys.Normal);
                     animator.SetInteger(AnimationKeys.state, 0);
-                    
-                    gameObject.SetActive(false);
+
+                    await UniTask.Delay(100, cancellationToken: cancellationToken);
                     enemySpawner.bSpawned = false;
+                    GameIns.lodManager.RemoveLODGroup(ID);
+                    gameObject.SetActive(false);
                 }
                 else
                 {
@@ -561,9 +566,9 @@ public class BlackConsumer : AnimalController
             }
 
         }
-        catch
+        catch (Exception ex) 
         {
-
+            Debug.Log(ex);
         }
     }
 
@@ -580,7 +585,6 @@ public class BlackConsumer : AnimalController
                  a = a.parentNode;
                  await UniTask.NextFrame();
              }*/
-            Debug.Log("BlackConsumer_Move");
             n.Pop();
             await UniTask.NextFrame(cancellationToken: cancellationToken);
             while (n.Count > 0)
@@ -638,7 +642,6 @@ public class BlackConsumer : AnimalController
                     return;
                 }
                 animator.SetInteger("state", 1);
-               // animal.PlayAnimation(AnimationKeys.Walk);
                 trans.position = Vector3.MoveTowards(trans.position, newLoc, animalStruct.speed * Time.deltaTime);
                 if (Vector3.Distance(trans.position, newLoc) <= 0.01f) break;
                 Vector3 dir = newLoc - trans.position;
@@ -646,11 +649,8 @@ public class BlackConsumer : AnimalController
                 modelTrans.rotation = Quaternion.AngleAxis(angle, Vector3.up);
                 await UniTask.NextFrame(cancellationToken: cancellationToken);
             }
-
-
             animator.SetInteger("state", 0);
-          //  animal.PlayAnimation(AnimationKeys.Idle);
-            //  PlayAnim(animal.animationDic[animation_Idle_A], animation_Idle_A);
+
         }
         catch (OperationCanceledException)
         {
@@ -687,6 +687,7 @@ public class BlackConsumer : AnimalController
                 targetTable = null;
             }
             animator.SetTrigger(AnimationKeys.Dead);
+            animator.SetInteger(AnimationKeys.state, 0);
             state = BlackConsumerState.SubDue;
 
 

@@ -58,3 +58,4 @@ Animal Restaurant Tycoon Game
 06/25 Convert the emoji and currency gain UI to world space and add particle effects when animals eat food
 06/26 Display cooking equipment shortage icon only when fish is lacking, update the icon graphic, add animal rank names, and include animal personality traits
 06/27 Fixed irregular animal feeding behavior, added currency rewards based on last login time when loading the vending machine, and corrected visual glitches
+06/28 Fixed character freezing caused by invalid key after meal reward, and modified enemies to be reusable for continuous spawning during gameplay

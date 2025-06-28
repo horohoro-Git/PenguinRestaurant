@@ -757,10 +757,10 @@ public class Employees
     public int num;
     public List<EmployeeLevelData> employeeLevelDatas;
     public bool changed;
-    public Employees(List<EmployeeLevelData> employeeLevelDatas)
+    public Employees(int num, List<EmployeeLevelData> employeeLevelDatas)
     {
         this.employeeLevelDatas = employeeLevelDatas;
-        this.num = employeeLevelDatas.Count;
+        this.num = num;
     }
 }
 

@@ -16,6 +16,10 @@ using UnityEngine.InputSystem;
 using UnityEngine.ProBuilder;
 using UnityEngine.UIElements;
 using static GameInstance;
+using Random = UnityEngine.Random;
+using static MoveCalculator;
+using CryingSnow.FastFoodRush;
+using static UnityEngine.Rendering.DebugUI;
 using static UnityEngine.Rendering.VolumeComponent;
 public class Employee : AnimalController
 {
@@ -1223,7 +1227,7 @@ public class Employee : AnimalController
         try
         {
             cancellationToken.ThrowIfCancellationRequested();
-            r = 2;
+            r = Random.Range(0, 3);
             if (r == 2)
             {
                 animator.SetInteger("state", 0);
@@ -1235,6 +1239,7 @@ public class Employee : AnimalController
             else
             {
                 await Employee_Patrol(cancellationToken);
+                return;
             }
 
             busy = false;
@@ -1261,69 +1266,73 @@ public class Employee : AnimalController
         {
             while (true)
             {
-                Vector3 target;
-                float x = UnityEngine.Random.Range(-1f, 1f);
-                float y = UnityEngine.Random.Range(-1f, 1f);
-                Vector3 v3 = GameInstance.GetVector3(x, 0, y);
-                float magnitude = v3.magnitude;
-                if (magnitude > 0f)
+                await UniTask.NextFrame(cancellationToken: cancellationToken);
+                Vector3 current = trans.position;
+                float minX = GameIns.calculatorScale.minX;
+                float minY = GameIns.calculatorScale.minY;
+                float size = GameIns.calculatorScale.distanceSize;
+                float speed = Random.Range(employeeLevelData.speed, employeeLevelData.speed * 2);
+                System.Random random = new System.Random();
+                Vector3 result = await UniTask.RunOnThreadPool(() =>
                 {
-                    v3 = v3 / magnitude;
-                }
-                float speed = UnityEngine.Random.Range(employeeLevel.move_speed, employeeLevel.move_speed * 2);
-                if (trans == null || !trans)
-                {
-                    await UniTask.NextFrame();
-                    return;
-                }
-                target = trans.position + v3 * speed;
-
-                bool interruptCheck = Physics.CheckBox(target, GameInstance.GetVector3(0.6f, 0.6f, 0.6f), Quaternion.identity, 1 << 6 | 1 << 7);
-                bool validCheck = Physics.CheckBox(target, GameInstance.GetVector3(0.6f, 0.6f, 0.6f), Quaternion.identity, 1);
-
-                if (validCheck && !interruptCheck)
-                {
-                    await UniTask.NextFrame(cancellationToken: cancellationToken);
-                    Stack<Vector3> moveTargets = await CalculateNodes_Async(target, true, cancellationToken);
-                    await UniTask.SwitchToMainThread(cancellationToken: cancellationToken);
-                    if (moveTargets != null && moveTargets.Count >0)
+                    Vector3 res = Vector3.zero;
+                    while (true)
                     {
-                        Vector3 test = moveTargets.Peek();
-                        if (test.x == 100 && test.z == 100)
+
+                        int x = random.Next(-1 * (int)speed, (int)speed + 1);
+                        int y = random.Next(-1 * (int)speed, (int)speed + 1);
+
+                        if (x == 0 && y == 0) continue;
+                        Vector3 v3 = new Vector3(x, 0, y);
+                        float mag = v3.magnitude;
+                        if (mag > 0)
                         {
-                            animator.SetInteger("state", 2);
-                            animal.PlayAnimation(AnimationKeys.Idle);
+                            v3 = v3 / mag;
                         }
-                        else
-                       /* if (moveNode.c == 100 && moveNode.r == 100)
+                        res = current + v3 * speed;
+
+                        int xx = Mathf.FloorToInt((res.x - minX) / size);
+                        int yy = Mathf.FloorToInt((res.z - minY) / size);
+                        if (!GetBlockEmployee[GetIndex(xx, yy)])
                         {
-                            moveNode = null;
-                            animator.SetInteger("state", 2);
-                            animal.PlayAnimation(AnimationKeys.Idle);
-                           // PlayAnim(animal.animationDic[animation_LookAround], animation_LookAround);
-                        }
-                        else*/
-                        {
-                            await Employee_Move(moveTargets, target, cancellationToken);
-                            if (reCalculate)
-                            {
-                                while(bWait) await UniTask.NextFrame(cancellationToken: cancellationToken);
-                                reCalculate = false;
-                                continue;
-                            }
+                            break;
                         }
                     }
-                    else
+                    return res;
+                });
+
+                Stack<Vector3> moveTargets = await CalculateNodes_Async(result, true, cancellationToken);
+
+                if (moveTargets != null && moveTargets.Count > 0)
+                {
+                    await Employee_Move(moveTargets, result, cancellationToken);
+                    if (reCalculate)
                     {
-                        animator.SetInteger("state", 2);
-                        animal.PlayAnimation(AnimationKeys.Idle);
-                        //PlayAnim(animal.animationDic[animation_LookAround], animation_LookAround);
+                        while (bWait) await UniTask.NextFrame(cancellationToken: cancellationToken);
+                        reCalculate = false;
+                        if (bResearch)
+                        {
+                            animator.SetInteger("state", 0);
+                            animal.PlayAnimation(AnimationKeys.Idle);
+                            await UniTask.Delay(300, cancellationToken: cancellationToken);
+                            bResearch = false;
+
+                            busy = false;
+                            employeeCallback?.Invoke(this);
+                            return;
+                        }
+                        continue;
                     }
-                    await UniTask.Delay(500, cancellationToken: cancellationToken);
-                    return;
                 }
-                //    return;
+
+                animator.SetInteger("state", 0);
+                animal.PlayAnimation(AnimationKeys.Idle);
+                busy = false;
+                await UniTask.Delay(500, cancellationToken: cancellationToken);
+                employeeCallback?.Invoke(this);
+                return;
             }
+            
         }
         catch (OperationCanceledException)
         {
@@ -1501,7 +1510,7 @@ public class Employee : AnimalController
                             int currentStackCount = foodStacks[t].foodStack.Count; // 음식 개수 저장
                             Vector3 targetPosition = headPoint.position + GameInstance.GetVector3(0, 0.7f * (currentStackCount + 1), 0); // 목적지
 #if HAS_DOTWEEN
-                            DOTween.Kill(f.transforms); //Tween 제거
+                          //  DOTween.Kill(f.transforms); //Tween 제거
                             f.transforms.DOJump(counter.stackPoints[i].position + GameInstance.GetVector3(0, 0.7f * counter.foodStacks[i].foodStack.Count, 0), r, 1, 0.2f);
 #endif
                             f.transforms.rotation = Quaternion.Euler(0,0,0);
@@ -1602,7 +1611,7 @@ public class Employee : AnimalController
                             int currentStackCount = foodStacks[t].foodStack.Count; // 음식 개수 저장
                             Vector3 targetPosition = headPoint.position + GameInstance.GetVector3(0, 0.7f * (currentStackCount + 1), 0); // 목적지
 #if HAS_DOTWEEN
-                            DOTween.Kill(f.transforms); //Tween 제거
+                       //     DOTween.Kill(f.transforms); //Tween 제거
                             f.transforms.DOJump(counter.stackPoints[i].position + GameInstance.GetVector3(0, 0.7f * counter.foodStacks[i].foodStack.Count, 0), r, 1, 0.2f);
 #endif
                             counter.foodStacks[i].foodStack.Push(f);
@@ -1691,11 +1700,11 @@ public class Employee : AnimalController
                                         Food f = foodStack.foodStack.Pop();
                                         float r = UnityEngine.Random.Range(1, 2.5f);
                                         int currentStackCount = foodStacks[t].foodStack.Count; // 음식 개수 저장
-                                        Vector3 pos = counter.customer.headPoint.position + GameInstance.GetVector3(0, 0.7f * (index - 1), 0);
+                                        Vector3 pos = counter.customer.headPoint.position + Vector3.up * 0.7f * (index);
 #if HAS_DOTWEEN
-                                        DOTween.Kill(f.transforms);
+                                    //    DOTween.Kill(f.transforms);
                                         f.transforms.DOJump(pos, r, 1, 0.2f).OnComplete(() =>
-                                        OnFoodStackComplete(f, pos, counter.customer.foodStacks[j], (index - 1), counter.customer.headPoint));
+                                        OnFoodStackComplete(f, pos, counter.customer.foodStacks[j], index - 1, counter.customer.headPoint));
                                       
                                         SoundManager.Instance.PlayAudio3D(GameIns.gameSoundManager.ThrowSound(), 0.2f, 100, 5, trans.position);
 #endif
@@ -1805,7 +1814,7 @@ public class Employee : AnimalController
                         float r = UnityEngine.Random.Range(1, 2.5f);
                         int index = garbageList.Count;
 #if HAS_DOTWEEN
-                        DOTween.Kill(garbage.transforms);
+                      //  DOTween.Kill(garbage.transforms);
                         garbage.transforms.DOJump(pos, r, 1, 0.2f).OnComplete(() =>
                         OnGarbageStackComplete(garbage, pos, garbageList, index, headPoint));
                        
@@ -1873,9 +1882,9 @@ public class Employee : AnimalController
                             reCalculate = false;
                             continue;
                         }
-
-                        modelTrans.LookAt(trash.transforms);
-                       
+                        await UniTask.DelayFrame(3, cancellationToken: cancellationToken);
+                        modelTrans.rotation = trash.offset.rotation * Quaternion.Euler(0, 180, 0);
+                     
                     }
 
                     await UniTask.Delay(200, cancellationToken: cancellationToken);
@@ -1887,7 +1896,7 @@ public class Employee : AnimalController
                         float r = UnityEngine.Random.Range(1, 2.5f);
                         int index = garbageList.Count;
 #if HAS_DOTWEEN
-                        DOTween.Kill(garbage.transforms);
+                      //  DOTween.Kill(garbage.transforms);
                         garbage.transforms.DOJump(pos, r, 1, 0.2f).OnComplete(() =>
                         OnGarbageClearComplete(garbage));
                         SoundManager.Instance.PlayAudio3D(GameIns.gameSoundManager.ThrowSound(), 0.2f, 100, 5, trans.position);
@@ -2682,8 +2691,6 @@ public class Employee : AnimalController
        
         employeeLevelData.level++;
 
-        // employeeLevelData.speed = 
-        Debug.Log("LevelUp");
         SoundManager.Instance.PlayAudio(GameIns.gameSoundManager.LevelUp(), 0.2f);
         EXP = employeeLevelData.level == 10 ? 0 : EXP - employeeLevelData.targetEXP;
         //     employeeLevel = AssetLoader.employees_levels[employeeLevelData.level];
@@ -2693,12 +2700,16 @@ public class Employee : AnimalController
         employeeLevelData.max_weight = es.max_weight + Mathf.FloorToInt((employeeLevelData.level - 1) / 2);
         employeeLevelData.speed = es.move_speed + (employeeLevelData.level - 1) * 0.2f;
         if (ui != null) ui.UpdateLevel(employeeLevelData.level);
-        //Animal animal = GetComponentInParent<Animal>();
-        // Employee animalController = animal.GetComponentInChildren<Employee>();
 
-        // GameInstance.GameIns.restaurantManager.UpgradePenguin(GameInstance.GameIns.restaurantManager.combineDatas.employeeData[animalController.id - 1].level, false, animalController);
-        //SliderController sliderController = animal.GetComponentInChildren<SliderController>();
-        // sliderController.
+        if ((GameIns.restaurantManager.employees.num < 8 && GameIns.restaurantManager.employeeHire[GameIns.restaurantManager.employees.num] <= GameIns.restaurantManager.GetRestaurantValue()))
+        {
+            GameIns.applianceUIManager.UnlockHire(true);
+        }
+        else
+        {
+            GameIns.applianceUIManager.UnlockHire(false);
+        }
+       
     }
 
     WaitForFixedUpdate waitForFixedUpdate = new WaitForFixedUpdate();
