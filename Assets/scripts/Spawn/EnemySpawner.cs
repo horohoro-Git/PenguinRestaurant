@@ -51,6 +51,7 @@ public class EnemySpawner : MonoBehaviour
                         {
                             bSpawned = true;
                             currentBlackConsumer = GameInstance.GameIns.animalManager.blackConsumer;
+                            currentBlackConsumer.bDead = false;
                             currentBlackConsumer.enemySpawner = this;
                             currentBlackConsumer.spawnerTrans = transform;
                             currentBlackConsumer.trans.position = transform.position;

@@ -734,7 +734,7 @@ public class RestaurantManager : MonoBehaviour
         try
         {
             await UniTask.NextFrame(cancellationToken: cancellationToken);
-            int num = employees.employeeLevelDatas.Count;
+            int num = employees.num;
             int x=0, y=0;
             Utility.CheckHirable(Vector3.zero, ref x, ref y, false, true, true);
 
@@ -839,14 +839,10 @@ public class RestaurantManager : MonoBehaviour
     }
     public void HireEmployee()
     {
-        Debug.Log(employees.num < 8);
-        Debug.Log(employeeHire[employees.num] + " " + GetRestaurantValue());
-        Debug.Log(GameIns.inputManager.CheckHire());
-
         if (employees.num < 8 && employeeHire[employees.num] <= GetRestaurantValue() && GameIns.inputManager.CheckHire())
         {
+            Debug.Log(employees.num);
             employees.num++;
-
             EmployeeNum();
         }
        // EmployeeNum();
@@ -1123,11 +1119,11 @@ public class RestaurantManager : MonoBehaviour
 
             if ((employees.num < 8 && employeeHire[employees.num] <= GetRestaurantValue()))
             {
-                GameInstance.GameIns.applianceUIManager.UnlockHire(true);
+                GameIns.applianceUIManager.UnlockHire(true);
             }
             else
             {
-                GameInstance.GameIns.applianceUIManager.UnlockHire(false);
+                GameIns.applianceUIManager.UnlockHire(false);
             }
         }
     }

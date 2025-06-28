@@ -554,7 +554,17 @@ public class AnimalManager : MonoBehaviour
         if (!onlyOrder)
         {
             customer.animalSpawner.RemoveWaitingCustomer(customer);
-            customer.foodStacks.Clear();
+            for (int i = customer.foodStacks.Count - 1; i >= 0; i--)
+            {
+                FoodStack foodStack = customer.foodStacks[i];
+                customer.foodStacks.RemoveAt(i);
+                while (foodStack.foodStack.Count > 0)
+                {
+                    Food f = foodStack.foodStack.Pop();
+                    FoodManager.EatFood(f);
+                }
+                FoodStackManager.FM.RemoveFoodStack(foodStack);
+            }
             customer.trans.localPosition = GameInstance.GetVector3(0, 0, 0);
             customer.gameObject.SetActive(false);
             customer.trans.position = GameInstance.GetVector3(100, 100, 100);

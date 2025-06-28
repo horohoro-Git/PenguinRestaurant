@@ -171,6 +171,15 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
                             GameIns.restaurantManager.restaurantCurrency.changed = true;
                             GameIns.restaurantManager.Extension();
 
+                            if ((GameIns.restaurantManager.employees.num < 8 && GameIns.restaurantManager.employeeHire[GameIns.restaurantManager.employees.num] <= GameIns.restaurantManager.GetRestaurantValue()))
+                            {
+                                GameIns.applianceUIManager.UnlockHire(true);
+                            }
+                            else
+                            {
+                                GameIns.applianceUIManager.UnlockHire(false);
+                            }
+
                             goods.soldout = true;
                             soldout_text.gameObject.SetActive(true);
                             itemImage.GetComponent<Image>().raycastTarget = false;
@@ -281,6 +290,15 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
         int num = GameIns.store.goodsDic[goods.id].Count;
 
         if (num == 0) price_text.gameObject.SetActive(false); else UpdatePrice(num);
+
+        if ((GameIns.restaurantManager.employees.num < 8 && GameIns.restaurantManager.employeeHire[GameIns.restaurantManager.employees.num] <= GameIns.restaurantManager.GetRestaurantValue()))
+        {
+            GameIns.applianceUIManager.UnlockHire(true);
+        }
+        else
+        {
+            GameIns.applianceUIManager.UnlockHire(false);
+        }
         //  GameInstance.GameIns.inputManager.draggingFurniture = 
     }
 }

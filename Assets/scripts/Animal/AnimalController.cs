@@ -100,7 +100,7 @@ public class AnimalController : MonoBehaviour
     public const string animation_Bounce = "Bounce";
     //  private EmployeeData eData;
     //    public EmployeeData employeeData { get { return eData; } set { eData = value; if(ui != null) ui.UpdateLevel(eData.level); } }
-    public int id;
+    public int id { get; set; }
     Stack<Node> stack = new Stack<Node>(50);
     public bool knockback = false;
     public Vector3 kockbackVector;

@@ -687,13 +687,7 @@ public class Customer : AnimalController
                             Debug.Log("reCalculate");
                             return;
                         }
-                        if (trans == null || !trans)
-                        {
-                            Debug.LogError("No Trans Find");
-                            await UniTask.NextFrame();
-                            return;
-                        }
-
+                    
                         if (Vector3.Distance(trans.position, target) <= 0.01f) break;
 
                         Debug.DrawLine(trans.position, target, Color.red, 0.1f);
@@ -815,8 +809,9 @@ public class Customer : AnimalController
                             reCalculate = false;
                             continue;
                         }
-                        await UniTask.NextFrame(cancellationToken: cancellationToken);
+                        await UniTask.DelayFrame(3, cancellationToken: cancellationToken);
                         modelTrans.rotation = table.seats[index].transform.rotation;
+                   
                     }
                   
 
@@ -1010,6 +1005,11 @@ public class Customer : AnimalController
 
                     int reputation = Random.Range(0, 10);
                     int targetRep = animalPersonality == AnimalPersonality.Loyal ? 10 : (animalPersonality == AnimalPersonality.HardToPlease ? 5 : 8); 
+
+                    if(id == 0)
+                    {
+                        Debug.Log("ID 0 ");
+                    }
                     if(reputation < targetRep)
                     {
                         int gradeUp = Random.Range(0, 100);
@@ -1019,13 +1019,13 @@ public class Customer : AnimalController
                             //등급업
                            // if (AnimalManager.gatchaTiers[id].Item1 < 4)
                             {
-                                int tier = AnimalManager.gatchaTiers[id].Item1;
-                                (int, List<int>) tmp = AnimalManager.gatchaTiers[id];
+                                int tier = AnimalManager.gatchaTiers[animalStruct.id].Item1;
+                                (int, List<int>) tmp = AnimalManager.gatchaTiers[animalStruct.id];
                                 int personality = Random.Range(0, 7);
                                 bool success = tmp.Item1 < 4 ? true : false;
                                 if(success) tmp.Item1++;
                                 tmp.Item2[personality] = 1;
-                                AnimalManager.gatchaTiers[id] = tmp;
+                                AnimalManager.gatchaTiers[animalStruct.id] = tmp;
 
                                 if (success)
                                 {
@@ -1034,7 +1034,7 @@ public class Customer : AnimalController
 
                                     GameInstance.GameIns.gatcharManager.popup_TierUp.SetActive(true);
 
-                                    AnimalStruct asset = AssetLoader.animals[id];
+                                    AnimalStruct asset = AssetLoader.animals[animalStruct.id];
                                     string n = asset.asset_name + "_Sprite";
                                     GameInstance.GameIns.gatcharManager.TierUpAnimalImage.sprite = AssetLoader.loadedSprites[n];
                                     if (tier == 2) GameInstance.GameIns.gatcharManager.backGlow.color = Color.blue;
@@ -1042,6 +1042,7 @@ public class Customer : AnimalController
                                     else if (tier == 4) GameInstance.GameIns.gatcharManager.backGlow.color = Color.yellow;
                                     GameInstance.GameIns.gatcharManager.SetPrice();
                                     SaveLoadSystem.SaveGatchaAnimalsData();
+                                   
                                 }
                             }
                         }
@@ -1055,8 +1056,7 @@ public class Customer : AnimalController
                                 {
                                     GameInstance.GameIns.gatcharManager.popup.SetActive(true);
                                     SoundManager.Instance.PlayAudio(GameInstance.GameIns.gatchaSoundManager.Unlock(), 0.4f);
-                                    (int, List<int>) tmp = AnimalManager.gatchaTiers[randomCustomer];
-                                    tmp.Item1 = 1;
+                                    (int, List<int>) tmp = (1, new List<int>());
                                     int personality = Random.Range(0, 7);
                                     for (int i = 0; i < 7; i++) tmp.Item2.Add(0);
                                     tmp.Item2[personality] = 1;
@@ -1073,10 +1073,13 @@ public class Customer : AnimalController
                         }
 
                         SoundManager.Instance.PlayAudio3D(GameInstance.GameIns.gameSoundManager.Happy(), 0.1f, 100, 5, trans.position);
-                        GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation += 1;
-                        GameInstance.GameIns.uiManager.reputation.text = GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation.ToString();
-                        GameInstance.GameIns.restaurantManager.CalculateSpawnTimer();
-                        GameInstance.GameIns.restaurantManager.restaurantCurrency.changed = true;
+                        if (GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation < 100)
+                        { 
+                            GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation += 1;
+                            GameInstance.GameIns.uiManager.reputation.text = GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation.ToString();
+                            GameInstance.GameIns.restaurantManager.CalculateSpawnTimer();
+                            GameInstance.GameIns.restaurantManager.restaurantCurrency.changed = true;
+                        }
                         FloatingEmote(4000);
                         if (cancellationTokenSource != null) cancellationTokenSource.Cancel();
                         cancellationTokenSource = new CancellationTokenSource();

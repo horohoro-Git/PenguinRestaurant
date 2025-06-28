@@ -409,7 +409,7 @@ public class FoodMachine : Furniture
         }
         catch (Exception ex)
         {
-            Debug.LogException(ex);
+            Debug.Log(ex);
         }
     }
 
