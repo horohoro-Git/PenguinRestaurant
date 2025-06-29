@@ -41,30 +41,8 @@ public class SliderController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-      /*  if (rectTransform == null) rectTransform = GetComponent<RectTransform>();
-        BG = Instantiate(BG, GetComponent<RectTransform>().parent.GetComponent<RectTransform>());
-        Border = Instantiate(Border, GetComponent<RectTransform>().parent.GetComponent<RectTransform>());
-        Bar = Instantiate(Bar, GetComponent<RectTransform>().parent.GetComponent<RectTransform>());
-        levelText = Instantiate(levelText, GetComponent<RectTransform>().parent.GetComponent<RectTransform>());
-        sliderBG = BG.GetComponent<Image>();
-        sliderBorder = Border.GetComponent<Image>();
-        sliderBar = Bar.GetComponent<Image>();
-        levelTextTrans = levelText.GetComponent<RectTransform>();*/
-
-        // if(levelText.fontMaterial != null) levelText.fontMaterial = null;
-       // levelText.font = AssetLoader.font;
-     //   levelText.fontSharedMaterial = AssetLoader.font_mat;
-
-
-        // targetValue = slider.value;
-        //  level = 1; // ***** 초기 레벨 설정 *****
-        UpdateLevelText(); // ***** 텍스트 초기화 *****
-                           // currentCoroutine = StartCoroutine(SmoothIncrease());
-
-        //   StartCoroutine(t());
-        // Bar.position = 
-        // Bar.localScale = new Vector3(0.002f, 0.004f, 0.004f);
-
+  
+     /*   UpdateLevelText();
         Vector2 size = new Vector2(0,150);
         size.x = 0;
         Bar.sizeDelta = size;
@@ -73,7 +51,7 @@ public class SliderController : MonoBehaviour
         Vector3 pos = new Vector3((float)x, 0, (float)z);
         Bar.position = pos;
         isEXPCoroutineRunning = true;
-        StartCoroutine(IncreaseEXP());
+        StartCoroutine(IncreaseEXP());*/
     }
 
     IEnumerator t()
@@ -104,13 +82,29 @@ public class SliderController : MonoBehaviour
     {
         if (model != null)
         {
-            Vector3 rectPosition = GameInstance.GetVector3(model.position.x - 50f, model.position.y + 120, model.position.z - 50f);
-            Vector3 rectPosition2 = GameInstance.GetVector3(model.position.x - 50f + expX, model.position.y + 120, model.position.z - 50f + expZ);
-            BG.position = rectPosition;
-            Border.position = rectPosition;
-            Bar.position = rectPosition2;
-            levelTextTrans.position = rectPosition;
-            Bar.sizeDelta = size;
+            if (model.position.y > 5)
+            {
+                if (BG.gameObject.activeSelf) BG.gameObject.SetActive(false);
+                if (Border.gameObject.activeSelf) Border.gameObject.SetActive(false);
+                if (Bar.gameObject.activeSelf) Bar.gameObject.SetActive(false);
+                if (levelTextTrans.gameObject.activeSelf) levelTextTrans.gameObject.SetActive(false);
+            }
+            else
+            {
+                if(!BG.gameObject.activeSelf) BG.gameObject.SetActive(true);
+                if (!Border.gameObject.activeSelf) Border.gameObject.SetActive(true);
+                if (!Bar.gameObject.activeSelf) Bar.gameObject.SetActive(true);
+                if (!levelTextTrans.gameObject.activeSelf) levelTextTrans.gameObject.SetActive(true);
+                Vector3 rectPosition = GameInstance.GetVector3(model.position.x - 50f, model.position.y + 120, model.position.z - 50f);
+                Vector3 rectPosition2 = GameInstance.GetVector3(model.position.x - 50f + expX, model.position.y + 120, model.position.z - 50f + expZ);
+                BG.position = rectPosition;
+                Border.position = rectPosition;
+                Bar.position = rectPosition2;
+                Vector3 rectPosition3 = GameInstance.GetVector3(model.position.x - 50f, model.position.y + 120, model.position.z - 50f);
+                levelTextTrans.position = rectPosition3;
+                Bar.sizeDelta = size;
+            }
+            
           
           //  rectTransform.position = rectPosition; // new Vector3(model.position.x - 50f, model.position.y + 120, model.position.z - 50f);
         }
@@ -245,7 +239,6 @@ public class SliderController : MonoBehaviour
        // if(levelText.fontMaterial != null) levelText.fontMaterial = null;
         levelText.font = AssetLoader.font;
         levelText.fontSharedMaterial = AssetLoader.font_mat;
-
         BG.SetParent(AnimalManager.SubUIParent.transform);
         Border.SetParent(AnimalManager.SubUIParent.transform);
         Bar.SetParent(AnimalManager.SubUIParent.transform);

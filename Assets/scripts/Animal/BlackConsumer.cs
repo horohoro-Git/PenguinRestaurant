@@ -543,7 +543,7 @@ public class BlackConsumer : AnimalController
                       //  modelTrans.rotation = targetTable.seats[seatIndex].transforms.rotation;
                     }
 
-                    GameIns.restaurantManager.trashData.trashNum -= 50;
+                    GameIns.restaurantManager.trashData.trashNum -= 70;
                     if (GameIns.restaurantManager.trashData.trashNum < 0) GameIns.restaurantManager.trashData.trashNum = 0;
                     GameIns.restaurantManager.trashData.changed = true;
                     await UniTask.Delay(200, cancellationToken: cancellationToken);
