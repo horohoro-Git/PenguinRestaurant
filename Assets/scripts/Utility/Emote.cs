@@ -8,7 +8,8 @@ public class Emote : MonoBehaviour
 {
     [NonSerialized] public Image image; 
     [NonSerialized] public RectTransform rectTransform; 
-    [NonSerialized] public float height; 
+    [NonSerialized] public float height;
+    public bool animalEmote;
     private void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
@@ -47,6 +48,7 @@ public class Emote : MonoBehaviour
             yield return null;
         }
 
-        GameInstance.GameIns.restaurantManager.ReturnEmote(this);
+        if(animalEmote) GameInstance.GameIns.restaurantManager.ReturnEmote(this);
+        else GameInstance.GameIns.fishingManager.ReturnEmote(this);
     }
 }

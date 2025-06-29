@@ -841,7 +841,6 @@ public class RestaurantManager : MonoBehaviour
     {
         if (employees.num < 8 && employeeHire[employees.num] <= GetRestaurantValue() && GameIns.inputManager.CheckHire())
         {
-            Debug.Log(employees.num);
             employees.num++;
             EmployeeNum();
         }
@@ -854,16 +853,6 @@ public class RestaurantManager : MonoBehaviour
     {
         if (trashData.trashPoint != 100) return;
 
-        /*
-        float fillAmount = GameInstance.GameIns.applianceUIManager.rewardChest_Fill.GetComponent<Image>().fillAmount;
-        int trashcanFish = Mathf.FloorToInt(fillAmount * 20);
-
-        int oldFishesNum = restaurantCurrency.fishes;
-        restaurantCurrency.fishes += trashcanFish;
-
-        GameInstance.GameIns.uiManager.fishText.text = restaurantCurrency.fishes.ToString();
-
-        */
         trashData.trashPoint = 0;
         trashData.changed = true;
         GameInstance.GameIns.applianceUIManager.rewardChest_Fill.uiImage.fillAmount = 0;
@@ -904,7 +893,6 @@ public class RestaurantManager : MonoBehaviour
             screenPos = Mouse.current.position.ReadValue();
 #endif
             animal.trans.position = Camera.main.ScreenToWorldPoint(screenPos);
-
             if ((employees.num < 8 && employeeHire[employees.num] <= GetRestaurantValue()))
             {
                 GameInstance.GameIns.applianceUIManager.UnlockHire(true);
@@ -923,8 +911,6 @@ public class RestaurantManager : MonoBehaviour
     public void UseFish()
     {
         restaurantCurrency.fishes--;
-     //   restaurantCurrency.fishesNum_InBox++;
-        //SaveLoadManager.PlayerStateSave();
         GameInstance.GameIns.uiManager.fishText.text = restaurantCurrency.fishes.ToString();
     }
 

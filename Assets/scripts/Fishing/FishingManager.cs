@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using Random = UnityEngine.Random;
 public class FishingManager : MonoBehaviour
 {
@@ -53,13 +54,22 @@ public class FishingManager : MonoBehaviour
     public bool setup;
 
     Coroutine incomeCoroutine;
+    GameObject emoteObjects;
+
+    public Emote emote;
+    public Queue<Emote> emotes = new Queue<Emote>();
     private void Awake()
     {
         GameInstance.GameIns.fishingManager = this;
+        emoteObjects = new GameObject();
+        emoteObjects.name = "emotes";
+        Canvas c = emoteObjects.AddComponent<Canvas>();
+        c.renderMode = RenderMode.ScreenSpaceOverlay;
     }
     private void Start()
     {
        
+     
         fishingAnimals = AssetLoader.fishingAnimals;
 
         barrelObject = Instantiate(barrel, barrelPoint);
@@ -68,6 +78,14 @@ public class FishingManager : MonoBehaviour
         penguin.transform.rotation = Quaternion.Euler(0, 180, 0);
         NewFishes();
 
+        for (int i = 0; i < 30; i++)
+        {
+            Emote e = Instantiate(emote, emoteObjects.transform);
+            e.gameObject.SetActive(false);
+            emotes.Enqueue(e);
+        }
+
+        Invoke("LateStart", 10f);
        /* for(int i=0; i<20; i++)
         {
             WaterSplash waterSplash = Instantiate(splash, splashes);
@@ -84,6 +102,14 @@ public class FishingManager : MonoBehaviour
         }*/
     }
    
+    void LateStart()
+    {
+        GameInstance.GameIns.restaurantManager.miniGame.fishing = new Fishing(0, false);
+        GameInstance.GameIns.restaurantManager.miniGame.changed = true;
+        setup = true;
+
+        ResetFishing();
+    }
 
     private void Update()
     {
@@ -101,9 +127,78 @@ public class FishingManager : MonoBehaviour
         }
     }
 
+    public Emote GetEmote()
+    {
+        Emote e = null;
+        if (emotes.Count > 0)
+        {
+            e = emotes.Dequeue();
+            e.gameObject.SetActive(true);
+        }
+        else
+        {
+            e = Instantiate(emote, emoteObjects.transform);
+        }
+
+        return e;
+    }
+
+    public void ReturnEmote(Emote e)
+    {
+        if (emotes.Count > 30)
+        {
+            Destroy(e.gameObject);
+        }
+        else
+        {
+            e.gameObject.SetActive(false);
+            emotes.Enqueue(e);
+        }
+    }
+
     public void ResetFishing()
     {
         water.ChangeClean(false);
+        if (barrelObject != null)
+        {
+            barrelObject.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
+            barrelObject.transform.position = barrelPoint.transform.position;
+        }
+        GameInstance.GameIns.uiManager.fishingBtn.gameObject.SetActive(true);
+        working = false;
+        if(!GameInstance.GameIns.uiManager.panel.spread)
+        {
+            GameInstance.GameIns.uiManager.panel.Spread(false);
+           
+        }
+        GameInstance.GameIns.uiManager.GetComponent<Animator>().SetTrigger("highlight");
+     //   StartCoroutine(HighlightMinigame());
+    }
+
+    IEnumerator HighlightMinigame()
+    {
+        Color c = GameInstance.GameIns.uiManager.fadeImage.color;
+        Color t = c;
+        t.a = 0.3f;
+        float f = 0;
+        while (f <= 1)
+        {
+            Color nextColor = Color.Lerp(c, t, f);
+
+            f += Time.unscaledDeltaTime / 0.2f;
+            yield return null;
+        }
+
+        Outline outline = GameInstance.GameIns.uiManager.fishingBtn.GetComponentInChildren<Outline>();
+        Color current = outline.effectColor;
+        Color target = new Color(1, 1, 0);
+
+        f = 0;
+        while (f <= 1)
+        {
+
+        }
+
     }
 
     public void LoadStatus(Fishing fishing)

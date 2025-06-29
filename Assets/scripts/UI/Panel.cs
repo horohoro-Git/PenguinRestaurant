@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,7 +14,7 @@ public class Panel : MonoBehaviour
     public float speed;
     public Image interactiveImage;
 
-    bool spread = false;
+    [NonSerialized] public bool spread = false;
 
     Coroutine currentCoroutine;
 
@@ -26,7 +27,7 @@ public class Panel : MonoBehaviour
         });
     }
 
-    void Spread(bool bSpread)
+    public void Spread(bool bSpread)
     {
         if(bSpread)
         {
