@@ -205,17 +205,20 @@ public class InputManger : MonoBehaviour
     //   CancellationToken cancellation = new CancellationToken();
     void ScreenPoint(InputAction.CallbackContext callbackContext)
     {
-
-       // if (inputDisAble) return;
         Vector2 vector2 = callbackContext.ReadValue<Vector2>();
-
+        if(GameIns.uiManager)
+        {
+            if(GameIns.uiManager.gameGuide)
+            {
+                GameIns.uiManager.GetComponent<Animator>().SetTrigger("unhighlight");
+                GameIns.uiManager.gameGuide = false;
+            }
+        }
         if (justTouch)
         {
             prevPoint = vector2;
             currentPoint = vector2;
             justTouch = false;
-         //   if (Physics.Raycast(cachingCamera.ScreenPointToRay(currentPoint), out RaycastHit hitInfo, float.MaxValue, 1)) currentPosition = hitInfo.point;
-         //   if (Physics.Raycast(cachingCamera.ScreenPointToRay(prevPoint), out RaycastHit hitInfos, float.MaxValue, 1)) deltaPosition = hitInfos.point;
         }
         else
         {
@@ -225,10 +228,7 @@ public class InputManger : MonoBehaviour
             if (bClick)
             {
                 if (inputDisAble) return;
-                /*    if (!Utility.IsInsideCameraViewport(currentPoint, cachingCamera))
-                    {
-                        return;
-                    }*/
+            
                 if (Physics.Raycast(cachingCamera.ScreenPointToRay(currentPoint), out RaycastHit hitInfo, float.MaxValue, 1)) currentPosition = hitInfo.point;
                 if (Physics.Raycast(cachingCamera.ScreenPointToRay(prevPoint), out RaycastHit hitInfos, float.MaxValue, 1)) deltaPosition = hitInfos.point;
 
@@ -393,8 +393,6 @@ public class InputManger : MonoBehaviour
             {
                 if (App.restaurantTimeScale == 1)
                 {
-                    //Debug.Log(realPosition + " real");
-                    //Debug.Log(followPosition + " follow");
                     Vector3 l = deltaPosition - currentPosition;
                     float m = l.magnitude;
                     Vector3 n = l.normalized;

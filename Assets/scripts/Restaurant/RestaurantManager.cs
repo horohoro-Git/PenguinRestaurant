@@ -1434,7 +1434,7 @@ public class RestaurantManager : MonoBehaviour
                 miniGame.activate = true;
                 if (miniGame.fishing == null) miniGame.fishing = new Fishing(0, false);
 
-                GameIns.fishingManager.setup = true;
+               
                 GameIns.fishingManager.ResetFishing();
                 if(GameIns.app.currentScene == SceneState.Restaurant) GameIns.uiManager.fishingBtn.gameObject.SetActive(true);
                 break;

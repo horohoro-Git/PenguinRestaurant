@@ -252,8 +252,8 @@ public class GridManager : MonoBehaviour
         go.canPlace = true;
         foreach (var c in go.temp)
         {
-            int gridX = Mathf.FloorToInt((c.x - GameIns.calculatorScale.minX) / 3);
-            int gridY = Mathf.FloorToInt((c.y - GameIns.calculatorScale.minY) / 3);
+            int gridX = Mathf.FloorToInt((c.x - GameIns.calculatorScale.minX) / 2.5f);
+            int gridY = Mathf.FloorToInt((c.y - GameIns.calculatorScale.minY) / 2.5f);
             int index = MoveCalculator.GetIndex(gridX, gridY);
             if (index < grids.Length) grids[index] = false;
           //  c.Value.gameObject.SetActive(true);
@@ -265,8 +265,8 @@ public class GridManager : MonoBehaviour
     {
         foreach (var c in go.temp)
         {
-            int gridX = Mathf.FloorToInt((c.x - GameIns.calculatorScale.minX) / 3);
-            int gridY = Mathf.FloorToInt((c.y - GameIns.calculatorScale.minY) / 3);
+            int gridX = Mathf.FloorToInt((c.x - GameIns.calculatorScale.minX) / 2.5f);
+            int gridY = Mathf.FloorToInt((c.y - GameIns.calculatorScale.minY) / 2.5f);
             int index = MoveCalculator.GetIndex(gridX, gridY);
             if (index < grids.Length) grids[index] = true;
           

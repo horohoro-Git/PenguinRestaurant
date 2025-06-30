@@ -36,7 +36,7 @@ public class FishingManager : MonoBehaviour
     public 
 
     float spawnTimer = 5;
-    float timerGap = 5;
+    float timerGap = 10;
     [NonSerialized] public int numberOfFishes = 0;
     public int FishCount { get { return numberOfFishes; } set { numberOfFishes = value; 
             
@@ -54,6 +54,7 @@ public class FishingManager : MonoBehaviour
     public bool setup;
 
     Coroutine incomeCoroutine;
+    Coroutine spawnCoroutine;
     GameObject emoteObjects;
 
     public Emote emote;
@@ -68,8 +69,6 @@ public class FishingManager : MonoBehaviour
     }
     private void Start()
     {
-       
-     
         fishingAnimals = AssetLoader.fishingAnimals;
 
         barrelObject = Instantiate(barrel, barrelPoint);
@@ -85,7 +84,7 @@ public class FishingManager : MonoBehaviour
             emotes.Enqueue(e);
         }
 
-        Invoke("LateStart", 10f);
+        //Invoke("LateStart", 10f);
        /* for(int i=0; i<20; i++)
         {
             WaterSplash waterSplash = Instantiate(splash, splashes);
@@ -109,22 +108,6 @@ public class FishingManager : MonoBehaviour
         setup = true;
 
         ResetFishing();
-    }
-
-    private void Update()
-    {
-        if (setup)
-        {
-            if (FishCount < 20 && !water.isDirty && !working)
-            {
-                if (spawnTimer + timerGap <= Time.unscaledTime)
-                {
-                    spawnTimer = Time.unscaledTime;
-
-                    SpawnFish();
-                }
-            }
-        }
     }
 
     public Emote GetEmote()
@@ -158,6 +141,7 @@ public class FishingManager : MonoBehaviour
 
     public void ResetFishing()
     {
+        setup = true;
         water.ChangeClean(false);
         if (barrelObject != null)
         {
@@ -169,36 +153,33 @@ public class FishingManager : MonoBehaviour
         if(!GameInstance.GameIns.uiManager.panel.spread)
         {
             GameInstance.GameIns.uiManager.panel.Spread(false);
-           
         }
+        GameInstance.GameIns.uiManager.gameGuide = true;
         GameInstance.GameIns.uiManager.GetComponent<Animator>().SetTrigger("highlight");
-     //   StartCoroutine(HighlightMinigame());
+     
+        if(spawnCoroutine != null) StopCoroutine(spawnCoroutine);
+        spawnCoroutine = StartCoroutine(SpawningFishes());
     }
 
-    IEnumerator HighlightMinigame()
+    IEnumerator SpawningFishes()
     {
-        Color c = GameInstance.GameIns.uiManager.fadeImage.color;
-        Color t = c;
-        t.a = 0.3f;
-        float f = 0;
-        while (f <= 1)
+        while(true)
         {
-            Color nextColor = Color.Lerp(c, t, f);
+            if (FishCount < 20 && !water.isDirty && !working)
+            {
+                if (spawnTimer + timerGap <= Time.unscaledTime)
+                {
+                    spawnTimer = Time.unscaledTime;
 
-            f += Time.unscaledDeltaTime / 0.2f;
+                    SpawnFish();
+                }
+            }
+            else if(FishCount == 20)
+            {
+                break;
+            }
             yield return null;
         }
-
-        Outline outline = GameInstance.GameIns.uiManager.fishingBtn.GetComponentInChildren<Outline>();
-        Color current = outline.effectColor;
-        Color target = new Color(1, 1, 0);
-
-        f = 0;
-        while (f <= 1)
-        {
-
-        }
-
     }
 
     public void LoadStatus(Fishing fishing)
@@ -240,6 +221,7 @@ public class FishingManager : MonoBehaviour
         if (!working && !water.isDirty)
         {
             working = true;
+            if(spawnCoroutine != null) StopCoroutine(spawnCoroutine);
             StartCoroutine(Fishing());
         }
        // water.ChangeDirty();
@@ -311,7 +293,7 @@ public class FishingManager : MonoBehaviour
         Vector3 pos = RandomLocation();
 
         fish.transform.position = pos;
-    //    numberOfFishes++;
+
         FishCount++;
         GameInstance.GameIns.restaurantManager.miniGame.fishing.fishNum++;
         GameInstance.GameIns.restaurantManager.miniGame.changed = true;
