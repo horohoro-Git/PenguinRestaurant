@@ -552,7 +552,7 @@ public class Customer : AnimalController
 
                 int r = Random.Range(0, GameInstance.GameIns.restaurantManager.restaurantCurrency.minigameStack);
 
-                if(r > 5)
+                if(r > 50)
                 {
                     GameInstance.GameIns.restaurantManager.restaurantCurrency.minigameStack = 0;
                     GameInstance.GameIns.restaurantManager.miniGame.activate = true;
@@ -1042,6 +1042,8 @@ public class Customer : AnimalController
                                     else if (tier == 4) GameInstance.GameIns.gatcharManager.backGlow.color = Color.yellow;
                                     GameInstance.GameIns.gatcharManager.SetPrice();
                                     SaveLoadSystem.SaveGatchaAnimalsData();
+
+                                    GameInstance.GameIns.gatcharManager.CheckGameClear();
                                    
                                 }
                             }
@@ -1068,6 +1070,8 @@ public class Customer : AnimalController
                                     AnimalManager.animalStructs[randomCustomer] = asset;
                                     GameInstance.GameIns.gatcharManager.SetPrice();
                                     SaveLoadSystem.SaveGatchaAnimalsData();
+
+                                    GameInstance.GameIns.gatcharManager.CheckGameClear();
                                 }
                             }
                         }

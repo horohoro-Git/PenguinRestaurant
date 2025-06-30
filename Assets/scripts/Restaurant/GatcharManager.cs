@@ -113,6 +113,7 @@ public class GatcharManager : MonoBehaviour
         else if (mapType == MapType.winter) mapInt = 12;
 
         AnimalManager.gatchaTiers = SaveLoadSystem.LoadGatchaAnimals();
+        CheckGameClear();
         LoadAnimals();
     }
 
@@ -235,45 +236,46 @@ public class GatcharManager : MonoBehaviour
             if(pair.Value == 1)
             {
                 success = CheckSuccess(pair.Key);
-          /*      if (AnimalManager.gatchaTiers.ContainsKey(pair.Key))
-                {
-                    if (AnimalManager.gatchaTiers[pair.Key].Item1 < 4)
-                    {
-                        (int, List<int>) tmp = AnimalManager.gatchaTiers[pair.Key];
-                        tmp.Item1++;
-                        int r = Random.Range(0, 7);
-                        tmp.Item2[r] = 1;
-                        AnimalManager.gatchaTiers[pair.Key] = tmp;
-                        SaveLoadSystem.SaveGatchaAnimalsData();
-                        success = true;
-                    }
-                    else
-                    {
-                        (int, List<int>) tmp = AnimalManager.gatchaTiers[pair.Key];
-                        int r = Random.Range(0, 7);
-                        if (tmp.Item2[r] == 0)
-                        {
-                            tmp.Item2[r] = 1;
-                            AnimalManager.gatchaTiers[pair.Key] = tmp;
-                            SaveLoadSystem.SaveGatchaAnimalsData();
-                        }
-                    }
-                }
-                else
-                {
-                    int tier = 1;
-                    List<int> personality = new List<int>();
-                    for (int i = 0; i < 7; i++) personality.Add(0);
-                 
-                    int r = Random.Range(0, 7);
-                    personality[r] = 1;
-                    AnimalManager.gatchaTiers[pair.Key] = (tier, personality);
-                    AnimalStruct asset = AssetLoader.animals[pair.Key];
-                    AnimalManager.animalStructs[pair.Key] = asset;
-                    SaveLoadSystem.SaveGatchaAnimalsData();
-                    success = true;
-                    //  GameInstance.GameIns.animalManager.AddNewAnimal(lockAnimals[keyValuePair.Key], keyValuePair.Key, animal);
-                }*/
+                /*      if (AnimalManager.gatchaTiers.ContainsKey(pair.Key))
+                      {
+                          if (AnimalManager.gatchaTiers[pair.Key].Item1 < 4)
+                          {
+                              (int, List<int>) tmp = AnimalManager.gatchaTiers[pair.Key];
+                              tmp.Item1++;
+                              int r = Random.Range(0, 7);
+                              tmp.Item2[r] = 1;
+                              AnimalManager.gatchaTiers[pair.Key] = tmp;
+                              SaveLoadSystem.SaveGatchaAnimalsData();
+                              success = true;
+                          }
+                          else
+                          {
+                              (int, List<int>) tmp = AnimalManager.gatchaTiers[pair.Key];
+                              int r = Random.Range(0, 7);
+                              if (tmp.Item2[r] == 0)
+                              {
+                                  tmp.Item2[r] = 1;
+                                  AnimalManager.gatchaTiers[pair.Key] = tmp;
+                                  SaveLoadSystem.SaveGatchaAnimalsData();
+                              }
+                          }
+                      }
+                      else
+                      {
+                          int tier = 1;
+                          List<int> personality = new List<int>();
+                          for (int i = 0; i < 7; i++) personality.Add(0);
+
+                          int r = Random.Range(0, 7);
+                          personality[r] = 1;
+                          AnimalManager.gatchaTiers[pair.Key] = (tier, personality);
+                          AnimalStruct asset = AssetLoader.animals[pair.Key];
+                          AnimalManager.animalStructs[pair.Key] = asset;
+                          SaveLoadSystem.SaveGatchaAnimalsData();
+                          success = true;
+                          //  GameInstance.GameIns.animalManager.AddNewAnimal(lockAnimals[keyValuePair.Key], keyValuePair.Key, animal);
+                      }*/
+                CheckGameClear();
                 break;
             }
         }
@@ -1000,5 +1002,50 @@ public class GatcharManager : MonoBehaviour
             GameInstance.GameIns.uiManager.checkMark.SetActive(false);
         }
         
+    }
+
+
+    public bool CheckGameClear()
+    {
+        bool result = false;
+        switch(mapType)
+        {
+            case MapType.town:
+                int point = 0;
+                for(int i = 100; i<=105; i++)
+                {
+                    if(AnimalManager.gatchaTiers.ContainsKey(i))
+                    { 
+                        point += AnimalManager.gatchaTiers[i].Item1;
+                    }
+                }
+                if(point >= 20)
+                {
+                    Debug.Log("Clear");
+
+                    result = true;
+                }
+                break;
+        }
+
+
+
+        if(result)
+        {
+            GameInstance.GameIns.uiManager.worldBtn.gameObject.SetActive(true);
+            GameInstance.GameIns.uiManager.GetComponent<Animator>().SetTrigger("world_highlight");
+            if (!GameInstance.GameIns.uiManager.panel.spread)
+            {
+                GameInstance.GameIns.uiManager.panel.Spread(false);
+            }
+            GameInstance.GameIns.uiManager.gameGuide = true;
+        }
+        else
+        {
+            GameInstance.GameIns.uiManager.worldBtn.gameObject.SetActive(false);
+
+        }
+
+        return result;
     }
 }

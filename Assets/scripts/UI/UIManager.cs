@@ -28,6 +28,7 @@ public class UIManager : MonoBehaviour
     public Button drawSpeedUpBtn;
     public Button fishingBtn;
     public Button fishingStartButton;
+    public Button worldBtn;
     public TMP_Text fishesNumText;
     public TMP_Text reputation;
     public GameObject animalGuide;
@@ -39,7 +40,7 @@ public class UIManager : MonoBehaviour
     public GameObject checkMark;
 
     bool bGuideOn = false;
-
+    public bool gameGuide = false;
     private float cameraSize;
 
   //  public AudioSource audioSource;
@@ -69,10 +70,13 @@ public class UIManager : MonoBehaviour
     void Start()
     {
         eventSystem = EventSystem.current;
-        atlasSprites[10001] = loadedAtlases["UI"].GetSprite(spriteAssetKeys[10001].Name);
-        atlasSprites[10002] = loadedAtlases["UI"].GetSprite(spriteAssetKeys[10002].Name);
-        atlasSprites[10003] = loadedAtlases["UI"].GetSprite(spriteAssetKeys[10003].Name);
-        atlasSprites[10004] = loadedAtlases["UI"].GetSprite(spriteAssetKeys[10004].Name);
+        if (loadedAtlases.ContainsKey("UI"))
+        {
+            atlasSprites[10001] = loadedAtlases["UI"].GetSprite(spriteAssetKeys[10001].Name);
+            atlasSprites[10002] = loadedAtlases["UI"].GetSprite(spriteAssetKeys[10002].Name);
+            atlasSprites[10003] = loadedAtlases["UI"].GetSprite(spriteAssetKeys[10003].Name);
+            atlasSprites[10004] = loadedAtlases["UI"].GetSprite(spriteAssetKeys[10004].Name);
+        }
        
 
         animalGuideButton.onClick.AddListener(() =>
@@ -176,6 +180,11 @@ public class UIManager : MonoBehaviour
             UIClick();
             GameIns.fishingManager.StartFishing();
             fishingStartButton.gameObject.SetActive(false);
+        });
+
+        worldBtn.onClick.AddListener(() =>
+        {
+            UIClick();
         });
     }
 

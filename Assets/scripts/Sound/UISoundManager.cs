@@ -29,17 +29,21 @@ public class UISoundManager : MonoBehaviour
     [NonSerialized] public List<AudioClip> foldClips = new List<AudioClip>();
     private void Awake()
     {
+        
         GameInstance.GameIns.uISoundManager = this;
-        for (int i = 0; i < uiClickSoundKey.Count; i++) uiClickClips.Add(loadedSounds[sounds[uiClickSoundKey[i]].Name]);
-        for (int i = 0; i < uiPopSoundKey.Count; i++) uiPopClips.Add(loadedSounds[sounds[uiPopSoundKey[i]].Name]);
-        for (int i = 0; i < furnitureClickSoundKey.Count; i++) furnitureClickClips.Add(loadedSounds[sounds[furnitureClickSoundKey[i]].Name]);
-        for (int i = 0; i < furniturePlaceSoundKey.Count; i++) furniturePlaceClips.Add(loadedSounds[sounds[furniturePlaceSoundKey[i]].Name]);
-        for (int i = 0; i < furniturePurchaseSoundKey.Count; i++) furniturePurchaseClips.Add(loadedSounds[sounds[furniturePurchaseSoundKey[i]].Name]);
-        for (int i = 0; i < moneySoundKey.Count; i++) moneyClips.Add(loadedSounds[sounds[moneySoundKey[i]].Name]);
-        for (int i = 0; i < fishesSoundKey.Count; i++) fishesClips.Add(loadedSounds[sounds[fishesSoundKey[i]].Name]);
-        for (int i = 0; i < fishSoundKey.Count; i++) fishClips.Add(loadedSounds[sounds[fishSoundKey[i]].Name]);
-        for (int i = 0; i < spreadSoundKey.Count; i++) spreadClips.Add(loadedSounds[sounds[spreadSoundKey[i]].Name]);
-        for (int i = 0; i < foldSoundKey.Count; i++) foldClips.Add(loadedSounds[sounds[foldSoundKey[i]].Name]);
+        if (GameInstance.GameIns.assetLoader != null)
+        {
+            for (int i = 0; i < uiClickSoundKey.Count; i++) uiClickClips.Add(loadedSounds[sounds[uiClickSoundKey[i]].Name]);
+            for (int i = 0; i < uiPopSoundKey.Count; i++) uiPopClips.Add(loadedSounds[sounds[uiPopSoundKey[i]].Name]);
+            for (int i = 0; i < furnitureClickSoundKey.Count; i++) furnitureClickClips.Add(loadedSounds[sounds[furnitureClickSoundKey[i]].Name]);
+            for (int i = 0; i < furniturePlaceSoundKey.Count; i++) furniturePlaceClips.Add(loadedSounds[sounds[furniturePlaceSoundKey[i]].Name]);
+            for (int i = 0; i < furniturePurchaseSoundKey.Count; i++) furniturePurchaseClips.Add(loadedSounds[sounds[furniturePurchaseSoundKey[i]].Name]);
+            for (int i = 0; i < moneySoundKey.Count; i++) moneyClips.Add(loadedSounds[sounds[moneySoundKey[i]].Name]);
+            for (int i = 0; i < fishesSoundKey.Count; i++) fishesClips.Add(loadedSounds[sounds[fishesSoundKey[i]].Name]);
+            for (int i = 0; i < fishSoundKey.Count; i++) fishClips.Add(loadedSounds[sounds[fishSoundKey[i]].Name]);
+            for (int i = 0; i < spreadSoundKey.Count; i++) spreadClips.Add(loadedSounds[sounds[spreadSoundKey[i]].Name]);
+            for (int i = 0; i < foldSoundKey.Count; i++) foldClips.Add(loadedSounds[sounds[foldSoundKey[i]].Name]);
+        }
     }
 
     public AudioClip UIClick()
