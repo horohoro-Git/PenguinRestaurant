@@ -19,6 +19,8 @@ using Quaternion = UnityEngine.Quaternion;
 using Vector2 = UnityEngine.Vector2;
 using Random = UnityEngine.Random;
 using UnityEngine.UI;
+using UnityEditor;
+using static UnityEngine.Rendering.DebugUI;
 
 public class RestaurantManager : MonoBehaviour
 {
@@ -218,7 +220,6 @@ public class RestaurantManager : MonoBehaviour
     private void Update()
     {
         restaurantTimer += Time.deltaTime * App.restaurantTimeScale;
-        
     }
 
     async UniTask AutoSave(CancellationToken cancellationToken = default)
@@ -504,6 +505,12 @@ public class RestaurantManager : MonoBehaviour
     {
         yield return null;
         MoveCalculator.CheckAreaWithBounds(GameInstance.GameIns.calculatorScale, furniture.GetComponentInChildren<Collider>(), true);
+        if (furniture.spaceType == WorkSpaceType.Table)
+        {
+            List<Table> table = new List<Table>();
+            table = GameIns.workSpaceManager.tables;
+            TableUpdate(table);
+        }
         //  MoveCalculator.CheckArea(GameInstance.GameIns.calculatorScale);
         for (int i = 0; i < GameInstance.GameIns.animalManager.employeeControllers.Count; i++)
         {
@@ -649,6 +656,7 @@ public class RestaurantManager : MonoBehaviour
                 }
             }
 
+            List<Table> tables = new List<Table>();
             for (int i = 0; i < restaurantparams.Count; i++)
             {
                 PlaceController placeController = GameIns.store.goodsPreviewDic[restaurantparams[i].id + 1000];
@@ -662,6 +670,7 @@ public class RestaurantManager : MonoBehaviour
                 furniture.id = restaurantparams[i].id;
                 furniture.transform.position = pos;
                 furniture.originPos = pos;
+                bool isTable = false;   
                 switch (furniture.spaceType)
                 {
                     case WorkSpaceType.Counter:
@@ -679,22 +688,39 @@ public class RestaurantManager : MonoBehaviour
                         fm.Set(true);
                         furniture.transform.rotation = rot;
                         break;
+                    case WorkSpaceType.Table:
+                        isTable = true;
+                        furniture.transform.rotation = rot; 
+                        tables.Add(furniture.GetComponent<Table>());
+                        break;
                     default:
                         furniture.transform.rotation = rot;
                         break;
                 }
+
+               
+
                 placeController.transform.position = furniture.transform.position;
                 placeController.offset.transform.rotation = Quaternion.Euler(0, placeController.rotates[restaurantparams[i].level], 0);
                 placeController.offset.transform.localPosition = placeController.rotateOffsets[restaurantparams[i].level];
-                GameInstance.GameIns.gridManager.CheckObject(placeController);
-                GameInstance.GameIns.gridManager.ApplyGird();
+                GameInstance.GameIns.gridManager.CheckObject(placeController, placeController.storeGoods.goods.type == WorkSpaceType.Table ? true : false);
+                GameInstance.GameIns.gridManager.ApplyGird(placeController.offset.transform.position, isTable);
+
+             
 
                 GameIns.store.require.Add(restaurantparams[i].id);
                 await UniTask.NextFrame(cancellationToken: cancellationToken);  
             }
 
+
             await UniTask.NextFrame(cancellationToken: cancellationToken);
             MoveCalculator.CheckArea(GameIns.calculatorScale, true);
+
+
+            await UniTask.NextFrame(cancellationToken: cancellationToken);
+
+            TableUpdate(tables);
+          
 
             GameIns.store.StoreUpdate();
 
@@ -814,6 +840,54 @@ public class RestaurantManager : MonoBehaviour
         catch (Exception ex)
         {
             Debug.LogException(ex);
+        }
+    }
+
+
+    public void TableUpdate(List<Table> tableList)
+    {
+        List<Table> tables = tableList;
+        Dictionary<Vector2, int> tableData = new Dictionary<Vector2, int>();
+        for (int i = 0; i < tables.Count; i++)
+        {
+            for (int j = 0; j < 4; j++)
+            {
+
+                int playerX = Mathf.FloorToInt(tables[i].seats[j].transform.position.x);
+                int playerY = Mathf.FloorToInt(tables[i].seats[j].transform.position.z);
+
+                Vector2 key = new Vector2(playerX, playerY);
+                if (!tableData.ContainsKey(key)) tableData[key] = 1;
+                else tableData[key]++;
+            }
+        }
+
+        for (int i = 0; i < tables.Count; i++)
+        {
+            for (int j = 0; j < 4; j++)
+            {
+                int playerX = Mathf.FloorToInt((tables[i].seats[j].transform.position.x - GameIns.calculatorScale.minX) / GameIns.calculatorScale.distanceSize);
+                int playerY = Mathf.FloorToInt((tables[i].seats[j].transform.position.z - GameIns.calculatorScale.minY) / GameIns.calculatorScale.distanceSize);
+                int x = Mathf.FloorToInt(tables[i].seats[j].transform.position.x);
+                int y = Mathf.FloorToInt(tables[i].seats[j].transform.position.z);
+                Vector2 key = new Vector2(x, y);
+
+                if (MoveCalculator.GetBlocks[MoveCalculator.GetIndex(playerX, playerY)])
+                {
+                    tables[i].seats[j].isDisEnabled = true;
+                }
+                else
+                {
+                    
+                    if (tableData.ContainsKey(key))
+                    {
+                        if (tableData[key] > 1)
+                        {
+                            tables[i].seats[j].isDisEnabled = true; 
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -1403,7 +1477,6 @@ public class RestaurantManager : MonoBehaviour
             fc.gameObject.SetActive(false);
             floatingCosts.Enqueue(fc);
         }
-      
     }
 
     public void CalculateSpawnTimer()

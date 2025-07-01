@@ -29,6 +29,7 @@ public class Furniture : MonoBehaviour
     }
     IEnumerator ScaleAnimation()
     {
+        //yield return null;
         Vector3 origin = model.transform.localScale;
         float f = 0;
         Vector3 start = origin;

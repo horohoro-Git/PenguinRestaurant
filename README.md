@@ -61,3 +61,4 @@ Animal Restaurant Tycoon Game
 06/28 Fixed character freezing caused by invalid key after meal reward, and modified enemies to be reusable for continuous spawning during gameplay
 06/29 Made fishing minigame reusable, fixed XP bar occlusion by airborne penguins, and added highlight to active minigame button
 06/30 Add a button to proceed to the next stage when the required count is reached, and adjust the grid size of the counter
+07/01 Allow table furniture to be placed adjacent in the grid-based placement system, and ensure that only unobstructed seats are available for use

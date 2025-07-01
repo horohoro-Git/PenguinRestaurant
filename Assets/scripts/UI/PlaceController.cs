@@ -15,6 +15,7 @@ public class PlaceController : MonoBehaviour
     public Image applyImage;
     public Image applyborderImage;
     public GraphicRaycaster raycaster;
+    
 
     [NonSerialized] public int[] rotates = new int[4] { 0, 270, 180, 90 };
     public Vector3[] rotateOffsets = new Vector3[4];
@@ -29,6 +30,8 @@ public class PlaceController : MonoBehaviour
     public Furniture currentFurniture { get; set; }
 
     public List<Vector2> temp = new List<Vector2>();
+    public List<Vector2> tempTable = new List<Vector2>();
+    public List<Vector2> tempTableCenter = new List<Vector2>();
     private Vector2 lastInputPosition;
     bool hasInput;
     [NonSerialized] public bool spawnAnimation;
@@ -115,7 +118,7 @@ public class PlaceController : MonoBehaviour
                 Ray r = InputManger.cachingCamera.ScreenPointToRay(currentMouse.position.ReadValue());
                 if (Physics.Raycast(r, out RaycastHit hit, float.MaxValue, 1))
                 {
-                    GameInstance.GameIns.gridManager.SelectLine(hit.point, this, canPlace);
+                    GameInstance.GameIns.gridManager.SelectLine(hit.point, this, canPlace, storeGoods.goods.type == WorkSpaceType.Table ? true : false);
                 }
             }
             if (currentMouse.leftButton.wasPressedThisFrame)
@@ -175,7 +178,7 @@ public class PlaceController : MonoBehaviour
         SoundManager.Instance.PlayAudio(GameInstance.GameIns.uISoundManager.UIClick(), 0.2f);
         offset.transform.rotation = Quaternion.Euler(0, rotates[level], 0);
         offset.transform.localPosition = rotateOffsets[level];
-        GameInstance.GameIns.gridManager.CheckObject(this);
+        GameInstance.GameIns.gridManager.CheckObject(this, storeGoods.goods.type == WorkSpaceType.Table);
     }
 
     public void Apply()
@@ -184,20 +187,23 @@ public class PlaceController : MonoBehaviour
         {
             SoundManager.Instance.PlayAudio(GameInstance.GameIns.uISoundManager.UIClick(), 0.2f);
          
-            GameInstance.GameIns.gridManager.ApplyGird();
+            GameInstance.GameIns.gridManager.ApplyGird(offset.transform.position, storeGoods.goods.type == WorkSpaceType.Table ? true : false);
             if (purchasedObject)
             {
                 GameInstance.GameIns.gridManager.RemoveCell();
                 MoveCalculator.ApplyCheckAreaWithBounds(placedArea, false);
                 placedArea.Clear();
+
             }
             GameInstance.GameIns.gridManager.RemoveSelect();
+          
             storeGoods.PlaceGoods(rotateOffsets[level], level, currentFurniture);
             storeGoods.RemoveGoodsPreview();
             if (!purchasedObject)
             {
                 storeGoods.Purchase();
             }
+          
             GameInstance.GameIns.gridManager.VisibleGrid(false);
         }
     }
@@ -249,7 +255,7 @@ public class PlaceController : MonoBehaviour
         Ray r = InputManger.cachingCamera.ScreenPointToRay(inputPosition);
         if (Physics.Raycast(r, out RaycastHit hit, float.MaxValue, 1))
         {
-            GameInstance.GameIns.gridManager.SelectLine(hit.point, this, canPlace);
+            GameInstance.GameIns.gridManager.SelectLine(hit.point, this, canPlace, storeGoods.goods.type == WorkSpaceType.Table ? true : false);
         }
     }
 
