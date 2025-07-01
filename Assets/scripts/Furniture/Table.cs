@@ -36,7 +36,6 @@ public class Table : Furniture
 
     public float weight;
     public float height;
-
     [NonSerialized] public bool hasProblem;
     [NonSerialized] public bool stealing;
     [NonSerialized] public bool stolen;

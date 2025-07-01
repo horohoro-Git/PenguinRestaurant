@@ -883,12 +883,15 @@ public class Employee : AnimalController
                             int index = 0;
                             for (int j = 0; j < tableList[i].seats.Length; j++)
                             {
-                                float dif = Vector3.Distance(trans.position, tableList[i].seats[j].transform.position);
-                                if (dif < min)
+                                if (!tableList[i].seats[j].isDisEnabled && tableList[i].seats[j].animal == null)
                                 {
-                                    index = j;
-                                    min = dif;
-                                    seat = tableList[i].seats[j];
+                                    float dif = Vector3.Distance(trans.position, tableList[i].seats[j].transform.position);
+                                    if (dif < min)
+                                    {
+                                        index = j;
+                                        min = dif;
+                                        seat = tableList[i].seats[j];
+                                    }
                                 }
                             }
 
@@ -897,8 +900,8 @@ public class Employee : AnimalController
                                 target = seat.transform.position;
                                 seat.animal = this;
                                 Work(target, tableList[i], index);
+                                return;
                             }
-                            return;
                         }
                     }
                 }

@@ -170,12 +170,12 @@ public class BlackConsumer : AnimalController
     void FoundTheTarget()
     {
      //   state = BlackConsumerState.FoundTarget;
-        targetTable.hasProblem = true;
+       
         float min = 9999;
-        int index = 0;
+        int index = -1;
         for(int i=0; i< targetTable.seats.Length; i++)
         {
-            if (targetTable.seats[i].animal == null)
+            if (targetTable.seats[i].animal == null && !targetTable.seats[i].isDisEnabled)
             {
                 float diff = Vector3.Distance(trans.position, targetTable.seats[i].transform.position);
                 if (diff < min)
@@ -185,13 +185,21 @@ public class BlackConsumer : AnimalController
                 }
             }
         }
-        seatIndex = index;
-        targetTable.seats[index].animal = this;
-        Vector3 target = targetTable.seats[index].transform.position;
-        if(cancellationTokenSource != null) cancellationTokenSource.Cancel();
-        cancellationTokenSource = new CancellationTokenSource();
-        BlackConsumer_Table(target, cancellationTokenSource.Token).Forget();
 
+        if (index >= 0)
+        {
+            targetTable.hasProblem = true;
+            seatIndex = index;
+            targetTable.seats[index].animal = this;
+            Vector3 target = targetTable.seats[index].transform.position;
+            if (cancellationTokenSource != null) cancellationTokenSource.Cancel();
+            cancellationTokenSource = new CancellationTokenSource();
+            BlackConsumer_Table(target, cancellationTokenSource.Token).Forget();
+        }
+        else
+        {
+            Wait();
+        }
     }
 
 
@@ -219,7 +227,6 @@ public class BlackConsumer : AnimalController
             float size = GameIns.calculatorScale.distanceSize;
             while (true)
             {
-
                 float x = UnityEngine.Random.Range(-1f, 1f);
                 float y = UnityEngine.Random.Range(-1f, 1f);
                 Vector3 v3 = GameInstance.GetVector3(x, 0, y);
@@ -236,6 +243,7 @@ public class BlackConsumer : AnimalController
                 int xx = Mathf.FloorToInt((target.x - minX) / size);
                 int yy = Mathf.FloorToInt((target.z - minY) / size);
                 Debug.Log(xx + " " + yy);
+
                 if(!GetBlockEmployee[GetIndex(xx,yy)])
                 {
                     goto MoveToTarget;

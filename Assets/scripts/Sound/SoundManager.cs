@@ -122,9 +122,7 @@ public class SoundManager : MonoBehaviour
         else
         {
             audioSources.Enqueue(audio);
-
         }
-
     }
    
     public void PlayAudio3D(AudioClip clip, float volume, float maxDistance, float minDistance, Vector3 pos)

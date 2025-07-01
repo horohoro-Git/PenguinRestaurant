@@ -275,8 +275,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0dc2eb41b282f0144ae06d25d80aae66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  min: 0
-  max: 0
+  min: 5
+  max: 5
   bgmSoundKey: b0e20d0088bf0d0004bc0d00aabb0d00
 --- !u!82 &2143204393
 AudioSource:

@@ -77,7 +77,7 @@ public class FurnitureInfo : MonoBehaviour
                 placeController.offset.transform.rotation = currentFurniture.transform.rotation;
             }
             placeController.SetLevel(currentFurniture.rotateLevel);
-            GameInstance.GameIns.gridManager.ReCalculate(placeController);
+            GameInstance.GameIns.gridManager.ReCalculate(placeController, placeController.storeGoods.goods.type == WorkSpaceType.Table ? true : false);
             placeController.purchasedObject = true;
             placeController.currentFurniture = currentFurniture;
             placeController.gameObject.SetActive(true);

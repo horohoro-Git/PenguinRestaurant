@@ -584,12 +584,11 @@ public class Customer : AnimalController
             List<Table> tables = GameInstance.GameIns.workSpaceManager.tables.ToList();
             //foodMachine  거리 오름차순 개수 내림차순
 
-            tables = tables
-                    .OrderBy(fm => (fm.transforms.position - trans.position).magnitude) // 음식 개수 내림차순
-                    .ToList();
-
             while (true)
             {
+                tables = tables
+                    .OrderBy(fm => (fm.transforms.position - trans.position).magnitude) // 음식 개수 내림차순
+                    .ToList();
                 await UniTask.Delay(500, cancellationToken: cancellationToken);
 
                 foreach (Table t in tables)
@@ -608,14 +607,13 @@ public class Customer : AnimalController
                         }
                         if (c >= 2) continue;
 
-                        counter.customer = null;
-                        position[0].controller = null;
+                     
 
-                        if (index == -1)
+                        float min = 9999;
+                        Seat selectedSeat = null;
+                        for (int j = 0; j < t.seats.Length; j++)
                         {
-                            float min = 9999;
-                            Seat selectedSeat = null;
-                            for (int j = 0; j < t.seats.Length; j++)
+                            if (t.seats[j].isDisEnabled == false && t.seats[j].animal == null)
                             {
                                 float cur = Vector3.Distance(trans.position, t.seats[j].transform.position);
                                 if (min > cur)
@@ -624,18 +622,16 @@ public class Customer : AnimalController
                                     selectedSeat = t.seats[j];
                                 }
                             }
+                        }
 
+                        if (selectedSeat != null)
+                        {
                             selectedSeat.animal = this;
                             t.numberOfFoods += foodNum;
+                            counter.customer = null;
+                            position[0].controller = null;
                         }
-                        else
-                        {
-                            int nextIndex = index + 2;
-                            nextIndex = nextIndex > 3 ? nextIndex - 4 : nextIndex;
-                            t.seats[nextIndex].animal = this;
-                            t.numberOfFoods += foodNum;
-                         
-                        }
+                        else continue;
 
                         customerState = CustomerState.Counter;
                         busy = false;
@@ -950,6 +946,8 @@ public class Customer : AnimalController
                                 }
 
                                 Emote(false, AnimationKeys.Normal);
+                                animator.SetInteger("state", 0);
+                                animal.PlayAnimation(AnimationKeys.Idle);
 
                                 for (int j =0; j< table.seats.Length; j++)
                                 {
