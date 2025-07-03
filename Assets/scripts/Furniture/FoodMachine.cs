@@ -241,12 +241,7 @@ public class FoodMachine : Furniture
                 hiddenStack.Push(food); 
             }
             getNum = 0;
-            if (employee)
-            {
-                employee.reCalculate = true;
-                employee.bResearch = true;
-                employee = null;
-            }
+          
             Vector3 target = Vector3.zero;
 
             Vector3 current = tray.transform.localScale;

@@ -259,6 +259,7 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
                 f.transform.rotation = currnet.offset.transform.rotation;
             }
 
+            f.placed = true;
             f.gameObject.SetActive(true);
 
             GameIns.restaurantManager.ApplyPlaced(f);

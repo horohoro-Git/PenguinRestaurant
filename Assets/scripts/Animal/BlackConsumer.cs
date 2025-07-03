@@ -9,6 +9,7 @@ using UnityEngine;
 using static GameInstance;
 using static UnityEngine.GraphicsBuffer;
 using static MoveCalculator;
+using static UnityEngine.Rendering.DebugUI;
 public class BlackConsumer : AnimalController
 {
     public int ID { get { if (id == 0) id = GetInstanceID(); return id; } }
@@ -21,6 +22,7 @@ public class BlackConsumer : AnimalController
 
     Table targetTable;
     int seatIndex = 0;
+    int preIndex = -1;
     [NonSerialized] public bool bDead = false;
     [NonSerialized] public Transform spawnerTrans;
     CancellationTokenSource cancellationTokenSource;
@@ -41,7 +43,7 @@ public class BlackConsumer : AnimalController
                 tables = tables.OrderBy(t => Vector3.Distance(t.transform.position, trans.position)).ToList();
                 for (int i = 0; i < tables.Count; i++)
                 {
-                    if (tables[i].foodStacks[0].foodStack.Count > 0)
+                    if (tables[i].foodStacks[0].foodStack.Count > 0 && tables[i].placed)
                     {
                         targetTable = tables[i];
                         FoundTheTarget();
@@ -194,7 +196,7 @@ public class BlackConsumer : AnimalController
             Vector3 target = targetTable.seats[index].transform.position;
             if (cancellationTokenSource != null) cancellationTokenSource.Cancel();
             cancellationTokenSource = new CancellationTokenSource();
-            BlackConsumer_Table(target, cancellationTokenSource.Token).Forget();
+            BlackConsumer_Table(cancellationTokenSource.Token).Forget();
         }
         else
         {
@@ -318,12 +320,23 @@ public class BlackConsumer : AnimalController
         }
     }
 
-    async UniTask BlackConsumer_Table(Vector3 target, CancellationToken cancellationToken = default)
+    async UniTask BlackConsumer_Table(CancellationToken cancellationToken = default)
     {
         try
         {
+            targetTable.animals.Add(this);
             while (true)
             {
+                if(!targetTable.placed)
+                {
+                    await UniTask.Delay(200, cancellationToken: cancellationToken);
+
+                    targetTable.animals.Remove(this);
+                    state = BlackConsumerState.FindingTarget;
+                    consumerCallback?.Invoke(this);
+                    return;
+                }
+                Vector3 target = targetTable.seats[seatIndex].transform.position;
                 Stack<Vector3> moveTargets = await CalculateNodes_Async(target, false, cancellationToken);
                 if (moveTargets != null && moveTargets.Count > 0)
                 {
@@ -383,6 +396,34 @@ public class BlackConsumer : AnimalController
     {
         try
         {
+            
+        StartStealFood:
+            
+            if(!targetTable.placed)
+            {
+                if (preIndex != -1 && targetTable.placedFoods[seatIndex] != null)
+                {
+                    Vector3 t = targetTable.transforms.position;
+                    float offsetZ = preIndex % 2 == 0 ? 1 : 0;
+                    float offsetSize = preIndex / 2 == 0 ? 1 : -1;
+                    Vector3 X = preIndex % 2 == 1 ? (preIndex / 2 == 0 ? -targetTable.transforms.transform.right * offsetSize : targetTable.transforms.transform.right * offsetSize) : Vector3.zero;
+                    Vector3 Z = preIndex % 2 == 0 ? (preIndex / 2 == 0 ? -targetTable.transforms.transform.forward * offsetSize : targetTable.transforms.transform.forward * offsetSize) : Vector3.zero;
+                    t += X;
+                    t += Z;
+                    t.y = 0.5f;
+
+                    targetTable.placedFoods[seatIndex].transform.DOJump(t, 1, 1, 0.2f);
+                    targetTable.placedFoods[preIndex] = targetTable.placedFoods[seatIndex];
+                    targetTable.placedFoods[seatIndex] = null;
+                }
+                animator.SetTrigger(AnimationKeys.Normal);
+                await UniTask.Delay(200, cancellationToken: cancellationToken);
+                targetTable.animals.Remove(this);
+                state = BlackConsumerState.FindingTarget;
+                consumerCallback?.Invoke(this);
+                return;
+            }
+
             targetTable.stealing = true;
 
             animator.SetTrigger(AnimationKeys.Happy);
@@ -391,21 +432,33 @@ public class BlackConsumer : AnimalController
             {
                 if (targetTable.placedFoods[i] != null) num++;
             }
-            Vector3 tablePos = targetTable.transforms.position;
-            float offsetZ = seatIndex % 2 == 0 ? 1 : 0;
-            float offsetSize = seatIndex / 2 == 0 ? 1 : -1;
-            float offsetX = seatIndex % 2 == 1 ? 1 : 0;
-            Vector3 t = new Vector3(tablePos.x + offsetX * offsetSize, tablePos.y, tablePos.z + offsetZ * offsetSize);
-            t.y = 0.5f;
+          
+
+            
             while (true)
             {
                 for (int i = 0; i < targetTable.seats.Length; i++)
                 {
+                    if(!targetTable.placed)
+                    {
+                       
+                        goto StartStealFood;
+
+                    }
                     if (targetTable.placedFoods[i] != null)
                     {
                         targetTable.placedFoods[seatIndex] = targetTable.placedFoods[i];
                         targetTable.placedFoods[i] = null;
+                        preIndex = i;
 
+                        Vector3 t = targetTable.transforms.position;
+                        float offsetZ = seatIndex % 2 == 0 ? 1 : 0;
+                        float offsetSize = seatIndex / 2 == 0 ? 1 : -1;
+                        Vector3 X = seatIndex % 2 == 1 ? (seatIndex / 2 == 0 ? -targetTable.transforms.transform.right * offsetSize : targetTable.transforms.transform.right * offsetSize) : Vector3.zero;
+                        Vector3 Z = seatIndex % 2 == 0 ? (seatIndex / 2 == 0 ? -targetTable.transforms.transform.forward * offsetSize : targetTable.transforms.transform.forward * offsetSize) : Vector3.zero;
+                        t += X;
+                        t += Z;
+                        t.y = 0.5f;
 
                         targetTable.placedFoods[seatIndex].transform.DOJump(t, 1, 1, 0.2f);
                         await UniTask.Delay(300, cancellationToken: cancellationToken);
@@ -423,6 +476,20 @@ public class BlackConsumer : AnimalController
                 }
                 while (targetTable.foodStacks[0].foodStack.Count > 0)
                 {
+                    if (!targetTable.placed)
+                    {
+                        goto StartStealFood;
+                    }
+
+                    Vector3 t = targetTable.transforms.position;
+                    float offsetZ = seatIndex % 2 == 0 ? 1 : 0;
+                    float offsetSize = seatIndex / 2 == 0 ? 1 : -1;
+                    Vector3 X = seatIndex % 2 == 1 ? (seatIndex / 2 == 0 ? -targetTable.transforms.transform.right * offsetSize : targetTable.transforms.transform.right * offsetSize) : Vector3.zero;
+                    Vector3 Z = seatIndex % 2 == 0 ? (seatIndex / 2 == 0 ? -targetTable.transforms.transform.forward * offsetSize : targetTable.transforms.transform.forward * offsetSize) : Vector3.zero;
+                    t += X;
+                    t += Z;
+                    t.y = 0.5f;
+
                     Food f = targetTable.foodStacks[0].foodStack.Pop();
 
                     f.transform.DOJump(t, 1, 1, 0.2f);
@@ -471,7 +538,6 @@ public class BlackConsumer : AnimalController
                 targetTable.stolen = false;
                 animator.SetBool("bounceTrigger", false);
                 animator.SetTrigger(AnimationKeys.Normal);
-
                 targetTable.seats[seatIndex].animal = null;
                 targetTable = null;
 
@@ -493,10 +559,40 @@ public class BlackConsumer : AnimalController
     {
         try
         {
+            StartEating:
+            if (!targetTable.placed)
+            {
+                return;
+              /*  if (preIndex != -1 && targetTable.placedFoods[seatIndex] != null)
+                {
+                    Vector3 t = targetTable.transforms.position;
+                    float offsetZ = preIndex % 2 == 0 ? 1 : 0;
+                    float offsetSize = preIndex / 2 == 0 ? 1 : -1;
+                    Vector3 X = preIndex % 2 == 1 ? (preIndex / 2 == 0 ? -targetTable.transforms.transform.right * offsetSize : targetTable.transforms.transform.right * offsetSize) : Vector3.zero;
+                    Vector3 Z = preIndex % 2 == 0 ? (preIndex / 2 == 0 ? -targetTable.transforms.transform.forward * offsetSize : targetTable.transforms.transform.forward * offsetSize) : Vector3.zero;
+                    t += X;
+                    t += Z;
+                    t.y = 0.5f;
+
+                    targetTable.placedFoods[seatIndex].transform.DOJump(t, 1, 1, 0.2f);
+                    targetTable.placedFoods[preIndex] = targetTable.placedFoods[seatIndex];
+                    targetTable.placedFoods[seatIndex] = null;
+                }
+                animator.SetTrigger(AnimationKeys.Normal);
+                await UniTask.Delay(200, cancellationToken: cancellationToken);
+                targetTable.animals.Remove(this);
+                state = BlackConsumerState.FindingTarget;
+                consumerCallback?.Invoke(this);*/
+             }
+
             float tm = RestaurantManager.restaurantTimer;
             float timer = animalStruct.eat_speed;
             for (int i = 0; i < 100; i++)
             {
+                if(!targetTable.placed)
+                {
+                    goto StartEating;
+                }
                 //if (tm + timer / 10 <= RestaurantManager.restaurantTimer)
                 if(i != 0 && i % 9 == 0)
                 {

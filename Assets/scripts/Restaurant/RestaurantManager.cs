@@ -661,6 +661,7 @@ public class RestaurantManager : MonoBehaviour
             {
                 PlaceController placeController = GameIns.store.goodsPreviewDic[restaurantparams[i].id + 1000];
                 Furniture furniture = GameIns.store.goodsDic[restaurantparams[i].id].Dequeue().GetComponent<Furniture>();
+                furniture.placed = true;
                 furniture.spawned = true;
                 furniture.gameObject.SetActive(true);
                 Vector3 pos = restaurantparams[i].position;
@@ -884,6 +885,10 @@ public class RestaurantManager : MonoBehaviour
                         if (tableData[key] > 1)
                         {
                             tables[i].seats[j].isDisEnabled = true; 
+                        }
+                        else
+                        {
+                            tables[i].seats[j].isDisEnabled = false;
                         }
                     }
                 }
