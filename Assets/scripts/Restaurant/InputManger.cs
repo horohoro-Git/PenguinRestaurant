@@ -144,7 +144,7 @@ public class InputManger : MonoBehaviour
 
     void Update()
     {
-         //Utility.CheckHirable(cameraRange.position, ref refX, ref refY, true, true);
+         Utility.CheckHirable(cameraRange.position, ref refX, ref refY, true, true);
         /*  if (Input.GetKey(KeyCode.O))
           {
              // for (int i = 0; i < 1; i++)

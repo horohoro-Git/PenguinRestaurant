@@ -63,3 +63,4 @@ Animal Restaurant Tycoon Game
 06/30 Add a button to proceed to the next stage when the required count is reached, and adjust the grid size of the counter
 07/01 Allow table furniture to be placed adjacent in the grid-based placement system, and ensure that only unobstructed seats are available for use
 07/03 Restrict characters interacting with furniture during rearrangement and move them to the updated positions after placement changes
+07/04 If a character is at a table and the seat becomes unavailable due to attachment to another table, make the character move to another available seat

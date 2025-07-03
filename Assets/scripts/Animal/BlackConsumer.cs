@@ -31,7 +31,6 @@ public class BlackConsumer : AnimalController
     [NonSerialized] public EnemySpawner enemySpawner;
     public void CauseTrouble()
     {
-        Debug.Log("AAA");
         WorkSpaceManager workSpaceManager = GameIns.workSpaceManager;
         switch(state)
         {

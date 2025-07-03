@@ -10,10 +10,6 @@ public class EnemySpawner : MonoBehaviour
     float spawnTimer;
     BlackConsumer currentBlackConsumer;
     [NonSerialized] public bool bSpawned;
-    private void Awake()
-    {
-     
-    }
     private void Start()
     {
        
@@ -43,11 +39,12 @@ public class EnemySpawner : MonoBehaviour
                         break;
                     }
                 }
+                canSpawn = true;
                 if(animalManager.customerControllers.Count > 0 && canSpawn)
                 {
                     if(!bSpawned)
                     {
-                        if (GameInstance.GameIns.restaurantManager.trashData.trashNum > 70)
+                       // if (GameInstance.GameIns.restaurantManager.trashData.trashNum > 70)
                         {
                             bSpawned = true;
                             currentBlackConsumer = GameInstance.GameIns.animalManager.blackConsumer;
