@@ -3,6 +3,7 @@ using Cysharp.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using Unity.VisualScripting;
 using UnityEngine;
 //using TMPro.EditorUtilities;
 public class Counter : Furniture, IObjectOffset
@@ -33,6 +34,8 @@ public class Counter : Furniture, IObjectOffset
     public CounterType counterType;
     public MoneyPile moneyPile;
     public Transform transforms;
+    public HashSet<Employee> employees = new HashSet<Employee>();
+    public HashSet<Customer> customers = new HashSet<Customer>();
     // Start is called before the first frame update
     private void Awake()
     {
@@ -143,9 +146,31 @@ public class Counter : Furniture, IObjectOffset
             }
         }
 
-        
-      
+    }
 
+    private void OnEnable()
+    {
+        for (int i = 0; i < foodStacks.Count; i++)
+        {
+            foreach (var f in foodStacks[i].foodStack)
+            {
+                Vector3 pos = stackPoints[i].transform.position;
+                f.transform.position = new Vector3(pos.x, f.transform.position.y, pos.z);
+                f.gameObject.SetActive(true);
+            }
+        }
+    }
+
+    void OnDisable()
+    {
+        foreach (var v in foodStacks)
+        {
+            foreach(var f in v.foodStack)
+            {
+                f.gameObject.SetActive(false);
+            }
+        }
+  
     }
 
     async UniTask ShowSells(CancellationToken cancellationToken = default)

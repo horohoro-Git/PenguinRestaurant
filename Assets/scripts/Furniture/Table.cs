@@ -10,6 +10,7 @@ using UnityEngine.UI;
 using UnityEngine.UIElements;
 using Random = UnityEngine.Random;
 using Image = UnityEngine.UI.Image;
+using static UnityEngine.Rendering.DebugUI;
 
 public class Table : Furniture
 {
@@ -40,6 +41,8 @@ public class Table : Furniture
     [NonSerialized] public bool stealing;
     [NonSerialized] public bool stolen;
     [NonSerialized] public GameObject[] placedFoods = new GameObject[4];
+
+    public HashSet<AnimalController> animals = new HashSet<AnimalController>();
     public void Awake()
     {
         //transforms = transform;
@@ -218,5 +221,58 @@ public class Table : Furniture
         point += tt * p2; // ³¡Á¡
 
         return point;
+    }
+
+    private void OnEnable()
+    {
+        if (foodStacks.Count > 0)
+        {
+            Vector3 pos = transforms.position;
+            pos.y = 0;
+            foreach (var stack in foodStacks[0].foodStack)
+            {
+                stack.gameObject.SetActive(true);
+                Vector3 targetPos = pos;
+                targetPos.y = stack.gameObject.transform.position.y;
+                stack.transform.position = targetPos;
+            }
+
+            for(int i = 0; i < 4; i++)
+            {
+                if (placedFoods[i] != null)
+                {
+                    placedFoods[i].gameObject.SetActive(true);
+
+                    //rotateLevel
+                    Vector3 tablePos = transforms.position;
+                    float offsetZ = i % 2 == 0 ? 1 : 0;
+                    float offsetSize = i / 2 == 0 ? 1 : -1;
+                    Vector3 X = i % 2 == 1 ? (i / 2 == 0 ? -transforms.transform.right * offsetSize : transforms.transform.right * offsetSize) : Vector3.zero;
+                    Vector3 Z = i % 2 == 0 ? (i / 2 == 0 ? -transforms.transform.forward * offsetSize : transforms.transform.forward * offsetSize) : Vector3.zero;
+                    tablePos += X;
+                    tablePos += Z;
+                    tablePos.y = 0.5f;
+
+                    placedFoods[i].transform.position = tablePos;
+                }
+
+            }
+        }
+    }
+
+    void OnDisable()
+    {
+        if (foodStacks.Count > 0)
+        {
+            foreach (var stack in foodStacks[0].foodStack)
+            {
+                stack.gameObject.SetActive(false);
+            }
+
+            for(int i =0; i < 4; i++)
+            {
+                if(placedFoods[i] != null) placedFoods[i].gameObject.SetActive(false);
+            }
+        }
     }
 }

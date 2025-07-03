@@ -9,6 +9,8 @@ public class TrashCan : Furniture, IObjectOffset
   //  public GameObject throwPlace;
     public Transform transforms;
 
+    public HashSet<Employee> employees = new HashSet<Employee>();
+
     [field: SerializeField]
     public Transform offset { get; set; }
 

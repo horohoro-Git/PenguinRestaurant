@@ -657,7 +657,7 @@ public class Employee : AnimalController
                                             target = counterList[j].workingSpot_SmallTables[k].transforms.position;
 
                                             deliveryCounter = null;
-                                            Work(target, counterList[j], false);
+                                            Work(counterList[j]);
 
                                             return;
                                         }
@@ -676,7 +676,7 @@ public class Employee : AnimalController
                                         employeeState = EmployeeState.Counter;
                                         target = counterList[j].workingSpot_SmallTables[k].transforms.position;
 
-                                        Work(target, counterList[j], false);
+                                        Work(counterList[j]);
 
                                         return;
                                     }
@@ -845,7 +845,7 @@ public class Employee : AnimalController
                         {
                             counterList[i].employee = this;
                             target = counterList[i].workingSpot.position;
-                            Work(target, counterList[i], true);
+                            Work(counterList[i]);
                             return;
                         }
                     }
@@ -897,9 +897,8 @@ public class Employee : AnimalController
 
                             if (seat != null)
                             {
-                                target = seat.transform.position;
                                 seat.animal = this;
-                                Work(target, tableList[i], index);
+                                Work(tableList[i], index);
                                 return;
                             }
                         }
@@ -955,11 +954,10 @@ public class Employee : AnimalController
                                             foodMachineList[k].employee = this;
                                             foodMachineList[k].getNum += tmp;
                                             employeeState = EmployeeState.FoodMachine;
-                                            target = foodMachineList[k].workingSpot.position;
                                             deliveryCounter = counterList[i];
                                             Vector3 t = counterList[i].workingSpot_SmallTables[l].transforms.position;
                                             //  counterList[i].foodStacks[l].getNum = tmp;
-                                            Work(target, foodMachineList[k], t, counterList[i]);
+                                            Work(foodMachineList[k], counterList[i], l);
                                             return;
                                         }
                                         /*  else if(foodMachineList[k].foodStack.foodStack.Count + counterList[i].foodStacks[l].foodStack.Count + customer.foodStacks[j].foodStack.Count < customer.foodStacks[j].needFoodNum &&
@@ -1079,10 +1077,8 @@ public class Employee : AnimalController
                                         deliveryCounter = counterList[k];
                                         foodMachineList[j].employee = this;
                                         employeeState = EmployeeState.FoodMachine;
-                                        target = foodMachineList[j].workingSpot.position;
                                         foodMachineList[j].getNum += tmp;
-                                        Vector3 t = counterList[k].workingSpot_SmallTables[l].transform.position;
-                                        Work(target, foodMachineList[j], t, counterList[k]);
+                                        Work(foodMachineList[j], counterList[k], l);
                                        
                                         return;
                                     }
@@ -1148,7 +1144,7 @@ public class Employee : AnimalController
             Debug.Log("Trashcan");
             if(trashCanList.Count > 0)
             {
-                Work(trashCanList[0].throwPos.position, trashCanList[0]);
+                Work(trashCanList[0]);
                 return;
 
             }
@@ -1183,26 +1179,25 @@ public class Employee : AnimalController
         Employee_Delivery(position, packingTable, App.GlobalToken).Forget();
     }
 
-    public void Work(Vector3 position, FoodMachine foodMachine, Vector3 counterPosition, Counter counter)
+    public void Work(FoodMachine foodMachine, Counter counter, int tableIndex)
     {
-        Employee_FoodMachine(position, foodMachine, counterPosition, counter, App.GlobalToken).Forget();
+        Employee_FoodMachine(foodMachine, counter, tableIndex, App.GlobalToken).Forget();
 
     }
 
-    public void Work(Vector3 position, Counter counter, bool serving)
+    public void Work(Counter counter)
     {
-        if (!serving) Employee_Counter(position, counter, App.GlobalToken).Forget();
-        else Employee_Serving(position, counter, App.GlobalToken).Forget();
+        Employee_Serving(counter, App.GlobalToken).Forget();
     }
 
-    public void Work(Vector3 position, Table table, int index)
+    public void Work(Table table, int index)
     {
-        Employee_Table(position, table, index, App.GlobalToken).Forget();
+        Employee_Table(table, index, App.GlobalToken).Forget();
     }
 
-    public void Work(Vector3 position, TrashCan trash)
+    public void Work(TrashCan trash)
     {
-        Employee_Trashcan(position, trash, App.GlobalToken).Forget();
+        Employee_Trashcan(trash, App.GlobalToken).Forget();
     }
 
     static WaitForSeconds zerodotfive = new WaitForSeconds(0.5f);
@@ -1351,7 +1346,7 @@ public class Employee : AnimalController
     }
 
 
-    async UniTask Employee_FoodMachine(Vector3 position, FoodMachine foodMachine, Vector3 counterPosition, Counter counter, CancellationToken cancellationToken = default)
+    async UniTask Employee_FoodMachine(FoodMachine foodMachine, Counter counter, int tableIndex, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -1360,88 +1355,91 @@ public class Employee : AnimalController
             {
                 //조달
                 cancellationToken.ThrowIfCancellationRequested();
-                while(pause) await UniTask.Delay(100, cancellationToken: cancellationToken);
-               
+                while (pause) await UniTask.Delay(100, cancellationToken: cancellationToken);
+                Vector3 position = foodMachine.workingSpot.position;
                 lastPos = position;
-                Stack<Vector3> moveTargets = await CalculateNodes_Async(position, true, cancellationToken);
-                if (moveTargets != null && moveTargets.Count > 0)
+
+            //    if (position != trans.position)
                 {
-                    Vector3 test = moveTargets.Peek();
-                    if (test.z == 100 && test.x == 100)
+
+                    Stack<Vector3> moveTargets = await CalculateNodes_Async(position, true, cancellationToken);
+                    if (moveTargets != null && moveTargets.Count > 0)
                     {
-                        Debug.Log("Find");
+                        Vector3 test = moveTargets.Peek();
+                        if (test.z == 100 && test.x == 100)
+                        {
+                            Debug.Log("Find");
+                        }
+                        else
+                        {
+                            //employeeActions = EmployeeActions.EmployeeFoodMachine;
+                            await Employee_Move(moveTargets, position, cancellationToken);
+
+                            if (reCalculate || !foodMachine.placed)
+                            {
+                                while (bWait) await UniTask.NextFrame(cancellationToken: cancellationToken);
+                                reCalculate = false;
+                                if (bResearch || !foodMachine.placed)
+                                {
+                                    animator.SetInteger("state", 0);
+                                    animal.PlayAnimation(AnimationKeys.Idle);
+                                    await UniTask.Delay(300, cancellationToken: cancellationToken);
+                                    bResearch = false;
+
+                                    busy = false;
+                                    employeeCallback?.Invoke(this);
+                                    return;
+                                }
+                                continue;
+                            }
+
+                            modelTrans.rotation = foodMachine.workingSpot.rotation;
+                        }
+                        FoodStack foodStack = null;
+
+                        if (foodMachine.foodStack.foodStack.Count > 0)
+                        {
+                            foodStack = foodStacks[foodMachine.machineType];
+                            while (true)
+                            {
+                                int currentStackCount = foodStack.foodStack.Count; // 음식 개수 저장
+                                if (currentStackCount >= employeeLevelData.max_weight || foodMachine.foodStack.foodStack.Count == 0 || !foodMachine.placed)
+                                {
+                                    foodMachine.employee = null;
+                                    foodMachine.getNum = 0;
+                                    if (debuging) Debug.Log("직원 조리기구 종료");
+
+                                    break;
+                                }
+                                Food f = foodMachine.foodStack.foodStack.Pop();
+                                if (debuging) Debug.Log("직원 조리기구에서 음식을 가져가는 중");
+
+                                MachineType t = foodMachine.machineType;
+                                // FoodStack fs = foodStacks[n];
+
+                                Vector3 targetPosition = headPoint.position + GameInstance.GetVector3(0, 0.7f * (currentStackCount + 1), 0); // 목적지 저장
+                                float r = UnityEngine.Random.Range(1, 2.5f);
+#if HAS_DOTWEEN
+                                DOTween.Kill(f.transforms); //Tween 제거
+                                f.transforms.DOJump(targetPosition, r, 1, 0.2f).OnComplete(() =>
+                                  OnFoodStackComplete(f, targetPosition, foodStack, foodStack.foodStack.Count, headPoint));
+
+                                SoundManager.Instance.PlayAudio3D(GameIns.gameSoundManager.ThrowSound(), 0.2f, 100, 5, trans.position);
+#endif
+                                await UniTask.Delay(300, cancellationToken: cancellationToken);
+                                if (pause) break;
+                            }
+                        }
                     }
                     else
                     {
-                        //employeeActions = EmployeeActions.EmployeeFoodMachine;
-                        await Employee_Move(moveTargets, position, cancellationToken);
-
-                        if (reCalculate)
-                        {
-                            while (bWait) await UniTask.NextFrame(cancellationToken: cancellationToken);
-                            reCalculate = false;
-                            if(bResearch)
-                            {
-                                animator.SetInteger("state", 0);
-                                animal.PlayAnimation(AnimationKeys.Idle);
-                                await UniTask.Delay(300, cancellationToken: cancellationToken);
-                                bResearch = false;
-                           
-                                busy = false;
-                                employeeCallback?.Invoke(this);
-                                return;
-                            }
-                            continue;
-                        }
-
-                        modelTrans.rotation = foodMachine.workingSpot.rotation;
+                        foodMachine.employee = null;
+                        if (debuging) Debug.Log("Fail FoodMachine");
+                        Work();
                     }
-                    FoodStack foodStack = null;
-
-                    if (foodMachine.foodStack.foodStack.Count > 0)
-                    {
-                        foodStack = foodStacks[foodMachine.machineType];
-                        while (true)
-                        {
-
-                            int currentStackCount = foodStack.foodStack.Count; // 음식 개수 저장
-                            if (currentStackCount >= employeeLevelData.max_weight || foodMachine.foodStack.foodStack.Count == 0)
-                            {
-                                foodMachine.employee = null;
-                                foodMachine.getNum = 0;
-                                if (debuging) Debug.Log("직원 조리기구 종료");
-                            
-                                break;
-                            }
-                            Food f = foodMachine.foodStack.foodStack.Pop();
-                            if (debuging) Debug.Log("직원 조리기구에서 음식을 가져가는 중");
-
-                            MachineType t = foodMachine.machineType;
-                            // FoodStack fs = foodStacks[n];
-
-                            Vector3 targetPosition = headPoint.position + GameInstance.GetVector3(0, 0.7f * (currentStackCount + 1), 0); // 목적지 저장
-                            float r = UnityEngine.Random.Range(1, 2.5f);
-#if HAS_DOTWEEN
-                            DOTween.Kill(f.transforms); //Tween 제거
-                            f.transforms.DOJump(targetPosition, r, 1, 0.2f).OnComplete(() =>
-                              OnFoodStackComplete(f, targetPosition, foodStack, foodStack.foodStack.Count, headPoint));
-                          
-                            SoundManager.Instance.PlayAudio3D(GameIns.gameSoundManager.ThrowSound(), 0.2f, 100, 5, trans.position);
-#endif 
-                            await UniTask.Delay(300, cancellationToken: cancellationToken);
-                            if (pause) break;
-                        }
-                    }
+                    if (!pause) break;
                 }
-                else
-                {
-                    foodMachine.employee = null;
-                    if (debuging) Debug.Log("Fail FoodMachine");
-                    Work();
-                }
-                if (!pause) break;
             }
-
             await UniTask.Delay(300, cancellationToken: cancellationToken);
 
             bool hasFood = false;
@@ -1460,12 +1458,28 @@ public class Employee : AnimalController
                 employeeCallback?.Invoke(this);
                 return;
             }
-            
+
+            counter.employees.Add(this);
+
+            animator.SetInteger("state", 0);
+            animal.PlayAnimation(AnimationKeys.Idle);
+
+            //조달 카운터
             while (true)
             {
+                MoveCounter:
                 cancellationToken.ThrowIfCancellationRequested();
                 while (pause) await UniTask.Delay(100, cancellationToken: cancellationToken);
+
+                Vector3 counterPosition = counter.workingSpot_SmallTables[tableIndex].transforms.position;
                 lastPos = counterPosition;
+
+                if(!counter.placed)
+                {
+                    await UniTask.Delay(200, cancellationToken: cancellationToken);
+                    continue;
+                }
+
                 Stack<Vector3> moveTargets = await CalculateNodes_Async(counterPosition, true, cancellationToken);
                 if (moveTargets != null && moveTargets.Count > 0)
                 {
@@ -1481,14 +1495,13 @@ public class Employee : AnimalController
                         {
                             while (bWait) await UniTask.NextFrame(cancellationToken: cancellationToken);
                             reCalculate = false;
+                            animator.SetInteger("state", 0);
+                            animal.PlayAnimation(AnimationKeys.Idle);
                             continue;
                         }
                         modelTrans.rotation = counter.workingSpot.rotation;
 
                     }
-                    //employeeActions = EmployeeActions.EmployeeCounter;
-
-
                     if (debuging) Debug.Log("직원 카운터에 음식을 내려놓는 중");
 
 
@@ -1501,6 +1514,11 @@ public class Employee : AnimalController
 
                         while (foodStack.foodStack.Count > 0)
                         {
+                            if (!counter.placed)
+                            {
+                                goto MoveCounter;
+
+                            }
                             if (counter.foodStacks == null) continue;
                             if (i >= counter.foodStacks.Count) continue;
                             if (counter.foodStacks[i].foodStack == null) continue;
@@ -1513,23 +1531,24 @@ public class Employee : AnimalController
                             int currentStackCount = foodStacks[t].foodStack.Count; // 음식 개수 저장
                             Vector3 targetPosition = headPoint.position + GameInstance.GetVector3(0, 0.7f * (currentStackCount + 1), 0); // 목적지
 #if HAS_DOTWEEN
-                          //  DOTween.Kill(f.transforms); //Tween 제거
+                            //  DOTween.Kill(f.transforms); //Tween 제거
                             f.transforms.DOJump(counter.stackPoints[i].position + GameInstance.GetVector3(0, 0.7f * counter.foodStacks[i].foodStack.Count, 0), r, 1, 0.2f);
 #endif
-                            f.transforms.rotation = Quaternion.Euler(0,0,0);
+                            f.transforms.rotation = Quaternion.Euler(0, 0, 0);
                             counter.foodStacks[i].foodStack.Push(f);
                             counter.foodStacks[i].getNum = counter.foodStacks[i].getNum - 1 < 0 ? 0 : counter.foodStacks[i].getNum - 1;
 
                             if (debuging) Debug.Log(counter.foodStacks[i].getNum);
                             SoundManager.Instance.PlayAudio3D(GameIns.gameSoundManager.ThrowSound(), 0.2f, 100, 5, trans.position);
-                         
+
                             await UniTask.Delay(300, cancellationToken: cancellationToken);
                             EXP += 1;
-                            if(pause) goto Escape;
+                            if (pause) goto Escape;
                         }
                     }
                     if (debuging) Debug.Log("직원 카운터 종료");
 
+                    counter.employees.Remove(this);
                     busy = false;
                     await UniTask.Delay(300, cancellationToken: cancellationToken);
                     //  FindEmployeeWorks();
@@ -1540,6 +1559,7 @@ public class Employee : AnimalController
                 }
                 else
                 {
+                    counter.employees.Remove(this);
                     if (debuging) Debug.Log("Error");
                     // Work();
                     await Employee_Wait(0, cancellationToken);
@@ -1652,14 +1672,28 @@ public class Employee : AnimalController
         }
     }
 
-    async UniTask Employee_Serving(Vector3 position, Counter counter, CancellationToken cancellationToken = default)
+    async UniTask Employee_Serving(Counter counter, CancellationToken cancellationToken = default)
     {
         try
         {
             while (true)
             {
+                counter.employees.Add(this);
+
+                ServingStart:
+
+                if(!counter.placed)
+                {
+                    await UniTask.Delay(200, cancellationToken: cancellationToken);
+                    goto ServingStart;
+                }
+
                 cancellationToken.ThrowIfCancellationRequested();
                 while (pause) await UniTask.Delay(100, cancellationToken: cancellationToken);
+                Vector3 position = counter.workingSpot.position;
+
+                // if(position != trans.position)
+
                 lastPos = position;
                 Stack<Vector3> moveTargets = await CalculateNodes_Async(position, true, cancellationToken);
                 if (moveTargets != null && moveTargets.Count > 0)
@@ -1679,7 +1713,7 @@ public class Employee : AnimalController
                             continue;
                         }
                         modelTrans.rotation = counter.workingSpot.rotation;
-                    
+
                     }
 
                     //employeeActions = EmployeeActions.EmployeeServing;
@@ -1692,6 +1726,21 @@ public class Employee : AnimalController
 
                         if (counter.customer != null)
                         {
+                            while(true)
+                            {
+                                if(counter.customer != null)
+                                {
+                                    if(counter.customer.bOrder)
+                                    {
+                                        break;
+                                    }
+                                }
+                                else
+                                {
+                                    goto ServingStart;
+                                }
+                                await UniTask.Delay(200, cancellationToken: cancellationToken);
+                            }
                             for (int j = 0; j < counter.customer.foodStacks.Count; j++)
                             {
                                 FoodStack foodStack = counter.foodStacks[i];
@@ -1700,15 +1749,20 @@ public class Employee : AnimalController
                                     index += counter.customer.foodStacks[j].foodStack.Count;
                                     while (counter.customer.foodStacks[j].needFoodNum > counter.customer.foodStacks[j].foodStack.Count && foodStack.foodStack.Count > 0)
                                     {
+                                        if (!counter.placed)
+                                        {
+                                            goto ServingStart;
+                                        }
+
                                         Food f = foodStack.foodStack.Pop();
                                         float r = UnityEngine.Random.Range(1, 2.5f);
                                         int currentStackCount = foodStacks[t].foodStack.Count; // 음식 개수 저장
                                         Vector3 pos = counter.customer.headPoint.position + Vector3.up * 0.7f * (index);
 #if HAS_DOTWEEN
-                                    //    DOTween.Kill(f.transforms);
+                                        //    DOTween.Kill(f.transforms);
                                         f.transforms.DOJump(pos, r, 1, 0.2f).OnComplete(() =>
                                         OnFoodStackComplete(f, pos, counter.customer.foodStacks[j], index - 1, counter.customer.headPoint));
-                                      
+
                                         SoundManager.Instance.PlayAudio3D(GameIns.gameSoundManager.ThrowSound(), 0.2f, 100, 5, trans.position);
 #endif
                                         counter.customer.VisualizingFoodStack.Add(f);
@@ -1723,14 +1777,41 @@ public class Employee : AnimalController
                         }
                     }
 
+                    await UniTask.Delay(2000, cancellationToken: cancellationToken);
+
+                    if(counter.customer != null)
+                    {
+                        Customer c = counter.customer;
+                        bool check = false;
+                        int n = 0;
+                        for (int j = 0; j < c.foodStacks.Count; j++)
+                        {
+                            if(foodStacks[c.foodStacks[j].type].foodStack.Count < c.foodStacks[j].needFoodNum)
+                            {
+                                check = true;
+                            }
+                            if(foodStacks[c.foodStacks[j].type].foodStack.Count == c.foodStacks[j].needFoodNum)
+                            {
+                                n++;
+                            }
+                        }
+                        if (n != c.foodStacks.Count)
+                        {
+                            if (!check)
+                            {
+                                goto ServingStart;
+                            }
+                        }
+                    }
+                    counter.employees.Remove(this);
                     counter.employee = null;
                     busy = false;
-                    await UniTask.Delay(500, cancellationToken: cancellationToken);
                     employeeCallback?.Invoke(this);
 
                 }
                 else
                 {
+                    counter.employees.Remove(this);
                     counter.employee = null;
                     Work();
                 }
@@ -1751,17 +1832,25 @@ public class Employee : AnimalController
         }
     }
 
-    async UniTask Employee_Table(Vector3 position, Table table, int seatIndex, CancellationToken cancellationToken = default)
+    async UniTask Employee_Table(Table table, int seatIndex, CancellationToken cancellationToken = default)
     {
         try
         {
             while (true)
             {
+            StartTable:
+                table.animals.Add(this);
+
                 cancellationToken.ThrowIfCancellationRequested();
+
+                Vector3 position = table.seats[seatIndex].transform.position;
+
                 while (pause) await UniTask.Delay(100, cancellationToken: cancellationToken);
+
                 //종료
                 if (table.numberOfGarbage == 0)
                 {
+                    table.animals.Remove(this);
                     table.isDirty = false;
                     tb = table;
                     //employeeActions = EmployeeActions.EmployeeTable;
@@ -1772,7 +1861,16 @@ public class Employee : AnimalController
                     GameInstance.GameIns.animalManager.AttachEmployeeTask(this);
                     return;
                 }
+
+                if(!table.placed)
+                {
+                    await UniTask.Delay(200, cancellationToken:cancellationToken);
+                    goto StartTable;
+                }
+
+
                 lastPos = position;
+
                 Stack<Vector3> moveTargets = await CalculateNodes_Async(position, true, cancellationToken);
                 if (moveTargets != null && moveTargets.Count > 0)
                 {
@@ -1790,16 +1888,24 @@ public class Employee : AnimalController
                             while (bWait) await UniTask.NextFrame(cancellationToken: cancellationToken);
                             reCalculate = false;
 
-                            if(table.interacting)
+                            if (table.interacting)
                             {
+                                table.animals.Remove(this);
                                 animator.SetInteger("state", 0);
                                 animal.PlayAnimation(AnimationKeys.Idle);
-                              //  PlayAnim(animal.animationDic[animation_Idle_A], animation_Idle_A);
+                                //  PlayAnim(animal.animationDic[animation_Idle_A], animation_Idle_A);
                                 busy = false;
                                 await UniTask.Delay(500);
                                 employeeCallback?.Invoke(this);
                                 return;
                             }
+
+                            if (!table.placed)
+                            {
+                                await UniTask.Delay(200, cancellationToken: cancellationToken);
+                                goto StartTable;
+                            }
+                            //     if
 
                             continue;
                         }
@@ -1810,6 +1916,11 @@ public class Employee : AnimalController
 
                     while (table.numberOfGarbage > 0)
                     {
+                        if (!table.placed)
+                        {
+                            await UniTask.Delay(200, cancellationToken: cancellationToken);
+                            goto StartTable;
+                        }
                         Garbage garbage = table.garbageList[table.numberOfGarbage - 1];
                         table.garbageList.RemoveAt(table.numberOfGarbage - 1);
                         table.numberOfGarbage--;
@@ -1817,17 +1928,18 @@ public class Employee : AnimalController
                         float r = UnityEngine.Random.Range(1, 2.5f);
                         int index = garbageList.Count;
 #if HAS_DOTWEEN
-                      //  DOTween.Kill(garbage.transforms);
+                        //  DOTween.Kill(garbage.transforms);
                         garbage.transforms.DOJump(pos, r, 1, 0.2f).OnComplete(() =>
                         OnGarbageStackComplete(garbage, pos, garbageList, index, headPoint));
-                       
+
                         SoundManager.Instance.PlayAudio3D(GameIns.gameSoundManager.ThrowSound(), 0.2f, 100, 5, trans.position);
 #endif
                         await UniTask.Delay(300, cancellationToken: cancellationToken);
                         if (pause) goto Escape;
                     }
-
+                    table.animals.Remove(this);
                     table.isDirty = false;
+
                     tb = table;
                     //employeeActions = EmployeeActions.EmployeeTable;
                     table.employeeContoller = null;
@@ -1859,13 +1971,24 @@ public class Employee : AnimalController
         }
     }
 
-    async UniTask Employee_Trashcan(Vector3 position, TrashCan trash, CancellationToken cancellationToken = default)
+    async UniTask Employee_Trashcan(TrashCan trash, CancellationToken cancellationToken = default)
     {
         try
         {
             while (true)
             {
+                trash.employees.Add(this);
+                StartTrashcan:
+               
+                if(!trash.placed)
+                {
+                    await UniTask.Delay(200, cancellationToken: cancellationToken);
+                    goto StartTrashcan;
+                }
+
                 while (pause) await UniTask.Delay(100, cancellationToken: cancellationToken);
+
+                Vector3 position = trash.throwPos.position;
                 Stack<Vector3> moveTargets = await CalculateNodes_Async(position, true, cancellationToken);
                 if (moveTargets != null && moveTargets.Count > 0)
                 {
@@ -1876,7 +1999,6 @@ public class Employee : AnimalController
                     }
                     else
                     {
-                        Debug.Log("Employee_Trashcan2");
                         await Employee_Move(moveTargets, position, cancellationToken);
 
                         if (reCalculate)
@@ -1893,6 +2015,11 @@ public class Employee : AnimalController
                     await UniTask.Delay(200, cancellationToken: cancellationToken);
                     while (garbageList.Count > 0)
                     {
+                        if(!trash.placed)
+                        {
+                            goto StartTrashcan;
+                        }
+
                         Garbage garbage = garbageList.Pop();
                         garbage.Release();
                         Vector3 pos = trash.offset.transform.position;
@@ -1911,6 +2038,7 @@ public class Employee : AnimalController
                        
                         if (pause) goto Escape;
                     }
+                    trash.employees.Remove(this);
                     busy = false;
                     await UniTask.Delay(500, cancellationToken: cancellationToken);
                     employeeState = EmployeeState.Wait;

@@ -4,6 +4,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using UnityEngine.TerrainTools;
+using static UnityEngine.Rendering.DebugUI;
 
 public class FurnitureInfo : MonoBehaviour
 {
@@ -63,9 +65,57 @@ public class FurnitureInfo : MonoBehaviour
         if (currentFurniture)
         {  
             Queue<int> placedArea = MoveCalculator.GetCheckAreaWithBounds(GameInstance.GameIns.calculatorScale, currentFurniture.GetComponentInChildren<Collider>());
+            currentFurniture.placed = false;
+
+            switch (currentFurniture.spaceType)
+            {
+                case WorkSpaceType.None:
+                    break;
+                case WorkSpaceType.Counter:
+                    {
+                        Counter counter = currentFurniture.GetComponent<Counter>();
+                        foreach(var v in counter.employees)
+                        {
+                            v.reCalculate = true;
+                        }
+                        foreach(var v in counter.customers)
+                        {
+                            v.reCalculate = true;
+                        }
+                    }
+                    break;
+
+                case WorkSpaceType.Table:
+                    {
+                        Table table = currentFurniture.GetComponent<Table>();
+                        foreach (var v in table.animals)
+                        {
+                            v.reCalculate = true;
+                        }
+                    }
+                    break;
+                case WorkSpaceType.FoodMachine:
+                    {
+                        FoodMachine foodMahcine = currentFurniture.GetComponent<FoodMachine>();
+                        foodMahcine.employee.reCalculate = true;
+                    }
+                    break;
+                case WorkSpaceType.Trashcan:
+                    {
+                        TrashCan trashCan = currentFurniture.GetComponent<TrashCan>();
+                        foreach (var v in trashCan.employees)
+                        {
+                            v.reCalculate = true;
+                        }
+                    }
+                    break;
+            }
+
+
+
             currentFurniture.gameObject.SetActive(false);
             PlaceController placeController = GameInstance.GameIns.store.GetGoods(currentFurniture.id);
-           
+            
             placeController.placedArea = placedArea;
             placeController.transform.position = currentFurniture.originPos;
             if (currentFurniture.TryGetComponent(out IObjectOffset fm))
@@ -76,6 +126,7 @@ public class FurnitureInfo : MonoBehaviour
             {
                 placeController.offset.transform.rotation = currentFurniture.transform.rotation;
             }
+
             placeController.SetLevel(currentFurniture.rotateLevel);
             GameInstance.GameIns.gridManager.ReCalculate(placeController, placeController.storeGoods.goods.type == WorkSpaceType.Table ? true : false);
             placeController.purchasedObject = true;

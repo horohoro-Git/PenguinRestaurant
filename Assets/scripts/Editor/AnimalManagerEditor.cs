@@ -199,7 +199,7 @@ public class AnimalManagerEditor : Editor
                         {
                             em.employeeState = EmployeeState.Counter;
                             target = counter.workingSpot_SmallTables[1].transform.position;
-                            em.Work(target, counter, false);
+                            em.Work(counter);
                             return;
                         }
                     }
@@ -247,7 +247,7 @@ public class AnimalManagerEditor : Editor
                                             em.employeeState = EmployeeState.Serving;
                                             target = counter.workingSpot.position;
 
-                                            em.Work(target, counter, true);
+                                            em.Work(counter);
                                             return;
                                         }
 
@@ -288,7 +288,7 @@ public class AnimalManagerEditor : Editor
                                         customer.customerState = CustomerState.Table;
                                         t.seats[i].animal = customer;
                                         target = t.seats[i].transform.position;
-                                        customer.CustomerPlayAction(target, t, i);
+                                        customer.CustomerPlayAction(t, i);
                                         return;
                                     }
                                 }
@@ -368,7 +368,7 @@ public class AnimalManagerEditor : Editor
                         foreach (TrashCan c in trashCanList)
                         {
 
-                            em.Work(c.throwPos.position, c);
+                            em.Work(c);
                             return;
                         }
                     }

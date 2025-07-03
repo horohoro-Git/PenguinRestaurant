@@ -18,6 +18,7 @@ public class Furniture : MonoBehaviour
 
     public int rotateLevel;
     [NonSerialized] public bool canTouchable = true;
+    [NonSerialized] public bool placed;
     public virtual void Start()
     {
         if(!spawned)
