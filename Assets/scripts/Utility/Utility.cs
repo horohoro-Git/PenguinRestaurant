@@ -444,8 +444,8 @@ public class Utility
                     float worldZ = GameIns.calculatorScale.minY + yy * tileSize;
                     Vector3 worldPos = new Vector3(worldX, 0, worldZ);
 
-                    //Color debugColor = isBlocked ? Color.red : Color.green;
-                    //Debug.DrawRay(worldPos, Vector3.up * 0.5f, debugColor, 0.1f);
+                    Color debugColor = isBlocked ? Color.red : Color.green;
+                    Debug.DrawRay(worldPos, Vector3.up * 0.5f, debugColor, 0.1f);
                     if (!isBlocked) InputManger.spawnDetects.Add(worldPos);
                 }
             }

@@ -504,12 +504,24 @@ public class RestaurantManager : MonoBehaviour
     IEnumerator ApplyPlacedNextFrame(Furniture furniture)
     {
         yield return null;
-        MoveCalculator.CheckAreaWithBounds(GameInstance.GameIns.calculatorScale, furniture.GetComponentInChildren<Collider>(), true);
+
+        
         if (furniture.spaceType == WorkSpaceType.Table)
         {
+            for(int i=0;i<GameIns.workSpaceManager.tables.Count; i++)
+            {
+                Table t = GameIns.workSpaceManager.tables[i];
+                MoveCalculator.CheckAreaWithBounds(GameInstance.GameIns.calculatorScale, t.GetComponentInChildren<Collider>(), true);
+              
+            }
+            yield return null;
             List<Table> table = new List<Table>();
             table = GameIns.workSpaceManager.tables;
             TableUpdate(table);
+        }
+        else
+        {
+            MoveCalculator.CheckAreaWithBounds(GameInstance.GameIns.calculatorScale, furniture.GetComponentInChildren<Collider>(), true);
         }
         //  MoveCalculator.CheckArea(GameInstance.GameIns.calculatorScale);
         for (int i = 0; i < GameInstance.GameIns.animalManager.employeeControllers.Count; i++)
@@ -876,6 +888,7 @@ public class RestaurantManager : MonoBehaviour
                 if (MoveCalculator.GetBlocks[MoveCalculator.GetIndex(playerX, playerY)])
                 {
                     tables[i].seats[j].isDisEnabled = true;
+                    if (tables[i].seats[j].animal != null) tables[i].seats[j].animal.reCalculate = true;
                 }
                 else
                 {
@@ -884,7 +897,8 @@ public class RestaurantManager : MonoBehaviour
                     {
                         if (tableData[key] > 1)
                         {
-                            tables[i].seats[j].isDisEnabled = true; 
+                            tables[i].seats[j].isDisEnabled = true;
+                            if (tables[i].seats[j].animal != null) tables[i].seats[j].animal.reCalculate = true;
                         }
                         else
                         {

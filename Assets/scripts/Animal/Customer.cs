@@ -19,6 +19,8 @@ using Vector3 = UnityEngine.Vector3;
 using Quaternion = UnityEngine.Quaternion;
 using Random = UnityEngine.Random;
 using System.Text;
+using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
+using static UnityEngine.Rendering.DebugUI;
 // 한글
 
 public class Customer : AnimalController
@@ -823,6 +825,7 @@ public class Customer : AnimalController
           
             while (true)
             {
+                table.animals.Add(this);
                 StartTable:
                 cancellationToken.ThrowIfCancellationRequested();
 
@@ -831,7 +834,105 @@ public class Customer : AnimalController
                     await UniTask.Delay(200, cancellationToken: cancellationToken); 
                     goto StartTable;
                 }
-             
+
+                DisableSeat:
+                if (table.seats[index].isDisEnabled)
+                {
+                    while (true)
+                    {
+                        Debug.Log("AA");
+                        await UniTask.Delay(500, cancellationToken: cancellationToken);
+                        for (int i=0;i<4;i++)
+                        {
+                            if(i != index)
+                            {
+                                if(!table.seats[i].isDisEnabled && table.seats[i].animal == null)
+                                {
+                                    table.seats[index].animal = null;
+                                    table.seats[i].animal = this;
+                                    table.animals.Remove(this);
+
+                                    if (table.placedFoods[index] != null)
+                                    {
+                                        table.placedFoods[i] = table.placedFoods[index];
+                                        table.placedFoods[index] = null;
+
+                                        Vector3 t = table.transforms.position;
+                                        float offsetZ = i % 2 == 0 ? 1 : 0;
+                                        float offsetSize = i / 2 == 0 ? 1 : -1;
+                                        Vector3 X = i % 2 == 1 ? (i / 2 == 0 ? table.transforms.transform.right * offsetSize : -table.transforms.transform.right * offsetSize) : Vector3.zero;
+                                        Vector3 Z = i % 2 == 0 ? (i / 2 == 0 ? table.transforms.transform.forward * offsetSize : -table.transforms.transform.forward * offsetSize) : Vector3.zero;
+                                        t += X;
+                                        t += Z;
+                                        t.y = 0.5f;
+                                        table.placedFoods[i].transform.DOJump(t, 1, 1, 0.2f);
+                                    }
+                                    customerState = CustomerState.Counter;
+                                    busy = false;
+                                    customerCallback?.Invoke(this);
+                                    return;
+                                }
+                            }
+                        }
+
+                        List<Table> tables = GameInstance.GameIns.workSpaceManager.tables
+                            .OrderBy(fm => (fm.transforms.position - trans.position).magnitude) // 음식 개수 내림차순
+                            .ToList();
+                        await UniTask.Delay(500, cancellationToken: cancellationToken);
+
+                        foreach (Table tb in tables)
+                        {
+                            if (tb == table) continue;
+                          
+                            if (tb.isDirty == false)
+                            {
+                                int i = -1;
+                                int c = 0;
+                                for (int j = 0; j < tb.seats.Length; j++)
+                                {
+                                    if (tb.seats[j].animal != null)
+                                    {
+                                        i = j;
+                                        c++;
+                                    }
+                                }
+                                if (c >= 2) continue;
+
+
+
+                                float min = 9999;
+                                Seat selectedSeat = null;
+                                for (int j = 0; j < tb.seats.Length; j++)
+                                {
+                                    if (tb.seats[j].isDisEnabled == false && tb.seats[j].animal == null)
+                                    {
+                                        float cur = Vector3.Distance(trans.position, tb.seats[j].transform.position);
+                                        if (min > cur)
+                                        {
+                                            min = cur;
+                                            selectedSeat = tb.seats[j];
+                                        }
+                                    }
+                                }
+
+                                if (selectedSeat != null)
+                                {
+                                    selectedSeat.animal = this;
+                                    // tb.numberOfFoods += foodStacks foodNum;
+                                    // table.a = null;
+                                }
+                                else continue;
+
+                                customerState = CustomerState.Counter;
+                                busy = false;
+                                customerCallback?.Invoke(this);
+
+                                return;
+                            }
+                        }
+                    }
+                }
+
                 Vector3 position = table.seats[index].transform.position;
 
 
@@ -851,6 +952,14 @@ public class Customer : AnimalController
                         {
                             while (bWait) await UniTask.NextFrame(cancellationToken: cancellationToken);
                             reCalculate = false;
+
+
+
+                            if(table.seats[index].isDisEnabled)
+                            {
+                                goto DisableSeat;
+                            }
+                           
                             continue;
                         }
                         await UniTask.DelayFrame(3, cancellationToken: cancellationToken);
@@ -879,6 +988,10 @@ public class Customer : AnimalController
                         {
 
                             goto StartTable;
+                        }
+                        if (table.seats[index].isDisEnabled)
+                        {
+                            goto DisableSeat;
                         }
                         Food f = VisualizingFoodStack[i];
                         VisualizingFoodStack.RemoveAt(i);
@@ -914,11 +1027,15 @@ public class Customer : AnimalController
                              await UniTask.Delay(timer);
                              if (table.foodStacks[0].foodStack.Count == 0) break;
                          }*/
-                        modelTrans.rotation = table.seats[index].transform.rotation;
                         if (!table.placed)
                         {
                             goto StartTable;
                         }
+                        if (table.seats[index].isDisEnabled)
+                        {
+                            goto DisableSeat;
+                        }
+                        modelTrans.rotation = table.seats[index].transform.rotation;
                         Food f = null;
                         if (table.placedFoods[seatIndex] == null)
                         {
@@ -948,6 +1065,10 @@ public class Customer : AnimalController
                                 animator.SetInteger(AnimationKeys.state, 0);
                                 animal.PlayAnimation(AnimationKeys.Idle);
                                 goto StartTable;
+                            }
+                            if (table.seats[index].isDisEnabled)
+                            {
+                                goto DisableSeat;
                             }
                             if (!table.hasProblem)
                             {
@@ -1011,6 +1132,7 @@ public class Customer : AnimalController
                                         customerState = CustomerState.Table;
                                         animator.SetInteger("state", 0);
                                         animal.PlayAnimation(AnimationKeys.Idle);
+                                        table.animals.Remove(this);
                                         table.seats[index].animal = null;
                                         customerCallback?.Invoke(this);
                                         return;
@@ -1038,6 +1160,10 @@ public class Customer : AnimalController
                                                 animator.SetInteger(AnimationKeys.state, 0);
                                                 animal.PlayAnimation(AnimationKeys.Idle);
                                                 goto StartTable;
+                                            }
+                                            if (table.seats[index].isDisEnabled)
+                                            {
+                                                goto DisableSeat;
                                             }
                                             table.placedFoods[seatIndex] = table.placedFoods[j];
                                             table.placedFoods[j] = null;
@@ -1180,6 +1306,7 @@ public class Customer : AnimalController
                     animator.SetInteger("state", 0);
                     animal.PlayAnimation(AnimationKeys.Idle);
                     //PlayAnim(animal.animationDic["Idle_A"], "Idle_A");
+                    table.animals.Remove(this);
                     table.seats[index].animal = null;
                     customerCallback?.Invoke(this);
                     //  GameInstance.GameIns.animalManager.AttacCustomerTask(this);
