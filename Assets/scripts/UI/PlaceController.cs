@@ -56,6 +56,9 @@ public class PlaceController : MonoBehaviour
 
     Mouse currentMouse;
     public Queue<int> placedArea = new Queue<int>();
+
+    Vector3 prevPos;
+    Quaternion prevRot;
     private void Start()
     {
         applyImage.gameObject.layer = 5;
@@ -72,6 +75,8 @@ public class PlaceController : MonoBehaviour
         currentMouse = Mouse.current;
 #endif
         GameInstance.AddGraphicCaster(raycaster);
+        prevPos = transform.position;
+        prevRot = transform.rotation;
     }
     private void OnDisable()
     {
@@ -118,7 +123,7 @@ public class PlaceController : MonoBehaviour
                 Ray r = InputManger.cachingCamera.ScreenPointToRay(currentMouse.position.ReadValue());
                 if (Physics.Raycast(r, out RaycastHit hit, float.MaxValue, 1))
                 {
-                    GameInstance.GameIns.gridManager.SelectLine(hit.point, this, canPlace, storeGoods.goods.type == WorkSpaceType.Table ? true : false);
+                    GameInstance.GameIns.gridManager.SelectLine(hit.point, this, canPlace, storeGoods.goods.type);
                 }
             }
             if (currentMouse.leftButton.wasPressedThisFrame)
@@ -178,7 +183,7 @@ public class PlaceController : MonoBehaviour
         SoundManager.Instance.PlayAudio(GameInstance.GameIns.uISoundManager.UIClick(), 0.2f);
         offset.transform.rotation = Quaternion.Euler(0, rotates[level], 0);
         offset.transform.localPosition = rotateOffsets[level];
-        GameInstance.GameIns.gridManager.CheckObject(this, storeGoods.goods.type == WorkSpaceType.Table);
+        GameInstance.GameIns.gridManager.CheckObject(this, storeGoods.goods.type);
     }
 
     public void Apply()
@@ -187,16 +192,15 @@ public class PlaceController : MonoBehaviour
         {
             SoundManager.Instance.PlayAudio(GameInstance.GameIns.uISoundManager.UIClick(), 0.2f);
          
-            GameInstance.GameIns.gridManager.ApplyGird(offset.transform.position, storeGoods.goods.type == WorkSpaceType.Table ? true : false);
+            GameInstance.GameIns.gridManager.ApplyGird(this, offset.transform.position, storeGoods.goods.type);
             if (purchasedObject)
             {
                 GameInstance.GameIns.gridManager.RemoveCell();
                 MoveCalculator.ApplyCheckAreaWithBounds(placedArea, false);
                 placedArea.Clear();
-
             }
             GameInstance.GameIns.gridManager.RemoveSelect();
-          
+
             storeGoods.PlaceGoods(rotateOffsets[level], level, currentFurniture);
             storeGoods.RemoveGoodsPreview();
             if (!purchasedObject)
@@ -255,7 +259,7 @@ public class PlaceController : MonoBehaviour
         Ray r = InputManger.cachingCamera.ScreenPointToRay(inputPosition);
         if (Physics.Raycast(r, out RaycastHit hit, float.MaxValue, 1))
         {
-            GameInstance.GameIns.gridManager.SelectLine(hit.point, this, canPlace, storeGoods.goods.type == WorkSpaceType.Table ? true : false);
+            GameInstance.GameIns.gridManager.SelectLine(hit.point, this, canPlace, storeGoods.goods.type);
         }
     }
 

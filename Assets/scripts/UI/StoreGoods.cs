@@ -155,7 +155,7 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
                     Ray r = InputManger.cachingCamera.ScreenPointToRay(screenPos);
                     if (Physics.Raycast(r, out RaycastHit hit, float.MaxValue, 1))
                     {
-                        currentCheckArea = GameIns.gridManager.SelectLine(hit.point, currnet, currentCheckArea, goods.type == WorkSpaceType.Table ? true : false);
+                        currentCheckArea = GameIns.gridManager.SelectLine(hit.point, currnet, currentCheckArea, goods.type);
                     }
                 }
                 else

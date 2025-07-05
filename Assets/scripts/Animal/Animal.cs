@@ -85,7 +85,7 @@ public class Animal : MonoBehaviour
         //  GetAnimIns(2).PlayAnim(animationDic[str], str);
 #endif
     }
-    public void PlayAnimation(string str)
+    public bool PlayAnimation(string str)
     {
         if (hasShadow)
         {
@@ -98,7 +98,7 @@ public class Animal : MonoBehaviour
             }
         }
 #if HAS_ANIMATION_INSTANCING
-        InstancingCharacter.PlayAnim(animationDic[str], str);
+        return InstancingCharacter.PlayAnim(animationDic[str], str);
       //  GetAnimIns(2).PlayAnim(animationDic[str], str);
 #endif
     }

@@ -83,19 +83,18 @@ public class Store : MonoBehaviour
     {
         if (currentPreview != null)
         {
+            currentPreview.Cancel();
             if(currentPreview.storeGoods.currnet)
             {
                 if(currentPreview.storeGoods.currnet.purchasedObject)
                 {
                     currentPreview.storeGoods.currnet.currentFurniture.gameObject.SetActive(true);
-                    GameInstance.GameIns.gridManager.Revert(currentPreview.storeGoods.currnet);
                 }
                 currentPreview.storeGoods.currnet.purchasedObject = false;
                 currentPreview.storeGoods.currnet.currentFurniture = null;
                 currentPreview.storeGoods.currnet.gameObject.SetActive(false);
                 currentPreview.storeGoods.currnet = null;
             }
-            currentPreview.Cancel();
         }
         goodsList[id].currnet = goodsPreviewDic[id + 1000];
         currentPreview = goodsPreviewDic[id + 1000]; 

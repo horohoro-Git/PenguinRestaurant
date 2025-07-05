@@ -1264,7 +1264,8 @@ public class Employee : AnimalController
         {
             while (true)
             {
-                await UniTask.NextFrame(cancellationToken: cancellationToken);
+                await UniTask.Delay(250, cancellationToken: cancellationToken);
+                reCalculate = false;
                 Vector3 current = trans.position;
                 float minX = GameIns.calculatorScale.minX;
                 float minY = GameIns.calculatorScale.minY;
@@ -1310,8 +1311,10 @@ public class Employee : AnimalController
                         reCalculate = false;
                         if (bResearch)
                         {
-                            animator.SetInteger("state", 0);
-                            animal.PlayAnimation(AnimationKeys.Idle);
+                            if (animal.PlayAnimation(AnimationKeys.Idle))
+                            {
+                                animator.SetInteger("state", 0);
+                            }
                             await UniTask.Delay(300, cancellationToken: cancellationToken);
                             bResearch = false;
 
@@ -1323,8 +1326,10 @@ public class Employee : AnimalController
                     }
                 }
 
-                animator.SetInteger("state", 0);
-                animal.PlayAnimation(AnimationKeys.Idle);
+                if (animal.PlayAnimation(AnimationKeys.Idle))
+                {
+                    animator.SetInteger("state", 0);
+                }
                 busy = false;
                 await UniTask.Delay(500, cancellationToken: cancellationToken);
                 employeeCallback?.Invoke(this);
@@ -1356,6 +1361,8 @@ public class Employee : AnimalController
                 //조달
                 cancellationToken.ThrowIfCancellationRequested();
                 while (pause) await UniTask.Delay(100, cancellationToken: cancellationToken);
+               //await UniTask.Delay(250, cancellationToken: cancellationToken);
+                reCalculate = false;
                 Vector3 position = foodMachine.workingSpot.position;
                 lastPos = position;
 
@@ -1381,8 +1388,10 @@ public class Employee : AnimalController
                                 reCalculate = false;
                                 if (bResearch || !foodMachine.placed)
                                 {
-                                    animator.SetInteger("state", 0);
-                                    animal.PlayAnimation(AnimationKeys.Idle);
+                                    if(animal.PlayAnimation(AnimationKeys.Idle))
+                                    {
+                                        animator.SetInteger("state", 0);
+                                    }
                                     await UniTask.Delay(300, cancellationToken: cancellationToken);
                                     bResearch = false;
 
@@ -1434,8 +1443,9 @@ public class Employee : AnimalController
                     else
                     {
                         foodMachine.employee = null;
-                        if (debuging) Debug.Log("Fail FoodMachine");
+                        Debug.Log("Fail FoodMachine");
                         Work();
+                        return;
                     }
                     if (!pause) break;
                 }
@@ -1454,6 +1464,7 @@ public class Employee : AnimalController
             if (!hasFood)
             {
                 busy = false;
+                foodMachine.employee = null;
                 await UniTask.Delay(200, cancellationToken: cancellationToken);
                 employeeCallback?.Invoke(this);
                 return;
@@ -1461,14 +1472,18 @@ public class Employee : AnimalController
 
             counter.employees.Add(this);
 
-            animator.SetInteger("state", 0);
-            animal.PlayAnimation(AnimationKeys.Idle);
+            if (animal.PlayAnimation(AnimationKeys.Idle))
+            {
+                animator.SetInteger("state", 0);
+            }
 
             //조달 카운터
             while (true)
             {
                 MoveCounter:
+                reCalculate = false;
                 cancellationToken.ThrowIfCancellationRequested();
+               // await UniTask.Delay(250, cancellationToken: cancellationToken);
                 while (pause) await UniTask.Delay(100, cancellationToken: cancellationToken);
 
                 Vector3 counterPosition = counter.workingSpot_SmallTables[tableIndex].transforms.position;
@@ -1495,8 +1510,11 @@ public class Employee : AnimalController
                         {
                             while (bWait) await UniTask.NextFrame(cancellationToken: cancellationToken);
                             reCalculate = false;
-                            animator.SetInteger("state", 0);
-                            animal.PlayAnimation(AnimationKeys.Idle);
+                           /* if (animal.PlayAnimation(AnimationKeys.Idle))
+                            {
+                                animator.SetInteger("state", 0);
+                            }
+                         */
                             continue;
                         }
                         modelTrans.rotation = counter.workingSpot.rotation;
@@ -1681,14 +1699,15 @@ public class Employee : AnimalController
                 counter.employees.Add(this);
 
                 ServingStart:
-
-                if(!counter.placed)
+                reCalculate = false;
+                if (!counter.placed)
                 {
                     await UniTask.Delay(200, cancellationToken: cancellationToken);
                     goto ServingStart;
                 }
 
                 cancellationToken.ThrowIfCancellationRequested();
+                await UniTask.Delay(250, cancellationToken: cancellationToken);
                 while (pause) await UniTask.Delay(100, cancellationToken: cancellationToken);
                 Vector3 position = counter.workingSpot.position;
 
@@ -1839,12 +1858,13 @@ public class Employee : AnimalController
             while (true)
             {
             StartTable:
+                reCalculate = false;
                 table.animals.Add(this);
 
                 cancellationToken.ThrowIfCancellationRequested();
 
                 Vector3 position = table.seats[seatIndex].transform.position;
-
+                await UniTask.Delay(250, cancellationToken: cancellationToken);
                 while (pause) await UniTask.Delay(100, cancellationToken: cancellationToken);
 
                 //종료
@@ -1891,8 +1911,10 @@ public class Employee : AnimalController
                             if (table.interacting)
                             {
                                 table.animals.Remove(this);
-                                animator.SetInteger("state", 0);
-                                animal.PlayAnimation(AnimationKeys.Idle);
+                                if (animal.PlayAnimation(AnimationKeys.Idle))
+                                {
+                                    animator.SetInteger("state", 0);
+                                }
                                 //  PlayAnim(animal.animationDic[animation_Idle_A], animation_Idle_A);
                                 busy = false;
                                 await UniTask.Delay(500);
@@ -1979,13 +2001,13 @@ public class Employee : AnimalController
             {
                 trash.employees.Add(this);
                 StartTrashcan:
-               
-                if(!trash.placed)
+                reCalculate = false;
+                await UniTask.Delay(250, cancellationToken: cancellationToken);
+                if (!trash.placed)
                 {
                     await UniTask.Delay(200, cancellationToken: cancellationToken);
                     goto StartTrashcan;
                 }
-
                 while (pause) await UniTask.Delay(100, cancellationToken: cancellationToken);
 
                 Vector3 position = trash.throwPos.position;
@@ -2564,14 +2586,7 @@ public class Employee : AnimalController
         try
         {
             cancellationToken.ThrowIfCancellationRequested();
-            /* Node a = n.parentNode == null ? n : n.parentNode;
-             Stack<Node> stack = new Stack<Node>();
-             while (a != null)
-             {
-                 stack.Push(a);
-                 a = a.parentNode;
-                 await UniTask.NextFrame();
-             }*/
+           
             n.Pop();
             await UniTask.NextFrame(cancellationToken: cancellationToken);
             while (n.Count > 0)
@@ -2604,11 +2619,12 @@ public class Employee : AnimalController
                             return;
                         }
 
-
                         if (Vector3.Distance(trans.position, target) <= 0.01f) break;
                         cancellationToken.ThrowIfCancellationRequested();
-                        animator.SetInteger("state", 1);
-                        animal.PlayAnimation(AnimationKeys.Walk);
+                        if (animal.PlayAnimation(AnimationKeys.Walk))
+                        {
+                            animator.SetInteger("state", 1);
+                        }
                         // PlayAnim(animal.animationDic[animation_Run], animation_Run);
                         cur = (target - trans.position).magnitude;
                         Vector3 dir = (target - trans.position).normalized;
@@ -2634,8 +2650,10 @@ public class Employee : AnimalController
                         Debug.Log("Recalculate");
                         return;
                     }
-                    animator.SetInteger("state", 1);
-                    animal.PlayAnimation(AnimationKeys.Walk);
+                    if (animal.PlayAnimation(AnimationKeys.Walk))
+                    {
+                        animator.SetInteger("state", 1);
+                    }
                     trans.position = Vector3.MoveTowards(trans.position, newLoc, employeeLevelData.speed * Time.deltaTime);
                     if (Vector3.Distance(trans.position, newLoc) <= 0.01f) break;
                     Vector3 dir = newLoc - trans.position;
@@ -2646,9 +2664,11 @@ public class Employee : AnimalController
             }
 
 
-            animator.SetInteger("state", 0);
-            animal.PlayAnimation(AnimationKeys.Idle);
-          //  PlayAnim(animal.animationDic[animation_Idle_A], animation_Idle_A);
+            if (animal.PlayAnimation(AnimationKeys.Idle))
+            {
+                animator.SetInteger("state", 0);
+            }
+            //  PlayAnim(animal.animationDic[animation_Idle_A], animation_Idle_A);
         }
         catch (OperationCanceledException)
         {
