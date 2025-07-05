@@ -716,8 +716,8 @@ public class RestaurantManager : MonoBehaviour
                 placeController.transform.position = furniture.transform.position;
                 placeController.offset.transform.rotation = Quaternion.Euler(0, placeController.rotates[restaurantparams[i].level], 0);
                 placeController.offset.transform.localPosition = placeController.rotateOffsets[restaurantparams[i].level];
-                GameInstance.GameIns.gridManager.CheckObject(placeController, placeController.storeGoods.goods.type == WorkSpaceType.Table ? true : false);
-                GameInstance.GameIns.gridManager.ApplyGird(placeController.offset.transform.position, isTable);
+                GameInstance.GameIns.gridManager.CheckObject(placeController, placeController.storeGoods.goods.type);
+                GameInstance.GameIns.gridManager.ApplyGird(placeController, placeController.offset.transform.position, furniture.spaceType);
 
              
 

@@ -375,7 +375,7 @@ public class Utility
     }
     public static bool ValidCheck(int r, int c)
     {
-        if (r >= 0 && r < GameInstance.GameIns.calculatorScale.sizeY && c >= 0 && c < GameInstance.GameIns.calculatorScale.sizeX)
+        if (r >= 0 && r < GameInstance.GameIns.calculatorScale.sizeY && c >= 0 && r < 400 && c < 400 && c < GameInstance.GameIns.calculatorScale.sizeX)
         {
             return true;
         }

@@ -449,6 +449,8 @@ public class Customer : AnimalController
             int queueindex = -1;
 
         MoveReturn:
+            await UniTask.Delay(250, cancellationToken:cancellationToken);
+            reCalculate = false;
             bOrder = false;
             int queuePoint = queueindex > -1 ? queueindex : position.Length - 1;
             for (int i = queuePoint; i >= 0; i--)
@@ -473,7 +475,9 @@ public class Customer : AnimalController
                 modelTrans.rotation = position[currentPoint].transforms.rotation;
                 if (reCalculate)
                 {
+                    Debug.Log("MoveReturn");
                     reCalculate = false;
+                    await UniTask.NextFrame(cancellationToken: cancellationToken);
                     goto MoveReturn;
                 }
                 for (int i = queueindex; i >= 0; i--)
@@ -482,11 +486,7 @@ public class Customer : AnimalController
                     {
                         animator.SetInteger("state", 0);
                         animal.PlayAnimation(AnimationKeys.Idle);
-                        if (reCalculate)
-                        {
-                            reCalculate = false;
-                            goto MoveReturn;
-                        }
+                        
                         await UniTask.Delay(200, cancellationToken: cancellationToken);
                     }
                     Vector3 p = position[i].transforms.position;
@@ -503,12 +503,6 @@ public class Customer : AnimalController
                         float subSpeed = animalPersonality == AnimalPersonality.Relaxed ? 0.8f : (animalPersonality == AnimalPersonality.Impatient ? 1.2f : 1);
                         trans.position = Vector3.MoveTowards(trans.position, p, animalStruct.speed * Time.deltaTime * subSpeed);
                         await UniTask.NextFrame(cancellationToken: cancellationToken);
-
-                        if (reCalculate)
-                        {
-                            reCalculate = false;
-                            goto MoveReturn;
-                        }
                     }
                 }
 
@@ -531,11 +525,6 @@ public class Customer : AnimalController
             //받은 음식 체크
             while (true)
             {
-                if (reCalculate)
-                {
-                    reCalculate = false;
-                    goto MoveReturn;
-                }
                 bool check = true;
                 for (int j = 0; j < foodStacks.Count; j++)
                 {
@@ -724,7 +713,6 @@ public class Customer : AnimalController
                         //if (!standInline && reCalculate)
                         if (reCalculate)
                         {
-                            Debug.Log("reCalculate");
                             return;
                         }
                     
@@ -822,11 +810,12 @@ public class Customer : AnimalController
     {
         try
         {
-          
             while (true)
             {
                 table.animals.Add(this);
                 StartTable:
+                await UniTask.Delay(250, cancellationToken: cancellationToken);
+                reCalculate = false;
                 cancellationToken.ThrowIfCancellationRequested();
 
                 if(!table.placed)
@@ -840,7 +829,6 @@ public class Customer : AnimalController
                 {
                     while (true)
                     {
-                        Debug.Log("AA");
                         await UniTask.Delay(500, cancellationToken: cancellationToken);
                         for (int i=0;i<4;i++)
                         {
@@ -858,10 +846,9 @@ public class Customer : AnimalController
                                         table.placedFoods[index] = null;
 
                                         Vector3 t = table.transforms.position;
-                                        float offsetZ = i % 2 == 0 ? 1 : 0;
-                                        float offsetSize = i / 2 == 0 ? 1 : -1;
-                                        Vector3 X = i % 2 == 1 ? (i / 2 == 0 ? table.transforms.transform.right * offsetSize : -table.transforms.transform.right * offsetSize) : Vector3.zero;
-                                        Vector3 Z = i % 2 == 0 ? (i / 2 == 0 ? table.transforms.transform.forward * offsetSize : -table.transforms.transform.forward * offsetSize) : Vector3.zero;
+                                       // float offsetSize = i / 2 == 0 ? 1 : -1;
+                                        Vector3 X = i % 2 == 1 ? (i / 2 == 0 ? table.transforms.transform.right : -table.transforms.transform.right) : Vector3.zero;
+                                        Vector3 Z = i % 2 == 0 ? (i / 2 == 0 ? table.transforms.transform.forward : -table.transforms.transform.forward) : Vector3.zero;
                                         t += X;
                                         t += Z;
                                         t.y = 0.5f;
@@ -873,6 +860,19 @@ public class Customer : AnimalController
                                     return;
                                 }
                             }
+                        }
+
+                        if (table.placedFoods[index] != null)
+                        {
+                            table.placedFoods[index].transform.SetParent(FoodManager.foodCollects.transform);
+                            VisualizingFoodStack.Add(table.placedFoods[index].GetComponent<Food>());
+                        }
+
+                        while (table.foodStacks[0].foodStack.Count > 0)
+                        {
+                            Food f = table.foodStacks[0].foodStack.Pop();
+                            f.transform.SetParent(FoodManager.foodCollects.transform);
+                            VisualizingFoodStack.Add(f);
                         }
 
                         List<Table> tables = GameInstance.GameIns.workSpaceManager.tables
@@ -918,11 +918,18 @@ public class Customer : AnimalController
                                 if (selectedSeat != null)
                                 {
                                     selectedSeat.animal = this;
+                                    tb.numberOfGarbage += table.numberOfGarbage;
+                                    tb.numberOfFoods += table.numberOfFoods;
+                                    table.numberOfFoods = 0;
+                                    table.numberOfGarbage = 0;
+                                    tb.numberOfGarbage = tb.numberOfGarbage > 10 ? 10 : tb.numberOfGarbage;
                                     // tb.numberOfFoods += foodStacks foodNum;
                                     // table.a = null;
                                 }
                                 else continue;
 
+                             
+                                table.animals.Remove(this);
                                 customerState = CustomerState.Counter;
                                 busy = false;
                                 customerCallback?.Invoke(this);
@@ -976,8 +983,8 @@ public class Customer : AnimalController
                     Vector3 t = table.transforms.position;
                     float offsetZ = seatIndex % 2 == 0 ? 1 : 0;
                     float offsetSize = seatIndex / 2 == 0 ? 1 : -1;
-                    Vector3 X = seatIndex % 2 == 1 ? (seatIndex / 2 == 0 ? -table.transforms.transform.right * offsetSize : table.transforms.transform.right * offsetSize) : Vector3.zero;
-                    Vector3 Z = seatIndex % 2 == 0 ? (seatIndex / 2 == 0 ? -table.transforms.transform.forward * offsetSize : table.transforms.transform.forward * offsetSize) : Vector3.zero;
+                    Vector3 X = seatIndex % 2 == 1 ? (seatIndex / 2 == 0 ? table.transforms.transform.right : -table.transforms.transform.right) : Vector3.zero;
+                    Vector3 Z = seatIndex % 2 == 0 ? (seatIndex / 2 == 0 ? table.transforms.transform.forward : -table.transforms.transform.forward) : Vector3.zero;
                     t += X;
                     t += Z;
                     t.y = 0.5f;
@@ -1218,10 +1225,6 @@ public class Customer : AnimalController
                     int reputation = Random.Range(0, 10);
                     int targetRep = animalPersonality == AnimalPersonality.Loyal ? 10 : (animalPersonality == AnimalPersonality.HardToPlease ? 5 : 8);
 
-                    if (id == 0)
-                    {
-                        Debug.Log("ID 0 ");
-                    }
                     if (reputation < targetRep)
                     {
                         int gradeUp = Random.Range(0, 100);
@@ -1338,6 +1341,7 @@ public class Customer : AnimalController
         {
             while (true)
             {
+                reCalculate = false;
                 cancellationToken.ThrowIfCancellationRequested();
                 Stack<Vector3> moveTargets = await CalculateNodes_Async(position, false, cancellationToken);
                 if (moveTargets != null && moveTargets.Count > 0)

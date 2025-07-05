@@ -36,6 +36,7 @@ public class Counter : Furniture, IObjectOffset
     public Transform transforms;
     public HashSet<Employee> employees = new HashSet<Employee>();
     public HashSet<Customer> customers = new HashSet<Customer>();
+
     // Start is called before the first frame update
     private void Awake()
     {
@@ -165,14 +166,12 @@ public class Counter : Furniture, IObjectOffset
     {
         foreach (var v in foodStacks)
         {
-            foreach(var f in v.foodStack)
+            foreach (var f in v.foodStack)
             {
-                f.gameObject.SetActive(false);
+                if(f!=null)f.gameObject.SetActive(false);
             }
         }
-  
     }
-
     async UniTask ShowSells(CancellationToken cancellationToken = default)
     {
         await UniTask.Delay(500, cancellationToken: cancellationToken);
