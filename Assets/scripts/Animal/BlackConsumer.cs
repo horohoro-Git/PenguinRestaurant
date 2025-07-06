@@ -96,7 +96,6 @@ public class BlackConsumer : AnimalController
     {
         try
         {
-            Debug.Log("Enter");
             int x = 0;
             int y = 0;
             float size = GameIns.calculatorScale.distanceSize;

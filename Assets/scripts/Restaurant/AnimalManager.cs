@@ -285,19 +285,37 @@ public class AnimalManager : MonoBehaviour
 
     }
 
-    //float timer = 0f;
-   /* private void Update()
+    float tim = 0;
+    float timD = 2f;
+    private void Update()
     {
-        timer += Time.deltaTime;
-
-        if(timer > 0.5f)
+        if (tim + timD < Time.time)
         {
-            if (employeeTasks.TryDequeue(out Employee employeeTask)) employeeTask.FindEmployeeWorks();
-            if (customerTasks.TryDequeue(out Customer customerTask)) customerTask.FindCustomerActions();
-            timer = 0f;
-           // AnimalRoutine_Update();
+            tim = Time.time;
+            for (int i = 0; i < customerControllers.Count; i++)
+            {
+                customerControllers[i].reCalculate = true;
+
+            }
+            for(int i = 0; i < employeeControllers.Count; i++)
+            {
+                employeeControllers[i].reCalculate = true;
+            }
         }
-    }*/
+    }
+    //float timer = 0f;
+    /* private void Update()
+     {
+         timer += Time.deltaTime;
+
+         if(timer > 0.5f)
+         {
+             if (employeeTasks.TryDequeue(out Employee employeeTask)) employeeTask.FindEmployeeWorks();
+             if (customerTasks.TryDequeue(out Customer customerTask)) customerTask.FindCustomerActions();
+             timer = 0f;
+            // AnimalRoutine_Update();
+         }
+     }*/
     void AnimalRoutine_Update()
     {
         //  Debug.Log("AnimalRoutineStart");

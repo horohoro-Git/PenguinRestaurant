@@ -195,18 +195,7 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        //  if (currnet != null) Destroy(currnet);
-        //currnet = null;
-        if (currentCheckArea)
-        {
-            Debug.Log("Success");
-
-        }
-        else
-        {
-            Debug.Log("Fail");
-        }
-
+       
         if (instancingImage != null)
         {
             instancingImage.gameObject.SetActive(false);

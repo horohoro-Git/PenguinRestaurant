@@ -257,7 +257,9 @@ public class MoveCalculator
     {
 
         try
-        {
+        { 
+            openList = new MinHeap<Node>();
+            closedList = new HashSet<Node>();
             bool[] block = isEmployee == true ? blockedAreas_Employee : blockedAreas;
 
             cancellation.ThrowIfCancellationRequested();

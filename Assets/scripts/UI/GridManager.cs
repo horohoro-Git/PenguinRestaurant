@@ -304,7 +304,6 @@ public class GridManager : MonoBehaviour
 
     public void Revert(PlaceController go)
     {
-        Debug.Log("Revert");
         foreach (var c in go.temp)
         {
             Debug.Log(c);

@@ -133,49 +133,6 @@ public class Customer : AnimalController
         {
             foodsAnimalsWant = foodsAnimals;
 
-            //foodsAnimalsWant = foodsAnimals;
-            /*minOrder = gameObject.GetComponentInParent<Animal>().minOrder;
-            maxOrder = gameObject.GetComponentInParent<Animal>().maxOrder;
-            likeFood = gameObject.GetComponentInParent<Animal>().likeFood;
-            hateFood = gameObject.GetComponentInParent<Animal>().hateFood;
-            hateFood = 0;*/
-         //   Debug.Log("hate" + hateFood);
-          /*  if (foodsAnimals.burger)
-            {
-                FoodStack foodStack = FoodStackManager.FM.GetFoodStack();
-                ClearPlate(foodStack);
-                foodStack.needFoodNum = UnityEngine.Random.Range(animalStruct.min_order, animalStruct.max_order);
-                foodStack.type = MachineType.BurgerMachine;
-                foodStacks.Add(foodStack);
-            }
-
-            if (foodsAnimals.coke)
-            {
-                FoodStack foodStack = FoodStackManager.FM.GetFoodStack();
-                ClearPlate(foodStack);
-                foodStack.needFoodNum = UnityEngine.Random.Range(animalStruct.min_order, animalStruct.max_order);
-                foodStack.type = MachineType.CokeMachine;
-                foodStacks.Add(foodStack);
-            }
-
-            if (foodsAnimals.coffee)
-            {
-                FoodStack foodStack = FoodStackManager.FM.GetFoodStack();
-                ClearPlate(foodStack);
-                foodStack.needFoodNum = UnityEngine.Random.Range(animalStruct.min_order, animalStruct.max_order);
-                foodStack.type = MachineType.CoffeeMachine;
-                foodStacks.Add(foodStack);
-            }
-
-            if (foodsAnimals.donut)
-            {
-                FoodStack foodStack = FoodStackManager.FM.GetFoodStack();
-                ClearPlate(foodStack);
-                foodStack.needFoodNum = UnityEngine.Random.Range(animalStruct.min_order, animalStruct.max_order);
-                foodStack.type = MachineType.DonutMachine;
-
-                foodStacks.Add(foodStack);
-            }*/
         }
     }
 
@@ -189,6 +146,7 @@ public class Customer : AnimalController
 
         }
         int maxNum = animalStruct.max_order + 1 + (animalPersonality == AnimalPersonality.Foodie ? 2 : 0) - (animalPersonality == AnimalPersonality.LightEater ? (animalStruct.max_order - animalStruct.min_order > 2 ? 2 : animalStruct.max_order - animalStruct.min_order) : 0);
+       // if(maxNum <= 1) Debug.LogError("MaxNMum " + maxNum);
         if (foodsAnimalsWant.burger)
         {
             FoodStack foodStack = FoodStackManager.FM.GetFoodStack();
@@ -196,6 +154,12 @@ public class Customer : AnimalController
             foodStack.needFoodNum = UnityEngine.Random.Range(animalStruct.min_order, maxNum);
             foodStack.type = MachineType.BurgerMachine;
             foodStacks.Add(foodStack);
+
+
+            if(foodStack.needFoodNum < 0)
+            {
+                Debug.LogError("Food Num " + foodStack.needFoodNum + " " + animalStruct.min_order + " " + maxNum);
+            }
         }
 
         if (foodsAnimalsWant.coke)
@@ -447,38 +411,55 @@ public class Customer : AnimalController
         {
             counter.customers.Add(this);
             int queueindex = -1;
-
         MoveReturn:
             await UniTask.Delay(250, cancellationToken:cancellationToken);
             reCalculate = false;
             bOrder = false;
-            int queuePoint = queueindex > -1 ? queueindex : position.Length - 1;
-            for (int i = queuePoint; i >= 0; i--)
+
+            if(queueindex == -1)
             {
-                if (position[i].controller == null || position[i].controller == this)
+                queueindex = position.Length - 1;
+                for (int i = queueindex; i >= 0; i--)
                 {
-                    queueindex = i;
-                }
-                else
-                {
-                    break;
+                    if (position[i].controller == null || position[i].controller == this)
+                    {
+                        queueindex = i;
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
             }
+           
             Vector3 pos = position[queueindex].transforms.position;
-            if(!(trans.position == pos && queueindex == 0))
+            if (!(trans.position == pos && queueindex == 0))
             {
                 int currentPoint = queueindex;// position.Length - 1;
                 position[queueindex].controller = this;
-                Stack<Vector3> moveTargets = await CalculateNodes_Async(pos, false, cancellationToken);
 
-                await Customer_Move(moveTargets, pos, true, cancellationToken: cancellationToken);
-                modelTrans.rotation = position[currentPoint].transforms.rotation;
-                if (reCalculate)
+                Stack<Vector3> moveTargets = await CalculateNodes_Async(pos, false, cancellationToken);
+                if (moveTargets != null && moveTargets.Count > 0)
                 {
-                    Debug.Log("MoveReturn");
-                    reCalculate = false;
-                    await UniTask.NextFrame(cancellationToken: cancellationToken);
-                    goto MoveReturn;
+                    Vector3 test = moveTargets.Peek();
+                    if (trans.position != pos || !(test.x == 100 && test.z == 100))
+                    {
+                        await Customer_Move(moveTargets, pos, true, cancellationToken: cancellationToken);
+                        modelTrans.rotation = position[currentPoint].transforms.rotation;
+                        if (reCalculate)
+                        {
+                            Debug.Log("MoveReturn");
+                            reCalculate = false;
+                            await UniTask.NextFrame(cancellationToken: cancellationToken);
+                            goto MoveReturn;
+                        }
+                    }
+                    
+                }
+                else
+                {
+                    await Customer_Move(moveTargets, pos, true, cancellationToken: cancellationToken);
+                    modelTrans.rotation = position[currentPoint].transforms.rotation;
                 }
                 for (int i = queueindex; i >= 0; i--)
                 {
@@ -486,7 +467,7 @@ public class Customer : AnimalController
                     {
                         animator.SetInteger("state", 0);
                         animal.PlayAnimation(AnimationKeys.Idle);
-                        
+
                         await UniTask.Delay(200, cancellationToken: cancellationToken);
                     }
                     Vector3 p = position[i].transforms.position;
@@ -509,8 +490,6 @@ public class Customer : AnimalController
                 animator.SetInteger("state", 0);
                 animal.PlayAnimation(AnimationKeys.Idle);
             }
-
-
          
             //요구 사항 표시
             if (foodStacks.Count == 0)
@@ -564,7 +543,7 @@ public class Customer : AnimalController
                         foodPrices += 1;
                     }
 
-                    int tip = UnityEngine.Random.Range(1, 11);
+                    int tip = Random.Range(1, 11);
                     if (tip == 1) tipNum++;
                     foodNum++;
                 }
@@ -692,84 +671,87 @@ public class Customer : AnimalController
         try
         {
             cancellationToken.ThrowIfCancellationRequested();
-            n.Pop();
 
             float subSpeed = animalPersonality == AnimalPersonality.Relaxed ? 0.8f : (animalPersonality == AnimalPersonality.Impatient ? 1.2f : 1);
-            await UniTask.NextFrame(cancellationToken: cancellationToken);
-            while (n.Count > 0)
+            if (n != null && n.Count > 0)
             {
-                if (trans == null || !trans)
+                n.Pop();
+
+                await UniTask.NextFrame(cancellationToken: cancellationToken);
+                while (n.Count > 0)
                 {
-                    Debug.Log("No Trans");
-                    await UniTask.NextFrame();
-                    return;
-                }
-                Vector3 target = n.Pop();
-                float cur = (target - trans.position).magnitude;
-                while(true)
-                {
-                    if (App.restaurantTimeScale == 1)
-                    {
-                        //if (!standInline && reCalculate)
-                        if (reCalculate)
-                        {
-                            return;
-                        }
-                    
-                        if (Vector3.Distance(trans.position, target) <= 0.01f) break;
-
-                        Debug.DrawLine(trans.position, target, Color.red, 0.1f);
-                        //  moveCTS.Token.ThrowIfCancellationRequested();
-                        animator.SetInteger("state", 1);
-                        animal.PlayAnimation(AnimationKeys.Walk);
-                        // PlayAnim(animal.animationDic["Run"], "Run");
-                        cur = (target - trans.position).magnitude;
-                        Vector3 dir = (target - trans.position).normalized;
-
-                        trans.position = Vector3.MoveTowards(trans.position, target, animalStruct.speed * Time.deltaTime * subSpeed);
-                        float angle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
-                        modelTrans.rotation = Quaternion.AngleAxis(angle, Vector3.up);
-                    }
-                    await UniTask.NextFrame(cancellationToken: cancellationToken);
-                }
-
-                /*while (cur > 0.1f)
-                {
-                    if(standInline && point != null)
-                    {
-                        if(point.controller == null)
-                        {
-                            reCalculate = true;
-                        }
-                    }
-
-
-                    if (!standInline && reCalculate)
-                    {
-                        Debug.Log("reCalculate");
-                        return;
-                    }
                     if (trans == null || !trans)
                     {
                         Debug.Log("No Trans");
                         await UniTask.NextFrame();
                         return;
                     }
-                    Debug.DrawLine(trans.position, target, Color.red, 0.1f);
-                    //  moveCTS.Token.ThrowIfCancellationRequested();
-                    animator.SetInteger("state", 1);
-                    animal.PlayAnimation(AnimationKeys.Walk);
-                   // PlayAnim(animal.animationDic["Run"], "Run");
-                    cur = (target - trans.position).magnitude;
-                    Vector3 dir = (target - trans.position).normalized;
-                    trans.position = Vector3.MoveTowards(trans.position, target, animalStruct.speed * Time.deltaTime);
-                    float angle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
-                    modelTrans.rotation = Quaternion.AngleAxis(angle, Vector3.up);
-                   // animatedAnimal.transforms.rotation = Quaternion.AngleAxis(angle, Vector3.up);
-                    await UniTask.NextFrame(cancellationToken: cancellationToken);
-                }*/
-            }
+                    Vector3 target = n.Pop();
+                    float cur = (target - trans.position).magnitude;
+                    while (true)
+                    {
+                        if (App.restaurantTimeScale == 1)
+                        {
+                            //if (!standInline && reCalculate)
+                            if (reCalculate)
+                            {
+                                return;
+                            }
 
+                            if (Vector3.Distance(trans.position, target) <= 0.01f) break;
+
+                            Debug.DrawLine(trans.position, target, Color.red, 0.1f);
+                            //  moveCTS.Token.ThrowIfCancellationRequested();
+                            animator.SetInteger("state", 1);
+                            animal.PlayAnimation(AnimationKeys.Walk);
+                            // PlayAnim(animal.animationDic["Run"], "Run");
+                            cur = (target - trans.position).magnitude;
+                            Vector3 dir = (target - trans.position).normalized;
+
+                            trans.position = Vector3.MoveTowards(trans.position, target, animalStruct.speed * Time.deltaTime * subSpeed);
+                            float angle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
+                            modelTrans.rotation = Quaternion.AngleAxis(angle, Vector3.up);
+                        }
+                        await UniTask.NextFrame(cancellationToken: cancellationToken);
+                    }
+
+                    /*while (cur > 0.1f)
+                    {
+                        if(standInline && point != null)
+                        {
+                            if(point.controller == null)
+                            {
+                                reCalculate = true;
+                            }
+                        }
+
+
+                        if (!standInline && reCalculate)
+                        {
+                            Debug.Log("reCalculate");
+                            return;
+                        }
+                        if (trans == null || !trans)
+                        {
+                            Debug.Log("No Trans");
+                            await UniTask.NextFrame();
+                            return;
+                        }
+                        Debug.DrawLine(trans.position, target, Color.red, 0.1f);
+                        //  moveCTS.Token.ThrowIfCancellationRequested();
+                        animator.SetInteger("state", 1);
+                        animal.PlayAnimation(AnimationKeys.Walk);
+                       // PlayAnim(animal.animationDic["Run"], "Run");
+                        cur = (target - trans.position).magnitude;
+                        Vector3 dir = (target - trans.position).normalized;
+                        trans.position = Vector3.MoveTowards(trans.position, target, animalStruct.speed * Time.deltaTime);
+                        float angle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
+                        modelTrans.rotation = Quaternion.AngleAxis(angle, Vector3.up);
+                       // animatedAnimal.transforms.rotation = Quaternion.AngleAxis(angle, Vector3.up);
+                        await UniTask.NextFrame(cancellationToken: cancellationToken);
+                    }*/
+                }
+            }
             Vector3 newLoc = loc;
             newLoc.y = 0;
 
@@ -1316,8 +1298,8 @@ public class Customer : AnimalController
                 }
                 else
                 {
-                    Debug.Log("Wait" + position);
-                    //customerAction = CustomerAction.ProcessWait;
+                    await Customer_Move(moveTargets, position, cancellationToken: cancellationToken);
+                    continue;
                 }
                 return;
             }
@@ -1369,7 +1351,11 @@ public class Customer : AnimalController
               //      customerAction = CustomerAction.NONE;
                     GameInstance.GameIns.animalManager.DespawnCustomer(this);
                 }
-
+                else
+                {
+                    await Customer_Move(moveTargets, position, cancellationToken: cancellationToken);
+                    continue;
+                }
                 return;
             }
         }
