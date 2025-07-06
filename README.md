@@ -65,3 +65,4 @@ Animal Restaurant Tycoon Game
 07/03 Restrict characters interacting with furniture during rearrangement and move them to the updated positions after placement changes
 07/04 If a character is at a table and the seat becomes unavailable due to attachment to another table, make the character move to another available seat
 07/05 Fix the issue where previous values are not properly cleared when reverting in the placement system
+07/06 Fixed bugs occurring during path recalculation caused by furniture rearrangement
