@@ -55,7 +55,7 @@ public class EnemySpawner : MonoBehaviour
                             currentBlackConsumer.animalStruct = AssetLoader.animals[201];
                             currentBlackConsumer.gameObject.SetActive(true);
                             GameInstance.GameIns.lodManager.AddLODGroup(currentBlackConsumer.ID, currentBlackConsumer.lodGroup);
-                            currentBlackConsumer.state = BlackConsumerState.FindingTarget;
+                            currentBlackConsumer.state = BlackConsumerState.Spawn;
                             currentBlackConsumer.consumerCallback?.Invoke(currentBlackConsumer);
                         }
                     }

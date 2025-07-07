@@ -43,9 +43,5 @@ public static class GarbageManager
         garbage.gameObject.SetActive(false);
         deActivatedGarbages.Enqueue(garbage);
         activatedGarbages.Remove(garbage);
-        if (GameInstance.GameIns.applianceUIManager.rewardChest_Fill.GetComponent<UnityEngine.UI.Image>().fillAmount < 1)
-        {
-            GameInstance.GameIns.applianceUIManager.rewardChest_Fill.GetComponent<UnityEngine.UI.Image>().fillAmount += 0.01f;
-        }
     }
 }

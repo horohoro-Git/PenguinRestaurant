@@ -223,7 +223,7 @@ public class PlaceController : MonoBehaviour
         GameInstance.GameIns.gridManager.RemoveCell();
         GameInstance.GameIns.gridManager.RemoveSelect();
         storeGoods.RemoveGoodsPreview();
-        GameInstance.GameIns.gridManager.VisibleGrid(false);
+        GameInstance.GameIns.gridManager.VisibleGrid(false); 
     }
 
     public Vector3 GetLocation()

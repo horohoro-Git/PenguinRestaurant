@@ -1867,17 +1867,22 @@ public class Employee : AnimalController
                 while (pause) await UniTask.Delay(100, cancellationToken: cancellationToken);
 
                 //Á¾·á
-                if (table.numberOfGarbage == 0)
+                if (table.garbageList.Count == 0)
                 {
-                    table.animals.Remove(this);
+                   
                     table.isDirty = false;
                     tb = table;
                     //employeeActions = EmployeeActions.EmployeeTable;
+                    for (int i = 0; i < table.seats.Length; i++)
+                    {
+                        table.seats[i].animal = null;
+                    }
+                    table.animals.Clear();
                     table.employeeContoller = null;
                     employeeState = EmployeeState.TrashCan;
                     busy = false;
                     await UniTask.Delay(500, cancellationToken: cancellationToken);
-                    GameInstance.GameIns.animalManager.AttachEmployeeTask(this);
+                    employeeCallback?.Invoke(this);
                     return;
                 }
 
@@ -1935,16 +1940,16 @@ public class Employee : AnimalController
 
                     await UniTask.Delay(200, cancellationToken: cancellationToken);
 
-                    while (table.numberOfGarbage > 0)
+                    while (table.garbageList.Count > 0)
                     {
                         if (!table.placed)
                         {
                             await UniTask.Delay(200, cancellationToken: cancellationToken);
                             goto StartTable;
                         }
-                        Garbage garbage = table.garbageList[table.numberOfGarbage - 1];
-                        table.garbageList.RemoveAt(table.numberOfGarbage - 1);
-                        table.numberOfGarbage--;
+                        Garbage garbage = table.garbageList[table.garbageList.Count - 1];
+                        table.garbageList.RemoveAt(table.garbageList.Count - 1);
+                       
                         Vector3 pos = headPoint.position + GameInstance.GetVector3(0, 0.5f * garbageList.Count, 0);
                         float r = UnityEngine.Random.Range(1, 2.5f);
                         int index = garbageList.Count;
@@ -1958,7 +1963,8 @@ public class Employee : AnimalController
                         await UniTask.Delay(300, cancellationToken: cancellationToken);
                         if (pause) goto Escape;
                     }
-                    table.animals.Remove(this);
+                    table.numberOfGarbage = 0;
+                    table.animals.Clear();
                     table.isDirty = false;
 
                     tb = table;
@@ -1966,14 +1972,14 @@ public class Employee : AnimalController
                     table.employeeContoller = null;
                     employeeState = EmployeeState.TrashCan;
                     busy = false;
-                    table.seats[seatIndex].animal = null;
+                    for (int i = 0; i < table.seats.Length; i++) table.seats[i].animal = null;
                     await UniTask.Delay(500, cancellationToken: cancellationToken);
-                    GameInstance.GameIns.animalManager.AttachEmployeeTask(this);
+                    employeeCallback?.Invoke(this);
                 }
                 else
                 {
-                    table.employeeContoller = null;
-                    Work();
+                    await Employee_Move(moveTargets, position, cancellationToken);
+                    goto StartTable;
                 }
                 return;
             Escape: continue;
