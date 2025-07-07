@@ -213,7 +213,7 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
             if(currnet.purchasedObject)
             {
                 currnet.currentFurniture.gameObject.SetActive(true);
-               
+                currnet.currentFurniture.placed = true;
             }
             currnet.purchasedObject = false;    
             currnet.currentFurniture = null;    

@@ -142,6 +142,13 @@ public class Customer : AnimalController
         {
             FoodStack foodStack = foodStacks[i];
             foodStacks.RemoveAt(i);
+
+            foreach(var food in foodStack.foodStack)
+            {
+                FoodManager.EatFood(food);
+            }
+            foodStack.foodStack.Clear();
+       
             FoodStackManager.FM.RemoveFoodStack(foodStack);
 
         }
@@ -156,10 +163,7 @@ public class Customer : AnimalController
             foodStacks.Add(foodStack);
 
 
-            if(foodStack.needFoodNum < 0)
-            {
-                Debug.LogError("Food Num " + foodStack.needFoodNum + " " + animalStruct.min_order + " " + maxNum);
-            }
+     
         }
 
         if (foodsAnimalsWant.coke)
@@ -188,6 +192,14 @@ public class Customer : AnimalController
             foodStack.type = MachineType.DonutMachine;
 
             foodStacks.Add(foodStack);
+        }
+
+
+
+        for (int i = 0; i < foodStacks.Count; i++)
+        {
+            int s = foodStacks[i].needFoodNum - foodStacks[i].foodStack.Count;
+            if (s < 1) Debug.LogError("FoodStack Error " + s);
         }
     }
     public override int GetHashCode() => customerIndex.GetHashCode();
@@ -592,6 +604,7 @@ public class Customer : AnimalController
             {
                 FoodStack foodStack = foodStacks[i];
                 foodStacks.RemoveAt(i);
+                foodStack.foodStack.Clear();
                 FoodStackManager.FM.RemoveFoodStack(foodStack);
             }
 
@@ -604,7 +617,7 @@ public class Customer : AnimalController
 
                 foreach (Table t in tables)
                 {
-                    if (t.isDirty == false)
+                    if (t.isDirty == false && t.placed)
                     {
                         int index = -1;
                         int c = 0;
@@ -617,8 +630,6 @@ public class Customer : AnimalController
                             }
                         }
                         if (c >= 2) continue;
-
-                     
 
                         float min = 9999;
                         Seat selectedSeat = null;
@@ -647,7 +658,6 @@ public class Customer : AnimalController
                         customerState = CustomerState.Counter;
                         busy = false;
                         customerCallback?.Invoke(this);
-
                         return;
                     }
                 }
@@ -828,11 +838,10 @@ public class Customer : AnimalController
                                         table.placedFoods[index] = null;
 
                                         Vector3 t = table.transforms.position;
-                                       // float offsetSize = i / 2 == 0 ? 1 : -1;
-                                        Vector3 X = i % 2 == 1 ? (i / 2 == 0 ? table.transforms.transform.right : -table.transforms.transform.right) : Vector3.zero;
-                                        Vector3 Z = i % 2 == 0 ? (i / 2 == 0 ? table.transforms.transform.forward : -table.transforms.transform.forward) : Vector3.zero;
-                                        t += X;
-                                        t += Z;
+                                       
+                                        Vector3 F = -table.seats[i].transform.forward;
+                                          t += F;
+                                       // t += Z;
                                         t.y = 0.5f;
                                         table.placedFoods[i].transform.DOJump(t, 1, 1, 0.2f);
                                     }
@@ -849,6 +858,14 @@ public class Customer : AnimalController
                             table.placedFoods[index].transform.SetParent(FoodManager.foodCollects.transform);
                             VisualizingFoodStack.Add(table.placedFoods[index].GetComponent<Food>());
                         }
+                        for(int i = 0; i < table.placedFoods.Length; i++)
+                        {
+                            if(i != index && table.placedFoods[i] != null && table.seats[i].animal == null)
+                            {
+                                table.placedFoods[i].transform.SetParent(FoodManager.foodCollects.transform);
+                                VisualizingFoodStack.Add(table.placedFoods[i].GetComponent<Food>());
+                            }
+                        }
 
                         while (table.foodStacks[0].foodStack.Count > 0)
                         {
@@ -864,7 +881,7 @@ public class Customer : AnimalController
 
                         foreach (Table tb in tables)
                         {
-                            if (tb == table) continue;
+                            if (tb == table || !tb.placed) continue;
                           
                             if (tb.isDirty == false)
                             {
@@ -902,15 +919,14 @@ public class Customer : AnimalController
                                     selectedSeat.animal = this;
                                     tb.numberOfGarbage += table.numberOfGarbage;
                                     tb.numberOfFoods += table.numberOfFoods;
+                                    tb.numberOfGarbage = tb.numberOfGarbage > 10 ? 10 : tb.numberOfGarbage;
                                     table.numberOfFoods = 0;
                                     table.numberOfGarbage = 0;
-                                    tb.numberOfGarbage = tb.numberOfGarbage > 10 ? 10 : tb.numberOfGarbage;
-                                    // tb.numberOfFoods += foodStacks foodNum;
-                                    // table.a = null;
+                                 
                                 }
                                 else continue;
 
-                             
+                                table.seats[index].animal = null;
                                 table.animals.Remove(this);
                                 customerState = CustomerState.Counter;
                                 busy = false;
@@ -924,10 +940,8 @@ public class Customer : AnimalController
 
                 Vector3 position = table.seats[index].transform.position;
 
-
                 Stack<Vector3> moveTargets = await CalculateNodes_Async(position, false, cancellationToken);
                 if (moveTargets != null && moveTargets.Count > 0)
-                // if (moveNode != null)
                 {
                     Vector3 test = moveTargets.Peek();
                     if (test.z == 100 && test.x == 100)
@@ -942,8 +956,6 @@ public class Customer : AnimalController
                             while (bWait) await UniTask.NextFrame(cancellationToken: cancellationToken);
                             reCalculate = false;
 
-
-
                             if(table.seats[index].isDisEnabled)
                             {
                                 goto DisableSeat;
@@ -955,21 +967,16 @@ public class Customer : AnimalController
                         modelTrans.rotation = table.seats[index].transform.rotation;
                     }
 
-
                     seatIndex = index;
                     tb = table;
-                    //customerAction = CustomerAction.CustomerTable;
-                    //  await UniTask.Delay(200, cancellationToken: cancellationToken);
                     await Utility.CustomUniTaskDelay(0.2f, cancellationToken);
 
                     Vector3 t = table.transforms.position;
-                    float offsetZ = seatIndex % 2 == 0 ? 1 : 0;
-                    float offsetSize = seatIndex / 2 == 0 ? 1 : -1;
-                    Vector3 X = seatIndex % 2 == 1 ? (seatIndex / 2 == 0 ? table.transforms.transform.right : -table.transforms.transform.right) : Vector3.zero;
-                    Vector3 Z = seatIndex % 2 == 0 ? (seatIndex / 2 == 0 ? table.transforms.transform.forward : -table.transforms.transform.forward) : Vector3.zero;
-                    t += X;
-                    t += Z;
+               
+                    Vector3 F = -table.seats[seatIndex].transform.forward;
+                    t += F;
                     t.y = 0.5f;
+
                     for (int i = VisualizingFoodStack.Count - 1; i >= 0; i--)
                     {
                         modelTrans.rotation = table.seats[index].transform.rotation;
@@ -1004,297 +1011,339 @@ public class Customer : AnimalController
                     }
 
                     //식사
-
-                    // PlayAnim(animal.animationDic["Eat"], "Eat");
-
-                    while (table.foodStacks[0].foodStack.Count > 0 || table.placedFoods[seatIndex] != null)
+                    if (!table.stolen)
                     {
-                    GoUp:
-                        /* for (int i = 0; i < 100; i++)
-                         {
-                             int timer = (int)(10 * animalStruct.eat_speed);
-                             await UniTask.Delay(timer);
-                             if (table.foodStacks[0].foodStack.Count == 0) break;
-                         }*/
-                        if (!table.placed)
+                        while (table.foodStacks[0].foodStack.Count > 0 || table.placedFoods[seatIndex] != null)
                         {
-                            goto StartTable;
-                        }
-                        if (table.seats[index].isDisEnabled)
-                        {
-                            goto DisableSeat;
-                        }
-                        modelTrans.rotation = table.seats[index].transform.rotation;
-                        Food f = null;
-                        if (table.placedFoods[seatIndex] == null)
-                        {
-                            if (table.foodStacks[0].foodStack.Count == 0) break;
-                            //먹을 음식을 가까이 올려놓기
-                            f = table.foodStacks[0].foodStack.Pop();
-
-                            table.placedFoods[seatIndex] = f.gameObject;
-
-                            //animal.audioSource.clip = GameInstance.GameIns.gameSoundManager.ThrowSound();
-                            //   animal.audioSource.Play();
-                            SoundManager.Instance.PlayAudio3D(GameInstance.GameIns.gameSoundManager.ThrowSound(), 0.4f, 100, 5, trans.position);
-                            f.transforms.DOJump(t, 1, 1, 0.2f);
-                            //await UniTask.Delay(300, cancellationToken: cancellationToken);
-                            await Utility.CustomUniTaskDelay(0.3f, cancellationToken);
-                        }
-                        else
-                        {
-                            f = table.placedFoods[seatIndex].GetComponent<Food>();
-                        }
-                        float tm = RestaurantManager.restaurantTimer;
-                        bool stealing = false;
-                        for (int i = 0; i < 100; i++)
-                        {
+                        GoUp:
                             if (!table.placed)
                             {
-                                animator.SetInteger(AnimationKeys.state, 0);
-                                animal.PlayAnimation(AnimationKeys.Idle);
                                 goto StartTable;
                             }
                             if (table.seats[index].isDisEnabled)
                             {
                                 goto DisableSeat;
                             }
+                            modelTrans.rotation = table.seats[index].transform.rotation;
+
+
+                            Food f = null;
+
                             if (!table.hasProblem)
                             {
-                                float timer = animalStruct.eat_speed;
-                                // if (RestaurantManager.restaurantTimer >= tm + timer / 10)
-                                if (i != 0 && i % 9 == 0)
+                                if (table.placedFoods[seatIndex] == null)
                                 {
-                                    tm = RestaurantManager.restaurantTimer;
+                                    bool getFood = false;
+                                    for(int i = 0; i < table.seats.Length; i++)
+                                    {
+                                        if(seatIndex != i && table.seats[i].animal == null && table.placedFoods[i] != null)
+                                        {
+                                            table.placedFoods[seatIndex] = table.placedFoods[i];
+                                            table.placedFoods[i] = null;
+                                            SoundManager.Instance.PlayAudio3D(GameInstance.GameIns.gameSoundManager.ThrowSound(), 0.4f, 100, 5, trans.position);
+                                            table.placedFoods[seatIndex].transform.DOJump(t, 1, 1, 0.2f);
+                                            getFood = true;
+                                            await Utility.CustomUniTaskDelay(0.3f, cancellationToken);
+                                        }
+                                    }
 
-                                    SoundManager.Instance.PlayAudio3D(GameInstance.GameIns.gameSoundManager.Eat(), 0.05f, 100, 5, trans.position);
-                                    animator.SetTrigger(AnimationKeys.eat);
-                                    animal.PlayTriggerAnimation(AnimationKeys.Eat);
+                                    if (!getFood)
+                                    {
+                                        if (table.foodStacks[0].foodStack.Count == 0) break;
+                                        //먹을 음식을 가까이 올려놓기
+                                        f = table.foodStacks[0].foodStack.Pop();
 
-                                    Eat eat = ParticleManager.CreateParticle(ParticleType.Eating).GetComponent<Eat>();
-                                    eat.transform.position = f.transforms.position;
-                                    eat.PlayEating();
+                                        table.placedFoods[seatIndex] = f.gameObject;
+
+                                        SoundManager.Instance.PlayAudio3D(GameInstance.GameIns.gameSoundManager.ThrowSound(), 0.4f, 100, 5, trans.position);
+                                        f.transforms.DOJump(t, 1, 1, 0.2f);
+                                        //await UniTask.Delay(300, cancellationToken: cancellationToken);
+                                        await Utility.CustomUniTaskDelay(0.3f, cancellationToken);
+                                    }
+                                }
+                                else
+                                {
+                                    f = table.placedFoods[seatIndex].GetComponent<Food>();
+                                }
+                            }
+                            if (f == null) goto StartTable;
+                         
+                            float tm = RestaurantManager.restaurantTimer;
+                            bool stealing = false;
+                            for (int i = 0; i < 100; i++)
+                            {
+                                if (!table.placed || table.seats[seatIndex].isDisEnabled)
+                                {
+                                    animator.SetInteger(AnimationKeys.state, 0);
+                                    animal.PlayAnimation(AnimationKeys.Idle);
+                                    goto StartTable;
                                 }
 
-                                await Utility.CustomUniTaskDelay(timer / 100, cancellationToken);
+                                if (!table.hasProblem)
+                                {
+                                    float timer = animalStruct.eat_speed;
+                                    // if (RestaurantManager.restaurantTimer >= tm + timer / 10)
+                                    if (i != 0 && i % 9 == 0)
+                                    {
+                                        tm = RestaurantManager.restaurantTimer;
+
+                                        SoundManager.Instance.PlayAudio3D(GameInstance.GameIns.gameSoundManager.Eat(), 0.05f, 100, 5, trans.position);
+                                        animator.SetTrigger(AnimationKeys.eat);
+                                        animal.PlayTriggerAnimation(AnimationKeys.Eat);
+
+                                        Eat eat = ParticleManager.CreateParticle(ParticleType.Eating).GetComponent<Eat>();
+                                        eat.transform.position = f.transforms.position;
+                                        eat.PlayEating();
+                                    }
+
+                                    await Utility.CustomUniTaskDelay(timer / 100, cancellationToken);
+                                }
+                                else
+                                {
+                                    while (table.hasProblem)
+                                    {
+                                        if (!table.placed || table.seats[seatIndex].isDisEnabled)
+                                        {
+                                            animator.SetInteger(AnimationKeys.state, 0);
+                                            animal.PlayAnimation(AnimationKeys.Idle);
+                                            goto StartTable;
+                                        }
+
+                                        if (table.stealing && !stealing)
+                                        {
+                                            stealing = true;
+                                            SoundManager.Instance.PlayAudio3D(GameInstance.GameIns.gameSoundManager.Angry(), 0.1f, 100, 5, trans.position);
+                                            if (cancellationTokenSource != null) cancellationTokenSource.Cancel();
+                                            cancellationTokenSource = new CancellationTokenSource();
+                                            EmoteTimer(0, AnimationKeys.Sad, true, cancellationTokenSource.Token).Forget();
+                                            FloatingEmote(4002);
+
+                                        }
+
+                                        if (table.stolen)
+                                        {
+                                            SoundManager.Instance.PlayAudio3D(GameInstance.GameIns.gameSoundManager.Sad(), 0.1f, 100, 5, trans.position);
+
+                                            if (cancellationTokenSource != null) cancellationTokenSource.Cancel();
+                                            cancellationTokenSource = new CancellationTokenSource();
+                                            EmoteTimer(0, AnimationKeys.Trauma, true, cancellationTokenSource.Token).Forget();
+
+                                            FloatingEmote(4003);
+                                            if (GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation > 0)
+                                            {
+                                                GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation--;
+                                                GameInstance.GameIns.uiManager.reputation.text = GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation.ToString();
+                                                GameInstance.GameIns.restaurantManager.restaurantCurrency.changed = true;
+                                                GameInstance.GameIns.restaurantManager.CalculateSpawnTimer();
+                                            }
+                                            await Utility.CustomUniTaskDelay(3f, cancellationToken);
+                                            // await UniTask.Delay(3000, cancellationToken: cancellationToken);
+                                            customerState = CustomerState.Table;
+                                            animator.SetInteger("state", 0);
+                                            animal.PlayAnimation(AnimationKeys.Idle);
+                                            table.animals.Remove(this);
+                                            table.seats[index].animal = null;
+                                            customerCallback?.Invoke(this);
+                                            return;
+                                        }
+                                        else
+                                        {
+                                            await Utility.CustomUniTaskDelay(0.2f, cancellationToken);
+                                            // await UniTask.Delay(200, cancellationToken: cancellationToken);
+                                        }
+
+                                    }
+
+                                    await UniTask.Delay(200, cancellationToken: cancellationToken);
+
+                                    Debug.Log("Check");
+                                    Emote(false, AnimationKeys.Normal);
+                                    animator.SetInteger("state", 0);
+                                    animal.PlayAnimation(AnimationKeys.Idle);
+
+                                    for (int j = 0; j < table.seats.Length; j++)
+                                    {
+                                        if (table.seats[j].animal == null)
+                                        {
+                                            if (table.placedFoods[j] != null)
+                                            {
+                                                if (!table.placed || table.seats[seatIndex].isDisEnabled)
+                                                {
+                                                    animator.SetInteger(AnimationKeys.state, 0);
+                                                    animal.PlayAnimation(AnimationKeys.Idle);
+                                                    goto StartTable;
+                                                }
+
+                                                table.placedFoods[seatIndex] = table.placedFoods[j];
+                                                table.placedFoods[j] = null;
+                                                table.placedFoods[seatIndex].transform.DOKill();
+                                                table.placedFoods[seatIndex].transform.DOJump(t, 1, 1, 0.2f);
+
+                                                // await UniTask.Delay(300, cancellationToken: cancellationToken);
+                                                await Utility.CustomUniTaskDelay(0.3f, cancellationToken);
+                                                goto GoUp;
+
+                                            }
+                                        }
+                                    }
+
+                                }
+                                //if (table.foodStacks[0].foodStack.Count == 0) break;
+
+                            }
+                            FoodManager.EatFood(f);
+                            table.placedFoods[seatIndex] = null;
+
+                            table.numberOfFoods--;
+                            table.numberOfFoods = table.numberOfFoods < 0 ? 0 : table.numberOfFoods;
+                            table.numberOfGarbage++;
+
+
+                            if (table.foodStacks[0].foodStack.Count == 0 && table.numberOfFoods == 0)
+                            {
+                                table.numberOfGarbage = table.numberOfGarbage > 10 ? 10 : table.numberOfGarbage;
+                                table.isDirty = true;
+
+                                for (int i = 0; i < table.numberOfGarbage; i++)
+                                {
+                                    Garbage go = GarbageManager.CreateGarbage();
+                                    go.transforms.SetParent(table.trashPlate.transforms);
+                                    table.garbageList.Add(go);
+
+                                    float x = Random.Range(-1f, 1f);
+                                    float z = Random.Range(-1f, 1f);
+                                    go.transforms.position = table.up.position + GameInstance.GetVector3(x, 0, z);
+                                }
                             }
                             else
                             {
-                                while (table.hasProblem)
-                                {
-                                    if (!table.placed)
-                                    {
-                                        animator.SetInteger(AnimationKeys.state, 0);
-                                        animal.PlayAnimation(AnimationKeys.Idle);
-                                        goto StartTable;
-                                    }
-
-                                    if (table.stealing && !stealing)
-                                    {
-                                        stealing = true;
-                                        SoundManager.Instance.PlayAudio3D(GameInstance.GameIns.gameSoundManager.Angry(), 0.1f, 100, 5, trans.position);
-                                        if (cancellationTokenSource != null) cancellationTokenSource.Cancel();
-                                        cancellationTokenSource = new CancellationTokenSource();
-                                        EmoteTimer(0, AnimationKeys.Sad, true, cancellationTokenSource.Token).Forget();
-                                        FloatingEmote(4002);
-                                        if (GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation > 0)
-                                        {
-                                            GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation--;
-                                            GameInstance.GameIns.uiManager.reputation.text = GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation.ToString();
-                                            GameInstance.GameIns.restaurantManager.restaurantCurrency.changed = true;
-                                            GameInstance.GameIns.restaurantManager.CalculateSpawnTimer();
-                                        }
-                                    }
-
-                                    if (table.stolen)
-                                    {
-                                        SoundManager.Instance.PlayAudio3D(GameInstance.GameIns.gameSoundManager.Sad(), 0.1f, 100, 5, trans.position);
-
-                                        if (cancellationTokenSource != null) cancellationTokenSource.Cancel();
-                                        cancellationTokenSource = new CancellationTokenSource();
-                                        EmoteTimer(0, AnimationKeys.Trauma, true, cancellationTokenSource.Token).Forget();
-
-                                        FloatingEmote(4003);
-
-                                        await Utility.CustomUniTaskDelay(3f, cancellationToken);
-                                        // await UniTask.Delay(3000, cancellationToken: cancellationToken);
-                                        customerState = CustomerState.Table;
-                                        animator.SetInteger("state", 0);
-                                        animal.PlayAnimation(AnimationKeys.Idle);
-                                        table.animals.Remove(this);
-                                        table.seats[index].animal = null;
-                                        customerCallback?.Invoke(this);
-                                        return;
-                                    }
-                                    else
-                                    {
-                                        await Utility.CustomUniTaskDelay(0.2f, cancellationToken);
-                                        // await UniTask.Delay(200, cancellationToken: cancellationToken);
-                                    }
-
-                                }
-
-                                Emote(false, AnimationKeys.Normal);
-                                animator.SetInteger("state", 0);
-                                animal.PlayAnimation(AnimationKeys.Idle);
-
-                                for (int j = 0; j < table.seats.Length; j++)
-                                {
-                                    if (table.seats[j].animal == null)
-                                    {
-                                        if (table.placedFoods[j] != null)
-                                        {
-                                            if (!table.placed)
-                                            {
-                                                animator.SetInteger(AnimationKeys.state, 0);
-                                                animal.PlayAnimation(AnimationKeys.Idle);
-                                                goto StartTable;
-                                            }
-                                            if (table.seats[index].isDisEnabled)
-                                            {
-                                                goto DisableSeat;
-                                            }
-                                            table.placedFoods[seatIndex] = table.placedFoods[j];
-                                            table.placedFoods[j] = null;
-                                            table.placedFoods[seatIndex].transform.DOJump(t, 1, 1, 0.2f);
-
-                                            // await UniTask.Delay(300, cancellationToken: cancellationToken);
-                                            await Utility.CustomUniTaskDelay(0.3f, cancellationToken);
-                                            goto GoUp;
-
-                                        }
-                                    }
-                                }
-
+                                continue;
                             }
-                            //if (table.foodStacks[0].foodStack.Count == 0) break;
 
+                            await Utility.CustomUniTaskDelay(0.2f, cancellationToken);
                         }
-                        FoodManager.EatFood(f);
-                        table.placedFoods[seatIndex] = null;
 
-                        table.numberOfFoods--;
-                        table.numberOfGarbage++;
+                        customerState = CustomerState.Table;
+                        await Utility.CustomUniTaskDelay(0.5f, cancellationToken);
 
+                        int reputation = Random.Range(0, 10);
+                        int targetRep = animalPersonality == AnimalPersonality.Loyal ? 10 : (animalPersonality == AnimalPersonality.HardToPlease ? 5 : 8);
 
-                        if (table.foodStacks[0].foodStack.Count == 0 && table.numberOfFoods == 0)
+                        if (reputation < targetRep)
                         {
-                            table.numberOfGarbage = table.numberOfGarbage > 10 ? 10 : table.numberOfGarbage;
-                            table.isDirty = true;
+                            int gradeUp = Random.Range(0, 100);
 
-                            for (int i = 0; i < table.numberOfGarbage; i++)
+                            if (gradeUp == 0)
                             {
-                                Garbage go = GarbageManager.CreateGarbage();
-                                go.transforms.SetParent(table.trashPlate.transforms);
-                                table.garbageList.Add(go);
-
-                                float x = Random.Range(-1f, 1f);
-                                float z = Random.Range(-1f, 1f);
-                                go.transforms.position = table.up.position + GameInstance.GetVector3(x, 0, z);
-                            }
-                        }
-                        else
-                        {
-                            continue;
-                        }
-
-                        await Utility.CustomUniTaskDelay(0.2f, cancellationToken);
-                    }
-
-                    customerState = CustomerState.Table;
-                    await Utility.CustomUniTaskDelay(0.5f, cancellationToken);
-
-                    int reputation = Random.Range(0, 10);
-                    int targetRep = animalPersonality == AnimalPersonality.Loyal ? 10 : (animalPersonality == AnimalPersonality.HardToPlease ? 5 : 8);
-
-                    if (reputation < targetRep)
-                    {
-                        int gradeUp = Random.Range(0, 100);
-
-                        if (gradeUp == 0)
-                        {
-                            //등급업
-                            // if (AnimalManager.gatchaTiers[id].Item1 < 4)
-                            {
-                                int tier = AnimalManager.gatchaTiers[animalStruct.id].Item1;
-                                (int, List<int>) tmp = AnimalManager.gatchaTiers[animalStruct.id];
-                                int personality = Random.Range(0, 7);
-                                bool success = tmp.Item1 < 4 ? true : false;
-                                if (success) tmp.Item1++;
-                                tmp.Item2[personality] = 1;
-                                AnimalManager.gatchaTiers[animalStruct.id] = tmp;
-
-                                if (success)
+                                //등급업
+                                // if (AnimalManager.gatchaTiers[id].Item1 < 4)
                                 {
-                                    GameInstance.GameIns.gatcharManager.popup.SetActive(true);
-                                    SoundManager.Instance.PlayAudio(GameInstance.GameIns.gatchaSoundManager.GradeUp(), 0.4f);
-
-                                    GameInstance.GameIns.gatcharManager.popup_TierUp.SetActive(true);
-
-                                    AnimalStruct asset = AssetLoader.animals[animalStruct.id];
-                                    string n = asset.asset_name + "_Sprite";
-                                    GameInstance.GameIns.gatcharManager.TierUpAnimalImage.sprite = AssetLoader.loadedSprites[n];
-                                    if (tier == 2) GameInstance.GameIns.gatcharManager.backGlow.color = Color.blue;
-                                    else if (tier == 3) GameInstance.GameIns.gatcharManager.backGlow.color = new Color(0.5f, 0f, 0.5f);
-                                    else if (tier == 4) GameInstance.GameIns.gatcharManager.backGlow.color = Color.yellow;
-                                    GameInstance.GameIns.gatcharManager.SetPrice();
-                                    SaveLoadSystem.SaveGatchaAnimalsData();
-
-                                    GameInstance.GameIns.gatcharManager.CheckGameClear();
-
-                                }
-                            }
-                        }
-                        else if (gradeUp == 1)
-                        {
-                            //새로운 손님 추가
-                            if (App.CurrentLevel == 0)
-                            {
-                                int randomCustomer = Random.Range(100, 106);
-                                if (!AnimalManager.gatchaTiers.ContainsKey(randomCustomer))
-                                {
-                                    GameInstance.GameIns.gatcharManager.popup.SetActive(true);
-                                    SoundManager.Instance.PlayAudio(GameInstance.GameIns.gatchaSoundManager.Unlock(), 0.4f);
-                                    (int, List<int>) tmp = (1, new List<int>());
+                                    int tier = AnimalManager.gatchaTiers[animalStruct.id].Item1;
+                                    (int, List<int>) tmp = AnimalManager.gatchaTiers[animalStruct.id];
                                     int personality = Random.Range(0, 7);
-                                    for (int i = 0; i < 7; i++) tmp.Item2.Add(0);
+                                    bool success = tmp.Item1 < 4 ? true : false;
+                                    if (success) tmp.Item1++;
                                     tmp.Item2[personality] = 1;
-                                    AnimalManager.gatchaTiers[randomCustomer] = tmp;
-                                    AnimalStruct asset = AssetLoader.animals[randomCustomer];
-                                    string n = asset.asset_name + "_Sprite";
-                                    GameInstance.GameIns.gatcharManager.NewAnimalImage.sprite = AssetLoader.loadedSprites[n];// this.sprites[pair.Key];
-                                    GameInstance.GameIns.gatcharManager.popup_NewCustomer.SetActive(true);
-                                    AnimalManager.animalStructs[randomCustomer] = asset;
-                                    GameInstance.GameIns.gatcharManager.SetPrice();
-                                    SaveLoadSystem.SaveGatchaAnimalsData();
+                                    AnimalManager.gatchaTiers[animalStruct.id] = tmp;
 
-                                    GameInstance.GameIns.gatcharManager.CheckGameClear();
+                                    if (success)
+                                    {
+                                        GameInstance.GameIns.gatcharManager.popup.SetActive(true);
+                                        SoundManager.Instance.PlayAudio(GameInstance.GameIns.gatchaSoundManager.GradeUp(), 0.4f);
+
+                                        GameInstance.GameIns.gatcharManager.popup_TierUp.SetActive(true);
+
+                                        AnimalStruct asset = AssetLoader.animals[animalStruct.id];
+                                        string n = asset.asset_name + "_Sprite";
+                                        GameInstance.GameIns.gatcharManager.TierUpAnimalImage.sprite = AssetLoader.loadedSprites[n];
+                                        if (tier == 2) GameInstance.GameIns.gatcharManager.backGlow.color = Color.blue;
+                                        else if (tier == 3) GameInstance.GameIns.gatcharManager.backGlow.color = new Color(0.5f, 0f, 0.5f);
+                                        else if (tier == 4) GameInstance.GameIns.gatcharManager.backGlow.color = Color.yellow;
+                                        GameInstance.GameIns.gatcharManager.SetPrice();
+                                        SaveLoadSystem.SaveGatchaAnimalsData();
+
+                                        GameInstance.GameIns.gatcharManager.CheckGameClear();
+
+                                    }
                                 }
                             }
+                            else if (gradeUp == 1)
+                            {
+                                //새로운 손님 추가
+                                if (App.CurrentLevel == 0)
+                                {
+                                    int randomCustomer = Random.Range(100, 106);
+                                    if (!AnimalManager.gatchaTiers.ContainsKey(randomCustomer))
+                                    {
+                                        GameInstance.GameIns.gatcharManager.popup.SetActive(true);
+                                        SoundManager.Instance.PlayAudio(GameInstance.GameIns.gatchaSoundManager.Unlock(), 0.4f);
+                                        (int, List<int>) tmp = (1, new List<int>());
+                                        int personality = Random.Range(0, 7);
+                                        for (int i = 0; i < 7; i++) tmp.Item2.Add(0);
+                                        tmp.Item2[personality] = 1;
+                                        AnimalManager.gatchaTiers[randomCustomer] = tmp;
+                                        AnimalStruct asset = AssetLoader.animals[randomCustomer];
+                                        string n = asset.asset_name + "_Sprite";
+                                        GameInstance.GameIns.gatcharManager.NewAnimalImage.sprite = AssetLoader.loadedSprites[n];// this.sprites[pair.Key];
+                                        GameInstance.GameIns.gatcharManager.popup_NewCustomer.SetActive(true);
+                                        AnimalManager.animalStructs[randomCustomer] = asset;
+                                        GameInstance.GameIns.gatcharManager.SetPrice();
+                                        SaveLoadSystem.SaveGatchaAnimalsData();
+
+                                        GameInstance.GameIns.gatcharManager.CheckGameClear();
+                                    }
+                                }
+                            }
+
+                            SoundManager.Instance.PlayAudio3D(GameInstance.GameIns.gameSoundManager.Happy(), 0.1f, 100, 5, trans.position);
+                            if (GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation < 100)
+                            {
+                                GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation += 1;
+                                GameInstance.GameIns.uiManager.reputation.text = GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation.ToString();
+                                GameInstance.GameIns.restaurantManager.CalculateSpawnTimer();
+                                GameInstance.GameIns.restaurantManager.restaurantCurrency.changed = true;
+                            }
+                            FloatingEmote(4000);
+                            if (cancellationTokenSource != null) cancellationTokenSource.Cancel();
+                            cancellationTokenSource = new CancellationTokenSource();
+                            EmoteTimer(5f, AnimationKeys.Happy, false, cancellationTokenSource.Token).Forget();
                         }
 
-                        SoundManager.Instance.PlayAudio3D(GameInstance.GameIns.gameSoundManager.Happy(), 0.1f, 100, 5, trans.position);
-                        if (GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation < 100)
-                        {
-                            GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation += 1;
-                            GameInstance.GameIns.uiManager.reputation.text = GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation.ToString();
-                            GameInstance.GameIns.restaurantManager.CalculateSpawnTimer();
-                            GameInstance.GameIns.restaurantManager.restaurantCurrency.changed = true;
-                        }
-                        FloatingEmote(4000);
+                        await Utility.CustomUniTaskDelay(3f, cancellationToken);
+                        animator.SetInteger("state", 0);
+                        animal.PlayAnimation(AnimationKeys.Idle);
+                        //PlayAnim(animal.animationDic["Idle_A"], "Idle_A");
+                        table.animals.Remove(this);
+                        table.seats[index].animal = null;
+                        customerCallback?.Invoke(this);
+                        //  GameInstance.GameIns.animalManager.AttacCustomerTask(this);
+                    }
+                    else
+                    {
+                        SoundManager.Instance.PlayAudio3D(GameInstance.GameIns.gameSoundManager.Sad(), 0.1f, 100, 5, trans.position);
+
                         if (cancellationTokenSource != null) cancellationTokenSource.Cancel();
                         cancellationTokenSource = new CancellationTokenSource();
-                        EmoteTimer(5f, AnimationKeys.Happy, false, cancellationTokenSource.Token).Forget();
-                    }
+                        EmoteTimer(0, AnimationKeys.Trauma, true, cancellationTokenSource.Token).Forget();
 
-                    await Utility.CustomUniTaskDelay(3f, cancellationToken);
-                    animator.SetInteger("state", 0);
-                    animal.PlayAnimation(AnimationKeys.Idle);
-                    //PlayAnim(animal.animationDic["Idle_A"], "Idle_A");
-                    table.animals.Remove(this);
-                    table.seats[index].animal = null;
-                    customerCallback?.Invoke(this);
-                    //  GameInstance.GameIns.animalManager.AttacCustomerTask(this);
+                        FloatingEmote(4003);
+                        if (GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation > 0)
+                        {
+                            GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation--;
+                            GameInstance.GameIns.uiManager.reputation.text = GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation.ToString();
+                            GameInstance.GameIns.restaurantManager.restaurantCurrency.changed = true;
+                            GameInstance.GameIns.restaurantManager.CalculateSpawnTimer();
+                        }
+                        await Utility.CustomUniTaskDelay(3f, cancellationToken);
+                        // await UniTask.Delay(3000, cancellationToken: cancellationToken);
+                        customerState = CustomerState.Table;
+                        animator.SetInteger("state", 0);
+                        animal.PlayAnimation(AnimationKeys.Idle);
+                        table.animals.Remove(this);
+                        table.seats[index].animal = null;
+                        customerCallback?.Invoke(this);
+                        return;
+                    }
                 }
                 else
                 {

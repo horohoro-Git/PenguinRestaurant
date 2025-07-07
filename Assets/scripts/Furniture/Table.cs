@@ -41,7 +41,7 @@ public class Table : Furniture
     [NonSerialized] public bool stealing;
     [NonSerialized] public bool stolen;
     [NonSerialized] public GameObject[] placedFoods = new GameObject[4];
-
+    public int disableNum;
     public HashSet<AnimalController> animals = new HashSet<AnimalController>();
     public void Awake()
     {
@@ -247,10 +247,12 @@ public class Table : Furniture
                     Vector3 tablePos = transforms.position;
                     float offsetZ = i % 2 == 0 ? 1 : 0;
                     float offsetSize = i / 2 == 0 ? 1 : -1;
-                    Vector3 X = i % 2 == 1 ? (i / 2 == 0 ? -transforms.transform.right * offsetSize : transforms.transform.right * offsetSize) : Vector3.zero;
-                    Vector3 Z = i % 2 == 0 ? (i / 2 == 0 ? -transforms.transform.forward * offsetSize : transforms.transform.forward * offsetSize) : Vector3.zero;
-                    tablePos += X;
-                    tablePos += Z;
+                    //    Vector3 X = i % 2 == 1 ? (i / 2 == 0 ? -transforms.transform.right * offsetSize : transforms.transform.right * offsetSize) : Vector3.zero;
+                    //     Vector3 Z = i % 2 == 0 ? (i / 2 == 0 ? -transforms.transform.forward * offsetSize : transforms.transform.forward * offsetSize) : Vector3.zero;
+                    //     tablePos += X;
+                    //     tablePos += Z;
+                    Vector3 foward = -seats[i].transform.forward;
+                    tablePos += foward;
                     tablePos.y = 0.5f;
 
                     placedFoods[i].transform.position = tablePos;
@@ -266,7 +268,7 @@ public class Table : Furniture
         {
             foreach (var stack in foodStacks[0].foodStack)
             {
-                stack.gameObject.SetActive(false);
+                if(stack != null) stack.gameObject.SetActive(false);
             }
 
             for(int i =0; i < 4; i++)

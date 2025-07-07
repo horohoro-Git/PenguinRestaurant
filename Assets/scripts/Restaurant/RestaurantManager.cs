@@ -544,6 +544,17 @@ public class RestaurantManager : MonoBehaviour
                 if (Utility.ValidCheck(posZ, posX) && MoveCalculator.GetBlocks[MoveCalculator.GetIndex(posX, posZ)]) AnimalCollision(c, posX, posZ, App.GlobalToken).Forget();
             }
         }
+
+
+        BlackConsumer b = GameIns.animalManager.blackConsumer;
+        if (b != null)
+        {
+
+            b.reCalculate = true;
+            int posX = Mathf.FloorToInt((b.trans.position.x - GameIns.calculatorScale.minX) / GameIns.calculatorScale.distanceSize);
+            int posZ = Mathf.FloorToInt((b.trans.position.z - GameIns.calculatorScale.minY) / GameIns.calculatorScale.distanceSize);
+            if (Utility.ValidCheck(posZ, posX) && MoveCalculator.GetBlocks[MoveCalculator.GetIndex(posX, posZ)]) AnimalCollision(b, posX, posZ, App.GlobalToken).Forget();
+        }
     }
     async UniTask AnimalCollision(AnimalController animal, int x, int z, CancellationToken cancellationToken = default)
     {
@@ -618,7 +629,7 @@ public class RestaurantManager : MonoBehaviour
         Vector3 st = animal.trans.position;
         float t = restaurantTimer + 0.2f;
         animal.animator.SetInteger("state", 0);
-        animal.animal.PlayAnimation(AnimationKeys.Idle);// (animal.animal.animationDic["Idle_A"], "Idle_A");
+        if(animal.animal != null) animal.animal.PlayAnimation(AnimationKeys.Idle);// (animal.animal.animationDic["Idle_A"], "Idle_A");
         while (restaurantTimer < t)
         {
             float progress = restaurantTimer / t; // 0 ~ 1

@@ -63,6 +63,7 @@ public enum ParticleType
 public enum BlackConsumerState
 {
     None,
+    Spawn,
     FindingTarget,
     FoundTarget,
     MoveToTarget,

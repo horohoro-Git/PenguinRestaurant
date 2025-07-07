@@ -97,7 +97,7 @@ public class FurnitureInfo : MonoBehaviour
                 case WorkSpaceType.FoodMachine:
                     {
                         FoodMachine foodMahcine = currentFurniture.GetComponent<FoodMachine>();
-                        foodMahcine.employee.reCalculate = true;
+                        if(foodMahcine.employee != null) foodMahcine.employee.reCalculate = true;
                     }
                     break;
                 case WorkSpaceType.Trashcan:
