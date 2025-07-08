@@ -1362,7 +1362,8 @@ public class Employee : AnimalController
                 //조달
                 cancellationToken.ThrowIfCancellationRequested();
                 while (pause) await UniTask.Delay(100, cancellationToken: cancellationToken);
-               //await UniTask.Delay(250, cancellationToken: cancellationToken);
+                await UniTask.NextFrame(cancellationToken: cancellationToken);
+                //await UniTask.Delay(250, cancellationToken: cancellationToken);
                 reCalculate = false;
                 Vector3 position = foodMachine.workingSpot.position;
                 lastPos = position;
@@ -1482,7 +1483,7 @@ public class Employee : AnimalController
                 cancellationToken.ThrowIfCancellationRequested();
                // await UniTask.Delay(250, cancellationToken: cancellationToken);
                 while (pause) await UniTask.Delay(100, cancellationToken: cancellationToken);
-
+                await UniTask.NextFrame(cancellationToken: cancellationToken);
                 Vector3 counterPosition = counter.workingSpot_SmallTables[tableIndex].transforms.position;
                 lastPos = counterPosition;
 
@@ -1575,7 +1576,6 @@ public class Employee : AnimalController
                     await Employee_Wait(0, cancellationToken);*/
                     await UniTask.Delay(200, cancellationToken: cancellationToken);
                     await Employee_Move(moveTargets, counterPosition, cancellationToken);
-                    Debug.Log("Not Found " + (trans.position == counterPosition));
                     continue;
                 }
                 return;
@@ -1863,7 +1863,8 @@ public class Employee : AnimalController
                 cancellationToken.ThrowIfCancellationRequested();
 
                 Vector3 position = table.seats[seatIndex].transform.position;
-                await UniTask.Delay(250, cancellationToken: cancellationToken);
+                // await UniTask.Delay(250, cancellationToken: cancellationToken);
+                await UniTask.NextFrame(cancellationToken: cancellationToken);
                 while (pause) await UniTask.Delay(100, cancellationToken: cancellationToken);
 
                 //종료
@@ -2007,7 +2008,8 @@ public class Employee : AnimalController
                 trash.employees.Add(this);
                 StartTrashcan:
                 reCalculate = false;
-                await UniTask.Delay(250, cancellationToken: cancellationToken);
+                //await UniTask.Delay(250, cancellationToken: cancellationToken);
+                await UniTask.NextFrame(cancellationToken: cancellationToken);
                 if (!trash.placed)
                 {
                     await UniTask.Delay(200, cancellationToken: cancellationToken);
@@ -2654,7 +2656,6 @@ public class Employee : AnimalController
                     while (pause) await Utility.CustomUniTaskDelay(0.1f, cancellationToken); //await UniTask.Delay(100, cancellationToken: cancellationToken);
                     if (reCalculate)
                     {
-                     //   Debug.Log("Recalculate");
                         return;
                     }
                     if (animal.PlayAnimation(AnimationKeys.Walk))

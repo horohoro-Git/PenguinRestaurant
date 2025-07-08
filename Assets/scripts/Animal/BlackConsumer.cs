@@ -45,7 +45,13 @@ public class BlackConsumer : AnimalController
                 tables = tables.OrderBy(t => Vector3.Distance(t.transform.position, trans.position)).ToList();
                 for (int i = 0; i < tables.Count; i++)
                 {
-                    if (tables[i].foodStacks[0].foodStack.Count > 0 && tables[i].placed)
+                    int seatFoodNum = 0;
+                    for(int j=0; j < tables[i].seats.Length; j++)
+                    {
+                        if (tables[i].placedFoods[j] != null) seatFoodNum++;
+                    }
+
+                    if ((seatFoodNum > 0 || tables[i].foodStacks[0].foodStack.Count > 0) && tables[i].placed)
                     {
                         int targetIndex = 0;
                         int existCustomer = 0;
@@ -228,7 +234,6 @@ public class BlackConsumer : AnimalController
 
                 int xx = Mathf.FloorToInt((target.x - minX) / size);
                 int yy = Mathf.FloorToInt((target.z - minY) / size);
-                Debug.Log(xx + " " + yy);
 
                 if(!GetBlockEmployee[GetIndex(xx,yy)])
                 {
@@ -311,6 +316,7 @@ public class BlackConsumer : AnimalController
             targetTable.animals.Add(this);
             while (true)
             {
+                reCalculate = false;
                 if(!targetTable.placed || targetTable.seats[seatIndex].isDisEnabled)
                 {
                     await UniTask.Delay(200, cancellationToken: cancellationToken);
@@ -353,11 +359,9 @@ public class BlackConsumer : AnimalController
                 }
                 else
                 {
-                    Debug.Log("None");
-                   // await UniTask.Delay(200, cancellationToken: cancellationToken);
-                   // consumerCallback?.Invoke(this);
+                    await BlackConsumer_Move(moveTargets, target, cancellationToken);
+                    continue;
                 }
-                return;
           //  Escape: continue;
             }
         }
@@ -424,109 +428,117 @@ public class BlackConsumer : AnimalController
             
             while (true)
             {
-                for (int i = 0; i < targetTable.seats.Length; i++)
+                if (targetTable.placedFoods[seatIndex] == null)
                 {
-                   
-                    if (!targetTable.placed || targetTable.seats[seatIndex].isDisEnabled || targetTable.disableNum == 3)
+                    for (int i = 0; i < targetTable.seats.Length; i++)
                     {
+                        if (!targetTable.placed || targetTable.seats[seatIndex].isDisEnabled || targetTable.disableNum == 3)
+                        {
+                            goto StartStealFood;
+                        }
+                        if (targetTable.placedFoods[i] != null)
+                        {
+                            targetTable.placedFoods[seatIndex] = targetTable.placedFoods[i];
+                            targetTable.placedFoods[i] = null;
+                            preIndex = i;
 
-                        goto StartStealFood;
+                            Vector3 t = targetTable.transforms.position;
+                            Vector3 forward = -targetTable.seats[seatIndex].transform.forward;
+                            t += forward;
+                            t.y = 0.5f;
+                            targetTable.placedFoods[seatIndex].transform.DOKill();
+                            targetTable.placedFoods[seatIndex].transform.DOJump(t, 1, 1, 0.2f);
+                            await UniTask.Delay(300, cancellationToken: cancellationToken);
 
+                            await Eating(targetTable.placedFoods[seatIndex].transform, cancellationToken: cancellationToken);
+                            await UniTask.NextFrame(cancellationToken: cancellationToken);
+                            if (!targetTable.placed || targetTable.seats[seatIndex].isDisEnabled || targetTable.disableNum == 3) goto StartStealFood;
+
+                            Food f = targetTable.placedFoods[seatIndex].GetComponent<Food>();
+                            FoodManager.EatFood(f);
+                            targetTable.numberOfFoods--;
+                            targetTable.numberOfGarbage++;
+                            targetTable.placedFoods[seatIndex] = null;
+                            await UniTask.Delay(200, cancellationToken: cancellationToken);
+                        }
                     }
-                    if (targetTable.placedFoods[i] != null)
+
+                    if (targetTable.foodStacks[0].foodStack.Count > 0)
                     {
-                        targetTable.placedFoods[seatIndex] = targetTable.placedFoods[i];
-                        targetTable.placedFoods[i] = null;
-                        preIndex = i;
+                        int count = 0;
+                        for (int j = 0; j < targetTable.seats.Length; j++)
+                        {
+                            if (j != seatIndex && targetTable.seats[j].isDisEnabled)
+                            {
+                                count++;
+                            }
+                        }
+                        if (!targetTable.placed || targetTable.seats[seatIndex].isDisEnabled || count == 3)
+                        {
+                            goto StartStealFood;
+                        }
 
                         Vector3 t = targetTable.transforms.position;
                         Vector3 forward = -targetTable.seats[seatIndex].transform.forward;
                         t += forward;
                         t.y = 0.5f;
-                        targetTable.placedFoods[seatIndex].transform.DOKill();
-                        targetTable.placedFoods[seatIndex].transform.DOJump(t, 1, 1, 0.2f);
+
+                        Food f = targetTable.foodStacks[0].foodStack.Pop();
+
+                        f.transform.DOKill();
+                        f.transform.DOJump(t, 1, 1, 0.2f);
+
                         await UniTask.Delay(300, cancellationToken: cancellationToken);
 
+                        targetTable.placedFoods[seatIndex] = f.gameObject;
                         await Eating(targetTable.placedFoods[seatIndex].transform, cancellationToken: cancellationToken);
+                        await UniTask.NextFrame(cancellationToken: cancellationToken);
                         if (!targetTable.placed || targetTable.seats[seatIndex].isDisEnabled || targetTable.disableNum == 3) goto StartStealFood;
 
-                        await UniTask.NextFrame(cancellationToken: cancellationToken);
-                        Food f = targetTable.placedFoods[seatIndex].GetComponent<Food>();
                         FoodManager.EatFood(f);
                         targetTable.numberOfFoods--;
                         targetTable.numberOfGarbage++;
+
                         targetTable.placedFoods[seatIndex] = null;
+
                         await UniTask.Delay(200, cancellationToken: cancellationToken);
-                    }
-                }
-                if (targetTable.foodStacks[0].foodStack.Count > 0)
-                {
-                    int count = 0;
-                    for (int j = 0; j < targetTable.seats.Length; j++)
-                    {
-                        if (j != seatIndex && targetTable.seats[j].isDisEnabled)
+
+                        for (int i = 0; i < targetTable.seats.Length; i++)
                         {
-                            count++;
+                            if (targetTable.placedFoods[i] != null) continue;
+
+                        }
+                        if (targetTable.placedFoods[0] != null) continue;
+                        else if (targetTable.placedFoods[1] != null) continue;
+                        else if (targetTable.placedFoods[2] != null) continue;
+                        else if (targetTable.placedFoods[3] != null) continue;
+                        if (targetTable.foodStacks[0].foodStack.Count > 0)
+                        {
+                            await UniTask.NextFrame(cancellationToken: cancellationToken);
+                            continue;
                         }
                     }
-                    if (!targetTable.placed || targetTable.seats[seatIndex].isDisEnabled || count == 3)
-                    {
-                        goto StartStealFood;
-                    }
-
-                    Vector3 t = targetTable.transforms.position;
-                    Vector3 forward = -targetTable.seats[seatIndex].transform.forward;
-                    t += forward;
-                    t.y = 0.5f;
-
-                    Food f = targetTable.foodStacks[0].foodStack.Pop();
-
-                    f.transform.DOKill();
-                    f.transform.DOJump(t, 1, 1, 0.2f);
-
-                    await UniTask.Delay(300, cancellationToken: cancellationToken);
-
-                    targetTable.placedFoods[seatIndex] = f.gameObject;
+                }
+                else
+                {
+                    Food f = targetTable.placedFoods[seatIndex].GetComponent<Food>();   
                     await Eating(targetTable.placedFoods[seatIndex].transform, cancellationToken: cancellationToken);
-                    if (!targetTable.placed || targetTable.seats[seatIndex].isDisEnabled || targetTable.disableNum == 3) goto StartStealFood;
-
                     await UniTask.NextFrame(cancellationToken: cancellationToken);
+                    if (!targetTable.placed || targetTable.seats[seatIndex].isDisEnabled || targetTable.disableNum == 3) goto StartStealFood;
                     FoodManager.EatFood(f);
                     targetTable.numberOfFoods--;
                     targetTable.numberOfGarbage++;
 
                     targetTable.placedFoods[seatIndex] = null;
-/*
-                    if(targetTable.foodStacks[0].foodStack.Count == 0)
-                    {
-                        int s = 0;
-                        for (int i = 0; i < targetTable.placedFoods.Length; i++)
-                        {
-                            if (targetTable.placedFoods[i] != null)
-                            {
-                                s++;
-                                break;
-                            }
-                        }
-                        if (s == 0) break;
-                    }*/
+
                     await UniTask.Delay(200, cancellationToken: cancellationToken);
-
-                    for (int i = 0; i < targetTable.seats.Length; i++)
+                    if (targetTable.foodStacks[0].foodStack.Count > 0)
                     {
-                        if (targetTable.placedFoods[i] != null) continue;
-
+                        await UniTask.NextFrame(cancellationToken: cancellationToken);
+                        continue;
                     }
-                    if(targetTable.placedFoods[0] != null) continue;
-                    else if (targetTable.placedFoods[1] != null) continue;
-                    else if (targetTable.placedFoods[2] != null) continue;
-                    else if (targetTable.placedFoods[3] != null) continue;
                 }
-                if (targetTable.foodStacks[0].foodStack.Count > 0)
-                {
-                    await UniTask.NextFrame(cancellationToken:cancellationToken);
-                    continue;
-                }
+              
                 targetTable.stolen = true;
                 SoundManager.Instance.PlayAudio3D(GameIns.gameSoundManager.LaughAt(), 0.1f, 100, 5, trans.position);
                 Emote e = GameIns.restaurantManager.GetEmote();
@@ -555,9 +567,9 @@ public class BlackConsumer : AnimalController
 
 
         }
-        catch
+        catch (Exception ex)
         {
-            
+            Debug.Log(ex);
         }
        
     }
@@ -569,23 +581,7 @@ public class BlackConsumer : AnimalController
             if (!targetTable.placed || targetTable.seats[seatIndex].isDisEnabled || targetTable.disableNum == 3)
             {
                 await UniTask.NextFrame(cancellationToken: cancellationToken);  
-              /*
-                if (preIndex != -1 && targetTable.placedFoods[seatIndex] != null)
-                {
-                    Vector3 t = targetTable.transforms.position;
-                    Vector3 forward = -targetTable.seats[preIndex].transform.forward;
-                    t += forward;
-                    t.y = 0.5f;
-
-                    targetTable.placedFoods[seatIndex].transform.DOJump(t, 1, 1, 0.2f);
-                    targetTable.placedFoods[preIndex] = targetTable.placedFoods[seatIndex];
-                    targetTable.placedFoods[seatIndex] = null;
-                }
-                animator.SetTrigger(AnimationKeys.Normal);
-                await UniTask.Delay(200, cancellationToken: cancellationToken);
-                targetTable.animals.Remove(this);
-                state = BlackConsumerState.FindingTarget;
-                consumerCallback?.Invoke(this);*/
+             
                 return;
             }
 
@@ -704,7 +700,6 @@ public class BlackConsumer : AnimalController
                     {
                         if (reCalculate)
                         {
-                            Debug.Log("Recalculate");
                             return;
                         }
 
@@ -735,7 +730,6 @@ public class BlackConsumer : AnimalController
             {
                 if (reCalculate)
                 {
-                    Debug.Log("Recalculate");
                     return;
                 }
                 animator.SetInteger("state", 1);

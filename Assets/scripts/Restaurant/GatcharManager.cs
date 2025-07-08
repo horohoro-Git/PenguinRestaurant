@@ -1021,8 +1021,6 @@ public class GatcharManager : MonoBehaviour
                 }
                 if(point >= 20)
                 {
-                    Debug.Log("Clear");
-
                     result = true;
                 }
                 break;

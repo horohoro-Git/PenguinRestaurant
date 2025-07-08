@@ -1,4 +1,5 @@
 # PenguinRestaurant
+
 Animal Restaurant Tycoon Game
 "plus DJ303"
 
@@ -67,3 +68,6 @@ Animal Restaurant Tycoon Game
 07/05 Fix the issue where previous values are not properly cleared when reverting in the placement system
 07/06 Fixed bugs occurring during path recalculation caused by furniture rearrangement
 07/08 Fixed issues occurring during food competition between customers and enemies at tables
+
+07/09 Fixed an issue where characters at the edge of the screen were culled incorrectly in a 9:16 aspect ratio environment
+
