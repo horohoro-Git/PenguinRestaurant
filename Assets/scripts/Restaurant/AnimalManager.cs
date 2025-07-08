@@ -285,7 +285,7 @@ public class AnimalManager : MonoBehaviour
 
     }
 
-    float tim = 0;
+   /* float tim = 0;
     float timD = 2f;
     private void Update()
     {
@@ -302,7 +302,7 @@ public class AnimalManager : MonoBehaviour
                 employeeControllers[i].reCalculate = true;
             }
         }
-    }
+    }*/
     //float timer = 0f;
     /* private void Update()
      {

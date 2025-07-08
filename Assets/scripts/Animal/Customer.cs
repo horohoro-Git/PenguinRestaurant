@@ -19,8 +19,6 @@ using Vector3 = UnityEngine.Vector3;
 using Quaternion = UnityEngine.Quaternion;
 using Random = UnityEngine.Random;
 using System.Text;
-using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
-using static UnityEngine.Rendering.DebugUI;
 // 한글
 
 public class Customer : AnimalController
@@ -424,7 +422,8 @@ public class Customer : AnimalController
             counter.customers.Add(this);
             int queueindex = -1;
         MoveReturn:
-            await UniTask.Delay(250, cancellationToken:cancellationToken);
+            //await UniTask.Delay(250, cancellationToken:cancellationToken);
+            await UniTask.NextFrame(cancellationToken: cancellationToken);
             reCalculate = false;
             bOrder = false;
 
@@ -460,7 +459,6 @@ public class Customer : AnimalController
                         modelTrans.rotation = position[currentPoint].transforms.rotation;
                         if (reCalculate)
                         {
-                            Debug.Log("MoveReturn");
                             reCalculate = false;
                             await UniTask.NextFrame(cancellationToken: cancellationToken);
                             goto MoveReturn;
@@ -769,6 +767,10 @@ public class Customer : AnimalController
             {
                 if (App.restaurantTimeScale == 1)
                 {
+                    if (reCalculate)
+                    {
+                        return;
+                    }
                     animator.SetInteger("state", 1);
                     animal.PlayAnimation(AnimationKeys.Walk);
                     trans.position = Vector3.MoveTowards(trans.position, newLoc, animalStruct.speed * Time.deltaTime * subSpeed);
@@ -801,13 +803,15 @@ public class Customer : AnimalController
     async UniTask Customer_Table(Table table, int index, CancellationToken cancellationToken = default)
     {
         try
-        {
+        { 
             while (true)
             {
                 table.animals.Add(this);
+                bool stealing = false;   
                 StartTable:
-                await UniTask.Delay(250, cancellationToken: cancellationToken);
                 reCalculate = false;
+           //     await UniTask.Delay(250, cancellationToken: cancellationToken);
+                await UniTask.NextFrame(cancellationToken: cancellationToken);
                 cancellationToken.ThrowIfCancellationRequested();
 
                 if(!table.placed)
@@ -959,8 +963,7 @@ public class Customer : AnimalController
                             if(table.seats[index].isDisEnabled)
                             {
                                 goto DisableSeat;
-                            }
-                           
+                            }                           
                             continue;
                         }
                         await UniTask.DelayFrame(3, cancellationToken: cancellationToken);
@@ -1010,10 +1013,56 @@ public class Customer : AnimalController
                         await Utility.CustomUniTaskDelay(0.3f, cancellationToken);
                     }
 
+
+                    if (table.foodStacks[0].foodStack.Count == 0 && table.placedFoods[seatIndex] == null && !table.hasProblem)
+                    {
+                        bool none = true;
+                        for (int i = 0; i < table.placedFoods.Length; i++)
+                        {
+                            if (i != seatIndex && table.placedFoods[i] != null && table.seats[i].animal == null)
+                            {
+                               
+                                table.placedFoods[seatIndex] = table.placedFoods[i];
+                                table.placedFoods[i] = null;
+                                SoundManager.Instance.PlayAudio3D(GameInstance.GameIns.gameSoundManager.ThrowSound(), 0.4f, 100, 5, trans.position);
+                                table.placedFoods[seatIndex].transform.DOJump(t, 1, 1, 0.2f);
+                                none = false;
+                                await Utility.CustomUniTaskDelay(0.3f, cancellationToken);
+                                break;
+                            }
+                        }
+                        if(none)
+                        {
+                            Debug.Log("none");
+                            SoundManager.Instance.PlayAudio3D(GameInstance.GameIns.gameSoundManager.Sad(), 0.1f, 100, 5, trans.position);
+
+                            if (cancellationTokenSource != null) cancellationTokenSource.Cancel();
+                            cancellationTokenSource = new CancellationTokenSource();
+                            EmoteTimer(0, AnimationKeys.Trauma, true, cancellationTokenSource.Token).Forget();
+
+                            FloatingEmote(4003);
+                            if (GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation > 0)
+                            {
+                                GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation--;
+                                GameInstance.GameIns.uiManager.reputation.text = GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation.ToString();
+                                GameInstance.GameIns.restaurantManager.restaurantCurrency.changed = true;
+                                GameInstance.GameIns.restaurantManager.CalculateSpawnTimer();
+                            }
+                            await Utility.CustomUniTaskDelay(3f, cancellationToken);
+                            // await UniTask.Delay(3000, cancellationToken: cancellationToken);
+                            customerState = CustomerState.Table;
+                            animator.SetInteger("state", 0);
+                            animal.PlayAnimation(AnimationKeys.Idle);
+                            table.animals.Remove(this);
+                            table.seats[index].animal = null;
+                            customerCallback?.Invoke(this);
+                            return;
+                        }
+                    }
                     //식사
                     if (!table.stolen)
                     {
-                        while (table.foodStacks[0].foodStack.Count > 0 || table.placedFoods[seatIndex] != null)
+                        while (table.foodStacks[0].foodStack.Count > 0 || table.placedFoods[seatIndex] != null || table.hasProblem)
                         {
                         GoUp:
                             if (!table.placed)
@@ -1044,6 +1093,7 @@ public class Customer : AnimalController
                                             table.placedFoods[seatIndex].transform.DOJump(t, 1, 1, 0.2f);
                                             getFood = true;
                                             await Utility.CustomUniTaskDelay(0.3f, cancellationToken);
+                                            break;
                                         }
                                     }
 
@@ -1066,10 +1116,21 @@ public class Customer : AnimalController
                                     f = table.placedFoods[seatIndex].GetComponent<Food>();
                                 }
                             }
+                            else
+                            {
+                                if(table.stealing && !stealing)
+                                {
+                                    stealing = true;
+                                    SoundManager.Instance.PlayAudio3D(GameInstance.GameIns.gameSoundManager.Angry(), 0.1f, 100, 5, trans.position);
+                                    if (cancellationTokenSource != null) cancellationTokenSource.Cancel();
+                                    cancellationTokenSource = new CancellationTokenSource();
+                                    EmoteTimer(0, AnimationKeys.Sad, true, cancellationTokenSource.Token).Forget();
+                                    FloatingEmote(4002);
+                                }
+                            }
                             if (f == null) goto StartTable;
                          
                             float tm = RestaurantManager.restaurantTimer;
-                            bool stealing = false;
                             for (int i = 0; i < 100; i++)
                             {
                                 if (!table.placed || table.seats[seatIndex].isDisEnabled)
@@ -1085,6 +1146,7 @@ public class Customer : AnimalController
                                     // if (RestaurantManager.restaurantTimer >= tm + timer / 10)
                                     if (i != 0 && i % 9 == 0)
                                     {
+
                                         tm = RestaurantManager.restaurantTimer;
 
                                         SoundManager.Instance.PlayAudio3D(GameInstance.GameIns.gameSoundManager.Eat(), 0.05f, 100, 5, trans.position);
@@ -1156,7 +1218,6 @@ public class Customer : AnimalController
 
                                     await UniTask.Delay(200, cancellationToken: cancellationToken);
 
-                                    Debug.Log("Check");
                                     Emote(false, AnimationKeys.Normal);
                                     animator.SetInteger("state", 0);
                                     animal.PlayAnimation(AnimationKeys.Idle);
@@ -1197,6 +1258,7 @@ public class Customer : AnimalController
                             table.numberOfFoods--;
                             table.numberOfFoods = table.numberOfFoods < 0 ? 0 : table.numberOfFoods;
                             table.numberOfGarbage++;
+
 
 
                             if (table.foodStacks[0].foodStack.Count == 0 && table.numberOfFoods == 0)
@@ -1320,6 +1382,7 @@ public class Customer : AnimalController
                     }
                     else
                     {
+                        Debug.Log("none2");
                         SoundManager.Instance.PlayAudio3D(GameInstance.GameIns.gameSoundManager.Sad(), 0.1f, 100, 5, trans.position);
 
                         if (cancellationTokenSource != null) cancellationTokenSource.Cancel();
@@ -1344,6 +1407,8 @@ public class Customer : AnimalController
                         customerCallback?.Invoke(this);
                         return;
                     }
+
+                    await UniTask.NextFrame(cancellationToken: cancellationToken);
                 }
                 else
                 {
