@@ -30,7 +30,9 @@ public enum WorkSpaceType
     Counter,
     Table,
     FoodMachine,
-    Trashcan
+    Trashcan,
+    Vending,
+    Door
 }
 public enum MachineType
 {
@@ -70,6 +72,14 @@ public enum BlackConsumerState
     Steal,
     Kidding,
     SubDue
+}
+
+public enum TableState
+{
+    None,
+    HasTrouble,
+    Stealing,
+    Stolen
 }
 
 public enum AnimalPersonality

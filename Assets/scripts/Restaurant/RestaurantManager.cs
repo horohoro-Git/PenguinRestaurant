@@ -59,6 +59,7 @@ public class RestaurantManager : MonoBehaviour
     public static GameObject emoteObjects;
     public Queue<GameObject> trays = new Queue<GameObject>();
     public Door door;
+    public DoorController doorPreview;
     public RestaurantCurrency restaurantCurrency;
     public RestaurantData restaurantData;
     public Employees employees;
@@ -79,7 +80,7 @@ public class RestaurantManager : MonoBehaviour
     [NonSerialized] public TrashData trashData;
 
     public static float restaurantTimer;
-    public static int spawnTimer;
+    public static int spawnTimer { get; set; }
     public static int spawnerNum;
     [NonSerialized] public int moneyChangedSoundKey;
     [NonSerialized] public int fishChangedSoundKey;
@@ -104,7 +105,10 @@ public class RestaurantManager : MonoBehaviour
         fishChangedSoundKey = 100012;
 
         door = Instantiate(door);
+        door.id = 2000;
         door.gameObject.SetActive(false);
+        doorPreview = Instantiate(doorPreview);
+        doorPreview.gameObject.SetActive(false);
         trayObjects = new GameObject();
         trayObjects.name = "trayObjects";
         emoteObjects = new GameObject();
@@ -299,7 +303,7 @@ public class RestaurantManager : MonoBehaviour
                     door.transform.rotation = h.transform.rotation * Quaternion.Euler(0, -90, 0);
                     door.transform.SetParent(h.transform.parent);
                     door.removeWall = h;
-                    StartCoroutine(door.OpenDoor());
+                //    StartCoroutine(door.OpenDoor());
                     goto Escape;
                 }
                 Vector3 leftDir = Quaternion.AngleAxis(-angle, doorTransform.up) * forward;
@@ -312,7 +316,7 @@ public class RestaurantManager : MonoBehaviour
                     door.transform.rotation = h.transform.rotation * Quaternion.Euler(0, -90, 0);
                     door.transform.SetParent(h.transform.parent);
                     door.removeWall = h;
-                    StartCoroutine(door.OpenDoor());
+               //     StartCoroutine(door.OpenDoor());
                     goto Escape;
                 }
 
@@ -326,7 +330,7 @@ public class RestaurantManager : MonoBehaviour
                     door.transform.rotation = h.transform.rotation * Quaternion.Euler(0, -90, 0);
                     door.transform.SetParent(h.transform.parent);
                     door.removeWall = h;
-                    StartCoroutine(door.OpenDoor());
+                 //   StartCoroutine(door.OpenDoor());
                     goto Escape;
                 }
             }
@@ -635,12 +639,10 @@ public class RestaurantManager : MonoBehaviour
             float progress = restaurantTimer / t; // 0 ~ 1
             animal.trans.position = Vector3.Lerp(st, targetPos, progress);
 
-        //    t += Time.deltaTime;
             await UniTask.NextFrame(cancellationToken);
         }
         animal.trans.position = targetPos;
 
-        Debug.Log(x + " " + z + " " + finalX + " " + finalZ + " " + st + " " + targetPos);
         animal.bWait = false;
     }
 
@@ -693,8 +695,7 @@ public class RestaurantManager : MonoBehaviour
                 furniture.rotateLevel = restaurantparams[i].level;
                 furniture.id = restaurantparams[i].id;
                 furniture.transform.position = pos;
-                furniture.originPos = pos;
-                bool isTable = false;   
+                furniture.originPos = pos;   
                 switch (furniture.spaceType)
                 {
                     case WorkSpaceType.Counter:
@@ -713,7 +714,6 @@ public class RestaurantManager : MonoBehaviour
                         furniture.transform.rotation = rot;
                         break;
                     case WorkSpaceType.Table:
-                        isTable = true;
                         furniture.transform.rotation = rot; 
                         tables.Add(furniture.GetComponent<Table>());
                         break;
@@ -801,7 +801,7 @@ public class RestaurantManager : MonoBehaviour
                 animal.employeeLevelData = employees.employeeLevelDatas[i];
                 animal.trans.position = t;
                 animal.employeeLevel = AssetLoader.employees_levels[0];
-                animal.employeeLevelData.targetEXP = animal.employeeLevel.exp + Mathf.FloorToInt(Mathf.Pow((animal.employeeLevelData.level - 1), animal.employeeLevel.increase_exp_mul) * animal.employeeLevel.increase_exp_mul);
+                animal.employeeLevelData.targetEXP = animal.employeeLevel.exp + Mathf.FloorToInt(Mathf.Pow((animal.employeeLevelData.level - 1), animal.employeeLevel.increase_exp_pow) * animal.employeeLevel.increase_exp_mul);
                 animal.employeeLevelData.speed = animal.employeeLevel.move_speed + (animal.employeeLevelData.level - 1) * 0.2f;
                 animal.employeeLevelData.max_weight = animal.employeeLevel.max_weight + Mathf.FloorToInt((animal.employeeLevelData.level - 1) / 2);
                 animal.EXP = employees.employeeLevelDatas[i].exp;

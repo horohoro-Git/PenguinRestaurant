@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class Seat : MonoBehaviour
 {
-    public AnimalController animal { get; set; }
+    public AnimalController animal;// { get; set; }
    // public AnimalController animal;
     public Transform transforms;
     Table table;

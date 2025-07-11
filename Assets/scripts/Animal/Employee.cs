@@ -1222,7 +1222,7 @@ public class Employee : AnimalController
         employeeState = EmployeeState.Wait;
         try
         {
-            cancellationToken.ThrowIfCancellationRequested();
+            await UniTask.NextFrame(cancellationToken: cancellationToken);
             r = Random.Range(0, 3);
             if (r == 2)
             {
@@ -1298,11 +1298,13 @@ public class Employee : AnimalController
                     return res;
                 });
 
+                await UniTask.NextFrame(cancellationToken: cancellationToken);  
                 Stack<Vector3> moveTargets = await CalculateNodes_Async(result, true, cancellationToken);
 
                 if (moveTargets != null && moveTargets.Count > 0)
                 {
                     await Employee_Move(moveTargets, result, cancellationToken);
+                    await UniTask.NextFrame(cancellationToken: cancellationToken);
                     if (reCalculate)
                     {
                         while (bWait) await UniTask.NextFrame(cancellationToken: cancellationToken);
@@ -1310,20 +1312,7 @@ public class Employee : AnimalController
                         busy = false;
                         employeeCallback?.Invoke(this);
                         return;
-                      /*  if (bResearch)
-                        {
-                            if (animal.PlayAnimation(AnimationKeys.Idle))
-                            {
-                                animator.SetInteger("state", 0);
-                            }
-                            await UniTask.Delay(300, cancellationToken: cancellationToken);
-                            bResearch = false;
-
-                            busy = false;
-                            employeeCallback?.Invoke(this);
-                            return;
-                        }
-                        continue;*/
+            
                     }
                 }
 
@@ -1581,8 +1570,6 @@ public class Employee : AnimalController
                 return;
             Escape: continue;
             }
-
-
         }
         catch (OperationCanceledException)
         {

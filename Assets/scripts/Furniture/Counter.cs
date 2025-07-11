@@ -111,7 +111,7 @@ public class Counter : Furniture, IObjectOffset
                 door.transform.position = h.transform.position - Vector3.up * h.transform.position.y;
                 door.transform.rotation = h.transform.rotation * Quaternion.Euler(0, -90, 0);
                 door.transform.SetParent(h.transform.parent);
-                StartCoroutine(door.OpenDoor());
+          //      StartCoroutine(door.OpenDoor());
                 return;
             }
             float angle = 30f;
@@ -127,7 +127,7 @@ public class Counter : Furniture, IObjectOffset
                 door.transform.position = h.transform.position - Vector3.up * h.transform.position.y;
                 door.transform.rotation = h.transform.rotation * Quaternion.Euler(0, -90, 0);
                 door.transform.SetParent(h.transform.parent);
-                StartCoroutine(door.OpenDoor());
+          //      StartCoroutine(door.OpenDoor());
                 return;
             }
             Vector3 rightDir = Quaternion.AngleAxis(angle, offset.up) * offset.forward;
@@ -142,7 +142,7 @@ public class Counter : Furniture, IObjectOffset
                 door.transform.position = h.transform.position - Vector3.up * h.transform.position.y;
                 door.transform.rotation = h.transform.rotation * Quaternion.Euler(0, -90, 0);
                 door.transform.SetParent(h.transform.parent);
-                StartCoroutine(door.OpenDoor());
+          //      StartCoroutine(door.OpenDoor());
                 return;
             }
         }

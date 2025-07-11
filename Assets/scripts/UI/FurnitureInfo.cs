@@ -109,34 +109,39 @@ public class FurnitureInfo : MonoBehaviour
                         }
                     }
                     break;
+             
             }
-
-
-
             currentFurniture.gameObject.SetActive(false);
-            PlaceController placeController = GameInstance.GameIns.store.GetGoods(currentFurniture.id);
-            
-            placeController.placedArea = placedArea;
-            placeController.transform.position = currentFurniture.originPos;
-            if (currentFurniture.TryGetComponent(out IObjectOffset fm))
+            if (currentFurniture.spaceType != WorkSpaceType.Door)
             {
-                placeController.offset.transform.rotation = fm.offset.rotation;
+                PlaceController placeController = GameInstance.GameIns.store.GetGoods(currentFurniture.id);
+
+                placeController.placedArea = placedArea;
+                placeController.transform.position = currentFurniture.originPos;
+                if (currentFurniture.TryGetComponent(out IObjectOffset fm))
+                {
+                    placeController.offset.transform.rotation = fm.offset.rotation;
+                }
+                else
+                {
+                    placeController.offset.transform.rotation = currentFurniture.transform.rotation;
+                }
+
+                placeController.SetLevel(currentFurniture.rotateLevel);
+                GameInstance.GameIns.gridManager.ReCalculate(placeController, placeController.storeGoods.goods.type == WorkSpaceType.Table ? true : false);
+                placeController.purchasedObject = true;
+                placeController.currentFurniture = currentFurniture;
+                placeController.gameObject.SetActive(true);
+
+                GameInstance.GameIns.applianceUIManager.appliancePanel.gameObject.SetActive(false);
+                GameInstance.GameIns.applianceUIManager.StopInfo();
+                GameInstance.GameIns.gridManager.VisibleGrid(true);
             }
             else
             {
-                placeController.offset.transform.rotation = currentFurniture.transform.rotation;
+                GameInstance.GameIns.restaurantManager.doorPreview.gameObject.SetActive(true);
+                GameInstance.GameIns.restaurantManager.doorPreview.transform.position = currentFurniture.transform.position;
             }
-
-            placeController.SetLevel(currentFurniture.rotateLevel);
-            GameInstance.GameIns.gridManager.ReCalculate(placeController, placeController.storeGoods.goods.type == WorkSpaceType.Table ? true : false);
-            placeController.purchasedObject = true;
-            placeController.currentFurniture = currentFurniture;
-            placeController.gameObject.SetActive(true);
-
-            GameInstance.GameIns.applianceUIManager.appliancePanel.gameObject.SetActive(false);
-            GameInstance.GameIns.applianceUIManager.StopInfo();
-            GameInstance.GameIns.gridManager.VisibleGrid(true);
-
         }
     }
 
