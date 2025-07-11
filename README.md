@@ -71,3 +71,5 @@ Animal Restaurant Tycoon Game
 
 07/09 Fixed an issue where characters at the edge of the screen were culled incorrectly in a 9:16 aspect ratio environment
 
+07/10 Adjusted the UI transparency and height for order status, and added installed doors to the furniture list to allow repositioning
+

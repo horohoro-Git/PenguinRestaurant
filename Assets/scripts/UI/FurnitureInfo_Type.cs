@@ -86,16 +86,21 @@ public class FurnitureInfo_Type : MonoBehaviour
             upgradablesStatus.text = $"레벨 : {fm.machineLevelData.level}\n음식 판매가격 : {fm.machineLevelData.calculatedSales}원\n생산 속도 : {fm.machineLevelData.calculatedCookingTimer}/s\n최대 생산량: {fm.machineLevelData.calculatedHeight}개"; 
 
         }
-        if(furniture.spaceType != WorkSpaceType.None)
+        if (furniture.spaceType == WorkSpaceType.Table || furniture.spaceType == WorkSpaceType.Trashcan || furniture.spaceType == WorkSpaceType.Counter)
         {
             int max = goods[furniture.id].num;
             int n = GameInstance.GameIns.store.goodsDic[furniture.id].Count;
             placedNum.text = "배치된 수 " + (max - n) + " / " + max;
             furnitureName.text = AssetLoader.goods[furniture.id].name;
         }
-        else
+        else if (furniture.spaceType == WorkSpaceType.Vending)
         {
             furnitureName.text = "자판기";
+        }
+        else if (furniture.spaceType == WorkSpaceType.Door)
+        {
+            placedNum.text = "";
+            furnitureName.text = "문";
         }
     }
     public void ResetSlider()

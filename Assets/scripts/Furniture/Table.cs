@@ -43,6 +43,8 @@ public class Table : Furniture
     [NonSerialized] public GameObject[] placedFoods = new GameObject[4];
     public int disableNum;
     public HashSet<AnimalController> animals = new HashSet<AnimalController>();
+
+    public TableState tableState = TableState.None;
     public void Awake()
     {
         //transforms = transform;
@@ -117,6 +119,10 @@ public class Table : Furniture
             }
 
             await UniTask.WhenAll(tasks);
+            for (int i = 0; i < seats.Length; i++)
+            {
+                seats[i].animal = null;
+            }
             isDirty = false;
             interacting = false;
             canTouchable = true;

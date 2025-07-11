@@ -7,7 +7,6 @@ using System.Linq;
 using System.Threading;
 using UnityEngine;
 using static GameInstance;
-using static UnityEngine.GraphicsBuffer;
 using static MoveCalculator;
 using static UnityEngine.Rendering.DebugUI;
 public class BlackConsumer : AnimalController
@@ -184,7 +183,8 @@ public class BlackConsumer : AnimalController
        
         if (index >= 0)
         {
-            targetTable.hasProblem = true;
+            // targetTable.hasProblem = true;
+            targetTable.tableState = TableState.HasTrouble;
             seatIndex = index;
             targetTable.seats[index].animal = this;
             Vector3 target = targetTable.seats[index].transform.position;
@@ -403,6 +403,8 @@ public class BlackConsumer : AnimalController
                 targetTable.stealing = false;
                 targetTable.hasProblem = false;
                 targetTable.stolen = false;
+
+                targetTable.tableState = TableState.None;
                    
                 
                 targetTable.seats[seatIndex].animal = null;
@@ -415,7 +417,8 @@ public class BlackConsumer : AnimalController
                 return;
             }
 
-            targetTable.stealing = true;
+            //  targetTable.stealing = true;
+            targetTable.tableState = TableState.Stealing;
 
             animator.SetTrigger(AnimationKeys.Happy);
             int num = 0;
@@ -425,17 +428,18 @@ public class BlackConsumer : AnimalController
             }
           
             await UniTask.Delay(200, cancellationToken: cancellationToken);
-            
+
             while (true)
             {
-                if (targetTable.placedFoods[seatIndex] == null)
+
+                if (!targetTable.placed || targetTable.seats[seatIndex].isDisEnabled || targetTable.disableNum == 3)
                 {
-                    for (int i = 0; i < targetTable.seats.Length; i++)
+                    goto StartStealFood;
+                }
+                for (int i = 0; i < targetTable.seats.Length; i++)
+                {
+                    if (seatIndex != i)
                     {
-                        if (!targetTable.placed || targetTable.seats[seatIndex].isDisEnabled || targetTable.disableNum == 3)
-                        {
-                            goto StartStealFood;
-                        }
                         if (targetTable.placedFoods[i] != null)
                         {
                             targetTable.placedFoods[seatIndex] = targetTable.placedFoods[i];
@@ -449,122 +453,89 @@ public class BlackConsumer : AnimalController
                             targetTable.placedFoods[seatIndex].transform.DOKill();
                             targetTable.placedFoods[seatIndex].transform.DOJump(t, 1, 1, 0.2f);
                             await UniTask.Delay(300, cancellationToken: cancellationToken);
-
-                            await Eating(targetTable.placedFoods[seatIndex].transform, cancellationToken: cancellationToken);
-                            await UniTask.NextFrame(cancellationToken: cancellationToken);
-                            if (!targetTable.placed || targetTable.seats[seatIndex].isDisEnabled || targetTable.disableNum == 3) goto StartStealFood;
-
-                            Food f = targetTable.placedFoods[seatIndex].GetComponent<Food>();
-                            FoodManager.EatFood(f);
-                            targetTable.numberOfFoods--;
-                            targetTable.numberOfGarbage++;
-                            targetTable.placedFoods[seatIndex] = null;
-                            await UniTask.Delay(200, cancellationToken: cancellationToken);
-                        }
-                    }
-
-                    if (targetTable.foodStacks[0].foodStack.Count > 0)
-                    {
-                        int count = 0;
-                        for (int j = 0; j < targetTable.seats.Length; j++)
-                        {
-                            if (j != seatIndex && targetTable.seats[j].isDisEnabled)
-                            {
-                                count++;
-                            }
-                        }
-                        if (!targetTable.placed || targetTable.seats[seatIndex].isDisEnabled || count == 3)
-                        {
-                            goto StartStealFood;
-                        }
-
-                        Vector3 t = targetTable.transforms.position;
-                        Vector3 forward = -targetTable.seats[seatIndex].transform.forward;
-                        t += forward;
-                        t.y = 0.5f;
-
-                        Food f = targetTable.foodStacks[0].foodStack.Pop();
-
-                        f.transform.DOKill();
-                        f.transform.DOJump(t, 1, 1, 0.2f);
-
-                        await UniTask.Delay(300, cancellationToken: cancellationToken);
-
-                        targetTable.placedFoods[seatIndex] = f.gameObject;
-                        await Eating(targetTable.placedFoods[seatIndex].transform, cancellationToken: cancellationToken);
-                        await UniTask.NextFrame(cancellationToken: cancellationToken);
-                        if (!targetTable.placed || targetTable.seats[seatIndex].isDisEnabled || targetTable.disableNum == 3) goto StartStealFood;
-
-                        FoodManager.EatFood(f);
-                        targetTable.numberOfFoods--;
-                        targetTable.numberOfGarbage++;
-
-                        targetTable.placedFoods[seatIndex] = null;
-
-                        await UniTask.Delay(200, cancellationToken: cancellationToken);
-
-                        for (int i = 0; i < targetTable.seats.Length; i++)
-                        {
-                            if (targetTable.placedFoods[i] != null) continue;
-
-                        }
-                        if (targetTable.placedFoods[0] != null) continue;
-                        else if (targetTable.placedFoods[1] != null) continue;
-                        else if (targetTable.placedFoods[2] != null) continue;
-                        else if (targetTable.placedFoods[3] != null) continue;
-                        if (targetTable.foodStacks[0].foodStack.Count > 0)
-                        {
-                            await UniTask.NextFrame(cancellationToken: cancellationToken);
-                            continue;
+                            break;
                         }
                     }
                 }
-                else
+
+                //내려놓기
+                if (targetTable.placedFoods[seatIndex] == null && targetTable.foodStacks[0].foodStack.Count > 0)
                 {
-                    Food f = targetTable.placedFoods[seatIndex].GetComponent<Food>();   
+                    Food f = targetTable.foodStacks[0].foodStack.Pop();
+                    targetTable.placedFoods[seatIndex] = f.gameObject;
+                   // preIndex = i;
+
+                    Vector3 t = targetTable.transforms.position;
+                    Vector3 forward = -targetTable.seats[seatIndex].transform.forward;
+                    t += forward;
+                    t.y = 0.5f;
+                    targetTable.placedFoods[seatIndex].transform.DOKill();
+                    targetTable.placedFoods[seatIndex].transform.DOJump(t, 1, 1, 0.2f);
+                    await UniTask.Delay(300, cancellationToken: cancellationToken);
+                }
+                else if (targetTable.placedFoods[seatIndex] == null && targetTable.foodStacks[0].foodStack.Count == 0)
+                {
+                    //종료
+                    targetTable.tableState = TableState.Stolen;
+                    targetTable.stolen = true;
+                    SoundManager.Instance.PlayAudio3D(GameIns.gameSoundManager.LaughAt(), 0.1f, 100, 5, trans.position);
+                    Emote emote = GameIns.restaurantManager.GetEmote();
+                    emote.image.sprite = GameInstance.GameIns.restaurantManager.emoteSprites[4001];
+                    emote.rectTransform.position = trans.position + Vector3.up * 4; //InputManger.cachingCamera.WorldToScreenPoint(trans.position) + Vector3.up * 50;
+                    emote.height = 3;
+                    emote.Emotion(1.5f);
+                    animator.SetBool("bounceTrigger", true);
+                    animator.SetTrigger("bounce");
+                    //audioSource.clip = 
+                    await UniTask.Delay(5000, cancellationToken: cancellationToken);
+
+                    targetTable.stealing = false;
+                    targetTable.hasProblem = false;
+                    targetTable.stolen = false;
+                    animator.SetBool("bounceTrigger", false);
+                    animator.SetTrigger(AnimationKeys.Normal);
+                    targetTable.seats[seatIndex].animal = null;
+                    targetTable = null;
+
+                    state = BlackConsumerState.FindingTarget;
+                    consumerCallback?.Invoke(this);
+                    return;
+                }
+
+                //먹기
+                if (targetTable.placedFoods[seatIndex] != null)
+                {
                     await Eating(targetTable.placedFoods[seatIndex].transform, cancellationToken: cancellationToken);
                     await UniTask.NextFrame(cancellationToken: cancellationToken);
                     if (!targetTable.placed || targetTable.seats[seatIndex].isDisEnabled || targetTable.disableNum == 3) goto StartStealFood;
+                    Food f = targetTable.placedFoods[seatIndex].GetComponent<Food>();
                     FoodManager.EatFood(f);
                     targetTable.numberOfFoods--;
+                    targetTable.numberOfFoods = targetTable.numberOfFoods < 0 ? 0 : targetTable.numberOfFoods;
                     targetTable.numberOfGarbage++;
-
                     targetTable.placedFoods[seatIndex] = null;
 
-                    await UniTask.Delay(200, cancellationToken: cancellationToken);
-                    if (targetTable.foodStacks[0].foodStack.Count > 0)
+                    //쓰레기 생성
+                    if (targetTable.foodStacks[0].foodStack.Count == 0 && targetTable.numberOfFoods == 0)
                     {
-                        await UniTask.NextFrame(cancellationToken: cancellationToken);
-                        continue;
+                        targetTable.numberOfGarbage = targetTable.numberOfGarbage > 10 ? 10 : targetTable.numberOfGarbage;
+                        targetTable.isDirty = true;
+
+                        for (int i = 0; i < targetTable.numberOfGarbage; i++)
+                        {
+                            Garbage go = GarbageManager.CreateGarbage();
+                            go.transforms.SetParent(targetTable.trashPlate.transforms);
+                            targetTable.garbageList.Add(go);
+
+                            float x = UnityEngine.Random.Range(-1f, 1f);
+                            float z = UnityEngine.Random.Range(-1f, 1f);
+                            go.transforms.position = targetTable.up.position + new Vector3(x, 0, z);
+                        }
                     }
+
+                    await UniTask.Delay(200, cancellationToken: cancellationToken);
                 }
-              
-                targetTable.stolen = true;
-                SoundManager.Instance.PlayAudio3D(GameIns.gameSoundManager.LaughAt(), 0.1f, 100, 5, trans.position);
-                Emote e = GameIns.restaurantManager.GetEmote();
-                e.image.sprite = GameInstance.GameIns.restaurantManager.emoteSprites[4001];
-                e.rectTransform.position = trans.position + Vector3.up * 4; //InputManger.cachingCamera.WorldToScreenPoint(trans.position) + Vector3.up * 50;
-                e.height = 3;
-                e.Emotion(1.5f);
-                animator.SetBool("bounceTrigger", true);
-                animator.SetTrigger("bounce");
-                //audioSource.clip = 
-                await UniTask.Delay(5000, cancellationToken: cancellationToken);
-
-                targetTable.stealing = false;
-                targetTable.hasProblem = false;
-                targetTable.stolen = false;
-                animator.SetBool("bounceTrigger", false);
-                animator.SetTrigger(AnimationKeys.Normal);
-                targetTable.seats[seatIndex].animal = null;
-                targetTable = null;
-
-                state = BlackConsumerState.FindingTarget;
-                consumerCallback?.Invoke(this);
-                return;
             }
-
-
 
         }
         catch (Exception ex)
@@ -587,14 +558,14 @@ public class BlackConsumer : AnimalController
 
             float tm = RestaurantManager.restaurantTimer;
             float timer = animalStruct.eat_speed;
-            for (int i = 0; i < 100; i++)
+            for (int i = 1; i <= 100; i++)
             {
                 if(!targetTable.placed || targetTable.seats[seatIndex].isDisEnabled || targetTable.disableNum == 3)
                 {
                     goto StartEating;
                 }
                 //if (tm + timer / 10 <= RestaurantManager.restaurantTimer)
-                if(i != 0 && i % 9 == 0)
+                if(i != 0 && i % 10 == 0)
                 {
                     tm = RestaurantManager.restaurantTimer;
                     SoundManager.Instance.PlayAudio3D(GameIns.gameSoundManager.Eat(), 0.1f, 100, 5, trans.position);
@@ -605,6 +576,7 @@ public class BlackConsumer : AnimalController
                     eat.PlayEating();
                 }
                 await Utility.CustomUniTaskDelay(timer / 100, cancellationToken);
+                cancellationToken.ThrowIfCancellationRequested();
                 //await UniTask.Delay((int)(timer * 10), cancellationToken: cancellationToken);
             }
         }
@@ -769,11 +741,30 @@ public class BlackConsumer : AnimalController
 
             bDead = true;
 
+            bool isStolen = false;
             if (targetTable != null)
             {
-                targetTable.stealing = false;
-                targetTable.hasProblem = false;
-                targetTable.stolen = false;
+                if (targetTable.tableState == TableState.Stealing && targetTable.foodStacks[0].foodStack.Count == 0)
+                {
+                    for (int i = 0; i < targetTable.placedFoods.Length; i++)
+                    {
+                        if (targetTable.placedFoods[i] != null) break;
+                        
+                        if(i == targetTable.placedFoods.Length - 1) isStolen = true;
+                    }
+                }
+                if(isStolen)
+                {
+                    targetTable.tableState = TableState.Stolen;
+               
+                }
+                else
+                {
+                    targetTable.tableState = TableState.None;
+              
+                }
+               
+                
                 targetTable.seats[seatIndex].animal = null;
                 targetTable.animals.Remove(this);
                 targetTable = null;

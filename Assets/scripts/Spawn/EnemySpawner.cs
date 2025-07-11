@@ -44,7 +44,7 @@ public class EnemySpawner : MonoBehaviour
                 {
                     if(!bSpawned)
                     {
-                       // if (GameInstance.GameIns.restaurantManager.trashData.trashNum > 70)
+                        if (GameInstance.GameIns.restaurantManager.trashData.trashNum > 70)
                         {
                             bSpawned = true;
                             currentBlackConsumer = GameInstance.GameIns.animalManager.blackConsumer;

@@ -56,7 +56,6 @@ public class AnimalSpawner : MonoBehaviour
         if (animalManager.mode == AnimalManager.Mode.GameMode) Spawn().Forget();
     }
 
-    //float coroutineTimer =0;
     float coroutineTimer2 =0;
 
     Customer deliveryCustomer;
@@ -115,21 +114,6 @@ public class AnimalSpawner : MonoBehaviour
 
                                     int selectedIndex = Random.Range(0, 2);
                                
-                               /*     SpawnPoint temp = spawnPoints[another];
-                                    spawnPoints[another] = spawnPoints[selectedIndex];
-                                    spawnPoints[selectedIndex] = temp;
-                                    
-                                    for(int i = 0; i< spawnPoints.Count; i++)
-                                    {
-                                        if (spawnPoints[i].SpawnTarget())
-                                        {
-                                            ac.trans.position = spawnPoints[i].transform.position;
-                                            ac.endPoint = spawnPoints[i].gameObject;
-                                            break;
-                                        }
-                                    }*/
-                              
-
                                     ac.trans.position = spawnPoints[selectedIndex].transform.position;
                                     ac.endPoint = spawnPoints[selectedIndex].gameObject;
 
@@ -141,9 +125,11 @@ public class AnimalSpawner : MonoBehaviour
                                     float value = GameInstance.GameIns.restaurantManager.GetRestaurantValue();
                                     float timerValue = 1650 / value + 2;
 
-                                
-                                    await UniTask.Delay(2000, cancellationToken: cancellationToken);
-                                //    await UniTask.Delay(RestaurantManager.spawnTimer, cancellationToken: cancellationToken);
+
+                                    // await UniTask.Delay(2000, cancellationToken: cancellationToken);
+                                    float timer = RestaurantManager.spawnTimer / 1000f;
+                                    await Utility.CustomUniTaskDelay(timer, cancellationToken);
+                                 //   await UniTask.Delay(RestaurantManager.spawnTimer, cancellationToken: cancellationToken);
                                     //yield return new WaitForSeconds(timerValue);
                                 }
                                 break;
@@ -190,7 +176,9 @@ public class AnimalSpawner : MonoBehaviour
 
                                     float value = GameInstance.GameIns.restaurantManager.GetRestaurantValue();
                                     float timerValue = 1650 / value + 2;
-                                    await UniTask.Delay(RestaurantManager.spawnTimer, cancellationToken: cancellationToken);
+                                    float timer = RestaurantManager.spawnTimer / 1000f;
+                                    await Utility.CustomUniTaskDelay(timer, cancellationToken);
+                                //    await UniTask.Delay(RestaurantManager.spawnTimer, cancellationToken: cancellationToken);
                                   //  await UniTask.Delay((int)timerValue, cancellationToken: cancellationToken);
                                 }
                                 break;

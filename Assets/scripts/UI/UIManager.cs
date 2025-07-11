@@ -354,7 +354,7 @@ public class UIManager : MonoBehaviour
         order[(int)counterType - 1].animalController = customer;
         // transform.position = order[(int)counterType - 1].animalController.transform.position + new Vector3(0, 10, 0);
         //  transform.rotation = Quaternion.Euler(new Vector3(60, 45, 0));
-        order[(int)counterType - 1].transform.position = order[(int)counterType - 1].animalController.transform.position + GetVector3(0, 10, 0);
+        order[(int)counterType - 1].transform.position = order[(int)counterType - 1].animalController.transform.position;
         order[(int)counterType - 1].transform.rotation = Quaternion.Euler(60, 45, 0);
 
         order[(int)counterType - 1].transform.SetParent(customer.transform);
