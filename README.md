@@ -1,7 +1,6 @@
 # PenguinRestaurant
 
 Animal Restaurant Tycoon Game
-"plus DJ303"
 
 04/29 Overall code refactoring and adding asset loading system
 04/30 Improved input system usage and camera dragging
@@ -68,8 +67,7 @@ Animal Restaurant Tycoon Game
 07/05 Fix the issue where previous values are not properly cleared when reverting in the placement system
 07/06 Fixed bugs occurring during path recalculation caused by furniture rearrangement
 07/08 Fixed issues occurring during food competition between customers and enemies at tables
-
 07/09 Fixed an issue where characters at the edge of the screen were culled incorrectly in a 9:16 aspect ratio environment
-
 07/10 Adjusted the UI transparency and height for order status, and added installed doors to the furniture list to allow repositioning
+07/13 Added controller to allow doors to be moved to different walls, and updated guest interactions to work correctly after door relocation
 

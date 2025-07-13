@@ -25,7 +25,7 @@ public class Furniture : MonoBehaviour
         {
             SaveLoadSystem.SaveRestaurantBuildingData();
             spawned = true;
-            StartCoroutine(ScaleAnimation());
+            if(spaceType != WorkSpaceType.Door)  StartCoroutine(ScaleAnimation());
         }
     }
     IEnumerator ScaleAnimation()

@@ -142,7 +142,7 @@ public class MoveCalculator
         }
     }
 
-    public static void CheckAreaWithBounds(CalculatorScale calculatorScale, Collider collider, bool update)
+    public static void CheckAreaWithBounds(CalculatorScale calculatorScale, Collider collider, bool update, bool all = true)
     {
         if(collider != null)
         {
@@ -167,7 +167,7 @@ public class MoveCalculator
             {
                 for( int j = minIndexY; j <= maxIndexY; j++)
                 {
-                    blockedAreas[GetIndex(i, j)] = update;
+                    if(all) blockedAreas[GetIndex(i, j)] = update;
                     blockedAreas_Employee[GetIndex(i, j)] = update;
                 }
             }

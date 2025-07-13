@@ -111,9 +111,19 @@ public class FurnitureInfo : MonoBehaviour
                     break;
              
             }
-            currentFurniture.gameObject.SetActive(false);
+           
             if (currentFurniture.spaceType != WorkSpaceType.Door)
             {
+                if(GameInstance.GameIns.restaurantManager.doorPreview.gameObject.activeSelf)
+                {
+                    foreach (var v in GameInstance.GameIns.restaurantManager.changableWalls)
+                    {
+                        v.Highlight(false);
+                    }
+                    GameInstance.GameIns.restaurantManager.door.GetComponentInChildren<MeshRenderer>().enabled = true;
+                    GameInstance.GameIns.restaurantManager.doorPreview.gameObject.SetActive(false);
+                }
+                currentFurniture.gameObject.SetActive(false);
                 PlaceController placeController = GameInstance.GameIns.store.GetGoods(currentFurniture.id);
 
                 placeController.placedArea = placedArea;
@@ -134,14 +144,24 @@ public class FurnitureInfo : MonoBehaviour
                 placeController.gameObject.SetActive(true);
 
                 GameInstance.GameIns.applianceUIManager.appliancePanel.gameObject.SetActive(false);
-                GameInstance.GameIns.applianceUIManager.StopInfo();
                 GameInstance.GameIns.gridManager.VisibleGrid(true);
             }
             else
             {
+                foreach(var v in GameInstance.GameIns.restaurantManager.changableWalls)
+                {
+                    v.Highlight(true);
+                }
+
+                GameInstance.GameIns.store.RemovePreview();
+                GameInstance.GameIns.restaurantManager.door.GetComponentInChildren<MeshRenderer>().enabled = false;
+
                 GameInstance.GameIns.restaurantManager.doorPreview.gameObject.SetActive(true);
                 GameInstance.GameIns.restaurantManager.doorPreview.transform.position = currentFurniture.transform.position;
+                GameInstance.GameIns.restaurantManager.doorPreview.rotateOffset.transform.rotation = currentFurniture.transform.rotation * Quaternion.Euler(0,90,0);
+               // GameInstance.GameIns.restaurantManager.doorPreview.rotateOffset.transform.rotation = currentFurniture.transform.rotation;
             }
+            GameInstance.GameIns.applianceUIManager.StopInfo();
         }
     }
 
