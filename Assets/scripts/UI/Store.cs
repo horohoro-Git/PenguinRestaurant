@@ -79,9 +79,29 @@ public class Store : MonoBehaviour
         }
     }
 
-    public PlaceController GetGoods(int id)
+    public void RemovePreview()
     {
         if (currentPreview != null)
+        {
+            currentPreview.Cancel();
+            if (currentPreview.storeGoods.currnet)
+            {
+                if (currentPreview.storeGoods.currnet.purchasedObject)
+                {
+                    currentPreview.storeGoods.currnet.currentFurniture.gameObject.SetActive(true);
+                }
+                currentPreview.storeGoods.currnet.purchasedObject = false;
+                currentPreview.storeGoods.currnet.currentFurniture = null;
+                currentPreview.storeGoods.currnet.gameObject.SetActive(false);
+                currentPreview.storeGoods.currnet = null;
+            }
+        }
+    }
+
+    public PlaceController GetGoods(int id)
+    {
+        RemovePreview();
+       /* if (currentPreview != null)
         {
             currentPreview.Cancel();
             if(currentPreview.storeGoods.currnet)
@@ -95,7 +115,7 @@ public class Store : MonoBehaviour
                 currentPreview.storeGoods.currnet.gameObject.SetActive(false);
                 currentPreview.storeGoods.currnet = null;
             }
-        }
+        }*/
         goodsList[id].currnet = goodsPreviewDic[id + 1000];
         currentPreview = goodsPreviewDic[id + 1000]; 
         return currentPreview;

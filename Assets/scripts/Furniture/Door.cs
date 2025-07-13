@@ -1,13 +1,21 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
+using UnityEngine.Rendering.Universal;
+
 
 public class Door : Furniture
 {
     public bool setup;
 
     public GameObject removeWall;
+    public List<Collider> doorColliders = new List<Collider>(); 
+
+    public override void Start()
+    {
+        base.Start();
+        StartCoroutine(OpenDoor());
+    }
 
 
     public IEnumerator OpenDoor()

@@ -96,6 +96,10 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
             GameIns.store.currentPreview.Cancel();
             GameIns.gridManager.VisibleGrid(false);
         }
+        if (GameIns.restaurantManager.doorPreview.gameObject.activeSelf)
+        {
+            GameIns.restaurantManager.doorPreview.Cancel();
+        }
       //if(!goods.soldout) InputManger.cachingCamera.GetComponent<OrthographicCamera>().ZoomOut();
     }
 

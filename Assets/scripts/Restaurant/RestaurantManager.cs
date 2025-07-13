@@ -99,6 +99,8 @@ public class RestaurantManager : MonoBehaviour
     public GameObject fishIcon;
     public Queue<GameObject> fishRewardIconQueue = new Queue<GameObject>();
     public RectTransform fishIconCanvas;
+
+    public ChangableWall[] changableWalls;
     private void Awake()
     {
         moneyChangedSoundKey = 100011;
@@ -523,6 +525,10 @@ public class RestaurantManager : MonoBehaviour
             table = GameIns.workSpaceManager.tables;
             TableUpdate(table);
         }
+        else if(furniture.spaceType == WorkSpaceType.Door)
+        {
+            MoveCalculator.CheckArea(GameInstance.GameIns.calculatorScale, true);
+        }
         else
         {
             MoveCalculator.CheckAreaWithBounds(GameInstance.GameIns.calculatorScale, furniture.GetComponentInChildren<Collider>(), true);
@@ -660,6 +666,10 @@ public class RestaurantManager : MonoBehaviour
         {
             await UniTask.NextFrame(cancellationToken: cancellationToken);
 
+            changableWalls = FindObjectsByType<ChangableWall>(FindObjectsInactive.Include, FindObjectsSortMode.InstanceID);
+            
+            await UniTask.NextFrame(cancellationToken: cancellationToken);
+
             for (int i = 0; i < restaurantData.extension_level; i++)
             {
                 expandables[i].SetActive(true);
@@ -669,6 +679,7 @@ public class RestaurantManager : MonoBehaviour
             }
             if (door.setup)
             {
+                door.spawned = true;
                 door.gameObject.SetActive(true);
                 Collider[] overlaps = Physics.OverlapBox(door.transform.position, new Vector3(0.1f, 1f, 0.1f), Quaternion.identity, (1 << 16) | (1 << 19));
 
@@ -720,22 +731,18 @@ public class RestaurantManager : MonoBehaviour
                     default:
                         furniture.transform.rotation = rot;
                         break;
-                }
-
-               
+                }           
 
                 placeController.transform.position = furniture.transform.position;
                 placeController.offset.transform.rotation = Quaternion.Euler(0, placeController.rotates[restaurantparams[i].level], 0);
                 placeController.offset.transform.localPosition = placeController.rotateOffsets[restaurantparams[i].level];
                 GameInstance.GameIns.gridManager.CheckObject(placeController, placeController.storeGoods.goods.type);
                 GameInstance.GameIns.gridManager.ApplyGird(placeController, placeController.offset.transform.position, furniture.spaceType);
-
-             
+                            
 
                 GameIns.store.require.Add(restaurantparams[i].id);
                 await UniTask.NextFrame(cancellationToken: cancellationToken);  
             }
-
 
             await UniTask.NextFrame(cancellationToken: cancellationToken);
             MoveCalculator.CheckArea(GameIns.calculatorScale, true);
