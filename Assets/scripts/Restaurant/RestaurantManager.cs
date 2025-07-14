@@ -198,8 +198,8 @@ public class RestaurantManager : MonoBehaviour
         miniGame = SaveLoadSystem.LoadMiniGameStatus();
         trashData = SaveLoadSystem.LoadTrashData();
 
-        restaurantCurrency.fishes += 100;
-        restaurantCurrency.Money += BigInteger.Parse("316000");// 10000;
+       // restaurantCurrency.fishes += 100;
+      //  restaurantCurrency.Money += BigInteger.Parse("316000");// 10000;
 
         moneyString = Utility.GetFormattedMoney(restaurantCurrency.Money, moneyString);
         GameInstance.GameIns.uiManager.moneyText.text = moneyString.ToString();

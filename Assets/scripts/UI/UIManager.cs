@@ -14,7 +14,7 @@ public class UIManager : MonoBehaviour
     public TMP_Text moneyText;
     public TMP_Text fishText;
     public Order[] order;
-
+    public RectTransform safeArea;
     public Button animalGuideButton;
     public Image animalGuideImage;
     public Panel panel;
@@ -69,6 +69,7 @@ public class UIManager : MonoBehaviour
     }
     void Start()
     {
+     //   PlayerCamera.ApplySafeArea(safeArea);
         eventSystem = EventSystem.current;
         if (loadedAtlases.ContainsKey("UI"))
         {

@@ -9,8 +9,15 @@ public class Door : Furniture
     public bool setup;
 
     public GameObject removeWall;
-    public List<Collider> doorColliders = new List<Collider>(); 
+    public List<Collider> doorColliders = new List<Collider>();
+    public List<Material> doorMat = new List<Material>();
+    public List<Material> doorTransparentMat = new List<Material>();
 
+    private void Awake()
+    {
+        doorTransparentMat[0].renderQueue = 3001;
+        doorTransparentMat[1].renderQueue = 3000;
+    }
     public override void Start()
     {
         base.Start();

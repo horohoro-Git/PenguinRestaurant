@@ -62,8 +62,9 @@ public class FurnitureInfo : MonoBehaviour
 
     public void Replace()
     {
+        SoundManager.Instance.PlayAudio(GameInstance.GameIns.uISoundManager.UIClick(), 0.2f);
         if (currentFurniture)
-        {  
+        {
             Queue<int> placedArea = MoveCalculator.GetCheckAreaWithBounds(GameInstance.GameIns.calculatorScale, currentFurniture.GetComponentInChildren<Collider>());
             currentFurniture.placed = false;
 
@@ -120,7 +121,14 @@ public class FurnitureInfo : MonoBehaviour
                     {
                         v.Highlight(false);
                     }
-                    GameInstance.GameIns.restaurantManager.door.GetComponentInChildren<MeshRenderer>().enabled = true;
+                    Door door = GameInstance.GameIns.restaurantManager.door;
+                    MeshRenderer meshRenderer = door.GetComponentInChildren<MeshRenderer>();
+                    Material[] mats = meshRenderer.materials;
+                    for (int i = 0; i < door.doorMat.Count; i++)
+                    {
+                        mats[i] = door.doorMat[i];
+                    }
+                    meshRenderer.materials = mats;
                     GameInstance.GameIns.restaurantManager.doorPreview.gameObject.SetActive(false);
                 }
                 currentFurniture.gameObject.SetActive(false);
@@ -154,8 +162,14 @@ public class FurnitureInfo : MonoBehaviour
                 }
 
                 GameInstance.GameIns.store.RemovePreview();
-                GameInstance.GameIns.restaurantManager.door.GetComponentInChildren<MeshRenderer>().enabled = false;
-
+                Door door = GameInstance.GameIns.restaurantManager.door;
+                MeshRenderer meshRenderer = door.GetComponentInChildren<MeshRenderer>();
+                Material[] mats = meshRenderer.materials;
+                for (int i = 0; i < door.doorTransparentMat.Count; i++)
+                {
+                    mats[i] = door.doorTransparentMat[i];
+                }
+                meshRenderer.materials = mats;
                 GameInstance.GameIns.restaurantManager.doorPreview.gameObject.SetActive(true);
                 GameInstance.GameIns.restaurantManager.doorPreview.transform.position = currentFurniture.transform.position;
                 GameInstance.GameIns.restaurantManager.doorPreview.rotateOffset.transform.rotation = currentFurniture.transform.rotation * Quaternion.Euler(0,90,0);
