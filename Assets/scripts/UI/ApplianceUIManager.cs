@@ -100,6 +100,7 @@ public class ApplianceUIManager : MonoBehaviour
     }
     private void Start()
     {
+      //  PlayerCamera.ApplySafeArea(rootUI.GetComponent<RectTransform>());
         //gameinstance.gameins.applianceuimanager = this;
         //appliancepanel.setactive(false); // 시작할 때는 패널 비활성화
     }

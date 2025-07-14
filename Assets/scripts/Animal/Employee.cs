@@ -18,9 +18,6 @@ using UnityEngine.UIElements;
 using static GameInstance;
 using Random = UnityEngine.Random;
 using static MoveCalculator;
-using CryingSnow.FastFoodRush;
-using static UnityEngine.Rendering.DebugUI;
-using static UnityEngine.Rendering.VolumeComponent;
 public class Employee : AnimalController
 {
     enum EmployeeActions

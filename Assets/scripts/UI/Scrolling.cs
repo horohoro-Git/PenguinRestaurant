@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -10,6 +11,7 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
     Canvas canvas;
     Canvas GetCanvas { get { if(canvas == null) canvas = GetComponentInParent<Canvas>(); return canvas; } }
 
+    public TMP_Text storeText;
     public RectTransform parentRect;
     public Image border;
     Vector2 SetParentVector { set { parentRect.anchoredPosition = value; 
@@ -22,7 +24,7 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
     Vector2 latestVector = Vector3.zero;
     bool isSpread = false;
     Coroutine scrollCoroutine;
-    bool isDown = false;
+    bool isDown = true;
 
     void Awake()
     {
@@ -44,8 +46,7 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
     }
     public void OnDrag(PointerEventData eventData)
     {
-        //Vector2 pos = Input.mousePosition;
-        Vector2 pos;
+  /*      Vector2 pos;
 
 #if UNITY_ANDROID || UNITY_IOS
                 pos = Touchscreen.current.touches[0].position.ReadValue();
@@ -104,7 +105,7 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
         }
        
         latestVector = pos;
-
+*/
     }
 
     IEnumerator Down()
@@ -147,6 +148,24 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
 
     public void OnPointerDown(PointerEventData eventData)
     {
+        if(!isDown)
+        {
+            SoundManager.Instance.PlayAudio(GameInstance.GameIns.uISoundManager.Fold(), 0.2f);
+            if (scrollCoroutine != null) StopCoroutine(scrollCoroutine);
+            scrollCoroutine = StartCoroutine(Down());
+            isDown = true;
+            animator.SetInteger(AnimationKeys.scrolling, 2);
+            storeText.fontSize = 45f;
+        }
+        else
+        {
+            SoundManager.Instance.PlayAudio(GameInstance.GameIns.uISoundManager.Spread(), 0.2f);
+            if (scrollCoroutine != null) StopCoroutine(scrollCoroutine);
+            scrollCoroutine = StartCoroutine(Up());
+            isDown = false;
+            animator.SetInteger(AnimationKeys.scrolling, 1);
+            storeText.fontSize = 60f;
+        }
 
         Vector3 pos;// = Input.mousePosition;
 #if UNITY_ANDROID || UNITY_IOS
@@ -160,7 +179,7 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
     public void OnPointerUp(PointerEventData eventData)
     {
       
-        if (parentRect.anchoredPosition.y == 400)
+     /*   if (parentRect.anchoredPosition.y == 400)
         {
           //  animator.SetTrigger("spread");
             isSpread = true;
@@ -183,12 +202,13 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
             scrollCoroutine = StartCoroutine(Up());
             return;
         }
-      
+      */
     }
 
     public void Shut()
     {
-        if (!isSpread && isDown) return; 
+        if (isDown) return;
+       // if (!isSpread && isDown) return; 
         if (scrollCoroutine != null) StopCoroutine(scrollCoroutine);
       
         scrollCoroutine = StartCoroutine(Down());
@@ -197,5 +217,6 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
         animator.SetInteger(AnimationKeys.scrolling, 2);
         isSpread = false;
         isDown = true;
+        storeText.fontSize = 45f;
     }
 }

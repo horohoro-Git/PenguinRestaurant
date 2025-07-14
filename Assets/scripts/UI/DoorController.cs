@@ -19,6 +19,7 @@ public class DoorController : MonoBehaviour
 
 
     GameObject currentWallObject;
+  
     private void OnEnable()
     {
 #if UNITY_EDITOR || UNITY_STANDALONE_WIN
@@ -53,14 +54,6 @@ public class DoorController : MonoBehaviour
                 case UnityEngine.InputSystem.TouchPhase.Began:
                     HandleInputDown(lastInputPosition);
                     break;
-
-                case UnityEngine.InputSystem.TouchPhase.Moved:
-                    if (isDragging)
-                    {
-                        HandleDrag(lastInputPosition);
-                    }
-                    break;
-
                 case UnityEngine.InputSystem.TouchPhase.Ended:
                 case UnityEngine.InputSystem.TouchPhase.Canceled:
                     HandleInputUp();
@@ -73,22 +66,26 @@ public class DoorController : MonoBehaviour
                 Ray r = InputManger.cachingCamera.ScreenPointToRay(currentMouse.position.ReadValue());
                 if (Physics.Raycast(r, out RaycastHit hit, float.MaxValue, 1 << 16 | 1 << 19))
                 {
-                    Debug.Log("Changable");
                     GameObject gameObject = hit.collider.gameObject;
                     if(gameObject != currentWallObject)
                     {
-                        if(currentWallObject != null)
+                        SoundManager.Instance.PlayAudio(GameInstance.GameIns.uISoundManager.FurnitureClick(), 0.2f);
+                        if (currentWallObject != null)
                         {
-                            currentWallObject.GetComponent<MeshRenderer>().enabled = true;
+                            MeshRenderer[] mr = currentWallObject.GetComponentsInChildren<MeshRenderer>();
+                            for(int i = 0; i < mr.Length; i++) mr[i].enabled = true;
+                           
                         }
                         isDragging = true;
                         GameInstance.GameIns.inputManager.inputDisAble = true;
                         currentWallObject = gameObject;
-                        currentWallObject.GetComponent<MeshRenderer>().enabled = false;
+                        MeshRenderer[] mrs = currentWallObject.GetComponentsInChildren<MeshRenderer>();
+                        for (int i = 0; i < mrs.Length; i++) mrs[i].enabled = false;
                         Vector3 pos = currentWallObject.transform.position;
                         pos.y = 0;
                         transform.position = pos;
                         rotateOffset.transform.rotation = currentWallObject.transform.rotation;
+
                         //   currentWallObject.SetActive(false);
                     }
                 }
@@ -108,6 +105,7 @@ public class DoorController : MonoBehaviour
     }
     public void Apply()
     {
+        SoundManager.Instance.PlayAudio(GameInstance.GameIns.uISoundManager.UIClick(), 0.2f);
         Door door = GameInstance.GameIns.restaurantManager.door;
         if (transform.position != GameInstance.GameIns.restaurantManager.door.transform.position)
         {
@@ -119,14 +117,19 @@ public class DoorController : MonoBehaviour
         if (currentWallObject != null)
         {
             door.removeWall = currentWallObject;
-            door.removeWall.GetComponent<MeshRenderer>().enabled = true;
-
+            MeshRenderer[] mr = door.removeWall.GetComponentsInChildren<MeshRenderer>();
+            for (int i = 0; i < mr.Length; i++) mr[i].enabled = true;
             door.removeWall.gameObject.SetActive(false);
-       //     MoveCalculator.CheckAreaWithBounds(GameInstance.GameIns.calculatorScale, door.removeWall.GetComponentInChildren<Collider>(), false);
         }
         foreach (var v in GameInstance.GameIns.restaurantManager.changableWalls) v.Highlight(false);
-        door.GetComponentInChildren<MeshRenderer>().enabled = true;   
-        
+
+        MeshRenderer meshRenderer = door.GetComponentInChildren<MeshRenderer>();
+        Material[] materials = meshRenderer.materials;
+        for (int i = 0; i < door.doorMat.Count; i++)
+        {
+            materials[i] = door.doorMat[i];
+        }
+        meshRenderer.materials = materials;
         GameInstance.GameIns.restaurantManager.ApplyPlaced(door);
         
         SaveLoadSystem.SaveRestaurantBuildingData();
@@ -137,10 +140,20 @@ public class DoorController : MonoBehaviour
 
     public void Cancel()
     {
-        if (currentWallObject != null) currentWallObject.GetComponent<MeshRenderer>().enabled = true;
-    
-        GameInstance.GameIns.restaurantManager.door.GetComponentInChildren<MeshRenderer>().enabled = true;
-
+        SoundManager.Instance.PlayAudio(GameInstance.GameIns.uISoundManager.UIClick(), 0.2f);
+        if (currentWallObject != null)
+        {
+            MeshRenderer[] mr = currentWallObject.GetComponentsInChildren<MeshRenderer>();
+            for (int i = 0; i < mr.Length; i++) mr[i].enabled = true;
+        }
+        Door door = GameInstance.GameIns.restaurantManager.door;
+        MeshRenderer meshRenderer = door.GetComponentInChildren<MeshRenderer>();
+        Material[] materials = meshRenderer.materials;
+        for (int i = 0; i < door.doorMat.Count; i++)
+        {
+            materials[i] = door.doorMat[i];
+        }
+        meshRenderer.materials = materials;
         foreach (var v in GameInstance.GameIns.restaurantManager.changableWalls) v.Highlight(false);
      
         gameObject.SetActive(false);
@@ -148,13 +161,26 @@ public class DoorController : MonoBehaviour
 
     private void HandleInputDown(Vector2 inputPosition)
     {
+      
         Ray ray = InputManger.cachingCamera.ScreenPointToRay(inputPosition);
-        if (Physics.Raycast(ray, out RaycastHit hit, float.MaxValue, 1 << 17))
+        if (Physics.Raycast(ray, out RaycastHit hit, float.MaxValue, 1 << 16 | 1 << 19))
         {
-            if (hit.collider.gameObject.GetComponentInParent<PlaceController>() == this)
+            GameObject gameObject = hit.collider.gameObject;
+            if (gameObject != currentWallObject)
             {
-                GameInstance.GameIns.inputManager.inputDisAble = true;
+                SoundManager.Instance.PlayAudio(GameInstance.GameIns.uISoundManager.FurnitureClick(), 0.2f);
+                if (currentWallObject != null)
+                {
+                    currentWallObject.GetComponent<MeshRenderer>().enabled = true;
+                }
                 isDragging = true;
+                GameInstance.GameIns.inputManager.inputDisAble = true;
+                currentWallObject = gameObject;
+                currentWallObject.GetComponent<MeshRenderer>().enabled = false;
+                Vector3 pos = currentWallObject.transform.position;
+                pos.y = 0;
+                transform.position = pos;
+                rotateOffset.transform.rotation = currentWallObject.transform.rotation;
             }
         }
     }
