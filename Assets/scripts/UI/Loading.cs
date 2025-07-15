@@ -50,7 +50,7 @@ public class Loading : MonoBehaviour
     public void LoadingComplete()
     {
         done = true;
-        text.text = "로딩 완료!";
+        text.text = App.gameSettings.language == Language.KOR ? "로딩 완료!" : "Loading Complete!";
 
         StartCoroutine(FadeOut());
     }

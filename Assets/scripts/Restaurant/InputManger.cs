@@ -117,6 +117,10 @@ public class InputManger : MonoBehaviour
     public GameObject draggingFurniture;
 
     bool justTouch;
+    public Vector3 latestDirection;
+    int obstacleMask = 1 << 7 | 1 << 8 | 1 << 16 | 1 << 19;
+    int objectMask = 1 << 3 | 1 << 11 | 1 << 13 | 1 << 10 | 1 << 22;
+    int uiMask = 1 << 5 | 1 << 14 | 1 << 18;
     private void Awake()
     {
         es = GetComponent<EventSystem>();
@@ -259,7 +263,7 @@ public class InputManger : MonoBehaviour
        
         camVelocity = Vector3.zero;
         if (cachingCamera == null) cachingCamera = Camera.main;
-        if (CheckClickedUI(1 << 5 | 1 << 14 | 1 << 18)) return;
+        if (CheckClickedUI(uiMask)) return;
      //   if (Utility.IsInsideCameraViewport(currentPoint, cachingCamera))
         {
             //realPosition = cameraTrans.position;
@@ -296,7 +300,7 @@ public class InputManger : MonoBehaviour
             buyer = null;
         }
 
-        if (CheckClickedUI(1 << 5 | 1 << 14 | 1 << 18)) return;
+        if (CheckClickedUI(uiMask)) return;
         if (!isDragging)
         {
             //인게임 오브젝트 클릭
@@ -311,7 +315,7 @@ public class InputManger : MonoBehaviour
     {
         Ray ray = cachingCamera.ScreenPointToRay(pos);
         RaycastHit hit;
-        if (Physics.Raycast(ray, out hit, Mathf.Infinity, 1 << 3 | 1 << 11 | 1 << 13 | 1 << 10 | 1 << 22))
+        if (Physics.Raycast(ray, out hit, Mathf.Infinity, objectMask))// 1 << 3 | 1 << 11 | 1 << 13 | 1 << 10 | 1 << 22))
         {
             GameObject go = hit.collider.gameObject;
             if (go.TryGetComponent<UnlockableBuyer>(out UnlockableBuyer unlockableBuyer))
@@ -461,6 +465,7 @@ public class InputManger : MonoBehaviour
             if (App.restaurantTimeScale == 1)
             {
                 if (!inputDisAble) cameraTrans.position -= move * Time.deltaTime;
+             
                 //   Utility.CheckHirable(cameraRange.position, ref refX, ref refY, checkingHirePos);
                 i += Time.deltaTime;
             }
@@ -481,20 +486,24 @@ public class InputManger : MonoBehaviour
 
             //  Debug.DrawRay(origin, direction * distance, Color.red, 1f);
             //  bool hitBlock = Physics.Raycast(origin, direction, out hit, distance, 1 << 7 | 1 << 8);
-            bool hitBlock = Physics.CheckSphere(origin + direction * distance, 0.2f, 1 << 7 | 1 << 8 | 1 << 16 | 1 << 19);
+            bool hitBlock = Physics.CheckSphere(origin + direction * distance, 0.2f, obstacleMask); //1 << 7 | 1 << 8 | 1 << 16 | 1 << 19);
             if (hitBlock)
             {
                 followPosition = cameraTrans.position;
                 realPosition = followPosition;
                 direction.y = 0;
-                if (coroutines2 != null) StopCoroutine(coroutines2);
-                coroutines2 = StartCoroutine(Blocking(direction));
-
+                if(direction != Vector3.zero) latestDirection = direction;
+                Stuck(direction);
                 return false;
             }
             d += 0.05f;
         }
         return true;
+    }
+    public void Stuck(Vector3 dir)
+    {
+        if (coroutines2 != null) StopCoroutine(coroutines2);
+        coroutines2 = StartCoroutine(Blocking(dir));
     }
 
     public bool CheckHire()

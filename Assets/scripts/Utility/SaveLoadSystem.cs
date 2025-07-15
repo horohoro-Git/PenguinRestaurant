@@ -149,7 +149,8 @@ public class SaveLoadSystem
                     using (BinaryReader reader = new BinaryReader(new MemoryStream(data)))
                     {
                         int id = reader.ReadInt32();
-                        string name = reader.ReadString();
+                        string name_kor = reader.ReadString();
+                        string name_eng = reader.ReadString();
                         string asset_name = reader.ReadString();
                         int tier = reader.ReadInt32();
                         float speed = reader.ReadSingle();
@@ -169,7 +170,7 @@ public class SaveLoadSystem
                         }
 
 
-                        animalsDic[id] = new AnimalStruct(id, name, asset_name, tier, speed, eat_speed, min_order, max_order, is_customer, size_width, size_height, offset_x, offset_z, personalities);
+                        animalsDic[id] = new AnimalStruct(id, name_kor, name_eng, asset_name, tier, speed, eat_speed, min_order, max_order, is_customer, size_width, size_height, offset_x, offset_z, personalities);
                     }
                 }
             }
@@ -392,7 +393,7 @@ public class SaveLoadSystem
                 foreach (KeyValuePair<int, AnimalStruct> animal in animals)
                 {
                     int id = animal.Value.id;
-                    string name = animal.Value.name;
+                    string name = App.gameSettings.language == Language.KOR ? animal.Value.name_kor : animal.Value.name_eng;
                     string asset_name = animal.Value.asset_name;
                     int tier = animal.Value.tier;
                     float speed = animal.Value.speed;
@@ -833,8 +834,6 @@ public class SaveLoadSystem
         }
     }
 
-
-
     public static VendingMachineData LoadVendingMachineData()
     {
         VendingMachineData vending = null;
@@ -1088,6 +1087,74 @@ public class SaveLoadSystem
 
 
         return miniGame;
+    }
+
+    public static GameSettings LoadGameSettings()
+    {
+        GameSettings settings = null;
+
+        string p = Path.Combine(path, "Save/settings.dat");
+        byte[] data;
+
+        if (File.Exists(p))
+        {
+            using (FileStream fs = new FileStream(p, FileMode.Open))
+            {
+                data = new byte[fs.Length];
+                fs.Read(data, 0, data.Length);
+                if (data.Length > 0)
+                {
+                    using (BinaryReader reader = new BinaryReader(new MemoryStream(data)))
+                    {
+                        Language language = (Language)reader.ReadInt32();
+                        float soundAmount = reader.ReadSingle();
+                        settings = new GameSettings(language, soundAmount);
+                    }
+                }
+            }
+        }
+        else
+        {
+            Language language;
+            SystemLanguage lang = Application.systemLanguage;
+            if(lang == SystemLanguage.Korean)
+            {
+                language = Language.KOR;
+            }
+            else
+            {
+                language = Language.ENG;
+            }
+
+            settings = new GameSettings(language, 100);
+
+            SaveGameSettings(settings);
+        }
+       
+        return settings;
+    }
+
+
+    public static void SaveGameSettings(GameSettings gameSettings)
+    {
+        string dir = Path.Combine(path, "Save");
+        if (!Directory.Exists(dir))
+        {
+            Directory.CreateDirectory(dir);
+        }
+        string p = Path.Combine(path, "Save/settings.dat");
+        using (MemoryStream ms = new MemoryStream())
+        {
+            using (BinaryWriter writer = new BinaryWriter(ms))
+            {
+                int language = (int)gameSettings.language;
+                float volume = gameSettings.soundAmount;
+                writer.Write(language);
+                writer.Write(volume);
+            }
+
+            File.WriteAllBytes(p, ms.ToArray());
+        }
     }
 }
          

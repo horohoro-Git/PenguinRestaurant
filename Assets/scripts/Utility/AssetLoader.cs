@@ -38,7 +38,7 @@ public class AssetLoader : MonoBehaviour
     public static Dictionary<int, LevelData> levelData = new Dictionary<int, LevelData>();
     public static Dictionary<int, ItemStruct> sounds = new Dictionary<int, ItemStruct>();
     public static Dictionary<int, ItemStruct> fishingAnimals = new Dictionary<int, ItemStruct>();
-    public static Dictionary<int, ItemStruct> animalPersonalities = new Dictionary<int, ItemStruct>();
+    public static Dictionary<int, AnimalPersnality> animalPersonalities = new Dictionary<int, AnimalPersnality>();
     public static List<MapContent> maps = new List<MapContent>();
     public static List<RestaurantParam> restaurantParams = new List<RestaurantParam>();
 
@@ -226,7 +226,7 @@ public class AssetLoader : MonoBehaviour
                         levelData = SaveLoadSystem.GetDictionaryDataClass<int, LevelData>(tableContents["level"]);
                         restaurantParams = SaveLoadSystem.GetListData<RestaurantParam>(tableContents["furniture"]);
                         machineLevelOffsets = SaveLoadSystem.GetDictionaryData<int, MachineLevelOffset>(tableContents["machine_level_offsets"]);
-                        animalPersonalities = SaveLoadSystem.GetDictionaryData<int, ItemStruct>(tableContents["animal_personality"]);
+                        animalPersonalities = SaveLoadSystem.GetDictionaryData<int, AnimalPersnality>(tableContents["animal_personality"]);
                     });
                     foreach (KeyValuePair<int, ItemStruct> keyValuePair in items) itemAssetKeys[keyValuePair.Key] = new StringStruct(keyValuePair.Value.asset_name);
                     foreach (KeyValuePair<int, ItemStruct> keyValuePair in sprites) spriteAssetKeys[keyValuePair.Key] = new StringStruct(keyValuePair.Value.asset_name);

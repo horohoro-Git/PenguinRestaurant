@@ -15,6 +15,12 @@ using DG.Tweening;
 using Cysharp.Threading.Tasks;
 using System.Threading;
 
+
+public enum Language
+{
+    ENG,
+    KOR
+}
 public enum CounterType
 {
     None,
@@ -211,10 +217,21 @@ public struct EmployeeData
     }
 }
 
+public struct AnimalPersnality : ITableID<int>
+{
+    public int id;
+    public string name_kor;
+    public string name_eng;
+
+    public readonly int ID => id;
+
+    public readonly string Name => throw new System.NotImplementedException();
+}
 public struct AnimalStruct : ITableID<int>
 {
     public int id;
-    public string name;
+    public string name_kor;
+    public string name_eng;
     public string asset_name;
     public int tier;
     public float speed;
@@ -229,12 +246,13 @@ public struct AnimalStruct : ITableID<int>
     public List<int> personalities;
     public readonly int ID => id;
 
-    public readonly string Name => name;
+    public readonly string Name => asset_name;
 
-    public AnimalStruct(int id, string name, string asset_name, int tier, float speed, float eat_speed, int min_order, int max_order, bool is_customer, float size_width, float size_height, float offset_x, float offset_z, List<int> personalities)
+    public AnimalStruct(int id, string name_kor, string name_eng, string asset_name, int tier, float speed, float eat_speed, int min_order, int max_order, bool is_customer, float size_width, float size_height, float offset_x, float offset_z, List<int> personalities)
     {
         this.id = id;
-        this.name = name;
+        this.name_kor = name_kor;
+        this.name_eng = name_kor;
         this.asset_name = asset_name;
         this.tier = tier;
         this.speed = speed;
@@ -255,7 +273,8 @@ public struct GoodsStruct : ITableID<int>
 {
     public int id;
     public string asset_name;
-    public string name;
+    public string name_kor;
+    public string name_eng;
     public WorkSpaceType type;
     public string price;
     public int num;
@@ -340,7 +359,11 @@ public struct SoundsStruct : ITableID<int>
     public readonly string Name => asset_name;
 }
 
-
+public struct LanguageScript
+{
+    public int id;
+    public string text;
+}
 public enum AssetType
 {
     None,
@@ -881,7 +904,17 @@ public class Fishing
     }
 }
 
+public class GameSettings
+{
+    public Language language;
+    public float soundAmount;
 
+    public GameSettings(Language language, float soundAmount)
+    {
+        this.language = language;
+        this.soundAmount = soundAmount;
+    }
+}
 
 public interface ITableID<K>
 {
