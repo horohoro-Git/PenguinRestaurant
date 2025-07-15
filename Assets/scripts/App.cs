@@ -12,6 +12,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 using Vector3 = UnityEngine.Vector3;
 using Quaternion = UnityEngine.Quaternion;
+using Newtonsoft.Json;
 //한글
 
 public enum SceneState
@@ -30,6 +31,10 @@ public class App : MonoBehaviour
 
     public SceneState currentScene;
     public static float restaurantTimeScale = 1f;
+    //public static Language language;
+    public static Queue<LanguageText> languageTexts = new Queue<LanguageText>();
+    public static Dictionary<int, LanguageScript> languages = new Dictionary<int, LanguageScript>();
+    public static GameSettings gameSettings;
     Vector3 vector;
     public Vector3 pos { get { return vector; } set { vector = value; Debug.Log(value); } }
     static Dictionary<string, Scene> scenes = new Dictionary<string, Scene>();
@@ -40,15 +45,22 @@ public class App : MonoBehaviour
     public static int CurrentLevel { get { return currentLevel; } set { currentLevel = value; } }
     private void Awake()
     {
-      //  string test = "1";
-      //  for (int i = 0; i < 300000; i++) test += "0";
-      ///  BigInteger bigInteger = BigInteger.Parse(test);
-      //  Debug.Log(Utility.GetFormattedMoney(bigInteger));
         currentScene = SceneState.Restaurant;
         GameInstance.GameIns.app = this;
         DontDestroyOnLoad(this);
-    
-        //JustTest().Forget();
+       
+        //설정 정보 가져오기
+        gameSettings = SaveLoadSystem.LoadGameSettings();
+        //언어 설정
+        TextAsset lang = null;
+        if (gameSettings.language == Language.KOR) lang = Resources.Load<TextAsset>("language_kor");
+        else lang = Resources.Load<TextAsset>("language_eng");
+      
+        List<LanguageScript> l = JsonConvert.DeserializeObject<List<LanguageScript>>(lang.text);
+        languages.Clear();
+        for (int i = 0; i < l.Count; i++) languages[l[i].id] = l[i];
+
+        //로딩
         if (!scenes.ContainsKey("LoadingScene")) LoadLoadingScene(GlobalToken).Forget();
     }
 
@@ -106,7 +118,7 @@ public class App : MonoBehaviour
 
             if (GameInstance.GameIns.assetLoader)
             {
-                loading.ChangeText("에셋 로딩 중");
+                loading.ChangeText(gameSettings.language == Language.KOR ? "에셋 로딩 중" : "Loading assets");
                 await GameInstance.GameIns.assetLoader.DownloadAssetBundle(cancellationToken);
                 await UniTask.Delay(500);
                 await LoadAssetWithBundle(cancellationToken);
@@ -152,7 +164,7 @@ public class App : MonoBehaviour
             cancellationToken.ThrowIfCancellationRequested();
             if (GameInstance.GameIns.assetLoader.assetLoadSuccessful)
             {
-                loading.ChangeText("맵 로딩 중");
+                loading.ChangeText(gameSettings.language == Language.KOR ? "맵 로딩 중" : "Loading map");
                 await GameInstance.GameIns.assetLoader.DownloadAsset_SceneBundle(cancellationToken);
                 await UniTask.Delay(500, cancellationToken: cancellationToken);
                 await LoadSceneWithBundle(cancellationToken);
@@ -180,7 +192,7 @@ public class App : MonoBehaviour
             await LoadScene(AssetLoader.loadedMap[GameInstance.GameIns.assetLoader.gameRegulation.map_name + "_fishing"], cancellationToken);
 
             currentScene = SceneState.Restaurant;
-            loading.ChangeText("식당을 불러오는 중");
+            loading.ChangeText(gameSettings.language == Language.KOR ? "식당을 불러오는 중" : "Preparing the restaurant");
             await UniTask.WhenAll(LoadFont(cancellationToken), LoadRestaurant(cancellationToken));
        
             loadedAllAssets = true;

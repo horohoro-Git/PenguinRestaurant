@@ -91,9 +91,9 @@ public class FurnitureInfo_Type : MonoBehaviour
             int max = goods[furniture.id].num;
             int n = GameInstance.GameIns.store.goodsDic[furniture.id].Count;
             placedNum.text = "배치된 수 " + (max - n) + " / " + max;
-            furnitureName.text = AssetLoader.goods[furniture.id].name;
+            furnitureName.text = App.gameSettings.language == Language.KOR ? goods[furniture.id].name_kor : goods[furniture.id].name_eng;
         }
-        else if (furniture.spaceType == WorkSpaceType.Vending)
+        else if (furniture.spaceType == WorkSpaceType.Vending) 
         {
             furnitureName.text = "자판기";
         }

@@ -4,7 +4,7 @@ using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-
+using static App;
 public class CustomerInfoPopup : MonoBehaviour
 {
     public Sprite[] animalTextures;
@@ -55,26 +55,26 @@ public class CustomerInfoPopup : MonoBehaviour
         eatSpeedSlider_text.text = $"{eatSpeed}/20";
         orderSlider_text.text = $"{maxOrder}/20";
 
-        if (maxOrder < 5) order_text.text = "적음";
-        else if (maxOrder >= 5 && maxOrder < 10) order_text.text = "보통";
-        else if (maxOrder >= 10 && maxOrder < 15) order_text.text = "많음";
-        else if (maxOrder >= 15) order_text.text = "매우 많음";
+        if (maxOrder < 5) order_text.text = gameSettings.language == Language.KOR ? "적음" : "Low";
+        else if (maxOrder >= 5 && maxOrder < 10) order_text.text = gameSettings.language == Language.KOR ? "보통" : "Normal";
+        else if (maxOrder >= 10 && maxOrder < 15) order_text.text = gameSettings.language == Language.KOR ? "많음" : "High";
+        else if (maxOrder >= 15) order_text.text = gameSettings.language == Language.KOR ? "매우 많음" : "Very High";
 
         (int, List<int>) tier = AnimalManager.gatchaTiers[id];
 
         switch(tier.Item1)
         {
             case 1:
-                friendly.text = "호기심";
+                friendly.text = gameSettings.language == Language.KOR ? "호기심" : "Curious";
                 break;
             case 2:
-                friendly.text = "애정";
+                friendly.text = gameSettings.language == Language.KOR ? "애정" : "Fond";
                 break;
             case 3:
-                friendly.text = "신뢰";
+                friendly.text = gameSettings.language == Language.KOR ? "신뢰" : "Trusting";
                 break;
             case 4:
-                friendly.text = "단골";
+                friendly.text = gameSettings.language == Language.KOR ? "단골" : "Regular";
                 break;
         }
 
@@ -88,8 +88,9 @@ public class CustomerInfoPopup : MonoBehaviour
                 count++;
                 if(personalityText.Length > 0) personalityText.Append(", ");
                 if (count == 5) if (personalityText.Length > 0) personalityText.Append("\n");
-              
-                personalityText.Append(AssetLoader.animalPersonalities[i].Name);
+
+                string n = gameSettings.language == Language.KOR ? AssetLoader.animalPersonalities[i].name_kor : AssetLoader.animalPersonalities[i].name_eng;
+                personalityText.Append(n);
             }
         }
         personality.text = personalityText.ToString();  

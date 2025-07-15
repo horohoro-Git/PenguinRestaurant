@@ -1,14 +1,17 @@
 using Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
+using static UnityEngine.UI.Image;
 
 public class PlayerCamera : MonoBehaviour
 {
     public AudioListener audioListener;
     public Transform GetTransform;
+    public Transform player;
     private Vector3 moveDir = Vector3.zero;
     public CinemachineBrain brain;
     public CinemachineBlendListCamera listCamera;
@@ -25,6 +28,9 @@ public class PlayerCamera : MonoBehaviour
     float zoomVelocity;
     bool isZooming;
     float initialDistance;
+    int hitCount;
+    Collider[] colliders = new Collider[1];
+    int obstacleMask = (1 << 7) | (1 << 8) | (1 << 16) | (1 << 19);
     private void Awake()
     {
         targetZoom = 15;
@@ -33,9 +39,34 @@ public class PlayerCamera : MonoBehaviour
     }
     void Update()
     {
-#if UNITY_ANDROID || UNITY_IOS
-        if(RestaurantManager.restaurantTimer > 0)
+        if (RestaurantManager.restaurantTimer > 0)
         {
+            bool hitBlock = Physics.CheckSphere(player.transform.position, 0.2f, obstacleMask);
+            if (hitBlock)
+            {
+                hitCount++;
+            }
+            else
+            {
+                hitCount = 0;
+            }
+        
+            if (hitCount >= 10)
+            {
+                float angle = 360f;
+                Vector3 direction = Quaternion.Euler(0, angle, 0) * player.forward;
+                Ray r = new Ray(player.transform.position, direction);
+                int colliderNum = Physics.OverlapSphereNonAlloc(player.transform.position, 0.2f, colliders, obstacleMask);
+              
+                if (colliderNum > 0)
+                {
+                    Vector3 dir = colliders[0].transform.right;
+                    GameInstance.GameIns.inputManager.Stuck(dir);
+                }
+
+                hitCount = 0;   
+            }
+#if UNITY_ANDROID || UNITY_IOS
             if (Touchscreen.current != null && Touchscreen.current.touches.Count >= 2)
             {
                 var touch0 = Touchscreen.current.touches[0];
@@ -67,8 +98,9 @@ public class PlayerCamera : MonoBehaviour
                 isZooming = false;
             }
             ApplyZoom();
-        }
+        
 #endif
+        }
     }
     private void UpdateTargetZoom(float distanceDelta)
     {

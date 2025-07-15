@@ -364,11 +364,7 @@ public class UIManager : MonoBehaviour
         if (num == 0) ClearOrder(counterType);
     }
 
-    public float currentMoney = 900f; // 초기 돈 설정
-   // public TextMeshProUGUI moneyText; // UI 텍스트를 연결할 변수
-
-
-    //게임 종료 (사용중)
+    
     public void QuitGame()
     {
       
@@ -382,60 +378,10 @@ public class UIManager : MonoBehaviour
     }
 
 
-    /* // 돈을 추가하는 메서드
-     public void AddMoney(int amount)
-     {
-         currentMoney += amount;
-         UpdateMoneyText();
-     }
- */
-    /* // 돈을 소모하는 메서드
-     public void SpendMoney(int amount)
-     {
-         if (currentMoney >= amount)
-         {
-             currentMoney -= amount;
-             UpdateMoneyText();
-         }
-         else
-         {
-         }
-     }*/
-
-    // UI 텍스트 업데이트 메서드
-    public void UpdateMoneyText(float money)
-    {
-        currentMoney = money;
-        if (currentMoney >= 1_000_000_000)
-        {
-            // 1_000_000_000 이상일 경우 B 단위로 표시
-            float valueInK = currentMoney / 1_000_000_000f;
-            moneyText.text = valueInK.ToString("F2") + "B";
-        }
-        else if (currentMoney >= 1_000_000)
-        {
-            // 1000000 이상일 경우 M 단위로 표시
-            float valueInK = currentMoney / 1_000_000f;
-            moneyText.text = valueInK.ToString("F2") + "M";
-        }
-        else if (currentMoney >= 1_000)
-        {
-            // 1000 이상일 경우 K 단위로 표시
-            float valueInK = currentMoney / 1_000f;
-            moneyText.text = valueInK.ToString("F2") + "K";
-        }
-        else
-        {
-            // 1000 미만일 경우 일반 표시
-            moneyText.text = currentMoney.ToString();
-        }
-    }
 
     public void UIClick()
     {
-      /*  audioSource.clip = GameIns.uISoundManager.UIClick();
-        audioSource.volume = 0.1f;
-        audioSource.Play();*/
+   
         SoundManager.Instance.PlayAudio(GameIns.uISoundManager.UIClick(), 0.1f);
     }
 }

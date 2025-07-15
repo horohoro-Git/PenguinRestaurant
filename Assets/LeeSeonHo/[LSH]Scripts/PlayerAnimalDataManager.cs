@@ -44,7 +44,6 @@ public class PlayerAnimalDataManager : MonoBehaviour
     {
         foreach (var animal in animals)
         {
-            Debug.Log(animal.Value.name + "AAA");
             lockAnimals[animal.Key] = AssetLoader.loadedAssets[AssetLoader.itemAssetKeys[animal.Key].Name].GetComponent<Animal>();
         }
       //  PlayerAnimalUpdate(true,-1);
