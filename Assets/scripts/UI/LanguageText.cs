@@ -14,9 +14,14 @@ public class LanguageText : MonoBehaviour
         App.languageTexts.Enqueue(this);
     }
 
-
-    private void OnEnable()
+    private void Start()
     {
-        
+        text.text = App.languages[id].text;
+
+    }
+
+    public void ChangeText()
+    {
+        text.text = App.languages[id].text;
     }
 }

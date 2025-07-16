@@ -1,3 +1,4 @@
+using CryingSnow.FastFoodRush;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -34,6 +35,7 @@ public class GridManager : MonoBehaviour
     [NonSerialized] public int[] counterGrids = new int[400 * 400];
     [NonSerialized] public int[] tableGrids = new int[400 * 400];
     [NonSerialized] public int[] tableCenterGrids = new int[400 * 400];
+    [NonSerialized] public int[] trashCanGrids = new int[400 * 400];
     float cellSize = 2.5f;
     Vector2 gridOffsets = new Vector2(0.75f, 1.25f);
 
@@ -215,17 +217,7 @@ public class GridManager : MonoBehaviour
        // Vector3[] corners = new Vector3[5];
         float offsetX = centerX - 4.5f;
         float offsetY = centerZ - 4.5f;
-        /*   corners[0] = new Vector3(offsetX - halfSize, 11.2f, offsetY - halfSize);
-           corners[1] = new Vector3(offsetX + halfSize, 11.2f, offsetY - halfSize);
-           corners[2] = new Vector3(offsetX + halfSize, 11.2f, offsetY + halfSize);
-           corners[3] = new Vector3(offsetX - halfSize, 11.2f, offsetY + halfSize);
-           corners[4] = corners[0];
-
-           currentLineRender.positionCount = 5;
-           currentLineRender.SetPositions(corners);
-           currentLineRender.startWidth = currentLineRender.endWidth = 0.2f;
-           currentLineRender.useWorldSpace = true;*/
-
+      
         currentSelector.transform.position = new Vector3(offsetX, 11.2f, offsetY);
 
         CalculatorScale calculatorScale = GameIns.calculatorScale;
@@ -269,6 +261,44 @@ public class GridManager : MonoBehaviour
             }
 
         }
+
+        if (go.storeGoods.goods.type == WorkSpaceType.Trashcan)
+        {
+            float x = Mathf.FloorToInt(go.model.transform.position.x / cellSize) * cellSize;
+            float z = Mathf.FloorToInt(go.model.transform.position.z / cellSize) * cellSize;
+            Vector2 vector2 = new Vector2(x, z);
+            int gridX = Mathf.FloorToInt((x - calculatorScale.minX) / cellSize);
+            int gridY = Mathf.FloorToInt((z - calculatorScale.minY) / cellSize);
+
+            if (!cellDic.ContainsKey(vector2))
+            {
+                MaterialBlockController cell_GO = GetCell();
+
+                bool check = Physics.CheckBox(go.model.gameObject.transform.position, new Vector3(0.5f,0.5f,0.5f), Quaternion.Euler(0, 0, 0), 1 << 6 | 1 << 7 | 1 << 8 | 1 << 16 | 1 << 19 | 1 << 21);
+
+                cell_GO.transform.position = new Vector3(x + gridOffsets.x, 0.2f, z + gridOffsets.y);
+                cell_GO.Set(0, green);
+
+                cellDic[vector2] = cell_GO;
+                go.temp.Add(vector2);
+
+                if (go.storeGoods.goods.type == WorkSpaceType.Table)
+                {
+                    float xx = Mathf.FloorToInt(go.model.transform.position.x / cellSize) * cellSize;
+                    float zz = Mathf.FloorToInt(go.model.transform.position.z / cellSize) * cellSize;
+                    if (x == xx && z == zz)
+                    {
+                        go.tempTableCenter.Add(vector2);
+                    }
+                    else
+                    {
+                        go.tempTable.Add(vector2);
+                    }
+                }
+            }
+
+        }
+
         go.canPlace = true;
         foreach (var c in go.temp)
         {
@@ -291,14 +321,22 @@ public class GridManager : MonoBehaviour
             int gridY = Mathf.FloorToInt((t.y - GameIns.calculatorScale.minY) / 2.5f);
             int index = MoveCalculator.GetIndex(gridX, gridY);
             if (index < tableCenterGrids.Length) tableCenterGrids[index] -= 1;
-       /*     float x = Mathf.FloorToInt(go.transform.position.x / cellSize) * cellSize;
-            float y = Mathf.FloorToInt(go.transform.position.z / cellSize) * cellSize;
+        }
+        if (go.storeGoods.goods.type == WorkSpaceType.Trashcan)
+        {
+            float x2 = Mathf.FloorToInt(go.model.transform.position.x / cellSize) * cellSize;
+            float z2 = Mathf.FloorToInt(go.model.transform.position.z / cellSize) * cellSize;
+            int gridX2 = Mathf.FloorToInt((x2 - GameIns.calculatorScale.minX) / 2.5f);
+            int gridY2 = Mathf.FloorToInt((z2 - GameIns.calculatorScale.minY) / 2.5f);
+            int index2 = MoveCalculator.GetIndex(gridX2, gridY2);
 
-            if (x == t.x && y == t.y)
+            if (index2 < tableCenterGrids.Length)
             {
-                int index = MoveCalculator.GetIndex(gridX, gridY);
-                if (index < tableCenterGrids.Length) tableCenterGrids[index] -= 1;
-            }*/
+                Debug.Log(index2);
+                tableCenterGrids[index2] -= 1;
+                if (index2 < grids.Length) grids[index2] = false;
+
+            }
         }
     }
 
@@ -306,7 +344,6 @@ public class GridManager : MonoBehaviour
     {
         foreach (var c in go.temp)
         {
-            Debug.Log(c);
             int gridX = Mathf.FloorToInt((c.x - GameIns.calculatorScale.minX) / 2.5f);
             int gridY = Mathf.FloorToInt((c.y - GameIns.calculatorScale.minY) / 2.5f);
             int index = MoveCalculator.GetIndex(gridX, gridY);
@@ -332,6 +369,22 @@ public class GridManager : MonoBehaviour
                 if (index < tableCenterGrids.Length) tableCenterGrids[index] += 1;
             }
         }
+
+
+        if (go.storeGoods.goods.type == WorkSpaceType.Trashcan)
+        {
+            float x2 = Mathf.FloorToInt(go.model.transform.position.x / cellSize) * cellSize;
+            float z2 = Mathf.FloorToInt(go.model.transform.position.z / cellSize) * cellSize;
+            int gridX2 = Mathf.FloorToInt((x2 - GameIns.calculatorScale.minX) / 2.5f);
+            int gridY2 = Mathf.FloorToInt((z2 - GameIns.calculatorScale.minY) / 2.5f);
+            int index2 = MoveCalculator.GetIndex(gridX2, gridY2);
+
+            if (index2 < tableCenterGrids.Length)
+            {
+                tableCenterGrids[index2] += 1;
+            }
+        }
+
 
         go.temp.Clear();
         go.tempTable.Clear();
@@ -359,7 +412,6 @@ public class GridManager : MonoBehaviour
                 Vector2 vector2 = new Vector2(x, z);
                 int gridX = Mathf.FloorToInt((x - calculatorScale.minX) / 2.5f);
                 int gridY = Mathf.FloorToInt((z - calculatorScale.minY) / 2.5f);
-
                 if (workType == WorkSpaceType.Table)
                 {
                     if (!cellDic.ContainsKey(vector2))
@@ -475,7 +527,7 @@ public class GridManager : MonoBehaviour
                     {
                         MaterialBlockController cell_GO = GetCell();
 
-                        if ((gridX + gridY * GameIns.calculatorScale.sizeX) < grids.Length && (gridX + gridY * GameIns.calculatorScale.sizeX) >= 0 && !grids[MoveCalculator.GetIndex(gridX, gridY)])
+                        if ((gridX + gridY * GameIns.calculatorScale.sizeX) < grids.Length && (gridX + gridY * GameIns.calculatorScale.sizeX) >= 0 && !grids[MoveCalculator.GetIndex(gridX, gridY)] && trashCanGrids[MoveCalculator.GetIndex(gridX, gridY)] == 0)
                         {
                             bool check = Physics.CheckBox(boxCollider.gameObject.transform.position, new Vector3(1.25f, 1.25f, 1.25f), Quaternion.Euler(0, 0, 0), 1 << 6 | 1 << 7 | 1 << 8 | 1 << 16 | 1 << 19 | 1 << 21);
 
@@ -503,7 +555,7 @@ public class GridManager : MonoBehaviour
                     {
                         if (cellDic[vector2].GetColorParam() == 0)
                         {
-                            if ((gridX + gridY * GameIns.calculatorScale.sizeX) < grids.Length && (gridX + gridY * GameIns.calculatorScale.sizeX) >= 0 && !grids[MoveCalculator.GetIndex(gridX, gridY)])
+                            if ((gridX + gridY * GameIns.calculatorScale.sizeX) < grids.Length && (gridX + gridY * GameIns.calculatorScale.sizeX) >= 0 && !grids[MoveCalculator.GetIndex(gridX, gridY)] && trashCanGrids[MoveCalculator.GetIndex(gridX,gridY)] == 0)
                             {
                                 bool check = Physics.CheckBox(boxCollider.gameObject.transform.position, new Vector3(1.25f, 1.25f, 1.25f), Quaternion.Euler(0, 0, 0), 1 << 6 | 1 << 7 | 1 << 8 | 1 << 16);
                                 if (check)
@@ -520,19 +572,20 @@ public class GridManager : MonoBehaviour
                         }
                     }
 
-                    float x2 = Mathf.FloorToInt(go.transform.position.x / cellSize) * cellSize;
-                    float z2 = Mathf.FloorToInt(go.transform.position.z / cellSize) * cellSize;
+                    float x2 = Mathf.FloorToInt(go.model.transform.position.x / cellSize) * cellSize;
+                    float z2 = Mathf.FloorToInt(go.model.transform.position.z / cellSize) * cellSize;
 
-                    Vector2 vector22 = new Vector2(x, z);
+                    Vector2 vector22 = new Vector2(x2, z2);
                     int gridX2 = Mathf.FloorToInt((x2 - calculatorScale.minX) / 2.5f);
                     int gridY2 = Mathf.FloorToInt((z2 - calculatorScale.minY) / 2.5f);
+                    Debug.Log(trashCanGrids[MoveCalculator.GetIndex(gridX2, gridY2)]);
                     if (!cellDic.ContainsKey(vector22))
                     {
                         MaterialBlockController cell_GO2 = GetCell();
 
-                        if ((gridX2 + gridY2 * GameIns.calculatorScale.sizeX) < grids.Length && (gridX2 + gridY2 * GameIns.calculatorScale.sizeX) >= 0 && !grids[MoveCalculator.GetIndex(gridX2, gridY2)])
+                        if ((gridX2 + gridY2 * GameIns.calculatorScale.sizeX) < grids.Length && (gridX2 + gridY2 * GameIns.calculatorScale.sizeX) >= 0 && !grids[MoveCalculator.GetIndex(gridX2, gridY2)] && trashCanGrids[MoveCalculator.GetIndex(gridX2, gridY2)] == 0)
                         {
-                            bool check = Physics.CheckBox(go.gameObject.transform.position, new Vector3(1.25f, 1.25f, 1.25f), Quaternion.Euler(0, 0, 0), 1 << 6 | 1 << 7 | 1 << 8 | 1 << 16 | 1 << 19 | 1 << 21);
+                            bool check = Physics.CheckBox(go.model.gameObject.transform.position, new Vector3(0.5f, 0.5f, 0.5f), Quaternion.Euler(0, 0, 0), 1 << 6 | 1 << 7 | 1 << 8 | 1 << 16 | 1 << 19 | 1 << 21);
 
                             cell_GO2.transform.position = new Vector3(x2 + gridOffsets.x, 0.2f, z2 + gridOffsets.y);
                             if (check)
@@ -548,6 +601,7 @@ public class GridManager : MonoBehaviour
                         }
                         else
                         {
+                            Debug.Log("BB " + trashCanGrids[MoveCalculator.GetIndex(gridX2, gridY2)]);
                             cell_GO2.transform.position = new Vector3(x2 + gridOffsets.x, 0.2f, z2 + gridOffsets.y);
                             cell_GO2.Set(1, red);
                             cellDic[vector22] = cell_GO2;
@@ -558,20 +612,12 @@ public class GridManager : MonoBehaviour
                     {
                         if (cellDic[vector22].GetColorParam() == 0)
                         {
-                            if ((gridX2 + gridY2 * GameIns.calculatorScale.sizeX) < grids.Length && (gridX2 + gridY2 * GameIns.calculatorScale.sizeX) >= 0 && !grids[MoveCalculator.GetIndex(gridX2, gridY2)])
-                            {
-                                /*bool check = Physics.CheckBox(go.gameObject.transform.position, new Vector3(1.25f, 1.25f, 1.25f), Quaternion.Euler(0, 0, 0), 1 << 6 | 1 << 7 | 1 << 8 | 1 << 16);
-                                if (check)
-                                {
-                                    cellDic[vector22].Set(1, red);
-                                    ch++;
-                                }*/
-                            }
-                            else
+                            if (!((gridX2 + gridY2 * GameIns.calculatorScale.sizeX) < grids.Length && (gridX2 + gridY2 * GameIns.calculatorScale.sizeX) >= 0 && !grids[MoveCalculator.GetIndex(gridX2, gridY2)] && trashCanGrids[MoveCalculator.GetIndex(gridX2, gridY2)] == 0))
                             {
                                 cellDic[vector22].Set(1, red);
                                 ch++;
                             }
+                          
                         }
                     }
                 }
@@ -628,6 +674,15 @@ public class GridManager : MonoBehaviour
                 }
             }
         }
+
+      /*  if (workType == WorkSpaceType.Trashcan)
+        {
+            float x2 = Mathf.FloorToInt(go.transform.position.x / cellSize) * cellSize;
+            float z2 = Mathf.FloorToInt(go.transform.position.z / cellSize) * cellSize;
+            if ((gridX2 + gridY2 * GameIns.calculatorScale.sizeX) < grids.Length && (gridX2 + gridY2 * GameIns.calculatorScale.sizeX) >= 0 && !grids[MoveCalculator.GetIndex(gridX2, gridY2)])
+            {
+            }
+        }*/
         if (ch == 0)
         {
             go.canPlace = true;
@@ -695,14 +750,30 @@ public class GridManager : MonoBehaviour
                         tableGrids[index] += 1;
                     }
                 }
-               
+
             }
-          
+     
             c.Value.gameObject.SetActive(false);
             cellQueue.Enqueue(c.Value);
 
         }
         cellDic.Clear();
+
+        if (workType == WorkSpaceType.Trashcan)
+        {
+            float x2 = Mathf.FloorToInt(placeController.model.transform.position.x / cellSize) * cellSize;
+            float z2 = Mathf.FloorToInt(placeController.model.transform.position.z / cellSize) * cellSize;
+            int gridX2 = Mathf.FloorToInt((x2 - GameIns.calculatorScale.minX) / 2.5f);
+            int gridY2 = Mathf.FloorToInt((z2 - GameIns.calculatorScale.minY) / 2.5f);
+            int index2 = MoveCalculator.GetIndex(gridX2, gridY2);
+
+            if (index2 < tableCenterGrids.Length)
+            {
+                tableCenterGrids[index2] += 1;
+            }
+            Debug.Log(index2);
+        }
+
 
         placeController.temp.Clear();
         if(workType == WorkSpaceType.Table)
@@ -713,7 +784,6 @@ public class GridManager : MonoBehaviour
     }
     public void RemoveCell()
     {
-       
         foreach (var c in cellDic)
         {
             c.Value.gameObject.SetActive(false);

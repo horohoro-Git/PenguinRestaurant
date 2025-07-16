@@ -427,4 +427,13 @@ public class App : MonoBehaviour
             scenes.Remove(name);
         }
     }
+
+
+    public static void RefreshUI()
+    {
+        foreach (var v in languageTexts)
+        {
+            v.ChangeText();
+        }
+    }
 }
