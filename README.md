@@ -72,5 +72,5 @@ Animal Restaurant Tycoon Game
 07/13 Added controller to allow doors to be moved to different walls, and updated guest interactions to work correctly after door relocation
 07/14 Improved zoom in/out controls for mobile and changed shop access from swipe to click
 07/15 Fixed camera clipping into walls and added English localization script
-
+07/16 Added language change functionality to the UI, and fixed an issue where trash bins could be placed touching each other
 

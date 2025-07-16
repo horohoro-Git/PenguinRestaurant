@@ -17,7 +17,7 @@ public class Options : MonoBehaviour
     {
         languageBtn.onClick.AddListener(() =>
         {
-            languageSetting.Open();
+            languageSetting.Click();
         });
     }
 }

@@ -67,7 +67,7 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
             int count = goods.num - remains;
             if (count == 0 && goods.sale != "0")
             {
-                price_text.text = "무료";
+                price_text.text = App.gameSettings.language == Language.KOR ? "무료" : "Free";
                 goods.Price = "0";
             }
             else

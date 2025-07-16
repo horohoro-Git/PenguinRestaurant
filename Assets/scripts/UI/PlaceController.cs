@@ -202,11 +202,11 @@ public class PlaceController : MonoBehaviour
             GameInstance.GameIns.gridManager.RemoveSelect();
 
             storeGoods.PlaceGoods(rotateOffsets[level], level, currentFurniture);
-            storeGoods.RemoveGoodsPreview();
             if (!purchasedObject)
             {
                 storeGoods.Purchase();
             }
+            storeGoods.RemoveGoodsPreview();
           
             GameInstance.GameIns.gridManager.VisibleGrid(false);
         }

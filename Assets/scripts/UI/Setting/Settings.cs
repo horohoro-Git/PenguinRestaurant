@@ -6,8 +6,5 @@ public class Settings : MonoBehaviour
 {
     public Animator animator;
 
-    private void Awake()
-    {
-        animator = GetComponent<Animator>();
-    }
+   
 }
