@@ -102,48 +102,67 @@ public class Counter : Furniture, IObjectOffset
             door.transform.localScale = Vector3.zero;
             if (Physics.Raycast(transforms.position + Vector3.up, offset.forward, out RaycastHit hits, float.MaxValue, 1 << 16 | 1 << 19))
             {
-                Debug.DrawLine(transforms.position + Vector3.up, transforms.position - transforms.forward * float.MaxValue, Color.red, 5);
-              
+                
                 GameObject h = hits.collider.gameObject;
-                door.removeWall = h;
-                MoveCalculator.CheckAreaWithBounds(GameInstance.GameIns.calculatorScale, h.GetComponentInChildren<Collider>(), false);
-                h.SetActive(false);
+             
+             
                 door.transform.position = h.transform.position - Vector3.up * h.transform.position.y;
                 door.transform.rotation = h.transform.rotation * Quaternion.Euler(0, -90, 0);
-                door.transform.SetParent(h.transform.parent);
-          //      StartCoroutine(door.OpenDoor());
-                return;
+              
+            //    GameInstance.GameIns.restaurantManager.doorPreview.gameObject.SetActive(true);
+                GameInstance.GameIns.restaurantManager.doorPreview.transform.position = door.transform.position;
+                GameInstance.GameIns.restaurantManager.doorPreview.rotateOffset.transform.rotation = door.transform.rotation * Quaternion.Euler(0, 90, 0);
+                if(GameInstance.GameIns.restaurantManager.doorPreview.CheckDoorPlacement())
+                {
+                    door.transform.SetParent(h.transform.parent);
+                    door.removeWall = h;
+                    MoveCalculator.CheckAreaWithBounds(GameInstance.GameIns.calculatorScale, h.GetComponentInChildren<Collider>(), false);
+                    h.SetActive(false);
+                    return;
+                }
+                
             }
             float angle = 30f;
             Vector3 leftDir = Quaternion.AngleAxis(-angle, offset.up) * offset.forward;
             if (Physics.Raycast(transforms.position + Vector3.up, leftDir, out RaycastHit hit2, float.MaxValue, 1 << 16 | 1 << 19))
             {
-                Debug.DrawLine(transforms.position + Vector3.up, leftDir * float.MaxValue, Color.red, 5);
-              
+
+               
                 GameObject h = hit2.collider.gameObject;
-                door.removeWall = h;
-                MoveCalculator.CheckAreaWithBounds(GameInstance.GameIns.calculatorScale, h.GetComponentInChildren<Collider>(), false);
-                h.SetActive(false);
+              
                 door.transform.position = h.transform.position - Vector3.up * h.transform.position.y;
                 door.transform.rotation = h.transform.rotation * Quaternion.Euler(0, -90, 0);
-                door.transform.SetParent(h.transform.parent);
-          //      StartCoroutine(door.OpenDoor());
-                return;
+
+                GameInstance.GameIns.restaurantManager.doorPreview.transform.position = door.transform.position;
+                GameInstance.GameIns.restaurantManager.doorPreview.rotateOffset.transform.rotation = door.transform.rotation * Quaternion.Euler(0, 90, 0);
+                if (GameInstance.GameIns.restaurantManager.doorPreview.CheckDoorPlacement())
+                {
+                    door.transform.SetParent(h.transform.parent);
+                    door.removeWall = h;
+                    MoveCalculator.CheckAreaWithBounds(GameInstance.GameIns.calculatorScale, h.GetComponentInChildren<Collider>(), false);
+                    h.SetActive(false);
+                    return;
+                }
             }
             Vector3 rightDir = Quaternion.AngleAxis(angle, offset.up) * offset.forward;
             if (Physics.Raycast(transforms.position + Vector3.up, rightDir, out RaycastHit hit3, float.MaxValue, 1 << 16 | 1 << 19))
             {
-                Debug.DrawLine(transforms.position + Vector3.up, rightDir * float.MaxValue, Color.red, 5);
-
+               
                 GameObject h = hit3.collider.gameObject;
-                door.removeWall = h;
-                MoveCalculator.CheckAreaWithBounds(GameInstance.GameIns.calculatorScale, h.GetComponentInChildren<Collider>(), false);
-                h.SetActive(false);
+              
                 door.transform.position = h.transform.position - Vector3.up * h.transform.position.y;
                 door.transform.rotation = h.transform.rotation * Quaternion.Euler(0, -90, 0);
-                door.transform.SetParent(h.transform.parent);
-          //      StartCoroutine(door.OpenDoor());
-                return;
+
+                GameInstance.GameIns.restaurantManager.doorPreview.transform.position = door.transform.position;
+                GameInstance.GameIns.restaurantManager.doorPreview.rotateOffset.transform.rotation = door.transform.rotation * Quaternion.Euler(0, 90, 0);
+                if (GameInstance.GameIns.restaurantManager.doorPreview.CheckDoorPlacement())
+                {
+                    door.transform.SetParent(h.transform.parent);
+                    door.removeWall = h;
+                    MoveCalculator.CheckAreaWithBounds(GameInstance.GameIns.calculatorScale, h.GetComponentInChildren<Collider>(), false);
+                    h.SetActive(false);
+                    return;
+                }
             }
         }
 

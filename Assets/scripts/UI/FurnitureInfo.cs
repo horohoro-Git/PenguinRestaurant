@@ -121,6 +121,12 @@ public class FurnitureInfo : MonoBehaviour
                     {
                         v.Highlight(false);
                     }
+                    GameInstance.GameIns.restaurantManager.doorPreview.Cancel();
+                 /*   GameObject wallObject = GameInstance.GameIns.restaurantManager.doorPreview.currentWallObject;
+                    if (wallObject != null)
+                    {
+                        wallObject.GetComponent<MeshRenderer>().enabled = true;
+                    }*/
                     Door door = GameInstance.GameIns.restaurantManager.door;
                     MeshRenderer meshRenderer = door.GetComponentInChildren<MeshRenderer>();
                     Material[] mats = meshRenderer.materials;
@@ -156,13 +162,16 @@ public class FurnitureInfo : MonoBehaviour
             }
             else
             {
-                foreach(var v in GameInstance.GameIns.restaurantManager.changableWalls)
+                GameInstance.GameIns.restaurantManager.doorPreview.applyBtn.enabled = true;
+                GameInstance.GameIns.restaurantManager.doorPreview.CanPlace = true;
+                foreach (var v in GameInstance.GameIns.restaurantManager.changableWalls)
                 {
                     v.Highlight(true);
                 }
 
                 GameInstance.GameIns.store.RemovePreview();
                 Door door = GameInstance.GameIns.restaurantManager.door;
+                door.interactCollide.gameObject.layer = 0;
                 MeshRenderer meshRenderer = door.GetComponentInChildren<MeshRenderer>();
                 Material[] mats = meshRenderer.materials;
                 for (int i = 0; i < door.doorTransparentMat.Count; i++)
