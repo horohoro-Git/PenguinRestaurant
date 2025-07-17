@@ -12,7 +12,7 @@ public class Door : Furniture
     public List<Collider> doorColliders = new List<Collider>();
     public List<Material> doorMat = new List<Material>();
     public List<Material> doorTransparentMat = new List<Material>();
-
+    public Collider interactCollide;
     private void Awake()
     {
         doorTransparentMat[0].renderQueue = 3001;

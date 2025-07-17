@@ -73,4 +73,6 @@ Animal Restaurant Tycoon Game
 07/14 Improved zoom in/out controls for mobile and changed shop access from swipe to click
 07/15 Fixed camera clipping into walls and added English localization script
 07/16 Added language change functionality to the UI, and fixed an issue where trash bins could be placed touching each other
+07/17 Fixed incorrect placement of the trash can and resolved errors occurring during door repositioning
+
 

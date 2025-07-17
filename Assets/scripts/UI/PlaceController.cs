@@ -32,6 +32,7 @@ public class PlaceController : MonoBehaviour
     public List<Vector2> temp = new List<Vector2>();
     public List<Vector2> tempTable = new List<Vector2>();
     public List<Vector2> tempTableCenter = new List<Vector2>();
+    public List<Vector2> temptrashcan = new List<Vector2>();
     private Vector2 lastInputPosition;
     bool hasInput;
     [NonSerialized] public bool spawnAnimation;

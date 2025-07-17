@@ -281,20 +281,8 @@ public class GridManager : MonoBehaviour
 
                 cellDic[vector2] = cell_GO;
                 go.temp.Add(vector2);
-
-                if (go.storeGoods.goods.type == WorkSpaceType.Table)
-                {
-                    float xx = Mathf.FloorToInt(go.model.transform.position.x / cellSize) * cellSize;
-                    float zz = Mathf.FloorToInt(go.model.transform.position.z / cellSize) * cellSize;
-                    if (x == xx && z == zz)
-                    {
-                        go.tempTableCenter.Add(vector2);
-                    }
-                    else
-                    {
-                        go.tempTable.Add(vector2);
-                    }
-                }
+                go.temptrashcan.Add(vector2);
+             
             }
 
         }
@@ -330,10 +318,10 @@ public class GridManager : MonoBehaviour
             int gridY2 = Mathf.FloorToInt((z2 - GameIns.calculatorScale.minY) / 2.5f);
             int index2 = MoveCalculator.GetIndex(gridX2, gridY2);
 
-            if (index2 < tableCenterGrids.Length)
+            if (index2 < trashCanGrids.Length)
             {
                 Debug.Log(index2);
-                tableCenterGrids[index2] -= 1;
+                trashCanGrids[index2] -= 1;
                 if (index2 < grids.Length) grids[index2] = false;
 
             }
@@ -373,22 +361,20 @@ public class GridManager : MonoBehaviour
 
         if (go.storeGoods.goods.type == WorkSpaceType.Trashcan)
         {
-            float x2 = Mathf.FloorToInt(go.model.transform.position.x / cellSize) * cellSize;
-            float z2 = Mathf.FloorToInt(go.model.transform.position.z / cellSize) * cellSize;
-            int gridX2 = Mathf.FloorToInt((x2 - GameIns.calculatorScale.minX) / 2.5f);
-            int gridY2 = Mathf.FloorToInt((z2 - GameIns.calculatorScale.minY) / 2.5f);
-            int index2 = MoveCalculator.GetIndex(gridX2, gridY2);
-
-            if (index2 < tableCenterGrids.Length)
+            foreach (var c in go.temptrashcan)
             {
-                tableCenterGrids[index2] += 1;
+                int gridX = Mathf.FloorToInt((c.x - GameIns.calculatorScale.minX) / 2.5f);
+                int gridY = Mathf.FloorToInt((c.y - GameIns.calculatorScale.minY) / 2.5f);
+                int index = MoveCalculator.GetIndex(gridX, gridY);
+                if (index < trashCanGrids.Length) trashCanGrids[index]++;
             }
         }
-
 
         go.temp.Clear();
         go.tempTable.Clear();
         go.tempTableCenter.Clear();
+        go.temptrashcan.Clear();
+        //go.temptrashcanCenter.Clear();
     }
 
     public bool CheckObject(PlaceController go, WorkSpaceType workType)
@@ -767,11 +753,10 @@ public class GridManager : MonoBehaviour
             int gridY2 = Mathf.FloorToInt((z2 - GameIns.calculatorScale.minY) / 2.5f);
             int index2 = MoveCalculator.GetIndex(gridX2, gridY2);
 
-            if (index2 < tableCenterGrids.Length)
+            if (index2 < trashCanGrids.Length)
             {
-                tableCenterGrids[index2] += 1;
+                trashCanGrids[index2] += 1;
             }
-            Debug.Log(index2);
         }
 
 
