@@ -124,7 +124,7 @@ public class InputManger : MonoBehaviour
     private void Awake()
     {
         es = GetComponent<EventSystem>();
-        Application.targetFrameRate = 60;//(int)Screen.currentResolution.refreshRateRatio.numerator;
+        //(int)Screen.currentResolution.refreshRateRatio.numerator;
                                          //  GameInstance.GameIns.uiManager = UIManager;
         GameInstance.GameIns.inputManager = this;
         ped = new PointerEventData(es);
@@ -148,32 +148,7 @@ public class InputManger : MonoBehaviour
 
     void Update()
     {
-        // Utility.CheckHirable(cameraRange.position, ref refX, ref refY, true, true);
-        /*  if (Input.GetKey(KeyCode.O))
-          {
-             // for (int i = 0; i < 1; i++)
-              {
-              //    SaveLoadTest.WriteData();
-                //  SaveLoadTest.ReadData();
-              }
-              cachingCamera.orthographicSize -= 5f * Time.deltaTime;
-          }
-          if (Input.GetKey(KeyCode.P))
-          {
-              cachingCamera.orthographicSize += 5f * Time.deltaTime;
-            //  SaveLoadTest.ReadData();
-              // Camera.main.orthographicSize += 5f * Time.deltaTime;
-          }*/
-
-        /*  if (!isDragging && bClick)
-          {
-              if (buyer == null)
-              {
-                  StartClickIngameObject(currentPoint);
-              }
-          }*/
-
-
+      //  Utility.CheckHirable(cameraRange.transform.position, ref refX, ref refY, true, true, false);
     }
 
 
@@ -209,15 +184,9 @@ public class InputManger : MonoBehaviour
     //   CancellationToken cancellation = new CancellationToken();
     void ScreenPoint(InputAction.CallbackContext callbackContext)
     {
+   
         Vector2 vector2 = callbackContext.ReadValue<Vector2>();
-        if(GameIns.uiManager)
-        {
-            if(GameIns.uiManager.gameGuide)
-            {
-                GameIns.uiManager.GetComponent<Animator>().SetTrigger("unhighlight");
-                GameIns.uiManager.gameGuide = false;
-            }
-        }
+        
         if (justTouch)
         {
             prevPoint = vector2;
@@ -226,6 +195,7 @@ public class InputManger : MonoBehaviour
         }
         else
         {
+      
             prevPoint = currentPoint;
             currentPoint = vector2;
 
@@ -260,8 +230,9 @@ public class InputManger : MonoBehaviour
 
     void StartClick(InputAction.CallbackContext callbackContext)
     {
-       
+    
         camVelocity = Vector3.zero;
+
         if (cachingCamera == null) cachingCamera = Camera.main;
         if (CheckClickedUI(uiMask)) return;
      //   if (Utility.IsInsideCameraViewport(currentPoint, cachingCamera))
@@ -281,7 +252,14 @@ public class InputManger : MonoBehaviour
     }
     void EndClick(InputAction.CallbackContext callbackContext)
     {
-      //  if (inputDisAble) return;
+        if (GameIns.uiManager)
+        {
+            if (GameIns.uiManager.gameGuide)
+            {
+                GameIns.uiManager.GetComponent<Animator>().SetTrigger("unhighlight");
+                GameIns.uiManager.gameGuide = false;
+            }
+        }
         if (draggingEmployee != null)
         {
             inputDisAble = false;
@@ -289,10 +267,10 @@ public class InputManger : MonoBehaviour
             draggingEmployee = null;
             
         }
-        ((Action)EventManager.Publish(3))?.Invoke();
-#if UNITY_ANDROID
+     //   ((Action)EventManager.Publish(3))?.Invoke();
+/*#if UNITY_ANDROID
         // if(Touchscreen.current == null || Touchscreen.current.touches.Count > 0) return;
-#endif
+#endif*/
         bClick = false;
         if (buyer != null)
         {
@@ -300,16 +278,12 @@ public class InputManger : MonoBehaviour
             buyer = null;
         }
 
-        if (CheckClickedUI(uiMask)) return;
-        if (!isDragging)
-        {
-            //인게임 오브젝트 클릭
-            EndClickIngameObject(currentPoint);
-
-            ((Action<Vector3>)EventManager.PublishWithDestory(1))?.Invoke(currentPoint);
+        if (CheckClickedUI(uiMask) || GameIns.store.scrolling.isWorking) return;
 
 
-        }
+        EndClickIngameObject(currentPoint);
+
+       // ((Action<Vector3>)EventManager.PublishWithDestory(1))?.Invoke(currentPoint);
     }
     void StartClickIngameObject(Vector3 pos)
     {
@@ -893,7 +867,7 @@ public class InputManger : MonoBehaviour
             {
                 Vector3 dir = target - hit2.point;
                 float s = dir.magnitude;
-                Vector3 d = GameInstance.GetVector3(dir.x, 0, dir.z).normalized; //new Vector3(dir.x, 0, dir.z).normalized;
+                Vector3 d = new Vector3(dir.x, 0, dir.z).normalized; //new Vector3(dir.x, 0, dir.z).normalized;
                                                                                  //  cameraTrans.Translate(d * Time.deltaTime * 50);
                 if (RayMove(d, s / Time.deltaTime) == false)
                 {

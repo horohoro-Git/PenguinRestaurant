@@ -209,7 +209,7 @@ public class MoveCalculator
                 float c = minX + j * distanceSize;
                 Vector3 worldPoint = (Vector3.right * (c) + Vector3.forward * (r));
 
-                Vector3 size = GameInstance.GetVector3(distanceSize * 2f, distanceSize * 2f, distanceSize * 2f);
+                Vector3 size = new Vector3(distanceSize * 2f, distanceSize * 2f, distanceSize * 2f);
 
                 bool check = false;
                 bool check2 = false;
@@ -275,11 +275,7 @@ public class MoveCalculator
             bool playerValidCheck = ValidCheck(playerY, playerX);
             bool targetValidCheck = ValidCheck(targetY, targetX);
 
-            if (!(playerValidCheck && targetValidCheck))
-            {
-                Debug.Log("AA");
-            }
-
+        
             return await UniTask.RunOnThreadPool<Stack<Vector3>>(() =>
             {
                 // ResetNodes();
@@ -292,7 +288,7 @@ public class MoveCalculator
                     float c = 100;
                     Vector3 target = new Vector3(c, 0, r);
                     returnVectors.Push(target);
-                    Debug.Log("Fail");
+                 //   Debug.Log("Fail");
                     return returnVectors;  //returnVectors.Push(target);
                 }
 
@@ -309,13 +305,13 @@ public class MoveCalculator
                     float c = 100;
                     Vector3 target = new Vector3(c, 0, r);
                     returnVectors.Push(target);
-                    Debug.Log("Fail2");
+                   // Debug.Log("Fail2");
                     return returnVectors;
                 }
 
                 if (ValidCheck(targetY, targetX) && block[GetIndex(targetX, targetY)])
                 {
-                    Debug.Log("EndBlocked");
+                  //  Debug.Log("EndBlocked");
                     return null;
                 }
                 //  start.parentNode = start;   
@@ -429,7 +425,7 @@ public class MoveCalculator
                 }
                 Vector3 temp = new Vector3(100, 0, 100);
                 returnVectors.Push(temp);
-                Debug.Log("Fail3");
+           //     Debug.Log("Fail3");
                 return returnVectors;
             }, cancellationToken: cancellation);
         }

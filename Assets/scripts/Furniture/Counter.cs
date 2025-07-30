@@ -102,9 +102,7 @@ public class Counter : Furniture, IObjectOffset
             door.transform.localScale = Vector3.zero;
             if (Physics.Raycast(transforms.position + Vector3.up, offset.forward, out RaycastHit hits, float.MaxValue, 1 << 16 | 1 << 19))
             {
-                
                 GameObject h = hits.collider.gameObject;
-             
              
                 door.transform.position = h.transform.position - Vector3.up * h.transform.position.y;
                 door.transform.rotation = h.transform.rotation * Quaternion.Euler(0, -90, 0);

@@ -1971,7 +1971,7 @@ public class AnimalController : MonoBehaviour
 
     protected Vector3 AnimalMovement(Node n, ref int i, List<Node> ns)
     {
-        Vector3 size = GameInstance.GetVector3(0.6f, 0.6f, 0.6f);
+        Vector3 size = new Vector3(0.6f, 0.6f, 0.6f);
         Vector3 currentPos = trans.position;
 
         // 끝에서 시작까지 역순으로 직선 이동 가능성 확인
@@ -2014,7 +2014,7 @@ public class AnimalController : MonoBehaviour
     {
         float x = GameInstance.GameIns.calculatorScale.minX + node.c * GameInstance.GameIns.calculatorScale.distanceSize;
         float z = GameInstance.GameIns.calculatorScale.minY + node.r * GameInstance.GameIns.calculatorScale.distanceSize;
-        return GameInstance.GetVector3(x, GameInstance.GameIns.calculatorScale.height, z);
+        return new Vector3(x, GameInstance.GameIns.calculatorScale.height, z);
     }
 
     // 경로가 직선으로 연결 가능한지 확인
@@ -2147,7 +2147,7 @@ public class AnimalController : MonoBehaviour
     }*/
     public Vector3 AnimalMovement(Vector3 vector, ref int i, List<Vector3> vectors)
     {
-        Vector3 size = GameInstance.GetVector3(0.6f, 0.6f, 0.6f);
+        Vector3 size = new Vector3(0.6f, 0.6f, 0.6f);
         Vector3 currentPosition = trans.position;
 
         int iOrigin = i;

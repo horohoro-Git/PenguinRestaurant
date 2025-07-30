@@ -583,9 +583,9 @@ public class AnimalManager : MonoBehaviour
                 }
                 FoodStackManager.FM.RemoveFoodStack(foodStack);
             }
-            customer.trans.localPosition = GameInstance.GetVector3(0, 0, 0);
+            customer.trans.localPosition = new Vector3(0, 0, 0);
             customer.gameObject.SetActive(false);
-            customer.trans.position = GameInstance.GetVector3(100, 100, 100);
+            customer.trans.position = new Vector3(100, 100, 100);
             customer.animator.enabled = false;
             customer.customerCallback -= CustomerAction;
             //  int t = (int)customer.animalType;

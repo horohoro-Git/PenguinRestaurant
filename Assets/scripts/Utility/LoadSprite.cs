@@ -13,6 +13,7 @@ public class LoadSprite : MonoBehaviour
         if (!bImage)
         {
             if (AssetLoader.loadedAtlases.ContainsKey(atlasName)) GetComponent<SpriteRenderer>().sprite = AssetLoader.loadedAtlases[atlasName].GetSprite(assetName);
+            //GetComponent<SpriteRenderer>().material.renderQueue = 2800;
         }
         else
         {

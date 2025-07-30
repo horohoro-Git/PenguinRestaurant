@@ -11,6 +11,7 @@ using static GameInstance;
 
 public class UIManager : MonoBehaviour
 {
+    public CanvasScaler canvasScaler;
     public TMP_Text moneyText;
     public TMP_Text fishText;
     public Order[] order;
@@ -25,6 +26,7 @@ public class UIManager : MonoBehaviour
     public Image changeSceneImage;
     public Button drawBtn;
     public TMP_Text drawPriceText;
+    public TMP_Text autoDrawText;
     public Button drawSpeedUpBtn;
     public Button fishingBtn;
     public Button fishingStartButton;
@@ -69,7 +71,9 @@ public class UIManager : MonoBehaviour
     }
     void Start()
     {
-     //   PlayerCamera.ApplySafeArea(safeArea);
+   //     canvasScaler = GetComponent<CanvasScaler>();
+    //    AdjustReferenceResolution();
+        //   PlayerCamera.ApplySafeArea(safeArea);
         eventSystem = EventSystem.current;
         if (loadedAtlases.ContainsKey("UI"))
         {
@@ -189,7 +193,38 @@ public class UIManager : MonoBehaviour
         });
     }
 
+    void AdjustReferenceResolution()
+    {
+        // 현재 디바이스의 해상도 가져오기
+        float deviceWidth = Screen.width;
+        float deviceHeight = Screen.height;
 
+        // 기준 해상도 설정 (예: 1080x1920을 기준으로 비율 계산)
+        float referenceWidth = 1080f;
+        float referenceHeight = 1920f;
+
+        // 디바이스의 가로세로 비율 계산
+        float deviceAspect = deviceWidth / deviceHeight;
+        float referenceAspect = referenceWidth / referenceHeight;
+
+        // 비율에 따라 Reference Resolution 조정
+        if (deviceAspect > referenceAspect) // 더 넓은 화면 (예: 갤럭시 Z 폴드)
+        {
+            canvasScaler.referenceResolution = new Vector2(
+                referenceWidth,
+                referenceWidth / deviceAspect
+            );
+        }
+        else // 더 높은 화면 (예: 일반 스마트폰)
+        {
+            canvasScaler.referenceResolution = new Vector2(
+                referenceHeight * deviceAspect,
+                referenceHeight
+            );
+        }
+
+        Debug.Log($"Adjusted Reference Resolution: {canvasScaler.referenceResolution}");
+    }
     IEnumerator FadeInFadeOut(bool fades,int t)
     {
         eventSystem.enabled = false;

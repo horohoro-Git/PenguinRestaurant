@@ -192,8 +192,11 @@ public class FurnitureInfo : MonoBehaviour
     {
         if (currentFurniture != null)
         {
-            if(fishesNum <= GameInstance.GameIns.restaurantManager.restaurantCurrency.fishes)
-            GameInstance.GameIns.restaurantManager.AddFuel(currentFurniture.GetComponent<FoodMachine>(), fishesNum);
+            if (fishesNum <= GameInstance.GameIns.restaurantManager.restaurantCurrency.fishes && fishesNum > 0)
+            {
+                GameInstance.GameIns.restaurantManager.AddFuel(currentFurniture.GetComponent<FoodMachine>(), fishesNum);
+                UI_TypeA.increaseFishes = 0;
+            }
         }
     }
 

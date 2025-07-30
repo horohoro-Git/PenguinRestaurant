@@ -221,7 +221,7 @@ public class BlackConsumer : AnimalController
             {
                 float x = UnityEngine.Random.Range(-1f, 1f);
                 float y = UnityEngine.Random.Range(-1f, 1f);
-                Vector3 v3 = GameInstance.GetVector3(x, 0, y);
+                Vector3 v3 = new Vector3(x, 0, y);
 
                 float magnitude = v3.magnitude;
                 if (magnitude > 0f)

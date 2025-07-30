@@ -243,7 +243,8 @@ public class AssetLoader : MonoBehaviour
                     await LoadAsync<GameObject, StringStruct, string>(itemAssetKeys, loadedAssets, cacellationToken: cancellationToken);
                     await LoadAsync<Sprite, StringStruct, string>(spriteAssetKeys, loadedSprites, cacellationToken: cancellationToken);
 
-                    AssetBundleRequest assetRequest = bundle.LoadAssetAsync<TMP_FontAsset>("BMDOHYEON_ttf");
+                    AssetBundleRequest assetRequest = bundle.LoadAssetAsync<TMP_FontAsset>("BMDOHYEON_ttf SDF");
+                  
                     await assetRequest.ToUniTask(cancellationToken: cancellationToken);
                     if(assetRequest != null)
                     {

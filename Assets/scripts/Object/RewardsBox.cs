@@ -30,11 +30,11 @@ public class RewardsBox : MonoBehaviour
     {
         if (removes)
         {
-            Vector3 testScale = GameInstance.GetVector3(transform.localScale.x - Time.deltaTime * 10f, transform.localScale.y - Time.deltaTime * 10f, transform.localScale.z - Time.deltaTime * 10f);
+            Vector3 testScale = new Vector3(transform.localScale.x - Time.deltaTime * 10f, transform.localScale.y - Time.deltaTime * 10f, transform.localScale.z - Time.deltaTime * 10f);
             //   transform.localScale = new Vector3(transform.localScale.x - Time.deltaTime * 10f, transform.localScale.y - Time.deltaTime * 10f, transform.localScale.z - Time.deltaTime * 10f);
             if (testScale.x < 0)
             {
-                transform.localScale = GameInstance.GetVector3(2, 2, 2);
+                transform.localScale = new Vector3(2, 2, 2);
                 //  removeCoroutine = null;
                 fallSpeed = 0.5f;
                 removes = false;
@@ -65,7 +65,7 @@ public class RewardsBox : MonoBehaviour
             {
                 Food go = FoodManager.GetFood(meshFilter, MachineType.None, true);
                 foods.Push(go);
-                go.transform.localScale = GameInstance.GetVector3(2.5f, 2.5f, 2.5f);
+                go.transform.localScale = new Vector3(2.5f, 2.5f, 2.5f);
                 go.transform.rotation = Quaternion.Euler(90, 45, 0);
                 go.transform.position = transform.position + Vector3.up * 10f;
                 // StartCoroutine(DownFish());
@@ -97,7 +97,7 @@ public class RewardsBox : MonoBehaviour
             timer += Time.deltaTime;
             if(go.transform.position.y <= transform.position.y + 0.4f + 0.2f * foods.Count - 1)
             {
-                go.transform.position = GameInstance.GetVector3(go.transform.position.x, transform.position.y + 0.4f + 0.2f * foods.Count, go.transform.position.z);
+                go.transform.position = new Vector3(go.transform.position.x, transform.position.y + 0.4f + 0.2f * foods.Count, go.transform.position.z);
 
                 if (r != null) StopCoroutine(r);
                  r = StartCoroutine(Rebound(go));
@@ -114,11 +114,11 @@ public class RewardsBox : MonoBehaviour
         while(true)
         {
             a+= Time.deltaTime * 10f;
-            transform.localScale = GameInstance.GetVector3(a, 2, a);
+            transform.localScale = new Vector3(a, 2, a);
 
             foreach(var item in foods)
             {
-                item.transform.localScale = GameInstance.GetVector3(2.5f + (a - 2) * 2, 2.5f, 2.5f + (a - 2) * 2);
+                item.transform.localScale = new Vector3(2.5f + (a - 2) * 2, 2.5f, 2.5f + (a - 2) * 2);
             }
 
          /*   for (int i = 0; i < foods.Count; i++)
@@ -141,10 +141,10 @@ public class RewardsBox : MonoBehaviour
         while (true)
         {
             a -= Time.deltaTime*10;
-            transform.localScale = GameInstance.GetVector3(a, 2, a);
+            transform.localScale = new Vector3(a, 2, a);
             foreach (var item in foods)
             {
-                item.transform.localScale = GameInstance.GetVector3(2.5f + (a - 2) * 2, 2.5f, 2.5f + (a - 2) * 2);
+                item.transform.localScale = new Vector3(2.5f + (a - 2) * 2, 2.5f, 2.5f + (a - 2) * 2);
             }
            /* for (int i = 0; i < foods.Count; i++)
             {
@@ -157,7 +157,7 @@ public class RewardsBox : MonoBehaviour
             if (a < 2)
             {
                 a = 2f;
-                transform.localScale = GameInstance.GetVector3(a, 2, a);
+                transform.localScale = new Vector3(a, 2, a);
                /* for (int i = 0; i < foods.Count; i++)
                 {
                     if (foods[i] != go)
@@ -167,7 +167,7 @@ public class RewardsBox : MonoBehaviour
                 }*/
                 foreach (var item in foods)
                 {
-                    item.transform.localScale = GameInstance.GetVector3(2.5f, 2.5f, 2.5f);
+                    item.transform.localScale = new Vector3(2.5f, 2.5f, 2.5f);
                 }
                 break;
             }
@@ -201,11 +201,11 @@ public class RewardsBox : MonoBehaviour
         destroyed = true;
         while(true)
         {
-            Vector3 testScale = GameInstance.GetVector3(transform.localScale.x - Time.deltaTime * 10f, transform.localScale.y - Time.deltaTime * 10f, transform.localScale.z - Time.deltaTime * 10f);
+            Vector3 testScale = new Vector3(transform.localScale.x - Time.deltaTime * 10f, transform.localScale.y - Time.deltaTime * 10f, transform.localScale.z - Time.deltaTime * 10f);
          //   transform.localScale = new Vector3(transform.localScale.x - Time.deltaTime * 10f, transform.localScale.y - Time.deltaTime * 10f, transform.localScale.z - Time.deltaTime * 10f);
             if(testScale.x < 0)
             {
-                transform.localScale = GameInstance.GetVector3(2, 2, 2);
+                transform.localScale = new Vector3(2, 2, 2);
                 break;
             }
             else

@@ -74,6 +74,8 @@ public class GatcharManager : MonoBehaviour
     CancellationTokenSource gatchaToken = new CancellationTokenSource();
     CancellationTokenSource emotionToken = new CancellationTokenSource();
     StringBuilder sb = new StringBuilder();
+    Coroutine autoGatcha;
+    bool autoPlaying;
     private void Awake()
     {
   //      t = cts.Token;
@@ -208,11 +210,29 @@ public class GatcharManager : MonoBehaviour
 
     public void StartGatcha()
     {
-        if (isSpawning) return;
-        if (!Purchase()) return;
+       
+       
+        if (isFast)
+        {
+            if (autoGatcha == null)
+            {
+                autoPlaying = true;
+                autoGatcha = StartCoroutine(AutoGatcha());
+            }
+        }
+        else
+        {
+            GameInstance.GameIns.uiManager.autoDrawText.gameObject.SetActive(false);
+            if (isSpawning) return;
+            if (!Purchase()) return;
+            PlayingGatcha();
+        }
+    }
 
+    bool PlayingGatcha()
+    {
         randomAnimalKey.Clear();
-        switch(mapType)
+        switch (mapType)
         {
             case MapType.town:
                 for (int i = 0; i < 3; i++)
@@ -231,56 +251,18 @@ public class GatcharManager : MonoBehaviour
         }
 
         bool success = false;
-        foreach(var pair in randomAnimalKey)
+        foreach (var pair in randomAnimalKey)
         {
-            if(pair.Value == 1)
+            if (pair.Value == 3)
             {
                 success = CheckSuccess(pair.Key);
-                /*      if (AnimalManager.gatchaTiers.ContainsKey(pair.Key))
-                      {
-                          if (AnimalManager.gatchaTiers[pair.Key].Item1 < 4)
-                          {
-                              (int, List<int>) tmp = AnimalManager.gatchaTiers[pair.Key];
-                              tmp.Item1++;
-                              int r = Random.Range(0, 7);
-                              tmp.Item2[r] = 1;
-                              AnimalManager.gatchaTiers[pair.Key] = tmp;
-                              SaveLoadSystem.SaveGatchaAnimalsData();
-                              success = true;
-                          }
-                          else
-                          {
-                              (int, List<int>) tmp = AnimalManager.gatchaTiers[pair.Key];
-                              int r = Random.Range(0, 7);
-                              if (tmp.Item2[r] == 0)
-                              {
-                                  tmp.Item2[r] = 1;
-                                  AnimalManager.gatchaTiers[pair.Key] = tmp;
-                                  SaveLoadSystem.SaveGatchaAnimalsData();
-                              }
-                          }
-                      }
-                      else
-                      {
-                          int tier = 1;
-                          List<int> personality = new List<int>();
-                          for (int i = 0; i < 7; i++) personality.Add(0);
-
-                          int r = Random.Range(0, 7);
-                          personality[r] = 1;
-                          AnimalManager.gatchaTiers[pair.Key] = (tier, personality);
-                          AnimalStruct asset = AssetLoader.animals[pair.Key];
-                          AnimalManager.animalStructs[pair.Key] = asset;
-                          SaveLoadSystem.SaveGatchaAnimalsData();
-                          success = true;
-                          //  GameInstance.GameIns.animalManager.AddNewAnimal(lockAnimals[keyValuePair.Key], keyValuePair.Key, animal);
-                      }*/
+             
                 CheckGameClear();
                 break;
             }
         }
 
-        GameInstance.GameIns.uiManager.drawBtn.gameObject.SetActive(false);
+        if(!autoPlaying) GameInstance.GameIns.uiManager.drawBtn.gameObject.SetActive(false);
         ClearRollings();
         popup_NewCustomer.SetActive(false);
         popup_TierUp.SetActive(false);
@@ -303,11 +285,37 @@ public class GatcharManager : MonoBehaviour
         if (gatchaToken != null) gatchaToken.Cancel();
         gatchaToken = new CancellationTokenSource();
         AdvertisementAsync(success, gatchaToken.Token).Forget();
-     
-        if(success)
+
+        if (success)
         {
             SetPrice();
         }
+
+        return success;
+    }
+
+    IEnumerator AutoGatcha()
+    {
+        GameInstance.GameIns.uiManager.autoDrawText.gameObject.SetActive(true);
+        while (autoPlaying)
+        {
+            if (!Purchase())
+            {
+                GameInstance.GameIns.uiManager.autoDrawText.gameObject.SetActive(false);
+                autoGatcha = null;
+                yield break;
+            }
+            bool result = PlayingGatcha();
+            if (result)
+            {
+                GameInstance.GameIns.uiManager.autoDrawText.gameObject.SetActive(false);
+                autoGatcha = null;
+                yield break;
+            }
+            yield return new WaitForSecondsRealtime(0.6f);
+        }
+        GameInstance.GameIns.uiManager.autoDrawText.gameObject.SetActive(false);
+        autoGatcha = null;
     }
 
     public void SetPrice()
@@ -660,7 +668,6 @@ public class GatcharManager : MonoBehaviour
     {
         if (GameInstance.GameIns.restaurantManager.restaurantCurrency.Money >= gatchaPrice)
         {
-            Debug.Log((-gatchaPrice).ToString());
             //  GameInstance.GameIns.restaurantManager.restaurantCurrency.Money -= (int)price;
             GameInstance.GameIns.restaurantManager.GetMoney((-gatchaPrice).ToSafeString());
 
@@ -758,7 +765,7 @@ public class GatcharManager : MonoBehaviour
         {
             foreach (var pair in randomAnimalKey)
             {
-                if (pair.Value == 1)
+                if (pair.Value == 3)
                 {
                     //  GetAnimator.SetInteger(AnimationKeys.state, 1);
                     //   popup.SetActive(true);
@@ -987,21 +994,23 @@ public class GatcharManager : MonoBehaviour
 
     public void GatcharSpeedUp()
     {
-        if (!isFast)
+        if (!autoPlaying && !isSpawning)
         {
-            spawnTerm = 0.04f;            
-            rollingSpeed = 50;
-            isFast = true;
-            GameInstance.GameIns.uiManager.checkMark.SetActive(true);
+            if (!isFast)
+            {
+                spawnTerm = 0.04f;
+                rollingSpeed = 50;
+                isFast = true;
+                GameInstance.GameIns.uiManager.checkMark.SetActive(true);
+            }
+            else
+            {
+                spawnTerm = 0.2f;
+                rollingSpeed = 10;
+                isFast = false;
+                GameInstance.GameIns.uiManager.checkMark.SetActive(false);
+            }
         }
-        else
-        {
-            spawnTerm = 0.2f;
-            rollingSpeed = 10;
-            isFast = false;
-            GameInstance.GameIns.uiManager.checkMark.SetActive(false);
-        }
-        
     }
 
 

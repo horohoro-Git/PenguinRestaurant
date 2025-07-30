@@ -18,12 +18,12 @@ public class PlayerCamera : MonoBehaviour
     public float bounceForce = 3f;
 
     public Camera cam;
-    float zoomSpeed = 0.01f;
+    float zoomSpeed = 0.02f;
     public float minZoom = 10f;
     public float maxZoom = 30f;
     private float targetZoom;
     private float previousDistance = 0f;
-    public float smoothTime = 0.01f;
+    float smoothTime = 0.02f;
 
     float zoomVelocity;
     bool isZooming;

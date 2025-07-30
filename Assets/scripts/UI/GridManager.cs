@@ -144,7 +144,7 @@ public class GridManager : MonoBehaviour
 
 
 
-    public bool SelectLine(Vector3 startPos, PlaceController go, bool checkArea, WorkSpaceType workType)
+    public bool SelectLine(Vector3 startPos, PlaceController go, bool checkArea, WorkSpaceType workType, bool forced = false)
     {
        
         
@@ -155,7 +155,7 @@ public class GridManager : MonoBehaviour
         float halfSize = cellSize * 0.5f;
         float centerX = cellX * cellSize + gridOffset.x;
         float centerZ = cellY * cellSize + gridOffset.y;
-        if (x == centerX && y == centerZ) return checkArea;
+        if (x == centerX && y == centerZ && !forced) return checkArea;
         x = centerX; y = centerZ;
 
         RemoveSelect();
@@ -167,30 +167,11 @@ public class GridManager : MonoBehaviour
         currentSelector = GetSelect();
         float offsetX = centerX - 4.5f;
         float offsetY = centerZ - 4.5f;
-        // currentLineRender = GetLine();
-        /* Vector3[] corners = new Vector3[5];
-         float offsetX = centerX - 4.5f;
-         float offsetY = centerZ - 4.5f;
-         corners[0] = new Vector3(offsetX - halfSize, 11.2f, offsetY - halfSize);
-         corners[1] = new Vector3(offsetX + halfSize, 11.2f, offsetY - halfSize);
-         corners[2] = new Vector3(offsetX + halfSize, 11.2f, offsetY + halfSize);
-         corners[3] = new Vector3(offsetX - halfSize, 11.2f, offsetY + halfSize);
-         corners[4] = corners[0];*/
-
-        /*   currentLineRender.positionCount = 5;
-           currentLineRender.SetPositions(corners);
-           currentLineRender.startWidth = currentLineRender.endWidth = 0.2f;
-           currentLineRender.useWorldSpace = true;*/
+      
 
         currentSelector.transform.position = new Vector3(offsetX, 11.2f, offsetY);
 
-        // int floorCellX = Mathf.FloorToInt((startPos.x - gridOffsets.x + (cellSize + 4.6f) * 0.5f) / cellSize);
-        //  int floorCellY = Mathf.FloorToInt((startPos.z - gridOffsets.y + (4.6f + cellSize) * 0.5f) / cellSize);
-
-        // go.transform.position = new Vector3(floorCellX * cellSize + 0.6f, 0, floorCellY * cellSize + 1.25f);
         go.transform.position = new Vector3(cellX * cellSize + go.offsetVector.x , 0, cellY * cellSize + go.offsetVector.y);
-        //        bool[] blocks = new bool[MoveCalculator.GetBlocks.Length];
-        // Array.Copy(MoveCalculator.GetBlocks, blocks, blocks.Length);
 
         return CheckObject(go, workType);
     }
@@ -226,7 +207,7 @@ public class GridManager : MonoBehaviour
         {
             if (boxCollider.gameObject.layer == 17)
             {
-                Vector3 size = GameInstance.GetVector3(calculatorScale.distanceSize * 3f, calculatorScale.distanceSize * 3f, calculatorScale.distanceSize * 3f);
+                Vector3 size = new Vector3(calculatorScale.distanceSize * 3f, calculatorScale.distanceSize * 3f, calculatorScale.distanceSize * 3f);
                 float x = Mathf.FloorToInt(boxCollider.transform.position.x / cellSize) * cellSize;
                 float z = Mathf.FloorToInt(boxCollider.transform.position.z / cellSize) * cellSize;
                 Vector2 vector2 = new Vector2(x, z);
@@ -379,18 +360,16 @@ public class GridManager : MonoBehaviour
 
     public bool CheckObject(PlaceController go, WorkSpaceType workType)
     {
-       // go.temp.Clear();
         RemoveCell();
         CalculatorScale calculatorScale = GameIns.calculatorScale;
         int ch = 0;
 
-        //   colliders.Clear();
         if (go.colliders.Count == 0) go.GetComponentsInChildren(true, go.colliders);
         foreach (BoxCollider boxCollider in go.colliders)
         {
             if (boxCollider.gameObject.layer == 17)
             {
-                Vector3 size = GameInstance.GetVector3(calculatorScale.distanceSize * 2.5f, calculatorScale.distanceSize * 2.5f, calculatorScale.distanceSize * 2.5f);
+                Vector3 size = new Vector3(calculatorScale.distanceSize * 2.5f, calculatorScale.distanceSize * 2.5f, calculatorScale.distanceSize * 2.5f);
 
                 float x = Mathf.FloorToInt(boxCollider.transform.position.x / cellSize) * cellSize;
                 float z = Mathf.FloorToInt(boxCollider.transform.position.z / cellSize) * cellSize;
@@ -564,17 +543,16 @@ public class GridManager : MonoBehaviour
                     Vector2 vector22 = new Vector2(x2, z2);
                     int gridX2 = Mathf.FloorToInt((x2 - calculatorScale.minX) / 2.5f);
                     int gridY2 = Mathf.FloorToInt((z2 - calculatorScale.minY) / 2.5f);
-                    Debug.Log(trashCanGrids[MoveCalculator.GetIndex(gridX2, gridY2)]);
                     if (!cellDic.ContainsKey(vector22))
                     {
                         MaterialBlockController cell_GO2 = GetCell();
 
                         if ((gridX2 + gridY2 * GameIns.calculatorScale.sizeX) < grids.Length && (gridX2 + gridY2 * GameIns.calculatorScale.sizeX) >= 0 && !grids[MoveCalculator.GetIndex(gridX2, gridY2)] && trashCanGrids[MoveCalculator.GetIndex(gridX2, gridY2)] == 0)
                         {
-                            bool check = Physics.CheckBox(go.model.gameObject.transform.position, new Vector3(0.5f, 0.5f, 0.5f), Quaternion.Euler(0, 0, 0), 1 << 6 | 1 << 7 | 1 << 8 | 1 << 16 | 1 << 19 | 1 << 21);
-
+                            bool check = Physics.CheckBox(go.model.gameObject.transform.position, new Vector3(0.5f, 0.5f, 0.5f), Quaternion.Euler(0, 0, 0), 1 << 6 | 1 << 7 | 1 << 16 | 1 << 19 | 1 << 21);
+                            bool check2 = Physics.CheckBox(go.model.gameObject.transform.position, new Vector3(0.8f, 0.8f, 0.8f), Quaternion.Euler(0, 0, 0), 1 << 8);
                             cell_GO2.transform.position = new Vector3(x2 + gridOffsets.x, 0.2f, z2 + gridOffsets.y);
-                            if (check)
+                            if (check || check2)
                             {
                                 cell_GO2.Set(1, red);
                                 ch++;
@@ -587,7 +565,6 @@ public class GridManager : MonoBehaviour
                         }
                         else
                         {
-                            Debug.Log("BB " + trashCanGrids[MoveCalculator.GetIndex(gridX2, gridY2)]);
                             cell_GO2.transform.position = new Vector3(x2 + gridOffsets.x, 0.2f, z2 + gridOffsets.y);
                             cell_GO2.Set(1, red);
                             cellDic[vector22] = cell_GO2;
