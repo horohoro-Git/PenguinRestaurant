@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -14,12 +15,49 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
     public TMP_Text storeText;
     public RectTransform parentRect;
     public Image border;
+    public Image autoBorder;
+    public Image autoImage1;
+    public Image autoImage2;
+    public TMP_Text autoText;
+    [NonSerialized] public bool isWorking;
+
+    Button autoBtn;
     Vector2 SetParentVector { set { parentRect.anchoredPosition = value; 
+            
+            // 보더
             Color color = border.color;
-            color.a = (Mathf.Abs(-270f - value.y) * .3313f * 0.0045f) * 0.87f;
+            float a = (Mathf.Abs(-270f - value.y) * .3313f * 0.0045f) * 0.87f;
+            color.a = a;
             border.color = color;
-            if (border.color.a == 0) border.raycastTarget = false;
-            else border.raycastTarget = true;
+         
+            //자동 배치
+            Color aBorder = autoBorder.color;
+            Color aImage1 = autoImage1.color;
+            Color aImage2 = autoImage2.color;
+            Color textColor = autoText.color;
+            aBorder.a = a > 0.04f ? 0.04f : a;
+            aImage1.a = a;
+            aImage2.a = a;
+            textColor.a = a;
+            autoBorder.color = aBorder;
+            autoImage1.color = aImage1;
+            autoImage2.color = aImage2;
+            autoText.color = textColor;
+
+            if (a == 0)
+            {
+                if(autoBtn == null) autoBtn = autoBorder.GetComponent<Button>();    
+                autoBtn.enabled = false;
+                autoBorder.raycastTarget = false;
+                border.raycastTarget = false;
+            }
+            else
+            {
+                if (autoBtn == null) autoBtn = autoBorder.GetComponent<Button>();
+                autoBtn.enabled = true;
+                autoBorder.raycastTarget = true;
+                border.raycastTarget = true;
+            }
         } }
     Vector2 latestVector = Vector3.zero;
     bool isSpread = false;
@@ -110,6 +148,7 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
 
     IEnumerator Down()
     {
+        isWorking = true;
         Vector2 curPos = parentRect.anchoredPosition;
         Vector2 targetPos = new Vector2(curPos.x, -270);
         float f = (Mathf.Abs(-270 - curPos.y) / 460) * 0.2f;
@@ -123,11 +162,13 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
         }
         SetParentVector = targetPos;
         isSpread = false;
+        isWorking = false;
    //     animator.SetTrigger("gathering");
     }
 
     IEnumerator Up()
     {
+        isWorking = true;
         Vector2 curPos = parentRect.anchoredPosition;
         Vector2 targetPos = new Vector2(curPos.x, 400);
         float f = (Mathf.Abs(400 - curPos.y) / 460) * 0.2f;
@@ -141,6 +182,7 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
         }
         SetParentVector = targetPos;
         isSpread = true;
+        isWorking = false;
       //  animator.SetTrigger("spread");
     }
 
@@ -155,7 +197,7 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
             scrollCoroutine = StartCoroutine(Down());
             isDown = true;
             animator.SetInteger(AnimationKeys.scrolling, 2);
-            storeText.fontSize = 45f;
+            storeText.fontSize = 40f;
         }
         else
         {
@@ -217,6 +259,6 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
         animator.SetInteger(AnimationKeys.scrolling, 2);
         isSpread = false;
         isDown = true;
-        storeText.fontSize = 45f;
+        storeText.fontSize = 40f;
     }
 }

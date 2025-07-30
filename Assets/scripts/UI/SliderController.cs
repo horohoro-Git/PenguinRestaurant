@@ -95,12 +95,12 @@ public class SliderController : MonoBehaviour
                 if (!Border.gameObject.activeSelf) Border.gameObject.SetActive(true);
                 if (!Bar.gameObject.activeSelf) Bar.gameObject.SetActive(true);
                 if (!levelTextTrans.gameObject.activeSelf) levelTextTrans.gameObject.SetActive(true);
-                Vector3 rectPosition = GameInstance.GetVector3(model.position.x - 50f, model.position.y + 120, model.position.z - 50f);
-                Vector3 rectPosition2 = GameInstance.GetVector3(model.position.x - 50f + expX, model.position.y + 120, model.position.z - 50f + expZ);
+                Vector3 rectPosition = new Vector3(model.position.x - 50f, model.position.y + 120, model.position.z - 50f);
+                Vector3 rectPosition2 = new Vector3(model.position.x - 50f + expX, model.position.y + 120, model.position.z - 50f + expZ);
                 BG.position = rectPosition;
                 Border.position = rectPosition;
                 Bar.position = rectPosition2;
-                Vector3 rectPosition3 = GameInstance.GetVector3(model.position.x - 50f, model.position.y + 120, model.position.z - 50f);
+                Vector3 rectPosition3 = new Vector3(model.position.x - 50f, model.position.y + 120, model.position.z - 50f);
                 levelTextTrans.position = rectPosition3;
                 Bar.sizeDelta = size;
             }

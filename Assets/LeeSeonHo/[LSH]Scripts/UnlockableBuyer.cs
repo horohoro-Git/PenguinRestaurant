@@ -240,7 +240,7 @@ public class UnlockableBuyer : MonoBehaviour
         {
             // 밀어낼 방향으로 일정 거리 이동
             objTransform.position += pushDirection.normalized * buildingSize.magnitude ;
-            Collider[] walls = Physics.OverlapBox(objTransform.position, GameInstance.GetVector3(0.6f, 0.6f, 0.6f), Quaternion.identity, 1 << 7);
+            Collider[] walls = Physics.OverlapBox(objTransform.position, new Vector3(0.6f, 0.6f, 0.6f), Quaternion.identity, 1 << 7);
             for (int i = 0; i < walls.Length; i++)
             {
                 if(walls[i].gameObject.TryGetComponent(out NoGoArea noGoArea))

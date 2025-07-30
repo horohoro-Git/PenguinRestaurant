@@ -23,7 +23,8 @@ public class Furniture : MonoBehaviour
     {
         if(!spawned)
         {
-            SaveLoadSystem.SaveRestaurantBuildingData();
+         //   SaveLoadSystem.SaveRestaurantBuildingData();
+        //    GameInstance.GameIns.restaurantManager.restaurantparams = SaveLoadSystem.LoadRestaurantBuildingData();
             spawned = true;
             if(spaceType != WorkSpaceType.Door)  StartCoroutine(ScaleAnimation());
         }

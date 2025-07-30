@@ -13,6 +13,7 @@ using UnityEngine.UIElements;
 using Vector3 = UnityEngine.Vector3;
 using Quaternion = UnityEngine.Quaternion;
 using Newtonsoft.Json;
+using UnityEngine.Rendering;
 //한글
 
 public enum SceneState
@@ -43,8 +44,12 @@ public class App : MonoBehaviour
     List<GameObject> loadedScenesRootUI = new List<GameObject>();
     static int currentLevel;
     public static int CurrentLevel { get { return currentLevel; } set { currentLevel = value; } }
+
+  
     private void Awake()
     {
+        QualitySettings.vSyncCount = 1;
+        Application.targetFrameRate = 60;
         currentScene = SceneState.Restaurant;
         GameInstance.GameIns.app = this;
         DontDestroyOnLoad(this);

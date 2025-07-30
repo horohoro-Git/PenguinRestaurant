@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -15,6 +16,8 @@ public class Store : MonoBehaviour
     public Scrolling scrolling;
     public Scrollbar scrollbar;
     public ScrollRect scrollRect;
+    public Button autoPlace;
+    Animator autoAnimator;
     Dictionary<int, GoodsStruct> goodsStructs = new Dictionary<int, GoodsStruct>();
     // Dictionary<WorkSpaceType, StoreGoods> goodsDic = new Dictionary<WorkSpaceType, StoreGoods>();
     Dictionary<int, StoreGoods> goodsList = new Dictionary<int, StoreGoods>();
@@ -26,10 +29,14 @@ public class Store : MonoBehaviour
 
     public static RectTransform instancingImage;
     public static GameObject storeObjects;
-
     WorkSpaceType spaceType = WorkSpaceType.Counter;
 
     public HashSet<int> require = new HashSet<int>();
+    bool bAuto;
+    public bool Auto { get { return bAuto; } set { bAuto = value; 
+        if(autoAnimator == null) autoAnimator = autoPlace.GetComponent<Animator>();
+            autoAnimator.SetInteger(AnimationKeys.state, bAuto == true ? 1 : 2);
+        } }
     private void Awake()
     {
         storeObjects = new GameObject();
@@ -58,6 +65,15 @@ public class Store : MonoBehaviour
 
             }
         }
+    }
+
+    private void Start()
+    {
+        Auto = true;
+        autoPlace.onClick.AddListener(() =>
+        {
+            Auto = !Auto;
+        });
     }
 
     public void NewGoods(Dictionary<int, GoodsStruct> goodsStruct)

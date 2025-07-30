@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using static AssetLoader;
@@ -9,7 +10,7 @@ public class RewardTrashcan : MonoBehaviour
     public Button rewardBtn;
     public Animator animator;
     public Image trashcanImage;
-
+    public TMP_Text clickerText;
     RectTransform rect;
     Vector3 origin;
     Vector3 velocity;
@@ -24,6 +25,7 @@ public class RewardTrashcan : MonoBehaviour
             if (clickable)
             {
                 clickNum++;
+                clickerText.text = clickNum.ToString();
                 Vector3 pos = rect.position;
                 float r1 = Random.Range(-30, 30);
                 float r2 = Random.Range(10, 30);
@@ -38,6 +40,8 @@ public class RewardTrashcan : MonoBehaviour
 
     public void StartClicker()
     {
+        clickerText.gameObject.SetActive(true);
+        clickerText.text = "0";
         rect.position = origin;
         StartCoroutine(Clicker());
     }
@@ -58,7 +62,7 @@ public class RewardTrashcan : MonoBehaviour
             yield return null;
         }
 
-
+        clickerText.gameObject.SetActive(false);
         clickable = false;
         rect.position = origin;
 
@@ -116,11 +120,11 @@ public class RewardTrashcan : MonoBehaviour
 
     void ShowResult()
     {
-        if (clickNum > 10)
+        if (clickNum > 30)
         {
             trashcanImage.sprite = loadedSprites[spriteAssetKeys[5004].ID];
         }
-        else if (clickNum > 5)
+        else if (clickNum > 15)
         {
             trashcanImage.sprite = loadedSprites[spriteAssetKeys[5003].ID];
 

@@ -44,21 +44,21 @@ public class CustomerInfoPopup : MonoBehaviour
         animalFace.sprite = AssetLoader.loadedSprites[AssetLoader.spriteAssetKeys[id].Name];// animalTextures[id];
         name_text.text = name;
         speed_text.text = speed.ToString();
-        eatSpeed_text.text = eatSpeed.ToString();
+        eatSpeed_text.text = (8.5f - eatSpeed).ToString();
         order_text.text = maxOrder.ToString();
 
-        speedSlider.value = speed;
-        eatSpeedSlider.value = eatSpeed;
-        orderSlider.value = maxOrder;
+        speedSlider.value = (speed /6f);
+        eatSpeedSlider.value = ((8.5f - eatSpeed) / 5f);
+        orderSlider.value = (maxOrder / 6f);
 
-        speedSlider_text.text = $"{speed}/20";
+        /*speedSlider_text.text = $"{speed}/10";
         eatSpeedSlider_text.text = $"{eatSpeed}/20";
-        orderSlider_text.text = $"{maxOrder}/20";
+        orderSlider_text.text = $"{maxOrder}/20";*/
 
-        if (maxOrder < 5) order_text.text = gameSettings.language == Language.KOR ? "적음" : "Low";
-        else if (maxOrder >= 5 && maxOrder < 10) order_text.text = gameSettings.language == Language.KOR ? "보통" : "Normal";
-        else if (maxOrder >= 10 && maxOrder < 15) order_text.text = gameSettings.language == Language.KOR ? "많음" : "High";
-        else if (maxOrder >= 15) order_text.text = gameSettings.language == Language.KOR ? "매우 많음" : "Very High";
+        if (maxOrder < 3) order_text.text = gameSettings.language == Language.KOR ? "적음" : "Low";
+        else if (maxOrder >= 3 && maxOrder < 4) order_text.text = gameSettings.language == Language.KOR ? "보통" : "Normal";
+        else if (maxOrder >= 4 && maxOrder < 5) order_text.text = gameSettings.language == Language.KOR ? "많음" : "High";
+        else if (maxOrder >= 5) order_text.text = gameSettings.language == Language.KOR ? "매우 많음" : "Very High";
 
         (int, List<int>) tier = AnimalManager.gatchaTiers[id];
 
@@ -94,26 +94,7 @@ public class CustomerInfoPopup : MonoBehaviour
             }
         }
         personality.text = personalityText.ToString();  
-       /* switch (likeFood)
-        {
-            case 1: likeFood_text.text = "햄버거"; likeFoodImg.sprite = foodTextures[1]; break;
-            case 2: likeFood_text.text = "콜라"; likeFoodImg.sprite = foodTextures[2]; break;
-            case 3: likeFood_text.text = "커피"; likeFoodImg.sprite = foodTextures[3]; break;
-            case 4: likeFood_text.text = "도넛"; likeFoodImg.sprite = foodTextures[4]; break;
-
-            default: likeFood_text.text = "없음"; likeFoodImg.sprite = foodTextures[0]; break;
-        }
-
-        switch (hateFood)
-        {
-            case 1: hateFood_text.text = "햄버거"; hateFoodImg.sprite = foodTextures[1]; break;
-            case 2: hateFood_text.text = "콜라"; hateFoodImg.sprite = foodTextures[2]; break;
-            case 3: hateFood_text.text = "커피"; hateFoodImg.sprite = foodTextures[3]; break;
-            case 4: hateFood_text.text = "도넛"; hateFoodImg.sprite = foodTextures[4]; break;
-
-            default: hateFood_text.text = "없음"; hateFoodImg.sprite = foodTextures[0]; break;
-        }*/
-
+      
         switch (tier.Item1)
         {
             case 1: profileBg.sprite = profileTextures[1]; backGlow.color = backGlowColor[1]; break;

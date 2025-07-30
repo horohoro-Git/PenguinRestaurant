@@ -716,7 +716,34 @@ public class SaveLoadSystem
                         {
                             if(foodStacks[j].type == machine.Key)
                             {
-                                fishes += foodStacks[j].foodStack.Count;
+                                foreach(var v in foodStacks[j].foodStack)
+                                {
+                                    if(v.withFuel)
+                                    {
+                                        fishes++;
+                                    }
+                                }
+                            }
+                        }
+
+                        if (workSpaceManager.counters[i].customer != null)
+                        {
+                            Customer customer = workSpaceManager.counters[i].customer;
+                            if (customer.hasMoney)
+                            {
+                                for(int j = 0; j < customer.foodStacks.Count; j++)
+                                {
+                                    if(customer.foodStacks[j].type == machine.Key)
+                                    {
+                                        foreach (var v in customer.foodStacks[j].foodStack)
+                                        {
+                                            if (v.withFuel)
+                                            {
+                                                fishes++;
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -726,15 +753,29 @@ public class SaveLoadSystem
                         FoodMachine fm = workSpaceManager.foodMachines[i];
                         if(fm.machineType == machine.Key)
                         {
-                            fishes += fm.foodStack.foodStack.Count;
+                            foreach (var v in fm.foodStack.foodStack)
+                            {
+                                if (v.withFuel)
+                                {
+                                    fishes++;
+                                }
+                            }
+
+                          
                         }
                     }
 
                     AnimalManager am = GameInstance.GameIns.animalManager;
                     for (int i = 0; i < am.employeeControllers.Count; i++)
-                    {
+                    {                       
                         Employee employee = am.employeeControllers[i];
-                        fishes += employee.foodStacks[machine.Key].foodStack.Count;
+                        foreach (var v in employee.foodStacks[machine.Key].foodStack)
+                        {
+                            if (v.withFuel)
+                            {
+                                fishes++;
+                            }
+                        }
                     }
 
 
@@ -746,7 +787,7 @@ public class SaveLoadSystem
                     writer.Write(max_height);
                     writer.Write(type);
                     writer.Write(fishes);
-                  
+
                 }
             }
             File.WriteAllBytes(p, ms.ToArray());
@@ -808,7 +849,7 @@ public class SaveLoadSystem
         }
         else
         {
-            currency = new RestaurantCurrency("500", 0, 0, 0, 0, 0, 0);
+            currency = new RestaurantCurrency("500", 200, 0, 0, 0, 0, 0);
             SaveRestaurantCurrency(currency);
         }
         return currency;

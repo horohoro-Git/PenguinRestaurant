@@ -13,7 +13,7 @@ using System.Numerics;
 using Vector3 = UnityEngine.Vector3;
 using System.Text;
 
-public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler
+public class StoreGoods : MonoBehaviour, IDragHandler, IEndDragHandler, IPointerDownHandler
 {
     public GameObject furniture;
     public GameObject furniture_Preview;
@@ -84,10 +84,66 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
     }
 
 
-    public void OnBeginDrag(PointerEventData eventData)
+    public void OnPointerDown(PointerEventData eventData)
     {
-        if(goods.Price_Value > GameIns.restaurantManager.restaurantCurrency.Money) return;
-      
+        if (goods.Price_Value > GameIns.restaurantManager.restaurantCurrency.Money) return;
+
+        if (GameIns.store.Auto)
+        {
+            if (GameIns.store.currentPreview != null)
+            {
+                GameIns.store.currentPreview.Cancel();
+                GameIns.gridManager.VisibleGrid(false);
+            }
+            if (GameIns.restaurantManager.doorPreview.gameObject.activeSelf)
+            {
+                GameIns.restaurantManager.doorPreview.Cancel();
+            }
+            if(!goods.soldout)
+            {
+                if (goods.type != WorkSpaceType.None)
+                {
+                    currnet = GameIns.store.goodsPreviewDic[goods.ID + 1000];
+                    currnet.spawnAnimation = true;
+                    currnet.gameObject.SetActive(true);
+                    currnet.storeGoods = this;
+                    GameIns.store.currentPreview = currnet;
+
+                    GameIns.gridManager.VisibleGrid(true);
+                    int width = Screen.width / 2;
+                    int height = Screen.height / 2;
+
+                    Vector3 screenPos = new Vector3(width,height);
+                    Ray r = InputManger.cachingCamera.ScreenPointToRay(screenPos);
+                    if (Physics.Raycast(r, out RaycastHit hit, float.MaxValue, 1))
+                    {
+                        currentCheckArea = GameIns.gridManager.SelectLine(hit.point, currnet, currentCheckArea, goods.type, true);
+                    }
+                    ((Action)EventManager.Publish(4))?.Invoke();
+                }
+                else
+                {
+                    BigInteger price = Utility.StringToBigInteger(goods.Price);
+                    if (GameIns.restaurantManager.restaurantCurrency.Money >= price)
+                    {
+                        SoundManager.Instance.PlayAudio(GameIns.uISoundManager.FurniturePurchase(), 0.2f);
+                        GameIns.restaurantManager.GetMoney((-price).ToString());
+                        GameIns.restaurantManager.restaurantCurrency.changed = true;
+                        GameIns.restaurantManager.Extension();
+
+                        GameIns.applianceUIManager.UnlockHire(true);
+                        goods.soldout = true;
+                        soldout_text.gameObject.SetActive(true);
+                        itemImage.GetComponent<Image>().raycastTarget = false;
+                        GameIns.store.require.Add(goods.ID);
+                        GameIns.store.Refresh();
+                    }
+                }
+            }
+            return;
+        }
+
+
         currentCheckArea = false;
         GameIns.inputManager.inputDisAble = true;
      
@@ -175,14 +231,7 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
                             GameIns.restaurantManager.restaurantCurrency.changed = true;
                             GameIns.restaurantManager.Extension();
 
-                            if ((GameIns.restaurantManager.employees.num < 8 && GameIns.restaurantManager.employeeHire[GameIns.restaurantManager.employees.num] <= GameIns.restaurantManager.GetRestaurantValue()))
-                            {
-                                GameIns.applianceUIManager.UnlockHire(true);
-                            }
-                            else
-                            {
-                                GameIns.applianceUIManager.UnlockHire(false);
-                            }
+                            GameIns.applianceUIManager.UnlockHire(true);
 
                             goods.soldout = true;
                             soldout_text.gameObject.SetActive(true);
@@ -255,7 +304,6 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
             f.placed = true;
             f.gameObject.SetActive(true);
 
-            GameIns.restaurantManager.ApplyPlaced(f);
 
             if (firstPlaced)
             {
@@ -264,7 +312,10 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
                     fm.Set(false);
                 }
             }
-            SaveLoadSystem.SaveRestaurantBuildingData();
+            GameIns.restaurantManager.ApplyPlaced(f);
+          //  SaveLoadSystem.SaveRestaurantBuildingData();
+            RestaurantParam restaurantParam = new RestaurantParam(f.id, f.spaceType, level, target, f.transform.position, f.transform.rotation);
+            GameIns.restaurantManager.restaurantparams.Add(restaurantParam);
             if (GameIns.store.goodsDic[goods.ID].Count == 0)
             {
                 goods.soldout = true;
@@ -285,14 +336,9 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
 
         if (num == 0) price_text.gameObject.SetActive(false); else UpdatePrice(num);
 
-        if ((GameIns.restaurantManager.employees.num < 8 && GameIns.restaurantManager.employeeHire[GameIns.restaurantManager.employees.num] <= GameIns.restaurantManager.GetRestaurantValue()))
-        {
-            GameIns.applianceUIManager.UnlockHire(true);
-        }
-        else
-        {
-            GameIns.applianceUIManager.UnlockHire(false);
-        }
-        //  GameInstance.GameIns.inputManager.draggingFurniture = 
+        GameIns.applianceUIManager.UnlockHire(true);
+      
     }
+
+
 }

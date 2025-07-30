@@ -1360,7 +1360,7 @@ public class Employee : AnimalController
                     Vector3 test = moveTargets.Peek();
                     if (test.z == 100 && test.x == 100)
                     {
-                        Debug.Log("Find");
+                      //  Debug.Log("Find");
                     }
                     else
                     {
@@ -1411,7 +1411,7 @@ public class Employee : AnimalController
                             MachineType t = foodMachine.machineType;
                             // FoodStack fs = foodStacks[n];
 
-                            Vector3 targetPosition = headPoint.position + GameInstance.GetVector3(0, 0.7f * (currentStackCount + 1), 0); // 格利瘤 历厘
+                            Vector3 targetPosition = headPoint.position + new Vector3(0, 0.7f * (currentStackCount + 1), 0); // 格利瘤 历厘
                             float r = UnityEngine.Random.Range(1, 2.5f);
 #if HAS_DOTWEEN
                             DOTween.Kill(f.transforms); //Tween 力芭
@@ -1526,10 +1526,10 @@ public class Employee : AnimalController
                             f.Release();
                             float r = UnityEngine.Random.Range(1, 2.5f);
                             int currentStackCount = foodStacks[t].foodStack.Count; // 澜侥 俺荐 历厘
-                            Vector3 targetPosition = headPoint.position + GameInstance.GetVector3(0, 0.7f * (currentStackCount + 1), 0); // 格利瘤
+                            Vector3 targetPosition = headPoint.position + new Vector3(0, 0.7f * (currentStackCount + 1), 0); // 格利瘤
 #if HAS_DOTWEEN
                             //  DOTween.Kill(f.transforms); //Tween 力芭
-                            f.transforms.DOJump(counter.stackPoints[i].position + GameInstance.GetVector3(0, 0.7f * counter.foodStacks[i].foodStack.Count, 0), r, 1, 0.2f);
+                            f.transforms.DOJump(counter.stackPoints[i].position + new Vector3(0, 0.7f * counter.foodStacks[i].foodStack.Count, 0), r, 1, 0.2f);
 #endif
                             f.transforms.rotation = Quaternion.Euler(0, 0, 0);
                             counter.foodStacks[i].foodStack.Push(f);
@@ -1630,10 +1630,10 @@ public class Employee : AnimalController
                             f.Release();
                             float r = UnityEngine.Random.Range(1, 2.5f);
                             int currentStackCount = foodStacks[t].foodStack.Count; // 澜侥 俺荐 历厘
-                            Vector3 targetPosition = headPoint.position + GameInstance.GetVector3(0, 0.7f * (currentStackCount + 1), 0); // 格利瘤
+                            Vector3 targetPosition = headPoint.position + new Vector3(0, 0.7f * (currentStackCount + 1), 0); // 格利瘤
 #if HAS_DOTWEEN
                        //     DOTween.Kill(f.transforms); //Tween 力芭
-                            f.transforms.DOJump(counter.stackPoints[i].position + GameInstance.GetVector3(0, 0.7f * counter.foodStacks[i].foodStack.Count, 0), r, 1, 0.2f);
+                            f.transforms.DOJump(counter.stackPoints[i].position + new Vector3(0, 0.7f * counter.foodStacks[i].foodStack.Count, 0), r, 1, 0.2f);
 #endif
                             counter.foodStacks[i].foodStack.Push(f);
                             counter.foodStacks[i].getNum = counter.foodStacks[i].getNum - 1 < 0 ? 0 : counter.foodStacks[i].getNum - 1;
@@ -1935,7 +1935,7 @@ public class Employee : AnimalController
                         Garbage garbage = table.garbageList[table.garbageList.Count - 1];
                         table.garbageList.RemoveAt(table.garbageList.Count - 1);
                        
-                        Vector3 pos = headPoint.position + GameInstance.GetVector3(0, 0.5f * garbageList.Count, 0);
+                        Vector3 pos = headPoint.position + new Vector3(0, 0.5f * garbageList.Count, 0);
                         float r = UnityEngine.Random.Range(1, 2.5f);
                         int index = garbageList.Count;
 #if HAS_DOTWEEN
@@ -2343,7 +2343,7 @@ public class Employee : AnimalController
                     {
                         int currentStackCount = foodStacks[MachineType.PackingTable].foodStack.Count;
                         PackageFood f = (PackageFood)packingTable.packageStack.foodStack.Pop();
-                        Vector3 targetPosition = headPoint.position + GameInstance.GetVector3(0, 0.7f * (currentStackCount + 1), 0); // 格利瘤 历厘
+                        Vector3 targetPosition = headPoint.position + new Vector3(0, 0.7f * (currentStackCount + 1), 0); // 格利瘤 历厘
                         float r = UnityEngine.Random.Range(1, 2.5f);
 #if HAS_DOTWEEN
                         DOTween.Kill(f.transforms); //Tween 力芭
@@ -2396,7 +2396,7 @@ public class Employee : AnimalController
                                     {
                                         PackageFood f = (PackageFood)foodStacks[MachineType.PackingTable].foodStack.Pop();
                                         f.Release();
-                                        Vector3 targetPosition = targetTable.smallTable2.position + GameInstance.GetVector3(0, 0.7f * (targetTable.packageStack.foodStack.Count), 0);
+                                        Vector3 targetPosition = targetTable.smallTable2.position + new Vector3(0, 0.7f * (targetTable.packageStack.foodStack.Count), 0);
                                         float r = UnityEngine.Random.Range(1, 2.5f);
 #if HAS_DOTWEEN
                                         f.transforms.DOKill();
@@ -2422,7 +2422,7 @@ public class Employee : AnimalController
           
                                         int currentStackCount = foodStacks[MachineType.PackingTable].foodStack.Count;
                                       
-                                        Vector3 targetPosition = headPoint.position + GameInstance.GetVector3(0, 0.7f * (currentStackCount + 1), 0); // 格利瘤 历厘
+                                        Vector3 targetPosition = headPoint.position + new Vector3(0, 0.7f * (currentStackCount + 1), 0); // 格利瘤 历厘
                                         float r = UnityEngine.Random.Range(1, 2.5f);
 
 #if HAS_DOTWEEN
@@ -2446,7 +2446,7 @@ public class Employee : AnimalController
                             {
                                 PackageFood f = (PackageFood)foodStacks[MachineType.PackingTable].foodStack.Pop();
                                 f.Release();
-                                Vector3 targetPosition = targetTable.smallTable2.position + GameInstance.GetVector3(0, 0.7f * (targetTable.packageStack.foodStack.Count), 0);
+                                Vector3 targetPosition = targetTable.smallTable2.position + new Vector3(0, 0.7f * (targetTable.packageStack.foodStack.Count), 0);
                                 float r = UnityEngine.Random.Range(1, 2.5f);
 #if HAS_DOTWEEN
                                 f.transforms.DOKill();
@@ -2533,7 +2533,7 @@ public class Employee : AnimalController
                     {
                         PackageFood f = (PackageFood)packingTable.packageStack.foodStack.Pop();
                         int currentStackCount = foodStacks[MachineType.PackingTable].foodStack.Count;
-                        Vector3 targetPosition = headPoint.position + GameInstance.GetVector3(0, 0.7f * (currentStackCount + 1), 0); // 格利瘤 历厘
+                        Vector3 targetPosition = headPoint.position + new Vector3(0, 0.7f * (currentStackCount + 1), 0); // 格利瘤 历厘
                         float r = UnityEngine.Random.Range(1, 2.5f);
 #if HAS_DOTWEEN
                         DOTween.Kill(f.transforms); //Tween 力芭
@@ -2720,7 +2720,7 @@ public class Employee : AnimalController
             {
                 moveX = UnityEngine.Random.Range(-18, 22);
                 moveZ = UnityEngine.Random.Range(-22, 21);
-                if (Physics.CheckBox(GameInstance.GetVector3(moveX, 0, moveZ), GameInstance.GetVector3(0.6f, 0.6f, 0.6f), Quaternion.identity, 1 << 6 | 1 << 7 | 1 << 8))
+                if (Physics.CheckBox(new Vector3(moveX, 0, moveZ), new Vector3(0.6f, 0.6f, 0.6f), Quaternion.identity, 1 << 6 | 1 << 7 | 1 << 8))
                 {
                     check = false;
                 }
@@ -2733,12 +2733,12 @@ public class Employee : AnimalController
 
             await UniTask.NextFrame(cancellationToken: cancellationToken);
 
-            Vector3 targetLoc = GameInstance.GetVector3(moveX, 0, moveZ);
+            Vector3 targetLoc = new Vector3(moveX, 0, moveZ);
             while (true)
             {
                 if (App.restaurantTimeScale == 1)
                 {
-                    Vector3 currnetLoc = GameInstance.GetVector3(trans.position.x, 0, trans.position.z);
+                    Vector3 currnetLoc = new Vector3(trans.position.x, 0, trans.position.z);
                     Vector3 dir = (targetLoc - currnetLoc).normalized;
                     trans.Translate(dir * 7f * Time.deltaTime);
                     float angle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
@@ -2752,11 +2752,11 @@ public class Employee : AnimalController
            // await UniTask.Delay(400, cancellationToken: cancellationToken);
             while (true)
             {
-                trans.position = GameInstance.GetVector3(trans.position.x, trans.position.y - 6f * Time.deltaTime, trans.position.z);
+                trans.position = new Vector3(trans.position.x, trans.position.y - 6f * Time.deltaTime, trans.position.z);
 
                 if (trans.position.y < 0)
                 {
-                    trans.position = GameInstance.GetVector3(trans.position.x, 0, trans.position.z);
+                    trans.position = new Vector3(trans.position.x, 0, trans.position.z);
 
                     break;
                 }
@@ -2844,14 +2844,7 @@ public class Employee : AnimalController
         employeeLevelData.speed = es.move_speed + (employeeLevelData.level - 1) * 0.2f;
         if (ui != null) ui.UpdateLevel(employeeLevelData.level);
 
-        if ((GameIns.restaurantManager.employees.num < 8 && GameIns.restaurantManager.employeeHire[GameIns.restaurantManager.employees.num] <= GameIns.restaurantManager.GetRestaurantValue()))
-        {
-            GameIns.applianceUIManager.UnlockHire(true);
-        }
-        else
-        {
-            GameIns.applianceUIManager.UnlockHire(false);
-        }
+        GameIns.applianceUIManager.UnlockHire(true);
        
     }
 

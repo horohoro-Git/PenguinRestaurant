@@ -192,7 +192,7 @@ public class PlaceController : MonoBehaviour
         if (canPlace)
         {
             SoundManager.Instance.PlayAudio(GameInstance.GameIns.uISoundManager.UIClick(), 0.2f);
-         
+
             GameInstance.GameIns.gridManager.ApplyGird(this, offset.transform.position, storeGoods.goods.type);
             if (purchasedObject)
             {
@@ -208,7 +208,7 @@ public class PlaceController : MonoBehaviour
                 storeGoods.Purchase();
             }
             storeGoods.RemoveGoodsPreview();
-          
+
             GameInstance.GameIns.gridManager.VisibleGrid(false);
         }
     }

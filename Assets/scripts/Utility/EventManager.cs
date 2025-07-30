@@ -4,9 +4,6 @@ using System.Collections.Generic;
 
 public class EventManager
 {
-    //public static Action ;
-
-
     public static Dictionary<int, Delegate> touchEvents = new Dictionary<int, Delegate>();
 
 

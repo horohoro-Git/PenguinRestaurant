@@ -178,6 +178,8 @@ public class DoorController : MonoBehaviour
             GameInstance.GameIns.restaurantManager.ApplyPlaced(door);
 
             SaveLoadSystem.SaveRestaurantBuildingData();
+            
+            GameInstance.GameIns.restaurantManager.restaurantparams = SaveLoadSystem.LoadRestaurantBuildingData();
             gameObject.SetActive(false);
         }
 
@@ -191,6 +193,7 @@ public class DoorController : MonoBehaviour
             MeshRenderer[] mr = currentWallObject.GetComponentsInChildren<MeshRenderer>();
             for (int i = 0; i < mr.Length; i++) mr[i].enabled = true;
         }
+        currentWallObject = null;   
         Door door = GameInstance.GameIns.restaurantManager.door;
         door.interactCollide.gameObject.layer = 13;
         MeshRenderer meshRenderer = door.GetComponentInChildren<MeshRenderer>();

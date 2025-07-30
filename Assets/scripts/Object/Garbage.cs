@@ -21,7 +21,7 @@ public class Garbage : MonoBehaviour
         this.index = index;
 
         transforms.SetParent(transform);
-        transforms.position = transform.position + GameInstance.GetVector3(0, (index) * 0.5f, 0);
+        transforms.position = transform.position + new Vector3(0, (index) * 0.5f, 0);
     }
 
     public void Release()

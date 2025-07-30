@@ -41,15 +41,10 @@ public class Customer : AnimalController
     public FoodsAnimalsWant foodsAnimalsWant;
 
  //   int currentWaypointIndex;
-    bool hasMoney;
+    public bool hasMoney;
     float eatingTimer;
 
-    private float speed;
-    private float eatSpeed;
-    private int minOrder;
-    private int maxOrder;
-
- 
+    
     private int likeFood;
     private int hateFood;
     List<Node> nodes = new List<Node>();
@@ -567,11 +562,13 @@ public class Customer : AnimalController
 
                 int r = Random.Range(0, GameInstance.GameIns.restaurantManager.restaurantCurrency.minigameStack);
 
-                if(r > 50)
+                //if(r > 50)
+                if(r > 0)
                 {
                     GameInstance.GameIns.restaurantManager.restaurantCurrency.minigameStack = 0;
                     GameInstance.GameIns.restaurantManager.miniGame.activate = true;
-                    GameInstance.GameIns.restaurantManager.OpenMiniGame();
+                    int minigame = Random.Range(1, 2);
+                    GameInstance.GameIns.restaurantManager.OpenMiniGame((MiniGameType)minigame);
                 }
             }
             
@@ -987,7 +984,7 @@ public class Customer : AnimalController
                     }
                     f.Release();
                     float r = UnityEngine.Random.Range(1, 2.5f);
-                    Vector3 pos = table.transforms.position + GameInstance.GetVector3(0, 0.7f + table.foodStacks[0].foodStack.Count, 0);
+                    Vector3 pos = table.transforms.position + new Vector3(0, 0.7f + table.foodStacks[0].foodStack.Count, 0);
 #if HAS_DOTWEEN
                     f.transforms.DOJump(pos, r, 1, 0.2f);
 #endif
@@ -1150,7 +1147,9 @@ public class Customer : AnimalController
                             SoundManager.Instance.PlayAudio3D(GameInstance.GameIns.gameSoundManager.Happy(), 0.1f, 100, 5, trans.position);
                             if (GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation < 100)
                             {
-                                GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation += 1;
+                                int random = Random.Range(1, 6);
+                                if (GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation + random > 100) GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation = 100;
+                                else GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation += random;
                                 GameInstance.GameIns.uiManager.reputation.text = GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation.ToString();
                                 GameInstance.GameIns.restaurantManager.CalculateSpawnTimer();
                                 GameInstance.GameIns.restaurantManager.restaurantCurrency.changed = true;
@@ -1227,7 +1226,7 @@ public class Customer : AnimalController
 
                             float x = Random.Range(-1f, 1f);
                             float z = Random.Range(-1f, 1f);
-                            go.transforms.position = table.up.position + GameInstance.GetVector3(x, 0, z);
+                            go.transforms.position = table.up.position + new Vector3(x, 0, z);
                         }
                     }
                  

@@ -1,4 +1,5 @@
-﻿Shader "URP/SoftSurface"
+﻿
+Shader "URP/SoftSurface"
 {
     Properties
     {
