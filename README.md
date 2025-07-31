@@ -75,4 +75,5 @@ Animal Restaurant Tycoon Game
 07/16 Added language change functionality to the UI, and fixed an issue where trash bins could be placed touching each other
 07/17 Fixed incorrect placement of the trash can and resolved errors occurring during door repositioning
 07/30 Bug fixes, graphics settings added, post-processing applied
+07/31 Fixed an issue where the batching of walls was broken when repositioning doors
 
