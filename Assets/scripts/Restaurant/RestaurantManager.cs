@@ -1302,9 +1302,10 @@ public class RestaurantManager : MonoBehaviour
     IEnumerator ChangingFishes(int before, int changed)
     {
         float f = 0;
+        float finishTimer = Math.Abs(changed) >= 10 ? 0.5f : Math.Abs(changed) * 0.05f;
         if (changed > 0)
         {
-            while(f <= 0.5f)
+            while(f <= finishTimer)
             {
                 int test = before + (int)(changed * (f * 2 * 1000) / 1000);
                 GameIns.uiManager.fishText.text = test.ToString();
@@ -1314,7 +1315,7 @@ public class RestaurantManager : MonoBehaviour
         }
         else
         {
-            while (f <= 0.5f)
+            while (f <= finishTimer)
             {
                 int test = (before) + (int)(changed * (f * 2 * 1000) / 1000);
                 GameIns.uiManager.fishText.text = test.ToString();

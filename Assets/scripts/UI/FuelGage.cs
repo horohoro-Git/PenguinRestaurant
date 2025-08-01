@@ -59,26 +59,7 @@ public class FuelGage : MonoBehaviour
         if (!init)
         {
             WorkSpaceManager workSpaceManager = GameInstance.GameIns.workSpaceManager;
-         /*   for (int i = 0; i < workSpaceManager.foodMachines.Count; i++)
-            {
-                if (workSpaceManager.foodMachines[i].fuelGage != null && workSpaceManager.foodMachines[i].machineType == foodMachine.machineType && workSpaceManager.foodMachines[i] != foodMachine)
-                {
-                    if (workSpaceManager.foodMachines[i].fuelGage.energy == 0)
-                    {
-                        workSpaceManager.foodMachines[i].fuelGage.exclamation.enabled = true;
-                        workSpaceManager.foodMachines[i].fuelGage.animator.enabled = true;
-                        workSpaceManager.foodMachines[i].fuelGage.animator.SetInteger(AnimationKeys.state, 1);
-                    }
-                    else
-                    {
-                        workSpaceManager.foodMachines[i].fuelGage.animator.SetInteger(AnimationKeys.state, 0);
-                        workSpaceManager.foodMachines[i].fuelGage.animator.enabled = false;
-                        workSpaceManager.foodMachines[i].fuelGage.exclamation.enabled = false;
-                    }
-                    workSpaceManager.foodMachines[i].fuelGage.energy += energy;
-                   // StartCoroutine(workSpaceManager.foodMachines[i].fuelGage.ChangingGage());
-                }
-            }*/
+      
             for (int i = 0; i < workSpaceManager.foodMachines.Count; i++)
             {
                 if (workSpaceManager.foodMachines[i].fuelGage != null && workSpaceManager.foodMachines[i].machineType == foodMachine.machineType && workSpaceManager.foodMachines[i] != foodMachine)
@@ -93,11 +74,11 @@ public class FuelGage : MonoBehaviour
         GameInstance.GameIns.restaurantManager.machineLevelDataChanged = true;
        // StartCoroutine(ChangingGage());
     }
-    public void ShowGage(bool bShow)
+    public void ShowGage(bool hasFish)
     {
-        if (show == bShow) return;
-        show = bShow;
-        if (this.energy == 0)
+       // if (show == bShow) return;
+        show = hasFish;
+        if (!show)
         {
             exclamation.enabled = true;
             animator.enabled = true;

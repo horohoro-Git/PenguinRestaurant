@@ -21,7 +21,8 @@ public class RefillFishes : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
                 if (exists > info.increaseFishes && (info.increaseFishes + 1 + num) <= 100)
                 {
                     info.increaseFishes++;
-                    if(info.refill != null) StopCoroutine(info.refill);
+                    SoundManager.Instance.PlayAudio(GameInstance.GameIns.uISoundManager.Fish(), 0.4f);
+                    if (info.refill != null) StopCoroutine(info.refill);
                     info.refill = StartCoroutine(info.Increasing());
                 }
             }
@@ -30,6 +31,7 @@ public class RefillFishes : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
                 if (info.increaseFishes > 0)
                 {
                     info.increaseFishes--;
+                    SoundManager.Instance.PlayAudio(GameInstance.GameIns.uISoundManager.Fish(), 0.4f);
                     if (info.refill != null) StopCoroutine(info.refill);
                     info.refill = StartCoroutine(info.Decreasing());
                 }

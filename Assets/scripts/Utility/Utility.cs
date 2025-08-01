@@ -859,6 +859,7 @@ public class MachineLevelData : ITableID<int>
     public BigInteger calculatedSales;
     public float calculatedCookingTimer;
     public int calculatedHeight;
+    public int checkingFishes;
 
     public string Price { get { return price; } set { price = value; price_value = null; } }
     BigInteger? price_value;

@@ -148,6 +148,7 @@ public class FurnitureInfo_Type : MonoBehaviour
                 else
                 {
                     if (AssetLoader.loadedAtlases.ContainsKey("UI")) fishImage.sprite = AssetLoader.loadedAtlases["UI"].GetSprite("Fish");
+                    if (insufficientFish != null) StopCoroutine(insufficientFish);
                     currentGageState = true;
                 }
             }
@@ -163,6 +164,7 @@ public class FurnitureInfo_Type : MonoBehaviour
                 else if (fishes > 0 && !currentGageState)
                 {
                     if (AssetLoader.loadedAtlases.ContainsKey("UI")) fishImage.sprite = AssetLoader.loadedAtlases["UI"].GetSprite("Fish");
+                    if (insufficientFish != null) StopCoroutine(insufficientFish);
                     currentGageState = true;
                 }
             }
@@ -216,14 +218,13 @@ public class FurnitureInfo_Type : MonoBehaviour
                 if (exists > increaseFishes && (increaseFishes + 1 + num) <= 100)
                 {
                     increaseFishes++;
-
+                    SoundManager.Instance.PlayAudio(GameInstance.GameIns.uISoundManager.Fish(), 0.4f);
                 }
                 else
                 {
                     yield break;
                 }
             }
-
         }
     }
     public IEnumerator Decreasing()
@@ -247,7 +248,7 @@ public class FurnitureInfo_Type : MonoBehaviour
                 if ((increaseFishes - 1) >= 0)
                 {
                     increaseFishes--;
-
+                    SoundManager.Instance.PlayAudio(GameInstance.GameIns.uISoundManager.Fish(), 0.4f);
                 }
                 else
                 {
