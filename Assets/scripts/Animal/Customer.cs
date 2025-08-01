@@ -358,7 +358,7 @@ public class Customer : AnimalController
             }*/
             busy = true;
 
-            CustomerPlayAction(endPoint.transform.position);//endList[n].transforms.position);
+            CustomerPlayAction(endPoint.transform);//endList[n].transforms.position);
         }
     }
 
@@ -383,10 +383,10 @@ public class Customer : AnimalController
   
     }
 
-    public void CustomerPlayAction(Vector3 position)
+    public void CustomerPlayAction(Transform endTrans)
     {
     
-        Customer_GoHome(position, App.GlobalToken).Forget();
+        Customer_GoHome(endTrans, App.GlobalToken).Forget();
     }
 
     async UniTask Customer_Wait(CancellationToken cancellationToken = default)
@@ -1738,7 +1738,7 @@ public class Customer : AnimalController
         }
     }
 
-    async UniTask Customer_GoHome(Vector3 position, CancellationToken cancellationToken = default)
+    async UniTask Customer_GoHome(Transform endTrans, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -1746,7 +1746,7 @@ public class Customer : AnimalController
             {
                 reCalculate = false;
                 cancellationToken.ThrowIfCancellationRequested();
-                Stack<Vector3> moveTargets = await CalculateNodes_Async(position, false, cancellationToken);
+                Stack<Vector3> moveTargets = await CalculateNodes_Async(endTrans.position, false, cancellationToken);
                 if (moveTargets != null && moveTargets.Count > 0)
                 //    if (moveNode != null)
                 {
@@ -1757,8 +1757,7 @@ public class Customer : AnimalController
                     }
                     else
                     {
-                    //    customerAction = CustomerAction.CustomerGoToHome;
-                        await Customer_Move(moveTargets, position, cancellationToken: cancellationToken);
+                        await Customer_Move(moveTargets, endTrans.position, cancellationToken: cancellationToken);
                         if (reCalculate)
                         {
                             while (bWait) await UniTask.NextFrame(cancellationToken: cancellationToken);
@@ -1767,14 +1766,12 @@ public class Customer : AnimalController
                         }
                     }
 
-             //       bStart = false;
                     busy = false;
-              //      customerAction = CustomerAction.NONE;
                     GameInstance.GameIns.animalManager.DespawnCustomer(this);
                 }
                 else
                 {
-                    await Customer_Move(moveTargets, position, cancellationToken: cancellationToken);
+                    await Customer_Move(moveTargets, endTrans.position, cancellationToken: cancellationToken);
                     continue;
                 }
                 return;

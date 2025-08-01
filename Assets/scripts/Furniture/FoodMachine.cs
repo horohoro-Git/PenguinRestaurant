@@ -274,6 +274,7 @@ public class FoodMachine : Furniture
         if (levelDatas.ContainsKey(machineType))
         {
             this.machineLevelData = levelDatas[machineType];
+           
         }
         else
         {
@@ -296,11 +297,15 @@ public class FoodMachine : Furniture
             this.machineLevelData.calculatedCookingTimer = this.machineLevelData.cooking_time - (level - 1) * offset.reduce_timer;
             if (this.machineLevelData.calculatedCookingTimer < 3f) this.machineLevelData.calculatedCookingTimer = 3f;
             this.machineLevelData.calculatedHeight = this.machineLevelData.max_height + Mathf.FloorToInt((level - 1) * offset.increase_height);
-
+            this.machineLevelData.checkingFishes = this.machineLevelData.fishes;
         }
         if (!load)
         {
             GameInstance.GameIns.restaurantManager.machineLevelDataChanged = true;
+        }
+        else
+        {
+            this.machineLevelData.checkingFishes = this.machineLevelData.fishes;
         }
    
         if (fuelGage == null)
@@ -360,18 +365,19 @@ public class FoodMachine : Furniture
                     continue;
                 }
 
-                if (machineLevelData != null && machineLevelData.fishes >= 1 )
+                if (machineLevelData != null && machineLevelData.checkingFishes >= 1 )
                 {
-                
+                    machineLevelData.checkingFishes--;
                     fishesExists = true;
                 }
                 else
                 {
-                    if(fuelGage) fuelGage.ShowGage(true);
+                    
                     fishesExists = false;
                 }
-            //    isCooking = true;
-              
+                if (fuelGage) fuelGage.ShowGage(fishesExists);
+                //    isCooking = true;
+
                 audioSource.volume = 0.1f;
                 audioSource.loop = true;
                 audioSource.spatialBlend = 1;
@@ -391,7 +397,7 @@ public class FoodMachine : Furniture
                 {
                     machineLevelData.fishes -= 1;
                     fuelGage.UpdateGage(this, -1, false);
-                    if (fuelGage) fuelGage.ShowGage(false);
+                    ///fuelGage.ShowGage(false);
                 }
                 
                 await Utility.CustomUniTaskDelay(0.6f, cancellationToken);
@@ -412,103 +418,7 @@ public class FoodMachine : Furniture
     }
 
     //float coroutineTimer = 0;
-    IEnumerator Cook()
-    {
-       // int a = 0;
-        yield return new WaitForSeconds(0.5f);
-       // bool on = false;
-        while (true)
-        {
-            //pooling version
-            //if (!on)
-            // if (mData.food_production_max_height > foodStack.foodStack.Count)
-            {
-                // if (!audioSource.isPlaying) audioSource.Play();
-                // yield return new WaitForSeconds(cookingTimer);
-              //  a++;
-
-               // for (int i = 0; i < 1000; i++)
-                {
-                    //yield return new WaitForSecondsRealtime(cookingTimer);
-                    //    coroutineTimer = 0;
-                    yield return new WaitForSeconds(cookingTimer);
-                    Food f = FoodManager.GetFood(foodMesh, machineType);
-                    f.parentType = machineType;
-
-                    if (machineType == MachineType.BurgerMachine) foodHight = 0.7f;
-                    else if (machineType == MachineType.CokeMachine) foodHight = 1f;
-                    else if (machineType == MachineType.CoffeeMachine) foodHight = 1.2f;
-                    else if (machineType == MachineType.DonutMachine) foodHight = 0.5f;
-                    Vector3 addheight = new Vector3(0, (foodStack.foodStack.Count) * foodHight, 0);
-                    f.transforms.position = foodTransform.position + addheight;
-                 //   f.foodPrice = machineLevelData.sale_proceed;
-                    foodStack.foodStack.Push(f);
-                  //  if(a==10) yield break;
-                    //    if (foodStack.foodStack.Count == 10000) on = true;
-                }
-            }
-         /*   else
-            {
-                //for (int i = 0; i < 50; i++)
-                {
-                    //    if (audioSource.isPlaying) audioSource.Stop();
-                    // yield return null;
-                    //      Food food = foodStack.foodStack[foodStack.foodStack.Count - 1];
-                    //      foodStack.foodStack.RemoveAt(foodStack.foodStack.Count - 1);
-                    //     FoodManager.EatFood(food);
-
-                    //    if (foodStack.foodStack.Count == 0) on = false;
-                }
-                // FoodManager.NewFood(food);
-            }*/
-            // yield return null;
-            //yield return null;
-            /* if (!on)
-             // if (mData.food_production_max_height > foodStack.foodStack.Count)
-             {
-                 for (int i = 0; i < 1000; i++)
-                 {
-                     //yield return new WaitForSecondsRealtime(cookingTimer);
-                     //  coroutineTimer = 0;
-                     Food f = Instantiate(TestFood);
-                     f.parentType = machineType;
-
-                     if (machineType == MachineType.BurgerMachine) foodHight = 0.7f;
-                     else if (machineType == MachineType.CokeMachine) foodHight = 1f;
-                     else if (machineType == MachineType.CoffeeMachine) foodHight = 1.2f;
-                     else if (machineType == MachineType.DonutMachine) foodHight = 0.5f;
-                     Vector3 addheight = GameInstance.GetVector3(0, foodStack.foodStack.Count * foodHight, 0);
-                     f.transform.position = foodTransform.position + addheight;
-                     f.foodPrice = mData.sale_proceeds;
-
-                     foodStack.foodStack.Add(f);
-                     if (foodStack.foodStack.Count == 10000) on = true;
-                 }
-             }
-             else
-             {
-                 // for (int i = 0; i < 50; i++)
-                 {
-                     //    if (audioSource.isPlaying) audioSource.Stop();
-                     // yield return null;
-                     //   Food food = foodStack.foodStack[foodStack.foodStack.Count - 1];
-                     //  foodStack.foodStack.RemoveAt(foodStack.foodStack.Count - 1);
-                     //   Destroy(food.gameObject);
-                     // FoodManager.EatFood(food);
-
-                     //   if (foodStack.foodStack.Count == 0) on = false;
-                 }
-                 // FoodManager.NewFood(food);
-             }*/
-           // yield return null;
-           
-           // yield return GetWaitTimer.WaitTimer.GetTimer(1000);
-            
-
-        }
-
-
-    }
+   
     private void OnApplicationQuit()
     {
         isQuitting = true;

@@ -85,20 +85,7 @@ public class FishingManager : MonoBehaviour
         }
 
         //Invoke("LateStart", 10f);
-       /* for(int i=0; i<20; i++)
-        {
-            WaterSplash waterSplash = Instantiate(splash, splashes);
-            waterSplash.gameObject.SetActive(false);
-            waterSplashQueue.Enqueue(waterSplash);
-        }*/
-     //   SpawnFish();
-
-    /*    for(int i=0; i<1000; i++)
-        {
-            GameObject fishIconObject = Instantiate(fishIcon, canvas.transform);
-            fishIconObject.SetActive(false);
-            fishRewardIconQueue.Enqueue(fishIconObject);
-        }*/
+    
     }
    
     void LateStart()
@@ -224,7 +211,6 @@ public class FishingManager : MonoBehaviour
             if(spawnCoroutine != null) StopCoroutine(spawnCoroutine);
             StartCoroutine(Fishing());
         }
-       // water.ChangeDirty();
     }
 
     IEnumerator Fishing()
@@ -354,23 +340,6 @@ public class FishingManager : MonoBehaviour
         }
     }
 
-  /*  public WaterSplash GetSplash()
-    {
-        WaterSplash waterSplash = waterSplashQueue.Dequeue();
-        waterSplash.gameObject.SetActive(true);
-        
-        return waterSplash;
-    }*/
-
-  /*  public void RemoveSplash(WaterSplash waterSplash)
-    {
-        waterSplash.gameObject.SetActive(false);    
-        waterSplashQueue.Enqueue(waterSplash);
-    }*/
-
-
-  
-
     public void CaughtFish(Vector3 pos)
     {
        
@@ -412,7 +381,6 @@ public class FishingManager : MonoBehaviour
             yield return new WaitForSecondsRealtime(0.01f);
         }
 
-      //  GameInstance.GameIns.uiManager.fishText.text = GameInstance.GameIns.restaurantManager.restaurantCurrency.fishes.ToString();
     }
     IEnumerator SpreadFishes(RectTransform rect, Vector3 pos)
     {
@@ -452,10 +420,4 @@ public class FishingManager : MonoBehaviour
         GameInstance.GameIns.restaurantManager.RemoveFishIcon(icon.gameObject);
        
     }
-
-
-    /*IEnumerator FishIncome()
-    {
-
-    }*/
 }

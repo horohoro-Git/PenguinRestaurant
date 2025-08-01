@@ -76,4 +76,5 @@ Animal Restaurant Tycoon Game
 07/17 Fixed incorrect placement of the trash can and resolved errors occurring during door repositioning
 07/30 Bug fixes, graphics settings added, post-processing applied
 07/31 Fixed an issue where the batching of walls was broken when repositioning doors
+08/01 Add a separate scene for the initial asset download on the game's first launch, and allow the player to manually start the download
 

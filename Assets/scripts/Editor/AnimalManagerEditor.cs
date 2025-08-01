@@ -314,7 +314,7 @@ public class AnimalManagerEditor : Editor
                         List<EndPoint> endList = new List<EndPoint>();
                         for (int i = 0; i < workSpaceManager.endPoints.Count; i++) endList.Add(workSpaceManager.endPoints[i]);
                         endList.Sort(delegate (EndPoint a, EndPoint b) { return (a.transform.position - customer.transform.position).magnitude.CompareTo((b.transform.position - customer.transform.position).magnitude); });
-                        customer.CustomerPlayAction(endList[0].transform.position);
+                        customer.CustomerPlayAction(endList[0].transform);
                     }
                 }
             }

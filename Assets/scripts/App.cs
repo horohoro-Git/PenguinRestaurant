@@ -76,14 +76,36 @@ public class App : MonoBehaviour
             await AssetLoader.GetServerUrl("Town");
 
             cancellationToken.ThrowIfCancellationRequested();
-           
-            await LoadScene("LoadingScene", cancellationToken);
+
+            await AssetLoader.GetServerUrl("");
+            string target = Path.Combine(AssetLoader.serverUrl, "map");
+            Hash128 bundleHash = SaveLoadSystem.ComputeHash128(System.Text.Encoding.UTF8.GetBytes(target));
+            if (Caching.IsVersionCached(target, bundleHash))
+            {
+                //Debug.Log("Asset Found");
+
+                await LoadScene("LoadingScene", cancellationToken);
+
+                await LoadRegulation(cancellationToken);
+
+                GameInstance.GameIns.bgMSoundManager.Setup();
+
+                await LoadGameAsset(cancellationToken);
+            }
+            else
+            {
+                await LoadScene("DownloadScene", cancellationToken);
+
+                Debug.Log("Asset Not Found");
+            }
+            /*await LoadScene("LoadingScene", cancellationToken);
 
             await LoadRegulation(cancellationToken);
 
             GameInstance.GameIns.bgMSoundManager.Setup();
 
             await LoadGameAsset(cancellationToken);
+*/
 
         }
         catch (OperationCanceledException)

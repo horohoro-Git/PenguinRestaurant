@@ -759,9 +759,7 @@ public class SaveLoadSystem
                                 {
                                     fishes++;
                                 }
-                            }
-
-                          
+                            }                          
                         }
                     }
 
@@ -777,7 +775,6 @@ public class SaveLoadSystem
                             }
                         }
                     }
-
 
                     writer.Write(id);
                     writer.Write(level);
