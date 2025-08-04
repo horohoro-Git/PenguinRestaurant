@@ -44,6 +44,7 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IEndDragHandler, IPointer
         image_name.fontMaterial = font_mat;
         this.goods = goods;
         image_name.text = App.gameSettings.language == Language.KOR ? goods.name_kor : goods.name_eng;
+        Debug.Log(goods.name_eng);
         price_text.text = goods.Price;
         this.goods.defaultPrice = goods.Price;
         itemImage.GetComponent<Image>().sprite = loadedAtlases["Furnitures"].GetSprite(spriteAssetKeys[goods.id].ID);

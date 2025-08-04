@@ -14,6 +14,8 @@ using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
 using Quaternion = UnityEngine.Quaternion;
 using DG.Tweening.CustomPlugins;
+using Cysharp.Threading.Tasks;
+using System.Threading;
 
 public class SaveLoadSystem
 {
@@ -34,30 +36,28 @@ public class SaveLoadSystem
     }
 
     //서버 불러오기
-    public static async Task<string> LoadServerURL()
+    public static async UniTask<string> LoadServerURL(CancellationToken cancellationToken = default)
     {
         string path = System.IO.Path.Combine(Application.streamingAssetsPath, "servercommunication.bytes");
 
-        using (UnityWebRequest www = UnityWebRequest.Get(path))
+        UnityWebRequest www = UnityWebRequest.Get(path);
+        var operation = www.SendWebRequest();
+
+        while (!operation.isDone)
+            await UniTask.NextFrame(cancellationToken: cancellationToken);  // 비동기 대기
+
+        if (www.result != UnityWebRequest.Result.Success)
         {
-            var operation = www.SendWebRequest();
-
-            while (!operation.isDone)
-                await Task.Yield();  // 비동기 대기
-
-            if (www.result != UnityWebRequest.Result.Success)
-            {
-                Debug.LogError($"Failed to load server URL: {www.error}");
-                return null;
-            }
-
-            string content = System.Text.Encoding.UTF8.GetString(www.downloadHandler.data);
-            string decryptedData = EncryptorDecryptor.Decyptor(content, "AAA");
-            Dictionary<string, object> data = JsonConvert.DeserializeObject<Dictionary<string, object>>(decryptedData);
-            string returnURL = data["server"].ToString();
-
-            return returnURL;
+            Debug.LogError($"Failed to load server URL: {www.error}");
+            return null;
         }
+
+        string content = System.Text.Encoding.UTF8.GetString(www.downloadHandler.data);
+        string decryptedData = EncryptorDecryptor.Decyptor(content, "AAA");
+        Dictionary<string, object> data = JsonConvert.DeserializeObject<Dictionary<string, object>>(decryptedData);
+        string returnURL = data["server"].ToString();
+
+        return returnURL;
     }
 
 
@@ -157,6 +157,67 @@ public class SaveLoadSystem
         return bundleCheck;
     }
 
+    //캐시된 다운로드 파일
+    public static void SaveCachedDownloadedData()
+    {
+        string dir = Path.Combine(path, "Save");
+        if (!Directory.Exists(dir))
+        {
+            Directory.CreateDirectory(dir);
+        }
+
+        string p = Path.Combine(path, "Save/DownloadCached.dat");
+        using (MemoryStream ms = new MemoryStream())
+        {
+            using (BinaryWriter writer = new BinaryWriter(ms))
+            {
+                foreach (var v in App.cachedData)
+                {
+                    foreach (var b in v.Value)
+                    {
+                        writer.Write(v.Key);
+                        writer.Write(b.hash.ToString());
+                        writer.Write(b.timeStamp);
+                        writer.Write(b.bundleName);
+                    }
+                    
+                }
+            }
+            File.WriteAllBytes(p, ms.ToArray());
+        }
+    }
+
+
+    public static Dictionary<int, List<BundleCheck>> LoadCachedDownloadedData()
+    {
+        Dictionary<int, List<BundleCheck>> bundleCheck = new Dictionary<int, List<BundleCheck>>();
+        string p = Path.Combine(path, "Save/DownloadCached.dat");
+        byte[] data;
+        if (File.Exists(p))
+        {
+            using (FileStream fs = new FileStream(p, FileMode.Open))
+            {
+                data = new byte[fs.Length];
+                fs.Read(data, 0, data.Length);
+
+                using (BinaryReader reader = new BinaryReader(new MemoryStream(data)))
+                {
+                    while (reader.BaseStream.Position < reader.BaseStream.Length)
+                    {
+                        int id = reader.ReadInt32();
+                        Hash128 hash = Hash128.Parse(reader.ReadString());
+                        string timeStamp = reader.ReadString();
+                        string bundleName = reader.ReadString();
+                        if(!bundleCheck.ContainsKey(id)) bundleCheck[id] = new List<BundleCheck>();
+                        else if (bundleCheck[id] == null) bundleCheck[id] = new List<BundleCheck>();
+                        bundleCheck[id].Add(new BundleCheck(hash, timeStamp, bundleName));
+                    }
+                }
+            }
+        }
+       
+        return bundleCheck;
+    }
     public static Dictionary<int, int> LoadTier()
     {
         string p = Path.Combine(path, "Save/Tiers.dat");

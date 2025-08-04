@@ -13,10 +13,6 @@ using UnityEngine.UIElements;
 using Vector3 = UnityEngine.Vector3;
 using Quaternion = UnityEngine.Quaternion;
 using Newtonsoft.Json;
-using UnityEngine.Rendering;
-using UnityEditor;
-using System.Linq;
-//한글
 
 public enum SceneState
 {
@@ -48,6 +44,7 @@ public class App : MonoBehaviour
     public static int CurrentLevel { get { return currentLevel; } set { currentLevel = value; } }
     public static Dictionary<int, BundleCheck> bundleCheck = new Dictionary<int, BundleCheck>();
     public static Dictionary<int, BundleCheck> currentHashes = new Dictionary<int, BundleCheck>();
+    public static Dictionary<int, List<BundleCheck>> cachedData = new Dictionary<int, List<BundleCheck>>();
 
   
     private void Awake()
@@ -61,6 +58,9 @@ public class App : MonoBehaviour
         //설정 정보 가져오기
         gameSettings = SaveLoadSystem.LoadGameSettings();
         bundleCheck = SaveLoadSystem.LoadDownloadedData();
+        cachedData = SaveLoadSystem.LoadCachedDownloadedData();
+        
+
         //언어 설정
         TextAsset lang = null;
         if (gameSettings.language == Language.KOR) lang = Resources.Load<TextAsset>("language_kor");
@@ -74,29 +74,18 @@ public class App : MonoBehaviour
         if (!scenes.ContainsKey("LoadingScene")) LoadLoadingScene(GlobalToken).Forget();
     }
 
+    private void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.Alpha5)) GameExit().Forget();
+    }
+
     public async UniTask LoadLoadingScene(CancellationToken cancellationToken = default)
     {
         try
         {
             cancellationToken.ThrowIfCancellationRequested();
             await LoadScene("DownloadScene", cancellationToken);
-            /*bool a = await IsAlreadyCached("", "map", 1);
-            bool b = await IsAlreadyCached("town_01", "town_01", 3);
-            bool c = await IsAlreadyCached("town_01", "town_01_scene", 2);
-            if (a && b && c)
-            {
-                await LoadScene("LoadingScene", cancellationToken);
-
-                await LoadRegulation(cancellationToken);
-
-                GameInstance.GameIns.bgMSoundManager.Setup();
-
-                await LoadGameAsset(cancellationToken);
-            }
-            else
-            {
-                await LoadScene("DownloadScene", cancellationToken);
-            }*/
+         
         }
         catch (OperationCanceledException)
         {
@@ -106,12 +95,16 @@ public class App : MonoBehaviour
 
     public static async UniTask GameLoad(CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         await LoadScene("LoadingScene", cancellationToken);
 
+        cancellationToken.ThrowIfCancellationRequested();
         await LoadRegulation(cancellationToken);
 
+        cancellationToken.ThrowIfCancellationRequested();
         GameInstance.GameIns.bgMSoundManager.Setup();
 
+        cancellationToken.ThrowIfCancellationRequested();
         await LoadGameAsset(cancellationToken);
     }
     public static async UniTask<bool> IsAlreadyCached(string url, string targetUrl, int id)
@@ -332,14 +325,34 @@ public class App : MonoBehaviour
         loadedScenesRootUI.Add(go);
     }
     private void OnApplicationQuit()
-    {
+    {/*
         if(GameInstance.GameIns != null)
         {
             GameInstance.GameIns.Clear();
             globalCts.Cancel();
             globalCts.Dispose();
             globalCts = null;
-        }
+
+            Resources.UnloadUnusedAssets();
+            if (GameInstance.GameIns.assetLoader != null)
+            {
+                if(GameInstance.GameIns.assetLoader.bundle != null)
+                {
+                    GameInstance.GameIns.assetLoader.bundle.Unload(true);
+                    GameInstance.GameIns.assetLoader.bundle = null;
+                }
+                if (GameInstance.GameIns.assetLoader.bundle_scene != null)
+                {
+                    GameInstance.GameIns.assetLoader.bundle_scene.Unload(true);
+                    GameInstance.GameIns.assetLoader.bundle_scene = null;
+                }
+                if (GameInstance.GameIns.assetLoader.b_reg != null)
+                {
+                    GameInstance.GameIns.assetLoader.b_reg.Unload(true);
+                    GameInstance.GameIns.assetLoader.b_reg = null;
+                }
+            }
+        }*/
     }
 
     public static async UniTask LoadScene(string name, CancellationToken cancellationToken = default)
@@ -495,5 +508,48 @@ public class App : MonoBehaviour
         {
             v.ChangeText();
         }
+    }
+
+
+    public static async UniTask GameExit()
+    {
+        if (GameInstance.GameIns.restaurantManager != null) GameInstance.GameIns.restaurantManager.GameSave();
+
+
+        if (GameInstance.GameIns != null)
+        {
+            GameInstance.GameIns.Clear();
+            globalCts.Cancel();
+            globalCts.Dispose();
+            globalCts = null;
+
+            await Resources.UnloadUnusedAssets();
+            if (GameInstance.GameIns.assetLoader != null)
+            {
+                if (GameInstance.GameIns.assetLoader.bundle != null)
+                {
+                    GameInstance.GameIns.assetLoader.bundle.Unload(true);
+                    GameInstance.GameIns.assetLoader.bundle = null;
+                }
+                if (GameInstance.GameIns.assetLoader.bundle_scene != null)
+                {
+                    GameInstance.GameIns.assetLoader.bundle_scene.Unload(true);
+                    GameInstance.GameIns.assetLoader.bundle_scene = null;
+                }
+                if (GameInstance.GameIns.assetLoader.b_reg != null)
+                {
+                    GameInstance.GameIns.assetLoader.b_reg.Unload(true);
+                    GameInstance.GameIns.assetLoader.b_reg = null;
+                }
+            }
+        }
+
+        await UniTask.Yield();
+
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+            Application.Quit();
+#endif
     }
 }

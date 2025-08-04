@@ -17,6 +17,8 @@ public class AssetLoader : MonoBehaviour
     public AssetBundle bundle;
     [NonSerialized]
     public AssetBundle bundle_scene;
+    [NonSerialized]
+    public AssetBundle b_reg;
     public static Dictionary<string, AudioClip> loadedSounds = new Dictionary<string, AudioClip>();
     public static Dictionary<string, string> loadedMap = new Dictionary<string, string>();
     public static Dictionary<string, GameObject> loadedAssets = new Dictionary<string, GameObject>();
@@ -70,9 +72,9 @@ public class AssetLoader : MonoBehaviour
         };
     }
 
-    public static async UniTask GetServerUrl(string addUrl)
+    public static async UniTask GetServerUrl(string addUrl, CancellationToken cancellationToken = default)
     {
-        serverUrl = await SaveLoadSystem.LoadServerURL();
+        serverUrl = await SaveLoadSystem.LoadServerURL(cancellationToken);
         if(addUrl != "") serverUrl = Path.Combine(serverUrl, addUrl);
 #if UNITY_IOS || UNITY_ANDROID
         serverUrl = Path.Combine(serverUrl, "android");
@@ -83,7 +85,7 @@ public class AssetLoader : MonoBehaviour
 
     public async UniTask Download_Regulation(CancellationToken cancellationToken = default)
     {
-        await GetServerUrl("");
+        await GetServerUrl("", cancellationToken);
         string target = Path.Combine(serverUrl, "map");
         //  Hash128 bundleHash = SaveLoadSystem.ComputeHash128(System.Text.Encoding.UTF8.GetBytes(target));
         Hash128 bundleHash = App.bundleCheck[1].hash;
@@ -95,17 +97,19 @@ public class AssetLoader : MonoBehaviour
         {
             Debug.Log("Asset Not Found");
         }
+        cancellationToken.ThrowIfCancellationRequested();
         UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle(target, bundleHash, 0);
         await www.SendWebRequest().ToUniTask(cancellationToken: cancellationToken);
 
         if (www.result == UnityWebRequest.Result.Success)
         {
-            AssetBundle b = DownloadHandlerAssetBundle.GetContent(www);
+            b_reg = DownloadHandlerAssetBundle.GetContent(www);
             if (Caching.IsVersionCached(target, bundleHash))
             {
                 Debug.Log("AssetBundle Cached Successfully");
             }
-            AssetBundleRequest assetRequest = b.LoadAssetAsync<TextAsset>("maps");
+            cancellationToken.ThrowIfCancellationRequested();
+            AssetBundleRequest assetRequest = b_reg.LoadAssetAsync<TextAsset>("maps");
             await assetRequest.ToUniTask(cancellationToken: cancellationToken);
             if (assetRequest != null)
             {
@@ -114,7 +118,8 @@ public class AssetLoader : MonoBehaviour
 
                 gameRegulation = SaveLoadSystem.LoadGameRegulation();
             }
-            AssetBundleRequest soundsRequest = b.LoadAssetAsync<TextAsset>("sounds");
+            cancellationToken.ThrowIfCancellationRequested();
+            AssetBundleRequest soundsRequest = b_reg.LoadAssetAsync<TextAsset>("sounds");
             await soundsRequest.ToUniTask(cancellationToken: cancellationToken);
             if (soundsRequest != null)
             {
@@ -123,7 +128,8 @@ public class AssetLoader : MonoBehaviour
 
                 foreach (var sound in sounds) 
                 {
-                    AssetBundleRequest soundAsset = b.LoadAssetAsync<AudioClip>(sound.Value.asset_name);
+                    cancellationToken.ThrowIfCancellationRequested();
+                    AssetBundleRequest soundAsset = b_reg.LoadAssetAsync<AudioClip>(sound.Value.asset_name);
                     await soundAsset.ToUniTask(cancellationToken: cancellationToken);
                     if (soundAsset != null)
                     {
@@ -150,6 +156,7 @@ public class AssetLoader : MonoBehaviour
             {
                 Debug.Log("Asset Not Found");
             }
+            cancellationToken.ThrowIfCancellationRequested();
             UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle(homeUrl, bundleHash, 0);
             await www.SendWebRequest().ToUniTask(cancellationToken: cancellationToken);
             
@@ -188,7 +195,7 @@ public class AssetLoader : MonoBehaviour
     {
         try
         {
-            await GetServerUrl(gameRegulation.map_name);
+            await GetServerUrl(gameRegulation.map_name, cancellationToken);
             string homeUrl = Path.Combine(serverUrl, gameRegulation.map_name);
             // Hash128 bundleHash = SaveLoadSystem.ComputeHash128(System.Text.Encoding.UTF8.GetBytes(homeUrl));
             Hash128 bundleHash = App.bundleCheck[3].hash;
@@ -200,6 +207,7 @@ public class AssetLoader : MonoBehaviour
             {
                 Debug.Log("Asset Not Found");
             }
+            cancellationToken.ThrowIfCancellationRequested();
             UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle(homeUrl, bundleHash, 0);
             await www.SendWebRequest().ToUniTask(cancellationToken: cancellationToken);
             if (www.result == UnityWebRequest.Result.Success)
@@ -230,22 +238,17 @@ public class AssetLoader : MonoBehaviour
                         restaurantParams = SaveLoadSystem.GetListData<RestaurantParam>(tableContents["furniture"]);
                         machineLevelOffsets = SaveLoadSystem.GetDictionaryData<int, MachineLevelOffset>(tableContents["machine_level_offsets"]);
                         animalPersonalities = SaveLoadSystem.GetDictionaryData<int, AnimalPersnality>(tableContents["animal_personality"]);
-                    });
+                    }, cancellationToken: cancellationToken);
                     foreach (KeyValuePair<int, ItemStruct> keyValuePair in items) itemAssetKeys[keyValuePair.Key] = new StringStruct(keyValuePair.Value.asset_name);
                     foreach (KeyValuePair<int, ItemStruct> keyValuePair in sprites) spriteAssetKeys[keyValuePair.Key] = new StringStruct(keyValuePair.Value.asset_name);
                     foreach (KeyValuePair<int, ItemStruct> keyValuePair in atlases) atlasesKeys[keyValuePair.Key] = new StringStruct(keyValuePair.Value.asset_name);
-
-                /*    SpriteAtlasManager.atlasRequested += (tag, callback) =>
-                    {
-                        Debug.Log($"[TAG]: {tag}");
-                        callback(loadedAtlases[tag]);
-
-                    };*/
 
                     await LoadAsync<SpriteAtlas, StringStruct, string>(atlasesKeys, loadedAtlases, cacellationToken: cancellationToken);
                     await LoadAsync<GameObject, StringStruct, string>(itemAssetKeys, loadedAssets, cacellationToken: cancellationToken);
                     await LoadAsync<Sprite, StringStruct, string>(spriteAssetKeys, loadedSprites, cacellationToken: cancellationToken);
 
+
+                    cancellationToken.ThrowIfCancellationRequested();
                     AssetBundleRequest assetRequest = bundle.LoadAssetAsync<TMP_FontAsset>("BMDOHYEON_ttf SDF");
                   
                     await assetRequest.ToUniTask(cancellationToken: cancellationToken);
@@ -273,7 +276,7 @@ public class AssetLoader : MonoBehaviour
         }
         catch (OperationCanceledException)
         {
-
+            Debug.Log("AssetLoadCanceled");
         }
     }
 

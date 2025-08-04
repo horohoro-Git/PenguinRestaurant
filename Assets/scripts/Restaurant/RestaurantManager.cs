@@ -1235,13 +1235,18 @@ public class RestaurantManager : MonoBehaviour
     {
         // SaveLoadManager.Save(SaveState.ALL_SAVES);
         ///if (restaurantCurrency == null) Debug.Log("LL");
+       
+    }
+
+    public void GameSave()
+    {
         SaveLoadSystem.SaveRestaurantCurrency(restaurantCurrency);
         SaveLoadSystem.SaveEmployees(employees);
         SaveLoadSystem.SaveRestaurantData(restaurantData);
         SaveLoadSystem.SaveFoodMachineStats(machineLevelData);
         SaveLoadSystem.SaveVendingMachineData(vendingData);
         SaveLoadSystem.SaveMiniGameStatus(miniGame);
-        if(trashData != null) SaveLoadSystem.SaveTrashData(trashData);
+        if (trashData != null) SaveLoadSystem.SaveTrashData(trashData);
     }
 
     private void OnApplicationPause(bool pauseStatus)

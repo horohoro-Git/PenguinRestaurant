@@ -1,4 +1,5 @@
 
+using Cysharp.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -402,14 +403,8 @@ public class UIManager : MonoBehaviour
     
     public void QuitGame()
     {
-      
         SoundManager.Instance.PlayAudio(GameIns.uISoundManager.UIClick(), 0.2f);
-
-#if UNITY_EDITOR
-        UnityEditor.EditorApplication.isPlaying = false;
-#else
-        Application.Quit();
-#endif
+        App.GameExit().Forget();
     }
 
 

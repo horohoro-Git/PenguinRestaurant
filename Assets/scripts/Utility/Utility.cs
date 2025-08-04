@@ -16,6 +16,8 @@ using Cysharp.Threading.Tasks;
 using System.Threading;
 
 
+
+
 public enum Language
 {
     ENG,
@@ -190,21 +192,33 @@ public struct BundleCheck
     public long size;
     public Hash128 hash;
     public string timeStamp;
+    public string bundleName;
     public BundleCheck(int id, long size, Hash128 hash, string timeStamp)
     {
         this.id = id;
         this.size = size;
         this.hash = hash;
         this.timeStamp = timeStamp;
+        this.bundleName = "";
     }
 
     public BundleCheck(Hash128 hash, string timeStamp)
     {
         this.id = 0;
         this.size = 0;
-        this .hash = hash;
-        this .timeStamp = timeStamp;
+        this.hash = hash;
+        this.timeStamp = timeStamp;
+        this.bundleName = "";
     }
+    public BundleCheck(Hash128 hash, string timeStamp, string bundleName)
+    {
+        this.id = 0;
+        this.size = 0;
+        this.hash = hash;
+        this.timeStamp = timeStamp;
+        this.bundleName = bundleName;
+    }
+  
 }
 
 public struct MapContent
