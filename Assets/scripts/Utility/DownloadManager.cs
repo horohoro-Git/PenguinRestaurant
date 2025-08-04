@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -57,11 +58,7 @@ public class DownloadManager : MonoBehaviour
 
         exit.onClick.AddListener(() => 
         {
-#if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false;
-#else
-            Application.Quit();
-#endif
+            App.GameExit().Forget();
         });
 
 
@@ -79,12 +76,11 @@ public class DownloadManager : MonoBehaviour
 
         loadingImage.gameObject.SetActive(true);
 
-        await AssetLoader.GetServerUrl("");
+        await AssetLoader.GetServerUrl("", cancellationToken);
         string testConnectionUrl = Path.Combine(AssetLoader.serverUrl, "testconnection.txt");
         UnityWebRequest www = UnityWebRequest.Get(testConnectionUrl);
         www.timeout = 5;
         var operation = www.SendWebRequest();
-
         while (!operation.isDone)
         {
 
@@ -114,7 +110,7 @@ public class DownloadManager : MonoBehaviour
 
     async UniTask GetDownloadSize(CancellationToken cancellationToken = default)
     {
-        await AssetLoader.GetServerUrl("");
+        await AssetLoader.GetServerUrl("", cancellationToken);
         string url = Path.Combine(AssetLoader.serverUrl, "map");
         UnityWebRequest headRequest = UnityWebRequest.Head(url);
         await headRequest.SendWebRequest();
@@ -132,7 +128,7 @@ public class DownloadManager : MonoBehaviour
             }
             downloadMap = true;
         }
-        await AssetLoader.GetServerUrl("town_01");
+        await AssetLoader.GetServerUrl("town_01", cancellationToken);
         string url2 = Path.Combine(AssetLoader.serverUrl, "town_01");
         UnityWebRequest headRequest2 = UnityWebRequest.Head(url2);
         await headRequest2.SendWebRequest();
@@ -168,7 +164,7 @@ public class DownloadManager : MonoBehaviour
 
         if (contentData == 0)   //이미 같은 파일을 같고 있음
         {
-            await AssetLoader.GetServerUrl("");
+            await AssetLoader.GetServerUrl("", cancellationToken);
             string target = Path.Combine(AssetLoader.serverUrl, "map");
             if (!App.currentHashes.ContainsKey(1)) await DownloadHash(1, target, App.GlobalToken);
             UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle(target, App.currentHashes[1].hash, 0);
@@ -176,7 +172,7 @@ public class DownloadManager : MonoBehaviour
             App.bundleCheck[1] = new BundleCheck(1, (long)www.downloadedBytes, App.currentHashes[1].hash, App.currentHashes[1].timeStamp);
             SaveLoadSystem.SaveDownloadedData();
 
-            await AssetLoader.GetServerUrl("town_01");
+            await AssetLoader.GetServerUrl("town_01", cancellationToken);
 
             //씬 데이터
             string urlScene = Path.Combine(AssetLoader.serverUrl, "town_01_scene");
@@ -207,25 +203,25 @@ public class DownloadManager : MonoBehaviour
 
             float sizeInGB = contentData / (1024f * 1024f * 1024f);
             string formatted = sizeInGB.ToString("0.##");
-            downloadAmount.text = (Application.systemLanguage == SystemLanguage.Korean ? "다운로드 크기\n" : "Download size\n") + formatted + "GB";
+            downloadAmount.text = (App.gameSettings.language == Language.KOR ? "다운로드 크기\n" : "Download size\n") + formatted + "GB";
         }
         if (contentData >= (1024f * 1024f))
         {
 
             float sizeInMB = contentData / (1024f * 1024f);
             string formatted = sizeInMB.ToString("0.##");
-            downloadAmount.text = (Application.systemLanguage == SystemLanguage.Korean ? "다운로드 크기\n" : "Download size\n") + formatted + "MB";
+            downloadAmount.text = (App.gameSettings.language == Language.KOR ? "다운로드 크기\n" : "Download size\n") + formatted + "MB";
         }
         else if (contentData >= 1024f)
         {
             float sizeInKB = contentData / 1024f;
             string formatted = sizeInKB.ToString("0.##");
-            downloadAmount.text = (Application.systemLanguage == SystemLanguage.Korean ? "다운로드 크기\n" : "Download size\n") + formatted + "KB";
+            downloadAmount.text = (App.gameSettings.language == Language.KOR ? "다운로드 크기\n" : "Download size\n") + formatted + "KB";
 
         }
         else
         {
-            downloadAmount.text = (Application.systemLanguage == SystemLanguage.Korean ? "다운로드 크기\n" : "Download size\n") + contentData.ToString() + "B";
+            downloadAmount.text = (App.gameSettings.language == Language.KOR ? "다운로드 크기\n" : "Download size\n") + contentData.ToString() + "B";
 
         }
 
@@ -240,124 +236,188 @@ public class DownloadManager : MonoBehaviour
 
     async UniTask AssetDownload(CancellationToken cancellationToken)
     {
-        downloadingStatus.SetActive(true);
-        downloadState.text = Application.systemLanguage == SystemLanguage.Korean ? "다운로드 중" : "Downloading";
-
-        downloadText.text = FormatBytes(0) + " / " + FormatBytes(contentData);
-        downloadPercentage.text = "0%";
-        downloadGage.fillAmount = 0;
-
-        //레벨 데이터
-        await AssetLoader.GetServerUrl("");
-        string target = Path.Combine(AssetLoader.serverUrl, "map");
-        Hash128 bundleHash = new Hash128();
-        if (!App.currentHashes.ContainsKey(1)) await DownloadHash(1, target, App.GlobalToken);
-      
-        bundleHash = App.currentHashes[1].hash;
-   //     Hash128 bundleHash = SaveLoadSystem.ComputeHash128(System.Text.Encoding.UTF8.GetBytes(target));
-
-        ulong levelDownloadedBytes = 0;
-
-        UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle(target, bundleHash, 0);
-        var operation = www.SendWebRequest();
-        while (!www.isDone)
+        try
         {
-            if (downloadMap)
+            downloadingStatus.SetActive(true);
+            downloadState.text = App.gameSettings.language == Language.KOR ? "다운로드 중" : "Downloading";
+
+            downloadText.text = FormatBytes(0) + " / " + FormatBytes(contentData);
+            downloadPercentage.text = "0%";
+            downloadGage.fillAmount = 0;
+
+            //레벨 데이터
+            await AssetLoader.GetServerUrl("", cancellationToken);
+            string target = Path.Combine(AssetLoader.serverUrl, "map");
+            Hash128 bundleHash = new Hash128();
+            if (!App.currentHashes.ContainsKey(1)) await DownloadHash(1, target, App.GlobalToken);
+
+            bundleHash = App.currentHashes[1].hash;
+            //     Hash128 bundleHash = SaveLoadSystem.ComputeHash128(System.Text.Encoding.UTF8.GetBytes(target));
+
+            ulong levelDownloadedBytes = 0;
+
+            UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle(target, bundleHash, 0);
+            var operation = www.SendWebRequest();
+            while (!www.isDone)
             {
-                float progress = www.downloadProgress;
-                levelDownloadedBytes = www.downloadedBytes;
+                if (downloadMap)
+                {
+                    float progress = www.downloadProgress;
+                    levelDownloadedBytes = www.downloadedBytes;
 
-                string contentLengthStr = www.GetResponseHeader("Content-Length");
+                    string contentLengthStr = www.GetResponseHeader("Content-Length");
 
-                string downloadedStr = FormatBytes((long)levelDownloadedBytes);
+                    string downloadedStr = FormatBytes((long)levelDownloadedBytes);
 
-                float percent = contentData > 0 ? (100f * levelDownloadedBytes / contentData) : (progress * 100f);
-                string percentStr = $"{percent:F1}%";
-                downloadText.text = downloadedStr + " / " + FormatBytes(contentData);
-                downloadPercentage.text = percentStr;
-                downloadGage.fillAmount = percent / 100f;
+                    float percent = contentData > 0 ? (100f * levelDownloadedBytes / contentData) : (progress * 100f);
+                    string percentStr = $"{percent:F1}%";
+                    downloadText.text = downloadedStr + " / " + FormatBytes(contentData);
+                    downloadPercentage.text = percentStr;
+                    downloadGage.fillAmount = percent / 100f;
+                }
+                await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
             }
-            await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
-        }
-        App.bundleCheck[1] = new BundleCheck(1, (long)www.downloadedBytes, bundleHash, App.currentHashes[1].timeStamp);
-        SaveLoadSystem.SaveDownloadedData();
-        await AssetLoader.GetServerUrl("town_01");
+            App.bundleCheck[1] = new BundleCheck(1, (long)www.downloadedBytes, bundleHash, App.currentHashes[1].timeStamp);
+            BundleCheck newCachingBundle = new BundleCheck(bundleHash, App.currentHashes[1].timeStamp, "map");
+            if (!App.cachedData.ContainsKey(1)) App.cachedData[1] = new List<BundleCheck>();
+            else if (App.cachedData[1] == null) App.cachedData[1] = new List<BundleCheck>();
 
-        //씬 데이터
-        string urlScene = Path.Combine(AssetLoader.serverUrl, "town_01_scene");
-        Hash128 bundleHash2 = new Hash128();
-        if (!App.currentHashes.ContainsKey(2)) await DownloadHash(2, urlScene, App.GlobalToken);
-   
-        bundleHash2 = App.currentHashes[2].hash;
-        // Hash128 bundleHash2 = SaveLoadSystem.ComputeHash128(System.Text.Encoding.UTF8.GetBytes(urlScene));
-        UnityWebRequest www2 = UnityWebRequestAssetBundle.GetAssetBundle(urlScene, bundleHash2, 0);
-        var operation2 = www2.SendWebRequest();
-        ulong sceneDownloadedBytes = 0;
-        while (!www2.isDone)
-        {
-            if (downloadScene)
+            for (int i = App.cachedData[1].Count - 1; i >= 0; i--) 
             {
-                float progress = www2.downloadProgress;
-                sceneDownloadedBytes = www2.downloadedBytes;
-
-                string contentLengthStr = www2.GetResponseHeader("Content-Length");
-
-
-                string downloadedStr = FormatBytes((long)sceneDownloadedBytes + (long)levelDownloadedBytes);
-                float percent = contentData > 0 ? (100f * (levelDownloadedBytes + sceneDownloadedBytes) / contentData) : (progress * 100f);
-                string percentStr = $"{percent:F1}%";
-                downloadText.text = downloadedStr + " / " + FormatBytes(contentData);
-                downloadPercentage.text = percentStr;
-                downloadGage.fillAmount = percent / 100f;
+                if (App.cachedData[1][i].hash != newCachingBundle.hash)
+                {
+                    Caching.ClearCachedVersion(App.cachedData[1][i].bundleName, App.cachedData[1][i].hash);
+                    Debug.Log("Remove1");
+                }
+                App.cachedData[1].RemoveAt(i);
+                    
             }
-            await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
-        }
-        App.bundleCheck[2] = new BundleCheck(2, (long)www2.downloadedBytes, bundleHash2, App.currentHashes[2].timeStamp);
-        SaveLoadSystem.SaveDownloadedData();
+       
+            Debug.Log(1 + " before " + App.cachedData[1].Count);
+            App.cachedData[1].Add(newCachingBundle);
 
-        //에셋 데이터
-        string urlAsset = Path.Combine(AssetLoader.serverUrl, "town_01");
-        Hash128 bundleHash3 = new Hash128();
-        if (!App.currentHashes.ContainsKey(3)) await DownloadHash(3, urlAsset, App.GlobalToken);
-     
-        bundleHash3 = App.currentHashes[3].hash;
-        // Hash128 bundleHash3 = SaveLoadSystem.ComputeHash128(System.Text.Encoding.UTF8.GetBytes(urlAsset));
-        UnityWebRequest www3 = UnityWebRequestAssetBundle.GetAssetBundle(urlAsset, bundleHash3, 0);
-        var operation3 = www3.SendWebRequest();
-        ulong assetDownloadedBytes = 0;
-        while (!www3.isDone)
-        {
-            if (downloadAsset)
+            Debug.Log(1 + " after " + App.cachedData[1].Count);
+            SaveLoadSystem.SaveDownloadedData();
+            SaveLoadSystem.SaveCachedDownloadedData();
+            await AssetLoader.GetServerUrl("town_01", cancellationToken);
+
+            //씬 데이터
+            string urlScene = Path.Combine(AssetLoader.serverUrl, "town_01_scene");
+            Hash128 bundleHash2 = new Hash128();
+            if (!App.currentHashes.ContainsKey(2)) await DownloadHash(2, urlScene, App.GlobalToken);
+
+            bundleHash2 = App.currentHashes[2].hash;
+            // Hash128 bundleHash2 = SaveLoadSystem.ComputeHash128(System.Text.Encoding.UTF8.GetBytes(urlScene));
+            UnityWebRequest www2 = UnityWebRequestAssetBundle.GetAssetBundle(urlScene, bundleHash2, 0);
+            var operation2 = www2.SendWebRequest();
+            ulong sceneDownloadedBytes = 0;
+            while (!www2.isDone)
             {
-                float progress = www3.downloadProgress;
-                assetDownloadedBytes = www3.downloadedBytes;
+                if (downloadScene)
+                {
+                    float progress = www2.downloadProgress;
+                    sceneDownloadedBytes = www2.downloadedBytes;
 
-                string contentLengthStr = www3.GetResponseHeader("Content-Length");
+                    string contentLengthStr = www2.GetResponseHeader("Content-Length");
 
-                string downloadedStr = FormatBytes((long)sceneDownloadedBytes + (long)levelDownloadedBytes + (long)assetDownloadedBytes);
-                float percent = contentData > 0 ? (100f * (levelDownloadedBytes + sceneDownloadedBytes + assetDownloadedBytes) / contentData) : (progress * 100f);
-                string percentStr = $"{percent:F1}%";
-                downloadText.text = downloadedStr + " / " + FormatBytes(contentData);
-                downloadPercentage.text = percentStr;
-                downloadGage.fillAmount = percent / 100f;
+
+                    string downloadedStr = FormatBytes((long)sceneDownloadedBytes + (long)levelDownloadedBytes);
+                    float percent = contentData > 0 ? (100f * (levelDownloadedBytes + sceneDownloadedBytes) / contentData) : (progress * 100f);
+                    string percentStr = $"{percent:F1}%";
+                    downloadText.text = downloadedStr + " / " + FormatBytes(contentData);
+                    downloadPercentage.text = percentStr;
+                    downloadGage.fillAmount = percent / 100f;
+                }
+                await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
             }
-            await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
-        }
-        App.bundleCheck[3] = new BundleCheck(3, (long)www3.downloadedBytes, bundleHash3, App.currentHashes[3].timeStamp);
-        SaveLoadSystem.SaveDownloadedData();
+            App.bundleCheck[2] = new BundleCheck(2, (long)www2.downloadedBytes, bundleHash2, App.currentHashes[2].timeStamp);
+            BundleCheck newCachingBundle2 = new BundleCheck(bundleHash2, App.currentHashes[2].timeStamp, "town_01_scene");
+            if (!App.cachedData.ContainsKey(2)) App.cachedData[2] = new List<BundleCheck>();
+            else if(App.cachedData[2] == null) App.cachedData[2] = new List<BundleCheck>();
 
-        if (www.result != UnityWebRequest.Result.Success || www2.result != UnityWebRequest.Result.Success || www3.result != UnityWebRequest.Result.Success)
+            for (int i = App.cachedData[2].Count - 1; i >= 0; i--)
+            {
+                if (App.cachedData[2][i].hash != newCachingBundle2.hash)
+                {
+                    Caching.ClearCachedVersion(App.cachedData[2][i].bundleName, App.cachedData[2][i].hash);
+                    Debug.Log("Remove1");
+                }
+                App.cachedData[2].RemoveAt(i);
+
+            }
+            App.cachedData[2].Add(newCachingBundle2);
+            SaveLoadSystem.SaveDownloadedData();
+            SaveLoadSystem.SaveCachedDownloadedData();
+
+
+            //에셋 데이터
+            string urlAsset = Path.Combine(AssetLoader.serverUrl, "town_01");
+            Hash128 bundleHash3 = new Hash128();
+            if (!App.currentHashes.ContainsKey(3)) await DownloadHash(3, urlAsset, App.GlobalToken);
+
+            bundleHash3 = App.currentHashes[3].hash;
+            // Hash128 bundleHash3 = SaveLoadSystem.ComputeHash128(System.Text.Encoding.UTF8.GetBytes(urlAsset));
+            UnityWebRequest www3 = UnityWebRequestAssetBundle.GetAssetBundle(urlAsset, bundleHash3, 0);
+            var operation3 = www3.SendWebRequest();
+            ulong assetDownloadedBytes = 0;
+            while (!www3.isDone)
+            {
+                if (downloadAsset)
+                {
+                    float progress = www3.downloadProgress;
+                    assetDownloadedBytes = www3.downloadedBytes;
+
+                    string contentLengthStr = www3.GetResponseHeader("Content-Length");
+
+                    string downloadedStr = FormatBytes((long)sceneDownloadedBytes + (long)levelDownloadedBytes + (long)assetDownloadedBytes);
+                    float percent = contentData > 0 ? (100f * (levelDownloadedBytes + sceneDownloadedBytes + assetDownloadedBytes) / contentData) : (progress * 100f);
+                    string percentStr = $"{percent:F1}%";
+                    downloadText.text = downloadedStr + " / " + FormatBytes(contentData);
+                    downloadPercentage.text = percentStr;
+                    downloadGage.fillAmount = percent / 100f;
+                }
+                await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
+            }
+            App.bundleCheck[3] = new BundleCheck(3, (long)www3.downloadedBytes, bundleHash3, App.currentHashes[3].timeStamp);
+            BundleCheck newCachingBundle3 = new BundleCheck(bundleHash3, App.currentHashes[3].timeStamp, "town_01");
+            if (!App.cachedData.ContainsKey(3)) App.cachedData[3] = new List<BundleCheck>();
+            else if (App.cachedData[3] == null) App.cachedData[3] = new List<BundleCheck>();
+
+            Debug.Log(3 + "  " + bundleHash3 + " before  " + App.cachedData[3].Count);
+            for (int i = App.cachedData[3].Count - 1; i >= 0; i--)
+            {
+                Debug.Log("3 " + App.cachedData[3][i].hash);
+                if (App.cachedData[3][i].hash != newCachingBundle3.hash)
+                {
+                    Caching.ClearCachedVersion(App.cachedData[3][i].bundleName, App.cachedData[3][i].hash);
+                    Debug.Log("Remove3");
+                }
+                App.cachedData[3].RemoveAt(i);
+
+            }
+           
+            App.cachedData[3].Add(newCachingBundle3);
+            Debug.Log(3 + "  " + bundleHash3 + " after  " + App.cachedData[3].Count);
+            SaveLoadSystem.SaveDownloadedData();
+            SaveLoadSystem.SaveCachedDownloadedData();
+
+            if (www.result != UnityWebRequest.Result.Success || www2.result != UnityWebRequest.Result.Success || www3.result != UnityWebRequest.Result.Success)
+            {
+                // Debug.LogError($"다운로드 실패: {www.error}");
+                downloadState.text = App.gameSettings.language == Language.KOR ? "다운로드 실패" : "Download failed";
+                return;
+            }
+            downloadText.text = FormatBytes(contentData) + " / " + FormatBytes(contentData);
+            downloadPercentage.text = "100%";
+            downloadGage.fillAmount = 1;
+            downloadState.text = App.gameSettings.language == Language.KOR ? "다운로드 완료" : "Download complete";
+
+            continueBtn.gameObject.SetActive(true);
+        }
+        catch (Exception ex)
         {
-            // Debug.LogError($"다운로드 실패: {www.error}");
-            downloadState.text = Application.systemLanguage == SystemLanguage.Korean ? "다운로드 실패" : "Download failed";
-            return;
+            Debug.Log(ex);
         }
-        downloadText.text = FormatBytes(contentData) + " / " + FormatBytes(contentData);
-        downloadPercentage.text = "100%";
-        downloadGage.fillAmount = 1;
-        downloadState.text = Application.systemLanguage == SystemLanguage.Korean ? "다운로드 완료" : "Download complete";
-
-        continueBtn.gameObject.SetActive(true);
     }
 
     string FormatBytes(long bytes)

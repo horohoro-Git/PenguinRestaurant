@@ -17,6 +17,8 @@ public class FurnitureInfo_Type : MonoBehaviour
     public TMP_Text upgradablesStatus;
     public TMP_Text upgradeCost;
     public TMP_Text placedNum;
+    public TMP_Text placedText;
+
     public Slider fuelSlider;
     public TMP_Text fishNum;
     public TMP_Text gettableGold;
@@ -352,6 +354,7 @@ public class FurnitureInfo_Type : MonoBehaviour
             int n = GameInstance.GameIns.store.goodsDic[furniture.id].Count;
             string maxNum = n == 0 ? (App.gameSettings.language == Language.KOR ? "(최대)" : "(Max)") : "";
             placedNum.text = App.gameSettings.language == Language.KOR ? "배치됨 " + (max - n) + " " + maxNum : "Placed Count " + (max - n) + " " + maxNum;
+            placedText.text = App.gameSettings.language == Language.KOR ? "재배치" : "Replace";
             furnitureName.text = App.gameSettings.language == Language.KOR ? goods[furniture.id].name_kor : goods[furniture.id].name_eng;
         }
         else if (furniture.spaceType == WorkSpaceType.Vending)

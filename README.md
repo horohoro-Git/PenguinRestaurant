@@ -78,4 +78,5 @@ Animal Restaurant Tycoon Game
 07/31 Fixed an issue where the batching of walls was broken when repositioning doors
 08/01 Add a separate scene for the initial asset download on the game's first launch, and allow the player to manually start the download
 08/03 Implement download scene with hash-based file updates and server reconnection retry
+08/04 Fixed removal of cached old files on update, proper resource release on game exit, and error handling when quitting during loading
 
