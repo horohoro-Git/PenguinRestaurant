@@ -87,6 +87,6 @@ public class WaterQuality : MonoBehaviour
         isDirty = false;
         GameInstance.GameIns.fishingManager.working = false;
 
-        if(GameInstance.GameIns.app.currentScene == SceneState.Fishing) GameInstance.GameIns.uiManager.fishingStartButton.gameObject.SetActive(true);
+        if(App.currentScene == SceneState.Fishing) GameInstance.GameIns.uiManager.fishingStartButton.gameObject.SetActive(true);
     }
 }

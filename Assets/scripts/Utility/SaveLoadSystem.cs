@@ -61,7 +61,6 @@ public class SaveLoadSystem
     }
 
 
-
     public static List<T> GetListData<T>(string content)
     {
         string data = EncryptorDecryptor.Decyptor(content, "AAA");
@@ -99,6 +98,64 @@ public class SaveLoadSystem
         return d;
     }
 
+    //다운로드 파일 체크
+    public static void SaveDownloadedData()
+    {
+        string dir = Path.Combine(path, "Save");
+        if (!Directory.Exists(dir))
+        {
+            Directory.CreateDirectory(dir);
+        }
+
+        string p = Path.Combine(path, "Save/DownloadSize.dat");
+        using (MemoryStream ms = new MemoryStream())
+        {
+            using (BinaryWriter writer = new BinaryWriter(ms))
+            {
+                foreach(var v in App.bundleCheck)
+                {
+                    writer.Write(v.Value.id);
+                    writer.Write(v.Value.size);
+                    writer.Write(v.Value.hash.ToString());
+                    writer.Write(v.Value.timeStamp);
+                }
+            }
+            File.WriteAllBytes(p, ms.ToArray());
+        }
+    }
+
+
+    public static Dictionary<int, BundleCheck> LoadDownloadedData()
+    {
+        Dictionary<int, BundleCheck> bundleCheck = new Dictionary<int, BundleCheck>();
+        string p = Path.Combine(path, "Save/DownloadSize.dat");
+        byte[] data;
+        if (File.Exists(p))
+        {
+            using (FileStream fs = new FileStream(p, FileMode.Open))
+            {
+                data = new byte[fs.Length];
+                fs.Read(data, 0, data.Length);
+
+                using (BinaryReader reader = new BinaryReader(new MemoryStream(data)))
+                {
+                    while (reader.BaseStream.Position < reader.BaseStream.Length)
+                    {
+                        int id = reader.ReadInt32();
+                        long size = reader.ReadInt64();
+                        Hash128 hash = Hash128.Parse(reader.ReadString());
+                        string timeStamp = reader.ReadString();
+                        bundleCheck[id] = new BundleCheck(id, size, hash, timeStamp);
+                    }
+                }
+            }
+        }
+        else
+        {
+            
+        }
+        return bundleCheck;
+    }
 
     public static Dictionary<int, int> LoadTier()
     {

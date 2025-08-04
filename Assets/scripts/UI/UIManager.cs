@@ -96,7 +96,7 @@ public class UIManager : MonoBehaviour
             }
             else
             {
-                switch (GameIns.app.currentScene)
+                switch (App.currentScene)
                 {
                     case SceneState.Restaurant:
                         animalGuideImage.sprite = atlasSprites[10002]; //loadedAtlases["Town"].GetSprite(spriteAssetKeys[10002].Name);
@@ -118,7 +118,7 @@ public class UIManager : MonoBehaviour
         changeScene.onClick.AddListener(() =>
         {
             UIClick();
-            switch (GameIns.app.currentScene)
+            switch (App.currentScene)
             {
                 case SceneState.Restaurant:
                     
@@ -289,7 +289,7 @@ public class UIManager : MonoBehaviour
             }
             else
             {
-                if (GameIns.app.currentScene == SceneState.Draw)
+                if (App.currentScene == SceneState.Draw)
                 {
                     GameIns.applianceUIManager.UIClearAll(false);
                     drawBtn.gameObject.SetActive(true);

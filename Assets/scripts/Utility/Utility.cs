@@ -173,6 +173,40 @@ public class LevelData : ITableID<int>
     }
 }
 
+public struct Manifest
+{
+    public string hash;
+    public string timeStamp;
+
+    public Manifest(string hash, string timeStamp)
+    {
+        this.hash = hash;
+        this.timeStamp = timeStamp;
+    }
+}
+public struct BundleCheck
+{
+    public int id;
+    public long size;
+    public Hash128 hash;
+    public string timeStamp;
+    public BundleCheck(int id, long size, Hash128 hash, string timeStamp)
+    {
+        this.id = id;
+        this.size = size;
+        this.hash = hash;
+        this.timeStamp = timeStamp;
+    }
+
+    public BundleCheck(Hash128 hash, string timeStamp)
+    {
+        this.id = 0;
+        this.size = 0;
+        this .hash = hash;
+        this .timeStamp = timeStamp;
+    }
+}
+
 public struct MapContent
 {
     public int id;

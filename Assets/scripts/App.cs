@@ -14,6 +14,8 @@ using Vector3 = UnityEngine.Vector3;
 using Quaternion = UnityEngine.Quaternion;
 using Newtonsoft.Json;
 using UnityEngine.Rendering;
+using UnityEditor;
+using System.Linq;
 //한글
 
 public enum SceneState
@@ -30,7 +32,7 @@ public class App : MonoBehaviour
     private static CancellationTokenSource globalCts = new CancellationTokenSource();
     public static CancellationToken GlobalToken => globalCts.Token;
 
-    public SceneState currentScene;
+    public static SceneState currentScene;
     public static float restaurantTimeScale = 1f;
     //public static Language language;
     public static Queue<LanguageText> languageTexts = new Queue<LanguageText>();
@@ -39,11 +41,13 @@ public class App : MonoBehaviour
     Vector3 vector;
     public Vector3 pos { get { return vector; } set { vector = value; Debug.Log(value); } }
     static Dictionary<string, Scene> scenes = new Dictionary<string, Scene>();
-    Loading loading;
+    static Loading loading;
     public static bool loadedAllAssets;
-    List<GameObject> loadedScenesRootUI = new List<GameObject>();
+    static List<GameObject> loadedScenesRootUI = new List<GameObject>();
     static int currentLevel;
     public static int CurrentLevel { get { return currentLevel; } set { currentLevel = value; } }
+    public static Dictionary<int, BundleCheck> bundleCheck = new Dictionary<int, BundleCheck>();
+    public static Dictionary<int, BundleCheck> currentHashes = new Dictionary<int, BundleCheck>();
 
   
     private void Awake()
@@ -56,6 +60,7 @@ public class App : MonoBehaviour
        
         //설정 정보 가져오기
         gameSettings = SaveLoadSystem.LoadGameSettings();
+        bundleCheck = SaveLoadSystem.LoadDownloadedData();
         //언어 설정
         TextAsset lang = null;
         if (gameSettings.language == Language.KOR) lang = Resources.Load<TextAsset>("language_kor");
@@ -69,21 +74,17 @@ public class App : MonoBehaviour
         if (!scenes.ContainsKey("LoadingScene")) LoadLoadingScene(GlobalToken).Forget();
     }
 
-    async UniTask LoadLoadingScene(CancellationToken cancellationToken = default)
+    public async UniTask LoadLoadingScene(CancellationToken cancellationToken = default)
     {
         try
         {
-            await AssetLoader.GetServerUrl("Town");
-
             cancellationToken.ThrowIfCancellationRequested();
-
-            await AssetLoader.GetServerUrl("");
-            string target = Path.Combine(AssetLoader.serverUrl, "map");
-            Hash128 bundleHash = SaveLoadSystem.ComputeHash128(System.Text.Encoding.UTF8.GetBytes(target));
-            if (Caching.IsVersionCached(target, bundleHash))
+            await LoadScene("DownloadScene", cancellationToken);
+            /*bool a = await IsAlreadyCached("", "map", 1);
+            bool b = await IsAlreadyCached("town_01", "town_01", 3);
+            bool c = await IsAlreadyCached("town_01", "town_01_scene", 2);
+            if (a && b && c)
             {
-                //Debug.Log("Asset Found");
-
                 await LoadScene("LoadingScene", cancellationToken);
 
                 await LoadRegulation(cancellationToken);
@@ -95,18 +96,7 @@ public class App : MonoBehaviour
             else
             {
                 await LoadScene("DownloadScene", cancellationToken);
-
-                Debug.Log("Asset Not Found");
-            }
-            /*await LoadScene("LoadingScene", cancellationToken);
-
-            await LoadRegulation(cancellationToken);
-
-            GameInstance.GameIns.bgMSoundManager.Setup();
-
-            await LoadGameAsset(cancellationToken);
-*/
-
+            }*/
         }
         catch (OperationCanceledException)
         {
@@ -114,7 +104,50 @@ public class App : MonoBehaviour
         }
     }
 
-    async UniTask LoadRegulation(CancellationToken cancellationToken = default)
+    public static async UniTask GameLoad(CancellationToken cancellationToken = default)
+    {
+        await LoadScene("LoadingScene", cancellationToken);
+
+        await LoadRegulation(cancellationToken);
+
+        GameInstance.GameIns.bgMSoundManager.Setup();
+
+        await LoadGameAsset(cancellationToken);
+    }
+    public static async UniTask<bool> IsAlreadyCached(string url, string targetUrl, int id)
+    {
+        await AssetLoader.GetServerUrl(url);
+
+        string target = Path.Combine(AssetLoader.serverUrl, targetUrl);
+        UnityWebRequest www = UnityWebRequest.Get(target + ".mani");
+        await www.SendWebRequest();
+        Hash128 hash = new Hash128();
+        if(www.result == UnityWebRequest.Result.Success)
+        {
+            string manifestText = www.downloadHandler.text;
+
+            Manifest manifest = JsonConvert.DeserializeObject<Manifest>(manifestText);
+
+            hash = Hash128.Parse(manifest.hash);
+            currentHashes[id] = new BundleCheck(hash, manifest.timeStamp);
+        }
+      //  Hash128 bundleHash = SaveLoadSystem.ComputeHash128(System.Text.Encoding.UTF8.GetBytes(target));
+
+        long size = 0;
+        using (UnityWebRequest request = UnityWebRequest.Head(target))
+        {
+            await request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                long.TryParse(request.GetResponseHeader("Content-Length"), out size);
+            }
+        }
+      //  Debug.Log(hash + " " + bundleCheck[id].hash);
+        if (!bundleCheck.ContainsKey(id)) return false;
+        return Caching.IsVersionCached(target, hash) && hash == bundleCheck[id].hash && currentHashes[id].timeStamp == bundleCheck[id].timeStamp;
+    }
+    public async static UniTask LoadRegulation(CancellationToken cancellationToken = default)
     {
         try
         {
@@ -125,7 +158,7 @@ public class App : MonoBehaviour
         }
     }
 
-    async UniTask LoadGameAsset(CancellationToken cancellationToken = default)
+    public static async UniTask LoadGameAsset(CancellationToken cancellationToken = default)
     {
         try
         {
@@ -164,7 +197,7 @@ public class App : MonoBehaviour
         }
     }
 
-    async UniTask LoadSceneWithBundle(CancellationToken cancellationToken = default)
+    static async UniTask LoadSceneWithBundle(CancellationToken cancellationToken = default)
     {
         try
         {
@@ -184,7 +217,7 @@ public class App : MonoBehaviour
 
         }
     }
-    async UniTask LoadAssetWithBundle(CancellationToken cancellationToken = default)
+    static async UniTask LoadAssetWithBundle(CancellationToken cancellationToken = default)
     {
         try
         {
@@ -208,7 +241,7 @@ public class App : MonoBehaviour
         }
     }
 
-    async UniTask GameLoaded(CancellationToken cancellationToken = default)
+    static async UniTask GameLoaded(CancellationToken cancellationToken = default)
     {
         try
         {
@@ -231,7 +264,7 @@ public class App : MonoBehaviour
         }
     }
 
-    async UniTask LoadFont(CancellationToken cancellationToken = default)
+    static async UniTask LoadFont(CancellationToken cancellationToken = default)
     {
         try
         {
@@ -279,7 +312,7 @@ public class App : MonoBehaviour
     }
 
 
-    async UniTask LoadRestaurant(CancellationToken cancellationToken = default)
+    static async UniTask LoadRestaurant(CancellationToken cancellationToken = default)
     {
         try
         {

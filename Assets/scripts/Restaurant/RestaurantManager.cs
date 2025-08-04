@@ -1466,7 +1466,7 @@ public class RestaurantManager : MonoBehaviour
 
                 GameIns.fishingManager.ResetFishing();
           
-                if (GameIns.app.currentScene == SceneState.Restaurant) GameIns.uiManager.fishingBtn.gameObject.SetActive(true);
+                if (App.currentScene == SceneState.Restaurant) GameIns.uiManager.fishingBtn.gameObject.SetActive(true);
                 break;
         }
     }

@@ -532,7 +532,7 @@ public class GatcharManager : MonoBehaviour
         await UniTask.Delay(200, DelayType.UnscaledDeltaTime, cancellationToken: cancellationToken);
         CheckGatchaAnimals(success);
         isSpawning = false;
-        if (GameInstance.GameIns.app.currentScene == SceneState.Draw && !CheckCompleteGatcha())
+        if (App.currentScene == SceneState.Draw && !CheckCompleteGatcha())
         {
             if(!GameInstance.GameIns.uiManager.drawBtn.gameObject.activeSelf) GameInstance.GameIns.uiManager.drawBtn.gameObject.SetActive(true);
             if(!GameInstance.GameIns.uiManager.drawSpeedUpBtn.gameObject.activeSelf) GameInstance.GameIns.uiManager.drawSpeedUpBtn.gameObject.SetActive(true);
@@ -698,7 +698,7 @@ public class GatcharManager : MonoBehaviour
         yield return new WaitForSecondsRealtime(0.2f);
         CheckGatchaAnimals(true);
         isSpawning = false;
-        if (GameInstance.GameIns.app.currentScene == SceneState.Draw) GameInstance.GameIns.uiManager.drawBtn.gameObject.SetActive(true);
+        if (App.currentScene == SceneState.Draw) GameInstance.GameIns.uiManager.drawBtn.gameObject.SetActive(true);
     }
 
     async UniTask WaitRollingsReachTargetAsync(CancellationToken cancellationToken = default)
