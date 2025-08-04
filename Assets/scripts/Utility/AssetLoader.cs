@@ -85,7 +85,8 @@ public class AssetLoader : MonoBehaviour
     {
         await GetServerUrl("");
         string target = Path.Combine(serverUrl, "map");
-        Hash128 bundleHash = SaveLoadSystem.ComputeHash128(System.Text.Encoding.UTF8.GetBytes(target));
+        //  Hash128 bundleHash = SaveLoadSystem.ComputeHash128(System.Text.Encoding.UTF8.GetBytes(target));
+        Hash128 bundleHash = App.bundleCheck[1].hash;
         if (Caching.IsVersionCached(target, bundleHash))
         {
             Debug.Log("Asset Found");
@@ -139,7 +140,8 @@ public class AssetLoader : MonoBehaviour
         {
            // string serverUrl = await SaveLoadSystem.LoadServerURL();
             string homeUrl = Path.Combine(serverUrl, gameRegulation.map_name + "_scene");
-            Hash128 bundleHash = SaveLoadSystem.ComputeHash128(System.Text.Encoding.UTF8.GetBytes(homeUrl));
+            //Hash128 bundleHash = SaveLoadSystem.ComputeHash128(System.Text.Encoding.UTF8.GetBytes(homeUrl));
+            Hash128 bundleHash = App.bundleCheck[2].hash;
             if (Caching.IsVersionCached(homeUrl, bundleHash))
             {
                 Debug.Log("Asset Found");
@@ -188,7 +190,8 @@ public class AssetLoader : MonoBehaviour
         {
             await GetServerUrl(gameRegulation.map_name);
             string homeUrl = Path.Combine(serverUrl, gameRegulation.map_name);
-            Hash128 bundleHash = SaveLoadSystem.ComputeHash128(System.Text.Encoding.UTF8.GetBytes(homeUrl));
+            // Hash128 bundleHash = SaveLoadSystem.ComputeHash128(System.Text.Encoding.UTF8.GetBytes(homeUrl));
+            Hash128 bundleHash = App.bundleCheck[3].hash;
             if (Caching.IsVersionCached(homeUrl, bundleHash))
             {
                 Debug.Log("Asset Found");

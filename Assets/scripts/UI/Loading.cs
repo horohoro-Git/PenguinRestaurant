@@ -75,7 +75,7 @@ public class Loading : MonoBehaviour
 
         audio.enabled = false;
         GameInstance.GameIns.playerCamera.audioListener.enabled = true;
-        if(GameInstance.GameIns.app.currentScene == SceneState.Restaurant) GameInstance.GameIns.bgMSoundManager.BGMChange(901000, 0.4f);
+        if(App.currentScene == SceneState.Restaurant) GameInstance.GameIns.bgMSoundManager.BGMChange(901000, 0.4f);
         App.UnloadAsync("LoadingScene");
     }
 }
