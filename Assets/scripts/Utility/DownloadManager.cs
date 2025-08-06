@@ -70,6 +70,14 @@ public class DownloadManager : MonoBehaviour
     }
 
 
+    private void OnDestroy()
+    {
+        downloadBtn.onClick.RemoveAllListeners();
+        retry.onClick.RemoveAllListeners();
+        continueBtn.onClick.RemoveAllListeners();
+        exit.onClick.RemoveAllListeners();
+    }
+
     private async UniTask CheckDownloadGameResources(CancellationToken cancellationToken = default)
     {
         await UniTask.NextFrame(cancellationToken: cancellationToken);
@@ -432,7 +440,14 @@ public class DownloadManager : MonoBehaviour
 
     public void Continue()
     {
-        App.GameLoad(App.GlobalToken).Forget();
+        Load(App.GlobalToken).Forget();
+        continueBtn.gameObject.SetActive(false);
+       // StartCoroutine(UnloadNextFrame());
+    }
+
+    async UniTask Load(CancellationToken cancellationToken = default)
+    {
+        await App.GameLoad(cancellationToken);
         StartCoroutine(UnloadNextFrame());
     }
 

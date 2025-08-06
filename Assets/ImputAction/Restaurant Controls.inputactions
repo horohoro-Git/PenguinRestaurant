@@ -22,6 +22,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "EscapeTab",
+                    "type": "Button",
+                    "id": "7d60453f-d90a-4d28-9640-95bd8ce805bd",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -68,6 +77,17 @@
                     "action": "ClickPosition",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "807b19c4-370f-4f2f-9e98-6115e9cc95af",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "EscapeTab",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         }
@@ -85,6 +105,11 @@
                 {
                     "devicePath": "<Touchscreen>",
                     "isOptional": true,
+                    "isOR": false
+                },
+                {
+                    "devicePath": "<Keyboard>",
+                    "isOptional": false,
                     "isOR": false
                 }
             ]

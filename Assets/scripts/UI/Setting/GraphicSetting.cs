@@ -15,6 +15,7 @@ public class GraphicSetting : Settings
     public Button lowBtn;
     public Button midBtn;
     public Button highBtn;
+    public RectTransform graphicBorder;
     TMP_Text low_Text;
     TMP_Text mid_Text;
     TMP_Text high_Text;
@@ -107,5 +108,20 @@ public class GraphicSetting : Settings
         yield return new WaitForSecondsRealtime(0.2f);
         animator.SetInteger("state", 2);
 
+    }
+    private void OnDisable()
+    {
+        if (isOpen)
+        {
+            isOpen = false;
+
+            low_Text.fontSize = 0;
+            mid_Text.fontSize = 0;
+            high_Text.fontSize = 0;
+            lowBtn.GetComponent<RectTransform>().sizeDelta = Vector2.zero;
+            midBtn.GetComponent<RectTransform>().sizeDelta = Vector2.zero;
+            highBtn.GetComponent<RectTransform>().sizeDelta = Vector2.zero;
+            graphicBorder.sizeDelta = Vector2.zero;
+        }
     }
 }

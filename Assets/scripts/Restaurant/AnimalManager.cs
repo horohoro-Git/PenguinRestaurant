@@ -550,11 +550,20 @@ public class AnimalManager : MonoBehaviour
         employee.busy = false;
         employee.employeeCallback -= EmployeeAction;
         employeeControllers.Remove(employee);
-        int type = 0;
+        int type = 10;
         DespawnAnimal(employee, type);
 
+        if (employee.ui != null)
+        {
+            employee.ui.Activate(false);
+            employee.ui.gameObject.SetActive(false);
+            employee.ui.model = null;
+            employee.ui.targetEmployee = null;
+            activateSliders.Remove(employee.ui);
+            deactivateSliders.Enqueue(employee.ui);
+            employee.ui = null;
+        }
       
-   
         deactivateEmployeeControllers.Enqueue(employee);
     }
 

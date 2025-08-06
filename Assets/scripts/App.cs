@@ -13,6 +13,9 @@ using UnityEngine.UIElements;
 using Vector3 = UnityEngine.Vector3;
 using Quaternion = UnityEngine.Quaternion;
 using Newtonsoft.Json;
+using UnityEngine.InputSystem;
+using UnityEditor;
+using UnityEngine.InputSystem.EnhancedTouch;
 
 public enum SceneState
 {
@@ -25,27 +28,30 @@ public enum SceneState
 
 public class App : MonoBehaviour
 {
-    private static CancellationTokenSource globalCts = new CancellationTokenSource();
+    private static CancellationTokenSource globalCts = new();
     public static CancellationToken GlobalToken => globalCts.Token;
 
     public static SceneState currentScene;
     public static float restaurantTimeScale = 1f;
     //public static Language language;
-    public static Queue<LanguageText> languageTexts = new Queue<LanguageText>();
-    public static Dictionary<int, LanguageScript> languages = new Dictionary<int, LanguageScript>();
+    public static Queue<LanguageText> languageTexts = new();
+    public static Dictionary<int, LanguageScript> languages = new();
     public static GameSettings gameSettings;
     Vector3 vector;
     public Vector3 pos { get { return vector; } set { vector = value; Debug.Log(value); } }
-    static Dictionary<string, Scene> scenes = new Dictionary<string, Scene>();
+    public static Dictionary<string, Scene> scenes = new();
     static Loading loading;
     public static bool loadedAllAssets;
-    static List<GameObject> loadedScenesRootUI = new List<GameObject>();
+    static List<GameObject> loadedScenesRootUI = new();
     static int currentLevel;
     public static int CurrentLevel { get { return currentLevel; } set { currentLevel = value; } }
-    public static Dictionary<int, BundleCheck> bundleCheck = new Dictionary<int, BundleCheck>();
-    public static Dictionary<int, BundleCheck> currentHashes = new Dictionary<int, BundleCheck>();
-    public static Dictionary<int, List<BundleCheck>> cachedData = new Dictionary<int, List<BundleCheck>>();
+    public static Dictionary<int, BundleCheck> bundleCheck = new();
+    public static Dictionary<int, BundleCheck> currentHashes = new();
+    public static Dictionary<int, List<BundleCheck>> cachedData = new();
 
+    [SerializeField]
+    PlayerInput playerInput;
+    int escapeTabCount = 0;
   
     private void Awake()
     {
@@ -73,6 +79,35 @@ public class App : MonoBehaviour
         //로딩
         if (!scenes.ContainsKey("LoadingScene")) LoadLoadingScene(GlobalToken).Forget();
     }
+
+    private void OnEnable()
+    {
+#if UNITY_ANDROID
+        EnhancedTouchSupport.Enable();
+        InputSystem.EnableDevice(Touchscreen.current);
+#endif
+        playerInput.actions["EscapeTab"].started += StartEscapeTab;
+
+#if UNITY_EDITOR
+        EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+#endif
+    }
+    private void OnDisable()
+    {
+        if(playerInput != null) playerInput.actions["EscapeTab"].started -= StartEscapeTab;
+#if UNITY_EDITOR
+        EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
+#endif
+    }
+#if UNITY_EDITOR
+    private void OnPlayModeStateChanged(PlayModeStateChange state)
+    {
+        if (state == PlayModeStateChange.ExitingPlayMode)
+        {
+            GameExit().Forget();
+        }
+    }
+#endif
 
     private void Update()
     {
@@ -410,7 +445,7 @@ public class App : MonoBehaviour
         //  GameInstance.GameIns.inputManager.DragScreen_WindowEditor(true);
         InputManger.cachingCamera.orthographic = true;
         InputManger.cachingCamera.orthographicSize = 15;
-        GameInstance.GameIns.inputManager.inputDisAble = false;
+        GameInstance.GameIns.inputManager.InputDisAble = false;
         GameInstance.GameIns.uiManager.fishingStartButton.gameObject.SetActive(false);
         GameInstance.GameIns.applianceUIManager.UIClearAll(true);
         GameInstance.GameIns.gatcharManager.ClearRollings();
@@ -432,7 +467,7 @@ public class App : MonoBehaviour
         currentScene = SceneState.Draw;
         GameInstance.GameIns.bgMSoundManager.BGMChange(900100, 0.2f);
       //  GameInstance.GameIns.inputManager.DragScreen_WindowEditor(true);
-        GameInstance.GameIns.inputManager.inputDisAble = true;
+        GameInstance.GameIns.inputManager.InputDisAble = true;
        
         Time.timeScale = 0;
         Time.fixedDeltaTime = 0f;
@@ -444,10 +479,6 @@ public class App : MonoBehaviour
         GameInstance.GameIns.gatcharManager.virtualCamera2.Priority = 0;
         GameInstance.GameIns.gatcharManager.virtualCamera3.Priority = 0;
         GameInstance.GameIns.gatcharManager.virtualCamera4.Priority = 0;
-        //   GameInstance.GameIns.inputManager.cameraTrans.position = GameInstance.GetVector3(-80.35f, 0, -1080.7f);
-        //   GameInstance.GameIns.inputManager.cameraTrans.rotation = Quaternion.Euler(0, 45, 0);
-        //    InputManger.cachingCamera.transform.localPosition = new Vector3(0, 200, 0);
-        //   InputManger.cachingCamera.transform.localRotation = Quaternion.Euler(60, 0, 0);
         if (!GameInstance.GameIns.gatcharManager.CheckCompleteGatcha())
         {
             if (!GameInstance.GameIns.uiManager.drawBtn.gameObject.activeSelf) GameInstance.GameIns.uiManager.drawBtn.gameObject.SetActive(true);
@@ -471,7 +502,7 @@ public class App : MonoBehaviour
         if(currentScene == SceneState.Restaurant) pos = GameInstance.GameIns.inputManager.cameraTrans.position;
         currentScene = SceneState.Fishing;
         GameInstance.GameIns.bgMSoundManager.BGMChange(900010, 0.2f);
-        GameInstance.GameIns.inputManager.inputDisAble = true;
+        GameInstance.GameIns.inputManager.InputDisAble = true;
         Time.timeScale = 1;
         Time.fixedDeltaTime = 0.02f;
        
@@ -513,15 +544,48 @@ public class App : MonoBehaviour
 
     public static async UniTask GameExit()
     {
-        if (GameInstance.GameIns.restaurantManager != null) GameInstance.GameIns.restaurantManager.GameSave();
-
+        if (Camera.main != null)
+        {
+            Camera cam = Camera.main;
+            cam.clearFlags = CameraClearFlags.SolidColor;
+            cam.backgroundColor = Color.black;
+            cam.cullingMask = 0;
+        }
+        RestaurantManager restaurantManager = GameInstance.GameIns.restaurantManager;
+        AnimalManager animalManager = GameInstance.GameIns.animalManager;
+        if (restaurantManager != null)
+        {
+            restaurantManager.GameSave();
+        }
+        if (animalManager != null)
+        {
+            for(int i = animalManager.employeeControllers.Count - 1; i >= 0; i--)
+            {
+                Employee employee = animalManager.employeeControllers[i];
+                animalManager.DespawnEmployee(employee);
+            }
+            for(int i = animalManager.customerControllers.Count - 1; i >= 0; i--)
+            {
+                Customer customer = animalManager.customerControllers[i];
+                animalManager.DespawnCustomer(customer);
+            }
+            if (animalManager.blackConsumer != null)
+            {
+                if (animalManager.blackConsumer.gameObject != null)
+                {
+                    BlackConsumer blackConsumer = animalManager.blackConsumer;
+                    blackConsumer.consumerCallback -= animalManager.BlackConsumerAction;
+                    blackConsumer.gameObject.SetActive(false);
+                    blackConsumer = null;
+                }
+            }
+        }
 
         if (GameInstance.GameIns != null)
         {
             GameInstance.GameIns.Clear();
-            globalCts.Cancel();
-            globalCts.Dispose();
-            globalCts = null;
+            if(globalCts != null) globalCts.Cancel();
+          
 
             await Resources.UnloadUnusedAssets();
             if (GameInstance.GameIns.assetLoader != null)
@@ -545,11 +609,34 @@ public class App : MonoBehaviour
         }
 
         await UniTask.Yield();
-
+        if (globalCts != null) globalCts.Dispose();
+        globalCts = null;
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else
             Application.Quit();
 #endif
+    }
+
+
+    public void StartEscapeTab(InputAction.CallbackContext callbackContext)
+    {
+        Debug.LogWarning("Good");
+        escapeTabCount++;
+        if(escapeTabCount > 1)
+        {
+            //게임 종료
+            GameExit().Forget();
+        }
+        else StartCoroutine(EscapeTab());
+    }
+    
+    IEnumerator EscapeTab()
+    {
+#if UNITY_ANDROID && !UNITY_EDITOR
+        AndroidToast.Show(gameSettings.language == Language.KOR ? "다시 탭하여 나가기" : "Tap again to exit");
+#endif
+        yield return new WaitForSecondsRealtime(1f);
+        escapeTabCount--;
     }
 }

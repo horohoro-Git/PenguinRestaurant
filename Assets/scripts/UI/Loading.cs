@@ -7,21 +7,28 @@ using UnityEngine.UI;
 
 public class Loading : MonoBehaviour
 {
-    public AudioListener audio;
-    public Camera cam;
+    AudioListener audioSouce;
+    Camera cam;
     public Image image;
     public TMP_Text text;
 
     float latestTimer;
     bool done;
 
-    Queue<string> loadingQ = new Queue<string>();
+    Queue<string> loadingQ = new();
     string loading;
     private void Awake()
     {
         loadingQ.Enqueue(".");
         loadingQ.Enqueue("..");
         loadingQ.Enqueue("...");
+    }
+
+    private void Start()
+    {
+        cam = FindObjectOfType<Camera>();
+        audioSouce = cam.GetComponent<AudioListener>();
+        SceneManager.MoveGameObjectToScene(cam.gameObject, App.scenes["LoadingScene"]);
     }
     private void Update()
     {
@@ -73,7 +80,7 @@ public class Loading : MonoBehaviour
 
         image.raycastTarget = false;
 
-        audio.enabled = false;
+        audioSouce.enabled = false;
         GameInstance.GameIns.playerCamera.audioListener.enabled = true;
 
         App.GlobalToken.ThrowIfCancellationRequested();

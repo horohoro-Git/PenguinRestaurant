@@ -786,7 +786,7 @@ public class RestaurantManager : MonoBehaviour
         }
         catch (Exception e)
         {
-            Debug.LogException(e);
+            Debug.Log(e);
         }
      
     }
@@ -871,7 +871,7 @@ public class RestaurantManager : MonoBehaviour
         }
         catch (Exception ex)
         {
-            Debug.LogException(ex);
+            Debug.Log(ex);
         }
     }
 
@@ -1240,26 +1240,56 @@ public class RestaurantManager : MonoBehaviour
 
     public void GameSave()
     {
-        SaveLoadSystem.SaveRestaurantCurrency(restaurantCurrency);
-        SaveLoadSystem.SaveEmployees(employees);
-        SaveLoadSystem.SaveRestaurantData(restaurantData);
+        if (restaurantCurrency.changed) SaveLoadSystem.SaveRestaurantCurrency(restaurantCurrency);
+        if(employees.changed) SaveLoadSystem.SaveEmployees(employees);
+        if(restaurantData.changed) SaveLoadSystem.SaveRestaurantData(restaurantData);
         SaveLoadSystem.SaveFoodMachineStats(machineLevelData);
-        SaveLoadSystem.SaveVendingMachineData(vendingData);
-        SaveLoadSystem.SaveMiniGameStatus(miniGame);
-        if (trashData != null) SaveLoadSystem.SaveTrashData(trashData);
+        if(vendingData.changed) SaveLoadSystem.SaveVendingMachineData(vendingData);
+        if(miniGame.changed) SaveLoadSystem.SaveMiniGameStatus(miniGame);
+        if (trashData != null)
+        {
+            if(trashData.changed) SaveLoadSystem.SaveTrashData(trashData);
+        }
     }
 
     private void OnApplicationPause(bool pauseStatus)
     {
         if (pauseStatus)
         {
-            SaveLoadSystem.SaveRestaurantCurrency(restaurantCurrency);
-            SaveLoadSystem.SaveEmployees(employees);
-            SaveLoadSystem.SaveRestaurantData(restaurantData);
-            //     SaveLoadManager.Save(SaveState.ALL_SAVES);
-            SaveLoadSystem.SaveVendingMachineData(vendingData);
-            SaveLoadSystem.SaveMiniGameStatus(miniGame);
-            if (trashData != null) SaveLoadSystem.SaveTrashData(trashData);
+            if (restaurantCurrency.changed)
+            {
+                restaurantCurrency.changed = false;
+                SaveLoadSystem.SaveRestaurantCurrency(restaurantCurrency);
+            }
+            if (employees.changed)
+            {
+                employees.changed = false;
+                SaveLoadSystem.SaveEmployees(employees);
+            }
+            if (restaurantData.changed)
+            {
+                restaurantData.changed = false;
+                SaveLoadSystem.SaveRestaurantData(restaurantData);
+            }
+            SaveLoadSystem.SaveFoodMachineStats(machineLevelData);
+            if (vendingData.changed)
+            {
+                vendingData.changed = false;
+                SaveLoadSystem.SaveVendingMachineData(vendingData);
+            }
+            if (miniGame.changed)
+            {
+                miniGame.changed = false;
+                SaveLoadSystem.SaveMiniGameStatus(miniGame);
+            }
+            if (trashData != null)
+            {
+                if (trashData.changed)
+                {
+                    trashData.changed = false;
+                    SaveLoadSystem.SaveTrashData(trashData);
+                }
+            }
         }
     }
 

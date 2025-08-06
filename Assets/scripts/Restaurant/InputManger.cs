@@ -21,6 +21,7 @@ using System.Numerics;
 using System.Text;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
+using static UnityEngine.InputSystem.InputAction;
 //using UnityEngine.InputSystem;
 //using UnityEditor.Experimental.GraphView;
 //using static DG.Tweening.DOTweenModuleUtils;
@@ -46,7 +47,7 @@ public class InputManger : MonoBehaviour
 
     public GameObject testTrash;
 
-    public bool inputDisAble { get; set; }
+    public bool InputDisAble { get; set; }
     public bool bCleaningMode; //탁자를 치울 수 있는가
                                //   public bool a;
                                //    Vector3 lastPoint = new Vector3();
@@ -88,12 +89,9 @@ public class InputManger : MonoBehaviour
     public Table clickedTable;
     EventSystem es;
 
-    PointerEventData ped;
-    //  bool dragging=false;
-    //private Vector3 dragOrigin;
     public Slider slider;
     public static Camera cachingCamera;
-    [SerializeField]
+   // [SerializeField]
     PlayerInput playerInput;
 
     Vector2 currentPoint;
@@ -124,25 +122,18 @@ public class InputManger : MonoBehaviour
     private void Awake()
     {
         es = GetComponent<EventSystem>();
-        //(int)Screen.currentResolution.refreshRateRatio.numerator;
-                                         //  GameInstance.GameIns.uiManager = UIManager;
+      
         GameInstance.GameIns.inputManager = this;
-        ped = new PointerEventData(es);
+    //    ped = new PointerEventData(es);
+        playerInput = FindObjectOfType<PlayerInput>();
     }
 
-    // Start는 첫 프레임 전에 호출됩니다.
     void Start()
     {
-        //Money = 100000; // 시작할 때 돈을 10000으로 설정
-        restaurantManager = GetComponent<RestaurantManager>(); // RestaurantManager 컴포넌트 가져오기
-        animalManager = GetComponent<AnimalManager>(); // AnimalManager 컴포넌트 가져오기
-                                                       //   animalManager.SpawnAnimal(AnimalController.PlayType.Employee, new FoodsAnimalsWant()); // 직원 동물 생성
-                                                       //animalManager.SpawnAnimal(AnimalController.PlayType.Employee, new FoodsAnimalsWant()); // 또 다른 직원 동물 생성
-                                                       // animalManager.SpawnAnimal(AnimalController.PlayType.Employee, new FoodsAnimalsWant()); // 또 다른 직원 동물 생성
-                                                       // animalManager.SpawnAnimal(AnimalController.PlayType.Employee, new FoodsAnimalsWant()); // 또 다른 직원 동물 생성
-                                                       // animalManager.SpawnAnimal(AnimalController.PlayType.Employee, new FoodsAnimalsWant()); // 또 다른 직원 동물 생성
+        restaurantManager = GetComponent<RestaurantManager>();
+        animalManager = GetComponent<AnimalManager>();
         zOffset = cameraTrans.position.z - Camera.main.transform.position.z;
-        originSize = Camera.main.orthographicSize;
+     //   originSize = Camera.main.orthographicSize;
         cachingCamera = Camera.main;    
     }
 
@@ -154,16 +145,17 @@ public class InputManger : MonoBehaviour
 
     private void OnEnable()
     {
-#if UNITY_ANDROID
-        EnhancedTouchSupport.Enable();
-        InputSystem.EnableDevice(Touchscreen.current);
-#endif
+        /*#if UNITY_ANDROID
+                EnhancedTouchSupport.Enable();
+                InputSystem.EnableDevice(Touchscreen.current);
+        #endif*/
         playerInput.actions["PointerPosition"].performed -= ScreenPoint;
         playerInput.actions["PointerPosition"].performed += ScreenPoint;
         playerInput.actions["ClickPosition"].started -= StartClick;
         playerInput.actions["ClickPosition"].started += StartClick;
         playerInput.actions["ClickPosition"].canceled -= EndClick;
         playerInput.actions["ClickPosition"].canceled += EndClick;
+      //  playerInput.actions["EscapeTab"].started += (InputAction.CallbackContext callbackContext)=> { Debug.Log("A"); };
 
     }
 
@@ -172,16 +164,18 @@ public class InputManger : MonoBehaviour
 #if UNITY_ANDROID
         EnhancedTouchSupport.Disable();
 #endif
-        playerInput.actions["PointerPosition"].performed -= ScreenPoint;
-        playerInput.actions["ClickPosition"].started -= StartClick;
-        playerInput.actions["ClickPosition"].canceled -= EndClick;
+        if (playerInput != null)
+        {
+            playerInput.actions["PointerPosition"].performed -= ScreenPoint;
+            playerInput.actions["ClickPosition"].started -= StartClick;
+            playerInput.actions["ClickPosition"].canceled -= EndClick;
+        }
         cts.Cancel();
     }
     private static CancellationTokenSource cts = new CancellationTokenSource();
     public static CancellationToken cancelToken => cts.Token;
     Coroutine coroutines;
     Coroutine coroutines2;
-    //   CancellationToken cancellation = new CancellationToken();
     void ScreenPoint(InputAction.CallbackContext callbackContext)
     {
    
@@ -201,7 +195,7 @@ public class InputManger : MonoBehaviour
 
             if (bClick)
             {
-                if (inputDisAble) return;
+                if (InputDisAble) return;
             
                 if (Physics.Raycast(cachingCamera.ScreenPointToRay(currentPoint), out RaycastHit hitInfo, float.MaxValue, 1)) currentPosition = hitInfo.point;
                 if (Physics.Raycast(cachingCamera.ScreenPointToRay(prevPoint), out RaycastHit hitInfos, float.MaxValue, 1)) deltaPosition = hitInfos.point;
@@ -235,20 +229,18 @@ public class InputManger : MonoBehaviour
 
         if (cachingCamera == null) cachingCamera = Camera.main;
         if (CheckClickedUI(uiMask)) return;
-     //   if (Utility.IsInsideCameraViewport(currentPoint, cachingCamera))
-        {
-            //realPosition = cameraTrans.position;
-            followPosition = realPosition;
-            prevPoint = currentPoint;
-            deltaPosition = currentPosition;
-            isDragging = false;
-            bClick = true;
-            justTouch = true;
 
-            ((Action<Vector3>)EventManager.Publish(2))?.Invoke(currentPoint);
-            ((Action)EventManager.Publish(4))?.Invoke();
-            StartClickIngameObject(currentPoint);
-        }
+
+        followPosition = realPosition;
+        prevPoint = currentPoint;
+        deltaPosition = currentPosition;
+        isDragging = false;
+        bClick = true;
+        justTouch = true;
+
+        ((Action<Vector3>)EventManager.Publish(2))?.Invoke(currentPoint);
+        ((Action)EventManager.Publish(4))?.Invoke();
+        StartClickIngameObject(currentPoint);
     }
     void EndClick(InputAction.CallbackContext callbackContext)
     {
@@ -262,7 +254,7 @@ public class InputManger : MonoBehaviour
         }
         if (draggingEmployee != null)
         {
-            inputDisAble = false;
+            InputDisAble = false;
             draggingEmployee.UnDragged();
             draggingEmployee = null;
             
@@ -305,7 +297,7 @@ public class InputManger : MonoBehaviour
                     if (draggingEmployee == null && !employee.falling && !employee.pause)
                     {
 
-                        inputDisAble = true;
+                        InputDisAble = true;
                         draggingEmployee = employee;
                         draggingEmployee.Dragged();
                         draggingEmployee.pause = true;
@@ -356,7 +348,6 @@ public class InputManger : MonoBehaviour
         }
     }
 
-    //  async UniTask
     IEnumerator Drag()
     {
         //    try
@@ -397,7 +388,7 @@ public class InputManger : MonoBehaviour
                         Vector3 d = move - cameraTrans.position;
                         if (CheckRayMove(d))
                         {
-                            if (!inputDisAble) cameraTrans.position = new Vector3(move.x, 0, move.z);
+                            if (!InputDisAble) cameraTrans.position = new Vector3(move.x, 0, move.z);
                             //        Utility.CheckHirable(cameraRange.position, ref refX, ref refY);
 
                         }
@@ -412,7 +403,7 @@ public class InputManger : MonoBehaviour
                         Vector3 d = move - cameraTrans.position;
                         if (CheckRayMove(d))
                         {
-                            if (!inputDisAble) cameraTrans.position = new Vector3(move.x, 0, move.z);
+                            if (!InputDisAble) cameraTrans.position = new Vector3(move.x, 0, move.z);
                             //  Utility.CheckHirable(cameraRange.position, ref refX, ref refY);
                         }
 
@@ -438,7 +429,7 @@ public class InputManger : MonoBehaviour
         {
             if (App.restaurantTimeScale == 1)
             {
-                if (!inputDisAble) cameraTrans.position -= move * Time.deltaTime;
+                if (!InputDisAble) cameraTrans.position -= move * Time.deltaTime;
              
                 //   Utility.CheckHirable(cameraRange.position, ref refX, ref refY, checkingHirePos);
                 i += Time.deltaTime;
@@ -503,779 +494,10 @@ public class InputManger : MonoBehaviour
               
             }
 
-      /*      for (int j = 0; j < results.Count; j++)
-            {
-                int l = layer >> results[j].gameObject.layer;
-                l &= 1;
-                if (results[j].gameObject.layer != 0 && l == 1)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }*/
-
         }
         return false;
     }
-
-    /* public static void CheckHirable(Vector3 center, ref int x, ref int y, bool forcedCheck = false)
-     {
-         Vector3 loc = center;
-
-         int cameraPosX = (int)((loc.x - GameIns.calculatorScale.minX) / GameIns.calculatorScale.distanceSize);
-         int cameraPosZ = (int)((loc.z - GameIns.calculatorScale.minY) / GameIns.calculatorScale.distanceSize);
-
-         if(x == cameraPosX && y == cameraPosZ && !forcedCheck) return;
-         x = cameraPosX; y = cameraPosZ;
-
-         spawnDetects.Clear();
-
-
-         float tileSize = GameIns.calculatorScale.distanceSize;
-
-         float radiusInGrid = (cachingCamera.orthographicSize / 2.5f) / tileSize;
-         float radiusSqr = radiusInGrid * radiusInGrid;
-
-         int minX = Mathf.FloorToInt(cameraPosX - radiusInGrid);
-         int maxX = Mathf.CeilToInt(cameraPosX + radiusInGrid);
-         int minY = Mathf.FloorToInt(cameraPosZ - radiusInGrid);
-         int maxY = Mathf.CeilToInt(cameraPosZ + radiusInGrid);
-
-         for (int xx = minX; xx <= maxX; xx++)
-         {
-             for (int yy = minY; yy <= maxY; yy++)
-             {   
-                 float dx = xx - cameraPosX;
-                 float dy = yy - cameraPosZ;
-
-                 if (dx * dx + dy * dy <= radiusSqr)
-                 {
-                     if (!Utility.ValidCheck(yy, xx)) continue;
-
-                     bool isBlocked = MoveCalculator.GetBlocks[yy, xx];
-
-                     float worldX = GameIns.calculatorScale.minX + xx * tileSize;
-                     float worldZ = GameIns.calculatorScale.minY + yy * tileSize;
-                     Vector3 worldPos = new Vector3(worldX, 0, worldZ);
-
-                     Color debugColor = isBlocked ? Color.red : Color.green;
-                     Debug.DrawRay(worldPos, Vector3.up * 0.5f, debugColor, 0.1f);
-                     if(!isBlocked) spawnDetects.Add(worldPos);
-                 }
-             }
-         }
-
-         if(spawnDetects.Count > 0) GameIns.applianceUIManager.UnlockHire(true);
-         else GameIns.applianceUIManager.UnlockHire(false);
-     }*/
-
-
-    /*bool RayMove(Vector3 direction, float speed)
-    {
-        double d = 0;
-        float currentSpeed = 0;
-        bool check = false;
-        Vector3 hitpoibt = Vector3.zero;
-        while (d <= 1)
-        {
-            float lerp = Mathf.Lerp(0, speed, (float)d);
-          
-            RaycastHit h1;
-            bool checkingBlock = Physics.Raycast(cameraRange.position, direction, out h1, lerp, 1 << 7 | 1 << 8);
-            if (!checkingBlock)
-            {
-                currentSpeed = lerp;
-            }
-            else
-            {
-                hitpoibt = h1.point;
-                check = true;
-                break;
-            }
-            d += 0.1;
-        }
-        if (check == true)
-        {
-            Vector3 pos = cameraRange.position;
-            Vector3 addPos = pos + direction * currentSpeed;
-            Vector3 orginPos = pos + direction * speed * Time.deltaTime;
-            if ((pos - hitpoibt).magnitude > (pos - orginPos).magnitude)
-            {
-                cameraTrans.position += direction * speed * Time.deltaTime;
-            }
-            else
-            {
-                cameraTrans.position += direction * currentSpeed * Time.deltaTime;
-                return false;
-            }
-        }
-        else
-        {
-            cameraTrans.position += direction * speed * Time.deltaTime;
-        }
-        
-        return true;
-    }*/
-    bool RayMove(Vector3 direction, float speed)
-    {
-        float d = 0f;
-        float currentSpeed = 0f;
-        Vector3 hitPoint = Vector3.zero;
-
-        while (d <= 1f)
-        {
-            float lerp = Mathf.Lerp(0, speed, d);
-
-            RaycastHit hit;
-            bool hitBlock = Physics.Raycast(cameraRange.position, direction, out hit, lerp, 1 << 7 | 1 << 8);
-            Debug.DrawLine(cameraRange.position, cameraRange.position + direction * lerp, Color.red, 1);
-            if (!hitBlock)
-            {
-                currentSpeed = lerp;
-            }
-            else
-            {
-                hitPoint = hit.point;
-                break;
-            }
-
-            d += 0.1f;
-        }
-
-        //현재 프레임과 이전 프레임 지점의 차이로 거리를 계산
-        // 레이캐스팅으로 얻은 값을 기준으로 이동
-        if (hitPoint != Vector3.zero)
-        {
-            //최대 거리 이동 지점이 벽에 막혀 있을 때
-            Vector3 pos = cameraRange.position;
-            Vector3 nextPosition = pos + direction * currentSpeed;
-            Vector3 predictedPosition = pos + direction * speed * Time.deltaTime;
-
-            if ((pos - hitPoint).magnitude > (pos - predictedPosition).magnitude)
-            {
-                cameraTrans.position += direction * speed * Time.deltaTime;
-            }
-            else
-            {
-                cameraTrans.position += direction * currentSpeed * Time.deltaTime;
-                return false;
-            }
-        }
-        else
-        {
-            //벽에 막히지 않음
-            cameraTrans.position += direction * speed * Time.deltaTime;
-        }
-        return true;
-    }
-    float originSize;
-    Vector3 deltaMouse;
-    Vector3 cameraSpeeds;
-    List<RaycastResult> raycastResults = new List<RaycastResult>();
-    public void DragScreen_WindowEditor(bool draged = false)
-    {
-        //if (Input.GetMouseButtonDown(0) && !inOtherAction || draged)
-        {
-            //  if (Utility.IsInsideCameraViewport(Input.mousePosition, cachingCamera))
-            {
-                GraphicRaycaster ggr = GameInstance.GameIns.uiManager.graphicRaycaster; //GetComponent<GraphicRaycaster>();
-                                                                                        //   ped.position = Input.mousePosition;
-                raycastResults.Clear();
-                ggr.Raycast(ped, raycastResults);
-                bool chck = false;
-
-                for (int i = 0; i < raycastResults.Count; i++)
-                {
-                    if (raycastResults[i].gameObject.GetComponentInParent<UIManager>())
-                    {
-                        chck = true;
-                        break;
-                    }
-                }
-
-                if (!chck)
-                {
-                    //   Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                    //if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity) || draged)
-                    {
-                        dragOrigin = hit.point;
-                        isDragging = true;
-                        deltaResult = hit;
-                    }
-                    //   if (Physics.Raycast(ray, out RaycastHit h, Mathf.Infinity, 1 << 11))
-                    {
-
-                        //    if (h.collider.TryGetComponent<Table>(out Table getTable))
-                        {
-                            //       if (getTable.isDirty && !getTable.interacting)
-                            {
-                                //            clickedTable = getTable;
-                                clickedTable.interacting = true;
-                                clickedTable.CleanTableManually();
-                                //         targetVector = Input.mousePosition;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        if (isDragging)
-        {
-            //    if (Utility.IsInsideCameraViewport(Input.mousePosition, cachingCamera))
-            {
-                //         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                //    if (Physics.Raycast(ray, out hit, Mathf.Infinity))
-                {
-                    //        Vector3 currentPoint = hit.point;
-                    //      Vector3 moveDirection = dragOrigin - currentPoint;
-                    //     dir = GameInstance.GetVector3(moveDirection.x, 0, moveDirection.z);
-
-                    if (RayMove(dir, cameraSpeed))
-                    {
-                        dragTimer = (deltaResult.point - hit.point).magnitude;
-
-                        diff = cameraSpeed / 2;
-                        dragTimer = 1f < dragTimer ? 1f : dragTimer;
-                        dragTimer = 0.5f > dragTimer ? 0.5f : dragTimer;
-                        reduceSpeed = (cameraSpeed / 2) / dragTimer;
-
-                        float dis = dir.magnitude;
-                        if (dis <= 0.1f)
-                        {
-                            dragOrigin = hit.point;
-                        }
-                    }
-                    else
-                    {
-                        dragOrigin = hit.point;
-                    }
-                    deltaResult = hit;
-                }
-            }
-        }
-        else
-        {
-
-            if (dragTimer > 0)
-            {
-                dragTimer -= Time.deltaTime;
-                Vector3 currentPoint = hit.point;
-                if (RayMove(dir, diff) == false) dragTimer = 0;
-                diff -= Time.deltaTime * reduceSpeed;
-            }
-        }
-
-        // if (Input.GetMouseButtonUp(0) && !inOtherAction)
-        {
-            // if (Utility.IsInsideCameraViewport(Input.mousePosition, Camera.main))
-            {
-                isDragging = false;
-                /* Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                 if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, LayerMask.GetMask("Default")))
-                 {
-                     dragOrigin = hit.point;
-                     deltaResult = hit;
-                 }*/
-                //   deltaMouse = Input.mousePosition;
-            }
-        }
-    }
-    Vector3 tempCameraLoc;
-    public IEnumerator BecomeToOrgin()
-    {
-        float retunSize = cachingCamera.orthographicSize;
-
-        double r = cachingCamera.orthographicSize;
-        float currentSize = (float)r;
-        double t = 0;
-
-        Ray ray2 = cachingCamera.ScreenPointToRay(targetVector);
-        if (Physics.Raycast(ray2, out RaycastHit hitres2, Mathf.Infinity, LayerMask.GetMask("Default")))
-        {
-            target = hitres2.point;
-        }
-        //    StartCoroutine(MoveCamera());//cameraTrans.DOMove(tempCameraLoc, 5f);
-        while (t < 1)
-        {
-            t += 5 * Time.deltaTime;
-            currentSize = Mathf.Lerp((float)r, originSize, (float)t);
-            cachingCamera.orthographicSize = currentSize;
-            Vector3 newLoc;
-            Ray ray = cachingCamera.ScreenPointToRay(targetVector);
-            if (Physics.Raycast(ray, out RaycastHit hitres, Mathf.Infinity, LayerMask.GetMask("Default")))
-            {
-                newLoc = hitres.point;
-                float s = (target - newLoc).magnitude;
-                Vector3 dir = (target - newLoc).normalized;
-                if (RayMove(dir, s / Time.deltaTime) == false)
-                {
-                    cachingCamera.orthographicSize = retunSize;
-                    //         cameraTrans.position = cV;
-                    yield break;
-                }
-
-                retunSize = currentSize;
-            }
-            yield return null;
-        }
-    }
-
-    IEnumerator MoveCamera()
-    {
-        bool t = true;
-#if HAS_DOTWEEN
-        cameraTrans.DOMove(tempCameraLoc, 0.5f).SetEase(Ease.InBack).OnComplete(() => { t = false; });
-#endif
-        while (t)
-        {
-            yield return null;
-        }
-    }
-
-    IEnumerator ViewEntireScreen()
-    {
-        float retunSize = cachingCamera.orthographicSize;
-
-        //  if(Application.platform == RuntimePlatform.WindowsEditor) targetVector = Input.mousePosition;
-        //  if(Application.platform == RuntimePlatform.Android) targetVector = Input.GetTouch(0).position;
-        Ray ray = cachingCamera.ScreenPointToRay(targetVector);
-        RaycastHit hit;
-        if (Physics.Raycast(ray, out hit, Mathf.Infinity, LayerMask.GetMask("Default")))
-        {
-            target = hit.point;
-        }
-        double r = cachingCamera.orthographicSize;
-        float currentSize = (float)r;
-        double t = 0;
-        while (t < 1)
-        {
-            //      retunSize = currentSize;
-            t += 1 * Time.deltaTime;
-            currentSize = Mathf.Lerp((float)r, 50, (float)t);
-
-            //     Camera.main.WorldToScreenPoint(targetVector);
-
-            cachingCamera.orthographicSize = currentSize;
-            Vector3 cV = cameraTrans.position;
-            Ray ray2 = cachingCamera.ScreenPointToRay(targetVector);
-
-            if (Physics.Raycast(ray2, out RaycastHit hit2, Mathf.Infinity, LayerMask.GetMask("Default")))
-            {
-                Vector3 dir = target - hit2.point;
-                float s = dir.magnitude;
-                Vector3 d = new Vector3(dir.x, 0, dir.z).normalized; //new Vector3(dir.x, 0, dir.z).normalized;
-                                                                                 //  cameraTrans.Translate(d * Time.deltaTime * 50);
-                if (RayMove(d, s / Time.deltaTime) == false)
-                {
-                    tempCameraLoc = cameraTrans.position;
-                    cachingCamera.orthographicSize = retunSize;
-                    //         cameraTrans.position = cV;
-                    yield break;
-                }
-                else
-                {
-                    tempCameraLoc = cameraTrans.position;
-                }
-                //      target = hit2.point;
-                //Camera.main.orthographicSize = retunSize;
-                //  hit = hit2; 
-                //     cameraTrans.position = new Vector3(hit2.point.x,0, hit2.point.z);
-                retunSize = currentSize;
-            }
-            //  yield break;
-            yield return null;
-        }
-
-    }
-
-    Vector3 lastVector;
-    // Touch dragTouch;
-    /*  public void DragScreen_Android(bool draged = false)
-      {
-          if (Input.touchCount > 0 && inOtherAction == false || draged)
-          {
-              if (Input.touchCount == 1)
-              {
-                  dragTouch = Input.GetTouch(0);
-                  if (dragTouch.phase == UnityEngine.TouchPhase.Began || manyFingers)
-                  {
-                      GraphicRaycaster ggr = GameInstance.GameIns.uiManager.graphicRaycaster;
-                      ped.position = dragTouch.position;
-                      raycastResults.Clear();
-                      // List<RaycastResult> raycastResults = new List<RaycastResult>();
-                      ggr.Raycast(ped, raycastResults);
-                      bool chck = false;
-                      for (int i = 0; i < raycastResults.Count; i++)
-                      {
-                          if (raycastResults[i].gameObject.GetComponentInParent<UIManager>())
-                          {
-                              chck = true;
-                              break;
-                          }
-                      }
-
-                      if (!chck)
-                      {
-                          manyFingers = false;
-                          Ray ray = cachingCamera.ScreenPointToRay(dragTouch.position);
-                          if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity) || draged)
-                          {
-                              dragOrigin = hit.point;
-                              isDragging = true;
-                              deltaResult = hit;
-                          }
-
-                          if (dragTouch.phase == UnityEngine.TouchPhase.Began)
-                          {
-                              if (Physics.Raycast(ray, out RaycastHit h, Mathf.Infinity, 1 << 11))
-                              {
-                                  if (h.collider.TryGetComponent<Table>(out Table getTable))
-                                  {
-                                      if (getTable.isDirty && !getTable.interacting)
-                                      {
-                                          clickedTable = getTable;
-                                          clickedTable.interacting = true;
-                                          // GameInstance.GameIns.workSpaceManager.trashCans[0].throwPlace.SetActive(true);
-                                          //        originSize = Camera.main.orthographicSize;
-                                          clickedTable.CleanTableManually();
-                                          targetVector = dragTouch.position;
-                                          //  entireStart = true;
-                                          //  StopAllCoroutines();
-                                          //  StartCoroutine(ViewEntireScreen());
-                                      }
-                                  }
-                              }
-                          }
-                      }
-                  }
-                  else
-                  {
-                    *//*  if (clickedTable != null)
-                      {
-                          lastVector = dragTouch.position;
-                          Ray ray = Camera.main.ScreenPointToRay(dragTouch.position);
-                          if (Physics.Raycast(ray, out RaycastHit h, Mathf.Infinity, 1 << 5))
-                          {
-                              clickedTable.trashPlate.transform.position = h.point;
-                          }
-                      }*//*
-                  //    else
-                      {
-
-
-                          Ray dragray = Camera.main.ScreenPointToRay(dragTouch.position);
-                          if (Physics.Raycast(dragray, out hit, Mathf.Infinity))
-                          {
-                              Vector3 currentPoint = hit.point;
-                              Vector3 moveDirection = dragOrigin - currentPoint;
-
-                              dir = GameInstance.GetVector3(moveDirection.x, 0, moveDirection.z); //new Vector3(moveDirection.x, 0, moveDirection.z);
-
-                              if (RayMove(dir, cameraSpeed))
-                              {
-                                  dragTimer = (deltaResult.point - hit.point).magnitude;
-
-                                  diff = cameraSpeed / 2;
-                                  dragTimer = 1 < dragTimer ? 1 : dragTimer;
-                                  dragTimer = 0.5f > dragTimer ? 0.5f : dragTimer;
-                                  reduceSpeed = (cameraSpeed / 2) / dragTimer;
-                              }
-                              else
-                              {
-                                  manyFingers = true;
-                              }
-                              deltaResult = hit;
-                          }
-                      }
-                  }
-
-              }
-
-              if (Input.touchCount == 2)
-              {
-                  Touch touchZero = Input.GetTouch(0);
-                  Touch touchOne = Input.GetTouch(1);
-
-                  // 이전 프레임에서 각 터치의 위치 차이 계산
-                  Vector2 touchZeroPrevPos = touchZero.position - touchZero.deltaPosition;
-                  Vector2 touchOnePrevPos = touchOne.position - touchOne.deltaPosition;
-
-                  // 이전 및 현재 터치 간의 거리 계산
-                  float prevTouchDeltaMag = (touchZeroPrevPos - touchOnePrevPos).magnitude;
-                  float touchDeltaMag = (touchZero.position - touchOne.position).magnitude;
-
-                  // 두 거리의 차이로 줌 비율 계산
-                  float deltaMagnitudeDiff = prevTouchDeltaMag - touchDeltaMag;
-
-                  cachingCamera.orthographicSize += deltaMagnitudeDiff * Time.deltaTime;
-
-                  if (cachingCamera.orthographicSize < 8) cachingCamera.orthographicSize = 8;
-                  else if (cachingCamera.orthographicSize > 50) cachingCamera.orthographicSize = 50;
-              }
-
-              if (Input.touchCount > 1) manyFingers = true;
-          }
-          else
-          {
-             *//* if (clickedTable != null && inOtherAction == false)
-              {
-                  Ray ray = Camera.main.ScreenPointToRay(lastVector);
-                  if (Physics.Raycast(ray, out RaycastHit h, Mathf.Infinity, 1 << 11))
-                  {
-                      if (h.collider.GetComponentInParent<TrashCan>() != null)
-                      {
-                          clickedTable.trashPlate.transform.position = h.point;
-                          //   targetVector = Input.mousePosition;
-                          //GameInstance.GameIns.workSpaceManager.trashCans[0].throwPlace.SetActive(false);
-                          clickedTable.CleanTableManually(h.point);
-                          //   if (Physics.Raycast(ray, out RaycastHit hh, Mathf.Infinity, 1 << 5)) clickedTable.CleanTableManually(hh.point);
-                      }
-                      else
-                      {
-                         // GameInstance.GameIns.workSpaceManager.trashCans[0].throwPlace.SetActive(false);
-                          clickedTable.trashPlate.transforms.position = clickedTable.plateLoc.position;
-                      }
-
-                  }
-                  else
-                  {
-                     // GameInstance.GameIns.workSpaceManager.trashCans[0].throwPlace.SetActive(false);
-                      clickedTable.trashPlate.transforms.position = clickedTable.plateLoc.position;
-                  }
-                  clickedTable.interacting = false;
-                  clickedTable = null;
-              }*//*
-
-              if (dragTimer > 0)
-              {
-                  dragTimer -= Time.deltaTime;
-                  Vector3 currentPoint = hit.point;
-                  if (RayMove(dir, diff) == false) dragTimer = 0;
-                  diff -= Time.deltaTime * reduceSpeed;
-                  if(diff < 0) diff = 0;
-              }
-          }
-      }*/
-
-
-    void DoubleClick()
-    {
-        // Input.touchCount == 1
-        ///   if (Input.GetMouseButtonDown(0) || Input.touchCount == 1)
-        {
-            //      if(Input.touchCount == 1)
-            {
-                //       if (Input.GetTouch(0).phase != UnityEngine.TouchPhase.Began) return;
-            }
-            if (Time.time < lastClick + doubleClickTimer)
-            {
-                //    if (Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer) targetVector = Input.mousePosition;
-                //     if (Application.platform == RuntimePlatform.Android) targetVector = Input.GetTouch(0).position;
-                bool check = false;
-
-                Ray ray = Camera.main.ScreenPointToRay(targetVector);
-                if (Physics.Raycast(ray, out RaycastHit h, Mathf.Infinity, LayerMask.GetMask("block")))
-                {
-                    if (h.collider.TryGetComponent<Table>(out Table getTable))
-                    {
-                        if (getTable.isDirty)
-                        {
-                            clickedTable = getTable;
-                            clickedTable.interacting = true;
-                            //        originSize = Camera.main.orthographicSize;
-                            //       if(Application.platform == RuntimePlatform.WindowsEditor) targetVector = Input.mousePosition;
-                            //        if(Application.platform == RuntimePlatform.Android) targetVector = Input.GetTouch(0).position;
-                            //    //   entireStart = true;
-                            StopAllCoroutines();
-                            StartCoroutine(ViewEntireScreen());
-                            check = true;
-                        }
-                    }
-                }
-
-                if (!check)
-                {
-                    //    entireStart = false;
-                    StopAllCoroutines();
-                    StartCoroutine(BecomeToOrgin());
-                }
-            }
-            else lastClick = Time.time;
-        }
-    }
-
-
-    /*  void Unlock()
-      {
-          if (Input.touchCount == 1)
-          {
-              Touch touch = Input.GetTouch(0);
-              if (touch.phase == UnityEngine.TouchPhase.Began)
-              {
-                  Ray ray = cachingCamera.ScreenPointToRay(Input.GetTouch(0).position);
-                  if (Physics.Raycast(ray, out RaycastHit h, Mathf.Infinity, LayerMask.GetMask("LevelUp")))
-                  {
-                      if (h.collider.gameObject.TryGetComponent<UnlockableBuyer>(out UnlockableBuyer unlockableBuyer))
-                      {
-                          currentUnlockableBuyer = unlockableBuyer;
-                          unlockableBuyer.MouseDown();
-                      }
-                  }
-              }
-              else if (touch.phase == UnityEngine.TouchPhase.Ended || touch.phase == UnityEngine.TouchPhase.Canceled)
-              {
-                  if (currentUnlockableBuyer != null)
-                  {
-                      currentUnlockableBuyer.MouseUp();
-                      currentUnlockableBuyer = null;
-                      isDragging = false;
-                  }
-              }
-            //  else if(touch.phase)
-           *//*   else
-              {
-                  Ray ray = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
-                  if (Physics.Raycast(ray, out RaycastHit h, Mathf.Infinity, LayerMask.GetMask("LevelUp")))
-                  {
-                      if (h.collider.gameObject.TryGetComponent<UnlockableBuyer>(out UnlockableBuyer unlockableBuyer))
-                      {
-                          if (unlockableBuyer != currentUnlockableBuyer)
-                          {
-                              currentUnlockableBuyer.MouseUp();
-                              currentUnlockableBuyer = null;
-                              isDragging = false;
-                          }
-                      }
-                  }
-                  else
-                  {
-                      if (currentUnlockableBuyer != null)
-                      {
-                          currentUnlockableBuyer.MouseUp();
-                          currentUnlockableBuyer = null;
-                          isDragging = false;
-                      }
-                  }
-              }*//*
-          }
-         *//* else
-          {
-              if (currentUnlockableBuyer != null)
-              {
-                  currentUnlockableBuyer.MouseUp();
-                  currentUnlockableBuyer = null;
-                  isDragging = false;
-              }
-          }*//*
-      }*/
-    /*    void Unlock_T()
-        {
-            if (Input.GetMouseButtonDown(0))
-            {
-                Ray ray = new Ray();
-                if (Application.platform == RuntimePlatform.WindowsEditor) ray = cachingCamera.ScreenPointToRay(Input.mousePosition);
-
-                if (Physics.Raycast(ray, out RaycastHit h, Mathf.Infinity, LayerMask.GetMask("LevelUp")))
-                {
-                    if (h.collider.gameObject.TryGetComponent<UnlockableBuyer>(out UnlockableBuyer unlockableBuyer))
-                    {
-                        currentUnlockableBuyer = unlockableBuyer;
-                        unlockableBuyer.MouseDown();
-                    }
-                }
-            }
-            else if (Input.GetMouseButton(0))
-            {
-
-            }
-            else if (Input.GetMouseButtonUp(0))
-            {
-                if (currentUnlockableBuyer != null)
-                {
-                    currentUnlockableBuyer.MouseUp();
-                    currentUnlockableBuyer = null;
-                    isDragging = false;
-                }
-            }
-            else
-            {
-                if (currentUnlockableBuyer != null)
-                {
-                    currentUnlockableBuyer.MouseUp();
-                    currentUnlockableBuyer = null;
-                    isDragging = false;
-                }
-            }
-        }*/
-
-
+ 
     public Vector3 lastLoc;
-    /*private void ClickMachine()
-    {
-        float test = (preLoc - curLoc).magnitude;
-
-        if (Input.touchCount > 0)
-        {
-            Touch touch = Input.GetTouch(0);    
-            if ((touch.phase == UnityEngine.TouchPhase.Ended || touch.phase == UnityEngine.TouchPhase.Canceled) && test < 0.01f)
-            {
-                Ray ray = cachingCamera.ScreenPointToRay(touch.position);
-                RaycastHit hit;
-
-                if (Physics.Raycast(ray, out hit, Mathf.Infinity, 1 << 13))
-                {
-                    if (hit.collider.gameObject.GetComponentInParent<FoodMachine>() != null)
-                    {
-                        GameInstance.GameIns.applianceUIManager.ShowApplianceInfo(hit.collider.gameObject.GetComponentInParent<FoodMachine>());
-                    }
-                }
-                if (Physics.Raycast(ray, out hit, Mathf.Infinity, LayerMask.GetMask("Animal")))
-                {
-                    Animal animal = hit.collider.gameObject.GetComponentInParent<Animal>();
-                    if (animal)
-                    {
-                        if (animal.GetComponentInChildren<Employee>() != null)
-                        {
-                            GameInstance.GameIns.applianceUIManager.ShowPenguinUpgradeInfo(animal.GetComponentInChildren<Employee>());
-                        }
-                    }
-                }
-            }
-        }
-    }*/
-    private void ClickMachine_T()
-    {
-
-        float test = (preLoc - curLoc).magnitude;
-
-        //  if (Input.GetMouseButtonUp(0) && test < 0.01f)
-        {
-            //    Ray ray = cachingCamera.ScreenPointToRay(Input.mousePosition);
-          //  RaycastHit hit;
-
-            //   if (Physics.Raycast(ray, out hit, Mathf.Infinity, 1 << 13))
-            {
-                //   if (hit.collider.gameObject.GetComponentInParent<FoodMachine>() != null)
-                {
-                    //      GameInstance.GameIns.applianceUIManager.ShowApplianceInfo(hit.collider.gameObject.GetComponentInParent<FoodMachine>());
-                }
-            }
-            //if (Physics.Raycast(ray, out hit, Mathf.Infinity, LayerMask.GetMask("Animal")))
-            {
-                //     Animal animal = hit.collider.gameObject.GetComponentInParent<Animal>();
-                //     if (animal)
-                {
-                    //     if (animal.GetComponentInChildren<Employee>() != null)
-                    {
-                        //        GameInstance.GameIns.applianceUIManager.ShowPenguinUpgradeInfo(animal.GetComponentInChildren<Employee>());
-                    }
-                }
-            }
-        }
-    }
 
 }
