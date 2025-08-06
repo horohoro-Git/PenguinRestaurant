@@ -92,7 +92,7 @@ public class PlaceController : MonoBehaviour
         if (InputManger.cachingCamera != null)
         {
             if (GameInstance.GameIns.inputManager.CheckClickedUI(1 << 5 | 1 << 14 | 1 << 18)) return;
-
+            
 #if UNITY_IOS || UNITY_ANDROID
             if (Touch.activeTouches.Count == 0) return;
 
@@ -134,7 +134,7 @@ public class PlaceController : MonoBehaviour
                 {
                     if (hit.collider.gameObject.GetComponentInParent<PlaceController>() == this)
                     {
-                        GameInstance.GameIns.inputManager.inputDisAble = true;
+                        GameInstance.GameIns.inputManager.InputDisAble = true;
                         isDragging = true;
                     }
                 }
@@ -143,7 +143,7 @@ public class PlaceController : MonoBehaviour
             if (currentMouse.leftButton.wasReleasedThisFrame)
             {
                 isDragging = false;
-                GameInstance.GameIns.inputManager.inputDisAble = false;
+                GameInstance.GameIns.inputManager.InputDisAble = false;
             }
 #endif
             /*if (Input.GetMouseButton(0) && isDragging)
@@ -249,7 +249,7 @@ public class PlaceController : MonoBehaviour
         {
             if (hit.collider.gameObject.GetComponentInParent<PlaceController>() == this)
             {
-                GameInstance.GameIns.inputManager.inputDisAble = true;
+                GameInstance.GameIns.inputManager.InputDisAble = true;
                 isDragging = true;
             }
         }
@@ -267,7 +267,7 @@ public class PlaceController : MonoBehaviour
     private void HandleInputUp()
     {
         isDragging = false;
-        GameInstance.GameIns.inputManager.inputDisAble = false;
+        GameInstance.GameIns.inputManager.InputDisAble = false;
     }
 
     IEnumerator ScaleAnimation()

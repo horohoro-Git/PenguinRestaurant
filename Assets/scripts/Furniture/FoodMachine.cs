@@ -422,8 +422,12 @@ public class FoodMachine : Furniture
     private void OnApplicationQuit()
     {
         isQuitting = true;
-        cancellationTokenSource.Cancel();
-        cancellationTokenSource.Dispose();
+        if (cancellationTokenSource != null)
+        {
+       //     cancellationTokenSource.
+          //  cancellationTokenSource.Cancel();
+           // cancellationTokenSource.Dispose();
+        }
     }
 
 

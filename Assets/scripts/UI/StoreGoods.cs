@@ -146,7 +146,7 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IEndDragHandler, IPointer
 
 
         currentCheckArea = false;
-        GameIns.inputManager.inputDisAble = true;
+        GameIns.inputManager.InputDisAble = true;
      
         if(GameIns.store.currentPreview != null)
         {
@@ -253,10 +253,8 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IEndDragHandler, IPointer
         if (instancingImage != null)
         {
             instancingImage.gameObject.SetActive(false);
-          //  Destroy(instaceImage.gameObject);
-            //instaceImage = null;
         }
-        GameIns.inputManager.inputDisAble = false;
+        GameIns.inputManager.InputDisAble = false;
     }
 
 

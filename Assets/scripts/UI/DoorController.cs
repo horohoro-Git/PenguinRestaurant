@@ -98,7 +98,7 @@ public class DoorController : MonoBehaviour
                     GameObject gameObject = hit.collider.gameObject;
                     SoundManager.Instance.PlayAudio(GameInstance.GameIns.uISoundManager.FurnitureClick(), 0.2f);
                     isDragging = true;
-                    GameInstance.GameIns.inputManager.inputDisAble = true;
+                    GameInstance.GameIns.inputManager.InputDisAble = true;
                     if(gameObject != currentWallObject)
                     {
                         if (currentWallObject != null)
@@ -139,7 +139,7 @@ public class DoorController : MonoBehaviour
             if (currentMouse.leftButton.wasReleasedThisFrame)
             {
                 isDragging = false;
-                GameInstance.GameIns.inputManager.inputDisAble = false;
+                GameInstance.GameIns.inputManager.InputDisAble = false;
             }
 #endif
 
@@ -217,7 +217,7 @@ public class DoorController : MonoBehaviour
             GameObject gameObject = hit.collider.gameObject;
             SoundManager.Instance.PlayAudio(GameInstance.GameIns.uISoundManager.FurnitureClick(), 0.2f);
             isDragging = true;
-            GameInstance.GameIns.inputManager.inputDisAble = true;
+            GameInstance.GameIns.inputManager.InputDisAble = true;
             if (gameObject != currentWallObject)
             {
                 if (currentWallObject != null)
@@ -258,7 +258,7 @@ public class DoorController : MonoBehaviour
     private void HandleInputUp()
     {
         isDragging = false;
-        GameInstance.GameIns.inputManager.inputDisAble = false;
+        GameInstance.GameIns.inputManager.InputDisAble = false;
     }
 
     public bool CheckDoorPlacement()

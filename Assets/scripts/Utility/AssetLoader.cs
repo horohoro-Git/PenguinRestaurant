@@ -19,30 +19,30 @@ public class AssetLoader : MonoBehaviour
     public AssetBundle bundle_scene;
     [NonSerialized]
     public AssetBundle b_reg;
-    public static Dictionary<string, AudioClip> loadedSounds = new Dictionary<string, AudioClip>();
-    public static Dictionary<string, string> loadedMap = new Dictionary<string, string>();
-    public static Dictionary<string, GameObject> loadedAssets = new Dictionary<string, GameObject>();
-    public static Dictionary<string, Sprite> loadedSprites = new Dictionary<string, Sprite>();
-    public static Dictionary<string, Sprite> atlasSprites = new Dictionary<string, Sprite>();
-    public static Dictionary<string, SpriteAtlas> loadedAtlases = new Dictionary<string, SpriteAtlas>();
-    public static Dictionary<int, ItemStruct> items = new Dictionary<int, ItemStruct>();
-    public static Dictionary<int, ItemStruct> sprites = new Dictionary<int, ItemStruct>();
-    public static Dictionary<int, ItemStruct> atlases = new Dictionary<int, ItemStruct>();
-    public static Dictionary<int, MachineLevelData> machines_levels = new Dictionary<int, MachineLevelData>();
+    public static Dictionary<string, AudioClip> loadedSounds = new();
+    public static Dictionary<string, string> loadedMap = new();
+    public static Dictionary<string, GameObject> loadedAssets = new();
+    public static Dictionary<string, Sprite> loadedSprites = new();
+    public static Dictionary<string, Sprite> atlasSprites = new();
+    public static Dictionary<string, SpriteAtlas> loadedAtlases = new();
+    public static Dictionary<int, ItemStruct> items = new();
+    public static Dictionary<int, ItemStruct> sprites = new();
+    public static Dictionary<int, ItemStruct> atlases = new();
+    public static Dictionary<int, MachineLevelData> machines_levels = new();
 
-    public static Dictionary<int, EmployeeLevelStruct> employees_levels = new Dictionary<int, EmployeeLevelStruct>();
-    public static Dictionary<int, MachineLevelOffset> machineLevelOffsets = new Dictionary<int, MachineLevelOffset>();
-    public static Dictionary<int, AnimalStruct> animals = new Dictionary<int, AnimalStruct>();
-    public static Dictionary<int, GoodsStruct> goods = new Dictionary<int, GoodsStruct>();
-    public static Dictionary<int, StringStruct> itemAssetKeys = new Dictionary<int, StringStruct>();
-    public static Dictionary<int, StringStruct> spriteAssetKeys = new Dictionary<int, StringStruct>();
-    public static Dictionary<int, StringStruct> atlasesKeys = new Dictionary<int, StringStruct>();
-    public static Dictionary<int, LevelData> levelData = new Dictionary<int, LevelData>();
-    public static Dictionary<int, ItemStruct> sounds = new Dictionary<int, ItemStruct>();
-    public static Dictionary<int, ItemStruct> fishingAnimals = new Dictionary<int, ItemStruct>();
-    public static Dictionary<int, AnimalPersnality> animalPersonalities = new Dictionary<int, AnimalPersnality>();
-    public static List<MapContent> maps = new List<MapContent>();
-    public static List<RestaurantParam> restaurantParams = new List<RestaurantParam>();
+    public static Dictionary<int, EmployeeLevelStruct> employees_levels = new();
+    public static Dictionary<int, MachineLevelOffset> machineLevelOffsets = new();
+    public static Dictionary<int, AnimalStruct> animals = new();
+    public static Dictionary<int, GoodsStruct> goods = new();
+    public static Dictionary<int, StringStruct> itemAssetKeys = new();
+    public static Dictionary<int, StringStruct> spriteAssetKeys = new();
+    public static Dictionary<int, StringStruct> atlasesKeys = new();
+    public static Dictionary<int, LevelData> levelData = new();
+    public static Dictionary<int, ItemStruct> sounds = new();
+    public static Dictionary<int, ItemStruct> fishingAnimals = new();
+    public static Dictionary<int, AnimalPersnality> animalPersonalities = new();
+    public static List<MapContent> maps = new();
+    public static List<RestaurantParam> restaurantParams = new();
 
     public static TMP_FontAsset font;
     public static Material font_mat;
@@ -58,7 +58,7 @@ public class AssetLoader : MonoBehaviour
     {
        "all", "employees", "machines", "machine_level_offsets", "animals", "level","furniture", "sprites", "atlases", "shop", "fishing", "animal_personality"
     };
-    Dictionary<string, string> tableContents = new Dictionary<string, string>();
+    Dictionary<string, string> tableContents = new();
 
     public static string serverUrl;
     private void Awake()
