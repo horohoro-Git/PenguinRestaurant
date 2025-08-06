@@ -80,4 +80,5 @@ Animal Restaurant Tycoon Game
 08/03 Implement download scene with hash-based file updates and server reconnection retry
 08/04 Fixed removal of cached old files on update, proper resource release on game exit, and error handling when quitting during loading
 08/06 Improve resource unloading for smoother transitions and add Android toast messages
+08/07 Control Android toast messages and disable back button functionality during initial game loading
 

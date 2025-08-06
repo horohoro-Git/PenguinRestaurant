@@ -17,5 +17,17 @@ public class AndroidToast : MonoBehaviour
             pluginClass.CallStatic("showToast", message, duration);
         }
     }
+
+    public static void Close()
+    {
+        using (var unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
+        {
+            var activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
+            AndroidJavaClass pluginClass;
+            pluginClass = new AndroidJavaClass("com.dreamone.toasthelper.ToastHelper");
+           
+            pluginClass.CallStatic("cancelToast");
+        }
+    }
 }
 

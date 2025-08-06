@@ -80,6 +80,16 @@ public class App : MonoBehaviour
         if (!scenes.ContainsKey("LoadingScene")) LoadLoadingScene(GlobalToken).Forget();
     }
 
+    private void Start()
+    {
+#if UNITY_ANDROID && !UNITY_EDITOR
+        using (var jc = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
+        {
+            var activity = jc.GetStatic<AndroidJavaObject>("currentActivity");
+            activity.Call("unblockBackKey");
+        }
+#endif
+    }
     private void OnEnable()
     {
 #if UNITY_ANDROID
@@ -625,6 +635,9 @@ public class App : MonoBehaviour
         escapeTabCount++;
         if(escapeTabCount > 1)
         {
+#if UNITY_ANDROID && !UNITY_EDITOR
+        AndroidToast.Close();
+#endif
             //게임 종료
             GameExit().Forget();
         }
@@ -638,5 +651,8 @@ public class App : MonoBehaviour
 #endif
         yield return new WaitForSecondsRealtime(1f);
         escapeTabCount--;
+#if UNITY_ANDROID && !UNITY_EDITOR
+        AndroidToast.Close();
+#endif
     }
 }
