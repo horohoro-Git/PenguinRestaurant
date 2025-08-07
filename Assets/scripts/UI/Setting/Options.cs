@@ -26,7 +26,7 @@ public class Options : MonoBehaviour
 
         graphicBtn.onClick.AddListener(() =>
         {
-            graphicSetting.Click();
+      //      graphicSetting.Click();
         });
     }
 }
