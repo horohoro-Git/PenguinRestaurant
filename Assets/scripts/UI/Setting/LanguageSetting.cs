@@ -12,6 +12,7 @@ public class LanguageSetting : Settings
     public Button engBtn;
     public Button korBtn;
     public RectTransform languageBorder;
+    public TMP_Text result;
     TMP_Text eng_Text;
     TMP_Text kor_Text;
     Coroutine coroutine;
@@ -21,6 +22,9 @@ public class LanguageSetting : Settings
     {
         eng_Text = engBtn.GetComponentInChildren<TMP_Text>();
         kor_Text = korBtn.GetComponentInChildren<TMP_Text>();
+        int ids = 10200 + (int)App.gameSettings.language;
+        result.GetComponent<LanguageText>().id = ids;
+        result.text = App.languages[ids].text;
     }
     public void Click()
     {
