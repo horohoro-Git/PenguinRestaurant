@@ -16,6 +16,7 @@ using Newtonsoft.Json;
 using UnityEngine.InputSystem;
 using UnityEditor;
 using UnityEngine.InputSystem.EnhancedTouch;
+using AnimationInstancing;
 
 public enum SceneState
 {
@@ -561,8 +562,12 @@ public class App : MonoBehaviour
             cam.backgroundColor = Color.black;
             cam.cullingMask = 0;
         }
+        UIManager uIManager = GameInstance.GameIns.uiManager;
+        if (uIManager != null) uIManager.fadeImage.color = Color.black;
         RestaurantManager restaurantManager = GameInstance.GameIns.restaurantManager;
         AnimalManager animalManager = GameInstance.GameIns.animalManager;
+      //  AnimationInstancingMgr animationInstancingMgr = GameInstance.GameIns.animationInstancingManager;
+     //   if(animationInstancingMgr != null) animationInstancingMgr.gameObject.SetActive(false);
         if (restaurantManager != null)
         {
             restaurantManager.GameSave();

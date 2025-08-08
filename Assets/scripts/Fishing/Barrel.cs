@@ -28,6 +28,7 @@ public class Barrel : MonoBehaviour
 
     IEnumerator Falling()
     {
+        if (App.gameSettings.hapticFeedback) Handheld.Vibrate();
         SoundManager.Instance.PlayAudio(GameInstance.GameIns.fishingSoundManager.WaterSplashSound(), 0.2f);
 
         WaterSplash waterSplash = ParticleManager.CreateParticle(ParticleType.Fishing).GetComponent<WaterSplash>(); //GameInstance.GameIns.fishingManager.GetSplash();

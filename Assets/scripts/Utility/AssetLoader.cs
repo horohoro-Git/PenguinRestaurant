@@ -89,14 +89,14 @@ public class AssetLoader : MonoBehaviour
         string target = Path.Combine(serverUrl, "map");
         //  Hash128 bundleHash = SaveLoadSystem.ComputeHash128(System.Text.Encoding.UTF8.GetBytes(target));
         Hash128 bundleHash = App.bundleCheck[1].hash;
-        if (Caching.IsVersionCached(target, bundleHash))
+    /*    if (Caching.IsVersionCached(target, bundleHash))
         {
             Debug.Log("Asset Found");
         }
         else
         {
             Debug.Log("Asset Not Found");
-        }
+        }*/
         cancellationToken.ThrowIfCancellationRequested();
         UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle(target, bundleHash, 0);
         await www.SendWebRequest().ToUniTask(cancellationToken: cancellationToken);
@@ -104,9 +104,9 @@ public class AssetLoader : MonoBehaviour
         if (www.result == UnityWebRequest.Result.Success)
         {
             b_reg = DownloadHandlerAssetBundle.GetContent(www);
-            if (Caching.IsVersionCached(target, bundleHash))
+            //if (Caching.IsVersionCached(target, bundleHash))
             {
-                Debug.Log("AssetBundle Cached Successfully");
+           //     Debug.Log("AssetBundle Cached Successfully");
             }
             cancellationToken.ThrowIfCancellationRequested();
             AssetBundleRequest assetRequest = b_reg.LoadAssetAsync<TextAsset>("maps");
@@ -148,13 +148,13 @@ public class AssetLoader : MonoBehaviour
             string homeUrl = Path.Combine(serverUrl, gameRegulation.map_name + "_scene");
             //Hash128 bundleHash = SaveLoadSystem.ComputeHash128(System.Text.Encoding.UTF8.GetBytes(homeUrl));
             Hash128 bundleHash = App.bundleCheck[2].hash;
-            if (Caching.IsVersionCached(homeUrl, bundleHash))
+           // if (Caching.IsVersionCached(homeUrl, bundleHash))
             {
-                Debug.Log("Asset Found");
+              //  Debug.Log("Asset Found");
             }
-            else
+           // else
             {
-                Debug.Log("Asset Not Found");
+            //    Debug.Log("Asset Not Found");
             }
             cancellationToken.ThrowIfCancellationRequested();
             UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle(homeUrl, bundleHash, 0);
@@ -163,9 +163,9 @@ public class AssetLoader : MonoBehaviour
             if (www.result == UnityWebRequest.Result.Success)
             {
                 bundle_scene = DownloadHandlerAssetBundle.GetContent(www);
-                if (Caching.IsVersionCached(homeUrl, bundleHash))
+               // if (Caching.IsVersionCached(homeUrl, bundleHash))
                 {
-                    Debug.Log("AssetBundle Cached Successfully");
+               //     Debug.Log("AssetBundle Cached Successfully");
                 }
 
                 string[] scenePaths = bundle_scene.GetAllScenePaths();
@@ -199,14 +199,14 @@ public class AssetLoader : MonoBehaviour
             string homeUrl = Path.Combine(serverUrl, gameRegulation.map_name);
             // Hash128 bundleHash = SaveLoadSystem.ComputeHash128(System.Text.Encoding.UTF8.GetBytes(homeUrl));
             Hash128 bundleHash = App.bundleCheck[3].hash;
-            if (Caching.IsVersionCached(homeUrl, bundleHash))
+         /*   if (Caching.IsVersionCached(homeUrl, bundleHash))
             {
                 Debug.Log("Asset Found");
             }
             else
             {
                 Debug.Log("Asset Not Found");
-            }
+            }*/
             cancellationToken.ThrowIfCancellationRequested();
             UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle(homeUrl, bundleHash, 0);
             await www.SendWebRequest().ToUniTask(cancellationToken: cancellationToken);
@@ -214,10 +214,10 @@ public class AssetLoader : MonoBehaviour
             {
                 bundle = DownloadHandlerAssetBundle.GetContent(www);
 
-                if (Caching.IsVersionCached(homeUrl, bundleHash))
+            /*    if (Caching.IsVersionCached(homeUrl, bundleHash))
                 {
                     Debug.Log("AssetBundle Cached Successfully");
-                }
+                }*/
 
                 if (!bundle.isStreamedSceneAssetBundle)
                 {

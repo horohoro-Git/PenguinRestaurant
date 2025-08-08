@@ -39,6 +39,7 @@ public class LanguageSetting : Settings
                 App.gameSettings.language = Language.ENG;
                 App.languages.Clear();
                 TextAsset lang = null;
+                result.GetComponent<LanguageText>().id = 10200 + (int)App.gameSettings.language;
                 if (App.gameSettings.language == Language.KOR) lang = Resources.Load<TextAsset>("language_kor");
                 else lang = Resources.Load<TextAsset>("language_eng");
 
@@ -53,6 +54,7 @@ public class LanguageSetting : Settings
                 App.gameSettings.language = Language.KOR;
                 App.languages.Clear();
                 TextAsset lang = null;
+                result.GetComponent<LanguageText>().id = 10200 + (int)App.gameSettings.language;
                 if (App.gameSettings.language == Language.KOR) lang = Resources.Load<TextAsset>("language_kor");
                 else lang = Resources.Load<TextAsset>("language_eng");
 

@@ -23,6 +23,13 @@ public enum Language
     ENG,
     KOR
 }
+
+public enum GraphicsLevel
+{
+    LOW,
+    MEDIUM,
+    HIGH
+}
 public enum CounterType
 {
     None,
@@ -956,12 +963,18 @@ public class Fishing
 public class GameSettings
 {
     public Language language;
-    public float soundAmount;
-
-    public GameSettings(Language language, float soundAmount)
+    public GraphicsLevel graphics;
+    public bool soundEffects;
+    public bool soundBackgrounds;
+    public bool hapticFeedback;
+  //  public 
+    public GameSettings(Language language, GraphicsLevel graphics, bool soundEffects, bool soundBackgrounds, bool hapticFeedback)
     {
         this.language = language;
-        this.soundAmount = soundAmount;
+        this.graphics = graphics;
+        this.soundEffects = soundEffects;
+        this.soundBackgrounds = soundBackgrounds;
+        this.hapticFeedback = hapticFeedback;
     }
 }
 

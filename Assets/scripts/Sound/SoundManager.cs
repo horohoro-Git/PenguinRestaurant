@@ -13,6 +13,7 @@ public class SoundManager : MonoBehaviour
     List<AudioSource> restaurantAudios = new List<AudioSource>();
 
     public Dictionary<AudioClip, int> currentPlayingAudios = new Dictionary<AudioClip, int>();  
+    public List<AudioSource> currentPlayingAudioSouces = new List<AudioSource>();  
     GameObject audios;
 
     [Range(5, 1000)]
@@ -45,17 +46,22 @@ public class SoundManager : MonoBehaviour
     {
         bool exists = AudioStop(key);
         AudioSource audio;
-        if (audioSources.Count > 0) audio = audioSources.Dequeue();
+        if (audioSources.Count > 0)
+        {
+            audio = audioSources.Dequeue();
+            currentPlayingAudioSouces.Add(audio);
+        }
         else
         {
             GameObject newAudio = new GameObject();
             audio = newAudio.AddComponent<AudioSource>();
             newAudio.transform.SetParent(audios.transform);
+            currentPlayingAudioSouces.Add(audio);
         }
 
         audio.spatialBlend = 0;
         audio.clip = clip;
-        audio.volume = volume;
+        audio.volume = App.gameSettings.soundEffects ? 1 : 0; //volume;
         audio.Play();
         audioWithKey[key] = audio;
 
@@ -70,10 +76,12 @@ public class SoundManager : MonoBehaviour
             audio.Stop();
             if (audioSources.Count > 1000)
             {
+                currentPlayingAudioSouces.Remove(audio);
                 Destroy(audio);
             }
             else
             {
+                currentPlayingAudioSouces.Remove(audio);
                 audioSources.Enqueue(audio);
             }
             return true;
@@ -89,12 +97,17 @@ public class SoundManager : MonoBehaviour
     async UniTask PlayAudioAsync(AudioClip clip, float volume, CancellationToken cancellationToken = default)
     {
         AudioSource audio;
-        if (audioSources.Count > 0) audio = audioSources.Dequeue();
+        if (audioSources.Count > 0)
+        {
+            audio = audioSources.Dequeue();
+            currentPlayingAudioSouces.Add(audio);
+        }
         else
         {
             GameObject newAudio = new GameObject();
             audio = newAudio.AddComponent<AudioSource>();
             newAudio.transform.SetParent(audios.transform);
+            currentPlayingAudioSouces.Add(audio);
         }
 
         audio.spatialBlend = 0;
@@ -108,7 +121,7 @@ public class SoundManager : MonoBehaviour
             currentPlayingAudios[clip] = 1;
         }
 
-        audio.volume = volume / currentPlayingAudios[clip];
+        audio.volume = (App.gameSettings.soundEffects ? 1f : 0) / currentPlayingAudios[clip]; //volume / currentPlayingAudios[clip];
         audio.Play();
         float length = clip.length;
 
@@ -117,10 +130,12 @@ public class SoundManager : MonoBehaviour
         currentPlayingAudios[clip]--;
         if (audioSources.Count > 1000)
         {
+            currentPlayingAudioSouces.Remove(audio);
             Destroy(audio);
         }
         else
         {
+            currentPlayingAudioSouces.Remove(audio);
             audioSources.Enqueue(audio);
         }
     }
@@ -132,12 +147,17 @@ public class SoundManager : MonoBehaviour
     async UniTask PlayAudio3DAsync(AudioClip clip, float volume, float maxDistance, float minDistance, Vector3 pos, CancellationToken cancellationToken = default)
     {
         AudioSource audio;
-        if (audioSources.Count > 0) audio = audioSources.Dequeue();
+        if (audioSources.Count > 0)
+        {
+            audio = audioSources.Dequeue();
+            currentPlayingAudioSouces.Add(audio);
+        }
         else
         {
             GameObject newAudio = new GameObject();
             audio = newAudio.AddComponent<AudioSource>();
             newAudio.transform.SetParent(audios.transform);
+            currentPlayingAudioSouces.Add(audio);
         }
 
         audio.transform.position = pos;
@@ -153,7 +173,7 @@ public class SoundManager : MonoBehaviour
         {
             currentPlayingAudios[clip] = 1;
         }
-        audio.volume = volume / currentPlayingAudios[clip];
+        audio.volume = (App.gameSettings.soundEffects ? 1f : 0) / currentPlayingAudios[clip]; //volume / currentPlayingAudios[clip];
         audio.Play();
 
         restaurantAudios.Add(audio);
@@ -165,10 +185,12 @@ public class SoundManager : MonoBehaviour
         restaurantAudios.Remove(audio);
         if (audioSources.Count > 1000)
         {
+            currentPlayingAudioSouces.Remove(audio);
             Destroy(audio);
         }
         else
         {
+            currentPlayingAudioSouces.Remove(audio);
             audioSources.Enqueue(audio);
 
         }

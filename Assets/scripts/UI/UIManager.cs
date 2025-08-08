@@ -49,7 +49,7 @@ public class UIManager : MonoBehaviour
   //  public AudioSource audioSource;
 
     Dictionary<int, Sprite> atlasSprites = new Dictionary<int, Sprite>();
-    EventSystem eventSystem;
+    public EventSystem eventSystem;
 
     public RectTransform fishImage;
     // Start is called before the first frame update
@@ -75,7 +75,7 @@ public class UIManager : MonoBehaviour
    //     canvasScaler = GetComponent<CanvasScaler>();
     //    AdjustReferenceResolution();
         //   PlayerCamera.ApplySafeArea(safeArea);
-        eventSystem = EventSystem.current;
+       // eventSystem = EventSystem.current;
         if (loadedAtlases.ContainsKey("UI"))
         {
             atlasSprites[10001] = loadedAtlases["UI"].GetSprite(spriteAssetKeys[10001].Name);

@@ -1263,8 +1263,11 @@ public class SaveLoadSystem
                     using (BinaryReader reader = new BinaryReader(new MemoryStream(data)))
                     {
                         Language language = (Language)reader.ReadInt32();
-                        float soundAmount = reader.ReadSingle();
-                        settings = new GameSettings(language, soundAmount);
+                        GraphicsLevel graphics = (GraphicsLevel)reader.ReadInt32();
+                        bool soundEffects = reader.ReadBoolean();
+                        bool soundBackgrounds = reader.ReadBoolean();
+                        bool hapticFeedback = reader.ReadBoolean();
+                        settings = new GameSettings(language, graphics, soundEffects, soundBackgrounds, hapticFeedback);
                     }
                 }
             }
@@ -1282,7 +1285,7 @@ public class SaveLoadSystem
                 language = Language.ENG;
             }
 
-            settings = new GameSettings(language, 100);
+            settings = new GameSettings(language, GraphicsLevel.MEDIUM, true, true, false);
 
             SaveGameSettings(settings);
         }
@@ -1304,9 +1307,15 @@ public class SaveLoadSystem
             using (BinaryWriter writer = new BinaryWriter(ms))
             {
                 int language = (int)gameSettings.language;
-                float volume = gameSettings.soundAmount;
+                int graphics = (int)gameSettings.graphics;
+                bool soundEffects = gameSettings.soundEffects;
+                bool soundBackgrounds = gameSettings.soundBackgrounds;
+                bool hapticFeedback = gameSettings.hapticFeedback;
                 writer.Write(language);
-                writer.Write(volume);
+                writer.Write(graphics);
+                writer.Write(soundEffects);
+                writer.Write(soundBackgrounds);
+                writer.Write(hapticFeedback);
             }
 
             File.WriteAllBytes(p, ms.ToArray());
