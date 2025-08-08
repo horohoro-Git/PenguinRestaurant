@@ -7,6 +7,7 @@ using System.IO;
 using System.Threading;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -30,6 +31,7 @@ public class DownloadManager : MonoBehaviour
     public TMP_Text serverFailedText;
     public Button retry;
     public Button exit;
+    public EventSystem eventSystem;
 
     bool downloadMap;
     bool downloadScene;
@@ -295,16 +297,13 @@ public class DownloadManager : MonoBehaviour
                 if (App.cachedData[1][i].hash != newCachingBundle.hash)
                 {
                     Caching.ClearCachedVersion(App.cachedData[1][i].bundleName, App.cachedData[1][i].hash);
-                    Debug.Log("Remove1");
                 }
                 App.cachedData[1].RemoveAt(i);
                     
             }
        
-            Debug.Log(1 + " before " + App.cachedData[1].Count);
             App.cachedData[1].Add(newCachingBundle);
 
-            Debug.Log(1 + " after " + App.cachedData[1].Count);
             SaveLoadSystem.SaveDownloadedData();
             SaveLoadSystem.SaveCachedDownloadedData();
             await AssetLoader.GetServerUrl("town_01", cancellationToken);
@@ -348,7 +347,6 @@ public class DownloadManager : MonoBehaviour
                 if (App.cachedData[2][i].hash != newCachingBundle2.hash)
                 {
                     Caching.ClearCachedVersion(App.cachedData[2][i].bundleName, App.cachedData[2][i].hash);
-                    Debug.Log("Remove1");
                 }
                 App.cachedData[2].RemoveAt(i);
 
@@ -391,21 +389,17 @@ public class DownloadManager : MonoBehaviour
             if (!App.cachedData.ContainsKey(3)) App.cachedData[3] = new List<BundleCheck>();
             else if (App.cachedData[3] == null) App.cachedData[3] = new List<BundleCheck>();
 
-            Debug.Log(3 + "  " + bundleHash3 + " before  " + App.cachedData[3].Count);
             for (int i = App.cachedData[3].Count - 1; i >= 0; i--)
             {
-                Debug.Log("3 " + App.cachedData[3][i].hash);
                 if (App.cachedData[3][i].hash != newCachingBundle3.hash)
                 {
                     Caching.ClearCachedVersion(App.cachedData[3][i].bundleName, App.cachedData[3][i].hash);
-                    Debug.Log("Remove3");
                 }
                 App.cachedData[3].RemoveAt(i);
 
             }
            
             App.cachedData[3].Add(newCachingBundle3);
-            Debug.Log(3 + "  " + bundleHash3 + " after  " + App.cachedData[3].Count);
             SaveLoadSystem.SaveDownloadedData();
             SaveLoadSystem.SaveCachedDownloadedData();
 
@@ -447,6 +441,7 @@ public class DownloadManager : MonoBehaviour
 
     async UniTask Load(CancellationToken cancellationToken = default)
     {
+        eventSystem.gameObject.SetActive(false);
         await App.GameLoad(cancellationToken);
         StartCoroutine(UnloadNextFrame());
     }

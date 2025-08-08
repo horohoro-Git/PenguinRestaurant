@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
+using static Cinemachine.DocumentationSortingAttribute;
 
 public class GraphicSetting : Settings
 {
@@ -18,8 +19,8 @@ public class GraphicSetting : Settings
 
     private void Awake()
     {
- 
-        graphicLevel = QualitySettings.GetQualityLevel();
+        graphicLevel = 1 + (int)App.gameSettings.graphics;
+        QualitySettings.SetQualityLevel(graphicLevel);
         int currentLevel = graphicLevel + 10010;
         graphicState.GetComponent<LanguageText>().id = currentLevel;
         graphicState.text = App.languages[currentLevel].text;
@@ -27,6 +28,11 @@ public class GraphicSetting : Settings
         if(graphicLevel == 1) lower.enabled = false;
         else if(graphicLevel == 3) upper.enabled = false;
 
+        if (GameInstance.GameIns.playerCamera.cam.TryGetComponent(out UniversalAdditionalCameraData cameraData))
+        {
+            if (graphicLevel == 3) cameraData.renderPostProcessing = true;
+            else cameraData.renderPostProcessing = false;
+        }
 
         lower.onClick.AddListener(() =>
         {
@@ -45,7 +51,6 @@ public class GraphicSetting : Settings
         });
     }
 
-
     void ChangeQuality(int level)
     {
         QualitySettings.SetQualityLevel(graphicLevel);
@@ -58,6 +63,8 @@ public class GraphicSetting : Settings
         }
         graphicState.GetComponent<LanguageText>().id = 10010 + graphicLevel;
         graphicState.text = App.languages[10010 + graphicLevel].text;
+        App.gameSettings.graphics = (GraphicsLevel)(graphicLevel - 1);
+        SaveLoadSystem.SaveGameSettings(App.gameSettings);
     }
 
    

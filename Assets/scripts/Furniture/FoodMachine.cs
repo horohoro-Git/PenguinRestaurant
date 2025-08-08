@@ -27,7 +27,7 @@ public class FoodMachine : Furniture
 
     Stack<Food> hiddenStack = new Stack<Food>();
 
-    protected AudioSource audioSource;
+    [NonSerialized] public AudioSource audioSource;
     public AudioSource foodCreateAudio;
     //  public PlayData playData;
     public RestaurantParam restaurantParam;
@@ -378,7 +378,7 @@ public class FoodMachine : Furniture
                 if (fuelGage) fuelGage.ShowGage(fishesExists);
                 //    isCooking = true;
 
-                audioSource.volume = 0.1f;
+                audioSource.volume = App.gameSettings.soundEffects ? 1 : 0; //0.1f;
                 audioSource.loop = true;
                 audioSource.spatialBlend = 1;
                 audioSource.maxDistance = SoundManager.Instance.max;
@@ -409,7 +409,6 @@ public class FoodMachine : Furniture
             Debug.Log(ex);
         }
     }
-
 
     public void CreatedFood(Food food)
     {

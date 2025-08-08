@@ -82,4 +82,5 @@ Animal Restaurant Tycoon Game
 08/06 Improve resource unloading for smoother transitions and add Android toast messages
 08/07 Control Android toast messages and disable back button functionality during initial game loading
 08/08 Update settings UI for sound and haptic feedback
+08/09 Added BGM toggle, haptic feedback for in-game actions, and saving of game settings data
 

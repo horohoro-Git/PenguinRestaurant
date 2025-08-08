@@ -6,15 +6,12 @@ using UnityEngine.UI;
 public class Options : MonoBehaviour
 {
     public Button languageBtn;
-    public Button graphicBtn;
     LanguageSetting languageSetting;
 
-    GraphicSetting graphicSetting;
 
     private void Awake()
     {
         languageSetting = GetComponentInChildren<LanguageSetting>();
-        graphicSetting = GetComponentInChildren<GraphicSetting>();
     }
 
     private void Start()
@@ -24,9 +21,5 @@ public class Options : MonoBehaviour
             languageSetting.Click();
         });
 
-        graphicBtn.onClick.AddListener(() =>
-        {
-      //      graphicSetting.Click();
-        });
     }
 }

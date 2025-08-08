@@ -602,18 +602,7 @@ public class AnimalManager : MonoBehaviour
             DespawnAnimal(customer, t);
 
         }
-        else
-        {
-         /*   foreach (var stack in customer.foodStacks)
-            {
-                foreach (var food in stack.foodStack)
-                {
-                    FoodManager.RemovePackageBox((PackageFood)food);
-                }
-            }*/
-
-        }
-
+      
         foreach (var stack in customer.foodStacks)
         {
             FoodStackManager.FM.RemoveFoodStack(stack);
