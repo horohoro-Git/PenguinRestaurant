@@ -202,6 +202,12 @@ public class FishingManager : MonoBehaviour
             }
         }
         FishCount = fishing.fishNum;
+
+        if (!working)
+        {
+            if (spawnCoroutine != null) StopCoroutine(spawnCoroutine);
+            spawnCoroutine = StartCoroutine(SpawningFishes());
+        }
     }
     public void StartFishing()
     {

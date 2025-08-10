@@ -9,19 +9,21 @@ Shader "URP/SoftSurface"
     }
     SubShader
     {
-        Tags { "RenderType" = "Opaque" "Queue" = "Geometry" }
+        Tags { "RenderType" = "Opaque" "Queue" = "Geometry+1" }
         LOD 100
-
+      
         Pass
         {
             Name "ForwardLit"
             Tags { "LightMode" = "UniversalForward" }
-
+            ZWrite On 
+            ZTest LEqual 
+           
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-
+         
             struct Attributes
             {
                 float4 positionOS : POSITION;
@@ -60,3 +62,4 @@ Shader "URP/SoftSurface"
     }
     FallBack "Diffuse"
 }
+

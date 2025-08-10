@@ -198,7 +198,7 @@ public class RestaurantManager : MonoBehaviour
 
 
        // restaurantCurrency.fishes += 100;
-     //   restaurantCurrency.Money += BigInteger.Parse("316000");// 10000;
+        restaurantCurrency.Money += BigInteger.Parse("316000");// 10000;
 
         moneyString = Utility.GetFormattedMoney(restaurantCurrency.Money, moneyString);
         GameInstance.GameIns.uiManager.moneyText.text = moneyString.ToString();
@@ -768,7 +768,7 @@ public class RestaurantManager : MonoBehaviour
                     case MiniGameType.Fishing:
                         GameIns.fishingManager.LoadStatus(miniGame.fishing);
                         GameIns.uiManager.fishingBtn.gameObject.SetActive(true);
-                        //     OpenMiniGame(MiniGameType.Fishing);
+                             //OpenMiniGame(MiniGameType.Fishing);
                         break;
                 }
             }

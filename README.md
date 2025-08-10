@@ -83,4 +83,5 @@ Animal Restaurant Tycoon Game
 08/07 Control Android toast messages and disable back button functionality during initial game loading
 08/08 Update settings UI for sound and haptic feedback
 08/09 Added BGM toggle, haptic feedback for in-game actions, and saving of game settings data
+08/10 Adjusted employee experience values and recruitment costs, and fixed an issue where fish in the river below the fishing spot were not visible
 

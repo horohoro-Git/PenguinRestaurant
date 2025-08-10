@@ -109,6 +109,7 @@ public class AnimalSpawner : MonoBehaviour
                                     foodsAnimalsWant.coke = coke;
                                     foodsAnimalsWant.spawnerType = SpawnerType.FastFood;
                                     Customer ac = animalManager.SpawnCustomer(foodsAnimalsWant);
+                                    
                                     ac.animalSpawner = this;
                                     ac.animalPersonality = (AnimalPersonality)Random.Range(0, 7);
 

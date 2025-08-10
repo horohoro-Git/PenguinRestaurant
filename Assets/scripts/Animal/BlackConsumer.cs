@@ -383,7 +383,9 @@ public class BlackConsumer : AnimalController
     {
         try
         {
+#if UNITY_ANDROID || UNITY_IOS
             if (App.gameSettings.hapticFeedback) Handheld.Vibrate();
+#endif 
             StartStealFood:
            
             if(!targetTable.placed || targetTable.seats[seatIndex].isDisEnabled || targetTable.disableNum == 3) 
@@ -733,7 +735,9 @@ public class BlackConsumer : AnimalController
     {
         if (!bDead)
         {
+#if UNITY_ANDROID || UNITY_IOS
             if (App.gameSettings.hapticFeedback) Handheld.Vibrate();
+#endif
             particles.Play();
             hitAudio.clip = GameIns.gameSoundManager.Hit();
             hitAudio.volume = 0.2f;

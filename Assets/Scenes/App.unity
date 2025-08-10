@@ -275,6 +275,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd1f8e2184c6c134e9dc8f98407faaa6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentPlayingAudioSouces: []
   min: 5
   max: 10
 --- !u!4 &1987897595
@@ -337,6 +338,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0dc2eb41b282f0144ae06d25d80aae66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentPlayingAudioSouces: []
   min: 5
   max: 5
   bgmSoundKey: b0e20d0088bf0d0004bc0d00aabb0d00

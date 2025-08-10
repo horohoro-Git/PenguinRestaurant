@@ -2838,7 +2838,7 @@ public class Employee : AnimalController
         EXP = employeeLevelData.level == 10 ? 0 : EXP - employeeLevelData.targetEXP;
         //     employeeLevel = AssetLoader.employees_levels[employeeLevelData.level];
         EmployeeLevelStruct es = AssetLoader.employees_levels[0];
-        employeeLevelData.targetEXP = (int)(es.exp + Mathf.FloorToInt(Mathf.Pow(employeeLevelData.level - 1, es.increase_exp_pow)) * es.increase_exp_mul);
+        employeeLevelData.targetEXP = (int)(es.exp + Mathf.FloorToInt(Mathf.Pow(employeeLevelData.level, es.increase_exp_pow)) * es.increase_exp_mul);
 
         employeeLevelData.max_weight = es.max_weight + Mathf.FloorToInt((employeeLevelData.level - 1) / 2);
         employeeLevelData.speed = es.move_speed + (employeeLevelData.level - 1) * 0.2f;
