@@ -13,6 +13,8 @@ using Vector3 = UnityEngine.Vector3;
 using Quaternion = UnityEngine.Quaternion;
 using System.Text;
 using Unity.VisualScripting;
+using System;
+using Random = UnityEngine.Random;
 public class GatcharManager : MonoBehaviour
 {
 
@@ -75,7 +77,7 @@ public class GatcharManager : MonoBehaviour
     CancellationTokenSource emotionToken = new CancellationTokenSource();
     StringBuilder sb = new StringBuilder();
     Coroutine autoGatcha;
-    bool autoPlaying;
+    [NonSerialized] public bool autoPlaying;
     private void Awake()
     {
   //      t = cts.Token;
@@ -219,6 +221,10 @@ public class GatcharManager : MonoBehaviour
                 autoPlaying = true;
                 autoGatcha = StartCoroutine(AutoGatcha());
             }
+            else
+            {
+                autoPlaying = false;
+            }
         }
         else
         {
@@ -257,6 +263,11 @@ public class GatcharManager : MonoBehaviour
             {
                 success = CheckSuccess(pair.Key);
              
+                if (!success)
+                {
+                    //Debug.Log("Already Max Grade");
+                    return PlayingGatcha();
+                }
                 CheckGameClear();
                 break;
             }
@@ -337,14 +348,14 @@ public class GatcharManager : MonoBehaviour
 
         AnimalManager.gatchaValues = 100 + 10 * animalsNum + 5 * totalTier;
 
-        gatchaPrice = 100 + Mathf.FloorToInt(Mathf.Pow((num - 1), 1.6f)) * 15;
+        gatchaPrice = 100 + Mathf.FloorToInt(Mathf.Pow((num - 1), 2.8f)) * 25;
         sb = Utility.GetFormattedMoney(gatchaPrice, sb);
         GameInstance.GameIns.uiManager.drawPriceText.text = sb.ToString();
 
         gatchaPrice = Utility.StringToBigInteger(sb.ToString());
       
     }
-    public bool CheckSuccess(int key)
+    public bool CheckSuccess(int key)   
     {
         if (AnimalManager.gatchaTiers.ContainsKey(key))
         {
@@ -358,7 +369,7 @@ public class GatcharManager : MonoBehaviour
                 SaveLoadSystem.SaveGatchaAnimalsData();
                 return true;
             }
-            else
+          /*  else
             {
                 (int, List<int>) tmp = AnimalManager.gatchaTiers[key];
                 int r = Random.Range(0, 7);
@@ -368,7 +379,7 @@ public class GatcharManager : MonoBehaviour
                     AnimalManager.gatchaTiers[key] = tmp;
                     SaveLoadSystem.SaveGatchaAnimalsData();
                 }
-            }
+            }*/
 
             return false;
         }

@@ -1,4 +1,4 @@
-﻿Shader "Toon/SoftSurface"
+﻿Shader "Toon/SoftSurfaces"
 {
     Properties
     {

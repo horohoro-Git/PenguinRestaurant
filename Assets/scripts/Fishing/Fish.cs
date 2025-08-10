@@ -99,6 +99,7 @@ public class Fish : Animal
             e.image.sprite = GameInstance.GameIns.restaurantManager.emoteSprites[4004];
             e.Emotion();
         }
+        modelAnimator.SetTrigger(AnimationKeys.Dead);
         float randomTimer = Random.Range(0.5f, 2f);
         yield return new WaitForSecondsRealtime(randomTimer);
 

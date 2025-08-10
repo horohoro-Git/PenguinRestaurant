@@ -206,7 +206,9 @@ public class PlaceController : MonoBehaviour
             if (!purchasedObject)
             {
                 storeGoods.Purchase();
+#if UNITY_ANDROID || UNITY_IOS
                 if(App.gameSettings.hapticFeedback) Handheld.Vibrate();
+#endif
             }
             storeGoods.RemoveGoodsPreview();
 

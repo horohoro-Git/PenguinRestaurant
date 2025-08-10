@@ -562,8 +562,8 @@ public class Customer : AnimalController
 
                 int r = Random.Range(0, GameInstance.GameIns.restaurantManager.restaurantCurrency.minigameStack);
 
-                //if(r > 50)
-                if(r > 0)
+                //if(r > 0)
+                if(r > 50)
                 {
                     GameInstance.GameIns.restaurantManager.restaurantCurrency.minigameStack = 0;
                     GameInstance.GameIns.restaurantManager.miniGame.activate = true;

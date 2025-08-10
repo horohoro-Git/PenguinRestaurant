@@ -466,6 +466,7 @@ public class App : MonoBehaviour
         GameInstance.GameIns.gatcharManager.virtualCamera2.Priority = 0;
         GameInstance.GameIns.gatcharManager.virtualCamera3.Priority = 0;
         GameInstance.GameIns.gatcharManager.virtualCamera4.Priority = 0;
+        GameInstance.GameIns.gatcharManager.autoPlaying = false;    
         //   Utility.CheckHirable(GameInstance.GameIns.inputManager.cameraRange.position, ref i, ref j);
         //   StartCoroutine(OrthographicNextFrame());
     }
@@ -512,6 +513,8 @@ public class App : MonoBehaviour
         if(currentScene == SceneState.Fishing) return;
         if(currentScene == SceneState.Restaurant) pos = GameInstance.GameIns.inputManager.cameraTrans.position;
         currentScene = SceneState.Fishing;
+
+        GameInstance.GameIns.gatcharManager.autoPlaying = false;
         GameInstance.GameIns.bgMSoundManager.BGMChange(900010, 0.2f);
         GameInstance.GameIns.inputManager.InputDisAble = true;
         Time.timeScale = 1;
