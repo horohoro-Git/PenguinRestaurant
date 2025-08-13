@@ -1321,5 +1321,58 @@ public class SaveLoadSystem
             File.WriteAllBytes(p, ms.ToArray());
         }
     }
+
+
+    public static void SaveTutorialData(Tutorials tutorials)
+    {
+        string dir = Path.Combine(path, "Save");
+        if (!Directory.Exists(dir))
+        {
+            Directory.CreateDirectory(dir);
+        }
+
+        string p = Path.Combine(path, "Save/TutorialGuide.dat");
+        using (MemoryStream ms = new MemoryStream())
+        {
+            using (BinaryWriter writer = new BinaryWriter(ms))
+            {
+                writer.Write(tutorials.id);
+                writer.Write(tutorials.worked);
+            
+                File.WriteAllBytes(p, ms.ToArray());
+
+            }
+        }
+    }
+
+    //레스토랑 로드
+    public static Tutorials LoadTutorialData()
+    {
+        Tutorials tuto = null;
+        string p = Path.Combine(path, "Save/TutorialGuide.dat");
+        byte[] data;
+        if (File.Exists(p))
+        {
+            using (FileStream fs = new FileStream(p, FileMode.Open))
+            {
+                data = new byte[fs.Length];
+                fs.Read(data, 0, data.Length);
+
+                using (BinaryReader reader = new BinaryReader(new MemoryStream(data)))
+                {
+                    int id = reader.ReadInt32();
+                    bool worked = reader.ReadBoolean();
+
+                    tuto = new Tutorials(id, worked);
+                }
+            }
+        }
+        else
+        {
+            tuto = new Tutorials(0, true);
+            SaveTutorialData(tuto);
+        }
+        return tuto;
+    }
 }
          

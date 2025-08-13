@@ -233,6 +233,14 @@ public struct MapContent
     public int id;
     public string map_name;
 }
+
+public struct TutorialStruct
+{
+    public int id;
+    public int image_id;
+    public int text_id;
+}
+
 public struct PlayerStruct
 {
     public int level;
