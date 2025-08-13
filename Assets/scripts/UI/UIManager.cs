@@ -36,7 +36,10 @@ public class UIManager : MonoBehaviour
     public TMP_Text reputation;
     public GameObject animalGuide;
     public Image fadeImage;
-
+    public RectTransform tutorialBorder;
+    public Image tutorialImage;
+    public TMP_Text tutorialText;
+    public Button tutoBtn;
 
     public GraphicRaycaster graphicRaycaster;
 
@@ -191,6 +194,28 @@ public class UIManager : MonoBehaviour
         worldBtn.onClick.AddListener(() =>
         {
             UIClick();
+        });
+
+
+        tutoBtn.onClick.AddListener(() =>
+        {
+            if (GameIns.restaurantManager != null)
+            {
+                if (GameIns.restaurantManager.tutorials.worked)
+                {
+                   
+                    GameIns.restaurantManager.tutorials.count++;
+                    if (GameIns.restaurantManager.tutorials.count == GameIns.restaurantManager.tutorialStructs[GameIns.restaurantManager.tutorials.id].Count)
+                    {
+                        GameIns.restaurantManager.tutorials.worked = false;
+                    }
+                    TutorialStart(GameIns.restaurantManager.tutorials.id, GameIns.restaurantManager.tutorials.count, GameIns.restaurantManager.tutorialStructs[GameIns.restaurantManager.tutorials.id].Count);
+                }
+                else
+                {
+                    TutorialEnd(GameIns.restaurantManager.tutorials.id);
+                }
+            }
         });
     }
 
@@ -413,5 +438,74 @@ public class UIManager : MonoBehaviour
     {
    
         SoundManager.Instance.PlayAudio(GameIns.uISoundManager.UIClick(), 0.1f);
+    }
+
+
+    Coroutine tuto;
+    public void TutorialStart(int id, int c, int max)
+    {
+        if (tuto != null) StopCoroutine(tuto);
+    
+        tuto = StartCoroutine(ShowTutorial(id, c, max));
+    }
+    public void TutorialEnd(int id)
+    {
+        if (tuto != null) StopCoroutine(tuto);
+
+        tuto = StartCoroutine(HideTutorial(id));
+    }
+    IEnumerator ShowTutorial(int id, int c, int max)
+    {
+
+        tutorialImage.sprite = loadedSprites[spriteAssetKeys[GameIns.restaurantManager.tutorialStructs[id][c].image_id].str];
+        Vector2 targetPos = new Vector2(-280, 1300);
+        Vector2 startPos = new Vector2(280, 1300);
+        if (tutorialBorder.anchoredPosition != targetPos)
+        {
+            float f = 0;
+            while (f <= 1)
+            {
+                Vector3 pos = Vector3.Lerp(startPos, targetPos, f);
+                tutorialBorder.anchoredPosition = pos;
+                f += Time.unscaledDeltaTime / 0.5f;
+                yield return null;
+            }
+        }
+        tutorialBorder.anchoredPosition = targetPos;
+
+        yield return new WaitForSecondsRealtime(0.2f);
+
+        tutoBtn.interactable = true;
+
+        string str = "";
+        string res = App.languages[GameIns.restaurantManager.tutorialStructs[id][c].text_id].text;
+        int count = 0;
+        tutorialText.text = str;
+        while (count != res.Length)
+        {
+            str += res[count];
+            tutorialText.text = str;
+            count++;
+
+            yield return new WaitForSecondsRealtime(0.02f);
+        }
+    }
+    IEnumerator HideTutorial(int id)
+    {
+        Vector3 startPos = new Vector3(-280, 1300, 0);
+        Vector3 targetPos = new Vector3(280, 1300, 0);
+
+        if (tutorialBorder.position != targetPos)
+        {
+            float f = 0;
+            while (f <= 1)
+            {
+                Vector3 pos = Vector3.Lerp(startPos, targetPos, f);
+                tutorialBorder.position = pos;
+                f += Time.unscaledDeltaTime / 0.5f;
+                yield return null;
+            }
+        }
+        tutorialBorder.position = targetPos;
     }
 }

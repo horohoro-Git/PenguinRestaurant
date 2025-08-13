@@ -98,6 +98,9 @@ public class RestaurantManager : MonoBehaviour
     public RectTransform fishIconCanvas;
 
     public ChangableWall[] changableWalls;
+
+    public Tutorials tutorials;
+    public Dictionary<int, List<TutorialStruct>> tutorialStructs = new();
     private void Awake()
     {
         moneyChangedSoundKey = 100011;
@@ -117,31 +120,24 @@ public class RestaurantManager : MonoBehaviour
         emoteObjects.name = "emotes";
         trayObjects.transform.position = Vector3.zero;
         GameInstance.GameIns.restaurantManager = this;
-        /*   var burgerupgrade_resources = Resources.Load<TextAsset>("burger_upgrade_table");
 
-           // List<MachineData> burgerdata = JsonConvert.DeserializeObject<List<MachineData>>(burgerupgrade_resources.text);
-           List<MachineData> burgerdata = JsonConvert.DeserializeObject<List<MachineData>>(burgerupgrade_resources.text);
-           upgradeMachineDic.Add(FoodMachine.MachineType.BurgerMachine, burgerdata);
+        string s = Resources.Load<TextAsset>("Tutorial").text;
+        List<TutorialStruct> tutoStructs = JsonConvert.DeserializeObject<List<TutorialStruct>>(s);
 
-           var cokeupgrade_resources = Resources.Load<TextAsset>("coke_upgrade_table");
-           List<MachineData> cokedata = JsonConvert.DeserializeObject<List<MachineData>>(cokeupgrade_resources.text);
-           upgradeMachineDic.Add(FoodMachine.MachineType.CokeMachine, cokedata);
-
-           var coffeeupgrade_resources = Resources.Load<TextAsset>("coffee_upgrade_table");
-           List<MachineData> coffeedata = JsonConvert.DeserializeObject<List<MachineData>>(coffeeupgrade_resources.text);
-           upgradeMachineDic.Add(FoodMachine.MachineType.CoffeeMachine, coffeedata);
-
-           var donutupgrade_resources = Resources.Load<TextAsset>("donut_upgrade_table");
-           List<MachineData> donutdata = JsonConvert.DeserializeObject<List<MachineData>>(donutupgrade_resources.text);
-           upgradeMachineDic.Add(FoodMachine.MachineType.DonutMachine, donutdata);
-
-           var employeeupgrade_resources = Resources.Load<TextAsset>("employee_upgrade_table");
-           employeeDatas = JsonConvert.DeserializeObject<List<EmployeeData>>(employeeupgrade_resources.text);
-
-           GameInstance.GameIns.restaurantManager = this;
-           combineDatas = SaveLoadManager.LoadGame();
-   */
-
+        for(int i=0; i< tutoStructs.Count; i++)
+        {
+            if (tutorialStructs.ContainsKey(tutoStructs[i].id))
+            {
+                tutorialStructs[tutoStructs[i].id].Add(tutoStructs[i]);
+            }
+            else
+            {
+                tutorialStructs[tutoStructs[i].id] = new()
+                {
+                    tutoStructs[i]
+                };
+            }
+        }
         //combineDatas.playerData.money = 100000; //테스트 용
 
       //  playerData = 
@@ -194,7 +190,7 @@ public class RestaurantManager : MonoBehaviour
         employees = SaveLoadSystem.LoadEmployees();
         miniGame = SaveLoadSystem.LoadMiniGameStatus();
         trashData = SaveLoadSystem.LoadTrashData();
-
+        tutorials = SaveLoadSystem.LoadTutorialData();
 
 
        // restaurantCurrency.fishes += 100;
@@ -868,6 +864,14 @@ public class RestaurantManager : MonoBehaviour
                   }
       */
             GameInstance.GameIns.applianceUIManager.UnlockHire(true);
+            
+            //튜토리얼
+            if(tutorials.worked)
+            {
+                TutorialAsync(cancellationToken).Forget();
+               
+            }
+
         }
         catch (Exception ex)
         {
@@ -875,6 +879,13 @@ public class RestaurantManager : MonoBehaviour
         }
     }
 
+    async UniTask TutorialAsync(CancellationToken cancellationToken)
+    {
+        await UniTask.Delay(5000, cancellationToken: cancellationToken);
+        GameIns.uiManager.TutorialStart(tutorials.id, tutorials.count, tutorialStructs[tutorials.id].Count);
+       
+       
+    }
 
     public void TableUpdate(List<Table> tableList)
     {
