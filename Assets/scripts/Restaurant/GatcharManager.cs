@@ -231,47 +231,64 @@ public class GatcharManager : MonoBehaviour
             GameInstance.GameIns.uiManager.autoDrawText.gameObject.SetActive(false);
             if (isSpawning) return;
             if (!Purchase()) return;
+
+            if (RestaurantManager.tutorialKeys.Contains(3000))
+            {
+                GameInstance.GameIns.uiManager.tutoText2.gameObject.SetActive(false);
+                GameInstance.GameIns.uiManager.TutorialEnd(true);
+            }
             PlayingGatcha();
         }
     }
 
     bool PlayingGatcha()
     {
+    
         randomAnimalKey.Clear();
-        switch (mapType)
-        {
-            case MapType.town:
-                for (int i = 0; i < 3; i++)
-                {
-                    int r = UnityEngine.Random.Range(100, 106);
-                    if (!randomAnimalKey.ContainsKey(r))
-                    {
-                        randomAnimalKey[r] = 1;
-                    }
-                    else
-                    {
-                        randomAnimalKey[r]++;
-                    }
-                }
-                break;
-        }
-
         bool success = false;
-        foreach (var pair in randomAnimalKey)
+        if (RestaurantManager.tutorialKeys.Contains(3000))
         {
-            if (pair.Value == 3)
+            randomAnimalKey[100] = 3;
+            success = CheckSuccess(100, 0);
+        }
+        else
+        {
+            switch (mapType)
             {
-                success = CheckSuccess(pair.Key);
-             
-                if (!success)
+                case MapType.town:
+                    for (int i = 0; i < 3; i++)
+                    {
+                        int r = UnityEngine.Random.Range(100, 106);
+                        if (!randomAnimalKey.ContainsKey(r))
+                        {
+                            randomAnimalKey[r] = 1;
+                        }
+                        else
+                        {
+                            randomAnimalKey[r]++;
+                        }
+                    }
+                    break;
+            }
+
+            foreach (var pair in randomAnimalKey)
+            {
+                if (pair.Value == 3)
                 {
-                    //Debug.Log("Already Max Grade");
-                    return PlayingGatcha();
+                    success = CheckSuccess(pair.Key);
+
+                    if (!success)
+                    {
+                        //Debug.Log("Already Max Grade");
+                        return PlayingGatcha();
+                    }
+                    CheckGameClear();
+                    break;
                 }
-                CheckGameClear();
-                break;
             }
         }
+      
+      
 
         if(!autoPlaying) GameInstance.GameIns.uiManager.drawBtn.gameObject.SetActive(false);
         ClearRollings();
@@ -300,6 +317,7 @@ public class GatcharManager : MonoBehaviour
         if (success)
         {
             SetPrice();
+            
         }
 
         return success;
@@ -347,15 +365,15 @@ public class GatcharManager : MonoBehaviour
         }
 
         AnimalManager.gatchaValues = 100 + 10 * animalsNum + 5 * totalTier;
-
-        gatchaPrice = 100 + Mathf.FloorToInt(Mathf.Pow((num - 1), 2.8f)) * 25;
+        if(num > 0) gatchaPrice = 100 + Mathf.FloorToInt(Mathf.Pow((num - 1), 2.8f)) * 25;
+        else gatchaPrice = 0;
         sb = Utility.GetFormattedMoney(gatchaPrice, sb);
         GameInstance.GameIns.uiManager.drawPriceText.text = sb.ToString();
 
         gatchaPrice = Utility.StringToBigInteger(sb.ToString());
       
     }
-    public bool CheckSuccess(int key)   
+    public bool CheckSuccess(int key, int randomKey = -1)   
     {
         if (AnimalManager.gatchaTiers.ContainsKey(key))
         {
@@ -363,7 +381,10 @@ public class GatcharManager : MonoBehaviour
             {
                 (int, List<int>) tmp = AnimalManager.gatchaTiers[key];
                 tmp.Item1++;
-                int r = Random.Range(0, 7);
+
+                int r = 0;
+                if (randomKey == -1) r = Random.Range(0, 7);
+                else r = randomKey;
                 tmp.Item2[r] = 1;
                 AnimalManager.gatchaTiers[key] = tmp;
                 SaveLoadSystem.SaveGatchaAnimalsData();
@@ -395,6 +416,13 @@ public class GatcharManager : MonoBehaviour
             AnimalStruct asset = AssetLoader.animals[key];
             AnimalManager.animalStructs[key] = asset;
             SaveLoadSystem.SaveGatchaAnimalsData();
+
+            if (RestaurantManager.tutorialKeys.Contains(3000))
+            {
+                GameInstance.GameIns.restaurantManager.tutorials.id = 5;
+                GameInstance.GameIns.restaurantManager.tutorials.count = 0;
+                GameInstance.GameIns.restaurantManager.tutorials.worked = false;
+            }
             return true;
         }
     }
@@ -543,6 +571,12 @@ public class GatcharManager : MonoBehaviour
         await UniTask.Delay(200, DelayType.UnscaledDeltaTime, cancellationToken: cancellationToken);
         CheckGatchaAnimals(success);
         isSpawning = false;
+
+
+        if (RestaurantManager.tutorialKeys.Contains(3000))
+        {
+            ((Action<int>)EventManager.Publish(-1, true))?.Invoke(3000);
+        }
         if (App.currentScene == SceneState.Draw && !CheckCompleteGatcha())
         {
             if(!GameInstance.GameIns.uiManager.drawBtn.gameObject.activeSelf) GameInstance.GameIns.uiManager.drawBtn.gameObject.SetActive(true);
@@ -709,6 +743,7 @@ public class GatcharManager : MonoBehaviour
         yield return new WaitForSecondsRealtime(0.2f);
         CheckGatchaAnimals(true);
         isSpawning = false;
+        
         if (App.currentScene == SceneState.Draw) GameInstance.GameIns.uiManager.drawBtn.gameObject.SetActive(true);
     }
 

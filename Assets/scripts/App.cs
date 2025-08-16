@@ -17,6 +17,7 @@ using UnityEngine.InputSystem;
 using UnityEditor;
 using UnityEngine.InputSystem.EnhancedTouch;
 using AnimationInstancing;
+using Unity.Collections.LowLevel.Unsafe;
 
 public enum SceneState
 {
@@ -67,7 +68,6 @@ public class App : MonoBehaviour
         bundleCheck = SaveLoadSystem.LoadDownloadedData();
         cachedData = SaveLoadSystem.LoadCachedDownloadedData();
         
-
         //언어 설정
         TextAsset lang = null;
         if (gameSettings.language == Language.KOR) lang = Resources.Load<TextAsset>("language_kor");
@@ -446,7 +446,8 @@ public class App : MonoBehaviour
         restaurantTimeScale = 1;
         Time.timeScale = 1;
         Time.fixedDeltaTime = 0.02f;
-//        InputManger.cachingCamera.enabled = false;
+        ((Action<int>)EventManager.Publish(-1, true)).Invoke(4000);
+        //        InputManger.cachingCamera.enabled = false;
         GameInstance.GameIns.playerCamera.brain.enabled = false;
         
         GameInstance.GameIns.inputManager.cameraTrans.position = pos;
@@ -477,6 +478,7 @@ public class App : MonoBehaviour
         if (currentScene == SceneState.Draw) return;
         if(currentScene == SceneState.Restaurant) pos = GameInstance.GameIns.inputManager.cameraTrans.position;
         currentScene = SceneState.Draw;
+        ((Action<int>)EventManager.Publish(-1, true)).Invoke(2000);
         GameInstance.GameIns.bgMSoundManager.BGMChange(900100, 0.2f);
       //  GameInstance.GameIns.inputManager.DragScreen_WindowEditor(true);
         GameInstance.GameIns.inputManager.InputDisAble = true;

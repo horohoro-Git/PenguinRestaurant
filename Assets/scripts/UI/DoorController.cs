@@ -175,7 +175,7 @@ public class DoorController : MonoBehaviour
                 materials[i] = door.doorMat[i];
             }
             meshRenderer.materials = materials;
-            GameInstance.GameIns.restaurantManager.ApplyPlaced(door);
+            GameInstance.GameIns.restaurantManager.ApplyPlaced(door, null, false);
 
             SaveLoadSystem.SaveRestaurantBuildingData();
             

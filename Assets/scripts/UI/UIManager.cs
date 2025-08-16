@@ -2,6 +2,7 @@
 using Cysharp.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -38,8 +39,12 @@ public class UIManager : MonoBehaviour
     public Image fadeImage;
     public RectTransform tutorialBorder;
     public Image tutorialImage;
+    public RectTransform chatBorder;
+    public Image tutorialChatImage;
     public TMP_Text tutorialText;
     public Button tutoBtn;
+    public TMP_Text tutoBtn_Text;
+    public TMP_Text tutoText2;
 
     public GraphicRaycaster graphicRaycaster;
 
@@ -91,7 +96,8 @@ public class UIManager : MonoBehaviour
         animalGuideButton.onClick.AddListener(() =>
         {
             UIClick();
-          
+
+           
             if (bGuideOn)
             {
 
@@ -122,6 +128,7 @@ public class UIManager : MonoBehaviour
         changeScene.onClick.AddListener(() =>
         {
             UIClick();
+            if (GameIns.gatcharManager.isSpawning) return;
             switch (App.currentScene)
             {
                 case SceneState.Restaurant:
@@ -204,16 +211,23 @@ public class UIManager : MonoBehaviour
                 if (GameIns.restaurantManager.tutorials.worked)
                 {
                    
-                    GameIns.restaurantManager.tutorials.count++;
-                    if (GameIns.restaurantManager.tutorials.count == GameIns.restaurantManager.tutorialStructs[GameIns.restaurantManager.tutorials.id].Count)
+
+                    if (GameIns.restaurantManager.tutorials.count + 1 == GameIns.restaurantManager.tutorialStructs[GameIns.restaurantManager.tutorials.id].Count)
                     {
                         GameIns.restaurantManager.tutorials.worked = false;
+                        Tutorials.Setup(GameIns.restaurantManager.tutorials);
                     }
+                    else
+                    {
+
+                    }
+                    Debug.Log(GameIns.restaurantManager.tutorials.count + " " + GameIns.restaurantManager.tutorialStructs[GameIns.restaurantManager.tutorials.id].Count);
                     TutorialStart(GameIns.restaurantManager.tutorials.id, GameIns.restaurantManager.tutorials.count, GameIns.restaurantManager.tutorialStructs[GameIns.restaurantManager.tutorials.id].Count);
+                    GameIns.restaurantManager.tutorials.count++;
                 }
                 else
                 {
-                    TutorialEnd(GameIns.restaurantManager.tutorials.id);
+                    TutorialEnd(false);
                 }
             }
         });
@@ -444,30 +458,78 @@ public class UIManager : MonoBehaviour
     Coroutine tuto;
     public void TutorialStart(int id, int c, int max)
     {
+        tutorialText.gameObject.SetActive(false);
+        tutorialText.text = "";
+        tutorialText.ForceMeshUpdate();
         if (tuto != null) StopCoroutine(tuto);
-    
+        if (c + 1 == max)
+        {
+            tutoBtn_Text.text = App.languages[91002].text;
+            tutoBtn_Text.GetComponent<LanguageText>().id = 91002;
+        }
+        else
+        {
+            tutoBtn_Text.text = App.languages[91001].text;
+            tutoBtn_Text.GetComponent<LanguageText>().id = 91001;
+        }
         tuto = StartCoroutine(ShowTutorial(id, c, max));
     }
-    public void TutorialEnd(int id)
+    public void TutorialEnd(bool hideText)
     {
         if (tuto != null) StopCoroutine(tuto);
 
-        tuto = StartCoroutine(HideTutorial(id));
+        tuto = StartCoroutine(HideTutorial(hideText));
     }
     IEnumerator ShowTutorial(int id, int c, int max)
     {
+   
+        if (!tutorialText.gameObject.activeSelf) tutorialText.gameObject.SetActive(true);
 
+        string res = App.languages[GameIns.restaurantManager.tutorialStructs[id][c].text_id].text;
+        tutorialText.GetComponent<LanguageText>().id = GameIns.restaurantManager.tutorialStructs[id][c].text_id;
+        tutorialText.text = res;
+
+     //   yield return null;
+        tutorialText.ForceMeshUpdate();
+        TMP_TextInfo info = tutorialText.textInfo;
+        int b = info.lineCount;
+    
+        tutorialText.maxVisibleCharacters = 0;
+        int total = tutorialText.textInfo.characterCount;
+
+
+        tutorialText.UpdateVertexData(TMP_VertexDataUpdateFlags.Colors32);
+       
         tutorialImage.sprite = loadedSprites[spriteAssetKeys[GameIns.restaurantManager.tutorialStructs[id][c].image_id].str];
-        Vector2 targetPos = new Vector2(-280, 1300);
-        Vector2 startPos = new Vector2(280, 1300);
+        RectTransform tutorialImageRect = tutorialChatImage.rectTransform;
+        Vector2 rectPos = new(0, -120);
+        Vector2 rectPos2 = new(0, -300);
+        Vector2 rectScale = new(600, 400);
+        if(b > 3)
+        {
+            float t = (b - 3) / 6f;
+            float y = Mathf.Lerp(-120, -220, t);
+            rectPos.y = y;
+            float y2 = Mathf.Lerp(-300, -400, t);
+            rectPos2.y = y2;
+
+            float ys = Mathf.Lerp(400, 600, t);
+            rectScale.y = ys;
+        }
+        tutorialImageRect.anchoredPosition = rectPos;
+        tutorialImageRect.sizeDelta = rectScale;
+        tutoBtn.GetComponent<RectTransform>().anchoredPosition = rectPos2;
+
+        Vector2 targetPos = new(-280, 1300);
+        Vector2 startPos = new(280, 1300);
         if (tutorialBorder.anchoredPosition != targetPos)
         {
             float f = 0;
             while (f <= 1)
             {
-                Vector3 pos = Vector3.Lerp(startPos, targetPos, f);
+                Vector2 pos = Vector2.Lerp(startPos, targetPos, f);
                 tutorialBorder.anchoredPosition = pos;
-                f += Time.unscaledDeltaTime / 0.5f;
+                f += Time.unscaledDeltaTime / 0.3f;
                 yield return null;
             }
         }
@@ -475,37 +537,42 @@ public class UIManager : MonoBehaviour
 
         yield return new WaitForSecondsRealtime(0.2f);
 
-        tutoBtn.interactable = true;
+        tutorialChatImage.gameObject.SetActive(true);
+        tutoBtn.gameObject.SetActive(true);
 
-        string str = "";
-        string res = App.languages[GameIns.restaurantManager.tutorialStructs[id][c].text_id].text;
-        int count = 0;
-        tutorialText.text = str;
-        while (count != res.Length)
+        for (int i = 0; i < total; i++)
         {
-            str += res[count];
-            tutorialText.text = str;
-            count++;
-
-            yield return new WaitForSecondsRealtime(0.02f);
+            tutorialText.maxVisibleCharacters = i + 1;
+            yield return new WaitForSecondsRealtime(0.01f);
         }
+     
     }
-    IEnumerator HideTutorial(int id)
+    IEnumerator HideTutorial(bool hideText)
     {
-        Vector3 startPos = new Vector3(-280, 1300, 0);
-        Vector3 targetPos = new Vector3(280, 1300, 0);
+       // tutoText2.gameObject.SetActive(true);
+    //    tutoText2.text = App.languages[id].text;
 
-        if (tutorialBorder.position != targetPos)
+        tutorialText.text = "";
+        tutoBtn.gameObject.SetActive(false);
+        tutorialChatImage.gameObject.SetActive(false);
+        tutorialText.gameObject.SetActive(false);
+        Vector2 startPos = new(-280, 1300);
+        Vector2 targetPos = new(280, 1300);
+
+        if (tutorialBorder.anchoredPosition != targetPos)
         {
             float f = 0;
             while (f <= 1)
             {
-                Vector3 pos = Vector3.Lerp(startPos, targetPos, f);
-                tutorialBorder.position = pos;
+                Vector2 pos = Vector2.Lerp(startPos, targetPos, f);
+                tutorialBorder.anchoredPosition = pos;
                 f += Time.unscaledDeltaTime / 0.5f;
                 yield return null;
             }
         }
-        tutorialBorder.position = targetPos;
+        tutorialBorder.anchoredPosition = targetPos;
+
+
+        tutoText2.gameObject.SetActive(!hideText);
     }
 }

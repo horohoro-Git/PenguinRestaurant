@@ -297,16 +297,17 @@ public class SaveLoadSystem
         {
             // AnimalStruct animalStruct = AssetLoader.animals[100];
             animalsDic[10] = AssetLoader.animals[10];
-            AnimalStruct animStruct = AssetLoader.animals[100];
-            List<int> personalities = new List<int>();
-            personalities.Add(1);
-            for (int i = 0; i < 3; i++)
-            {
-                personalities.Add(0);
-            }
-            animStruct.personalities = personalities;
+            /*   animalsDic[10] = AssetLoader.animals[10];
+               AnimalStruct animStruct = AssetLoader.animals[100];
+               List<int> personalities = new List<int>();
+               personalities.Add(1);
+               for (int i = 0; i < 3; i++)
+               {
+                   personalities.Add(0);
+               }
+               animStruct.personalities = personalities;
 
-            animalsDic[100] = animStruct;
+               animalsDic[100] = animStruct;*/
 
             //  Debug.Log("No player data found. Creating new data." + animalStruct.asset_name);
         }
@@ -484,13 +485,13 @@ public class SaveLoadSystem
         }
         else
         {
-            List<int> personalities = new List<int>();
-            personalities.Add(1);
-            for (int i = 0; i < 6; i++)
+          //  List<int> personalities = new List<int>();
+          //  personalities.Add(1);
+          /*  for (int i = 0; i < 7; i++)
             {
                 personalities.Add(0);
-            }
-            animals[100] = (1, personalities);
+            }*/
+          //  animals[100] = (1, personalities);
         }
         return animals;
     }
