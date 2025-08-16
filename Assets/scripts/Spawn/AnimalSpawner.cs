@@ -81,11 +81,25 @@ public class AnimalSpawner : MonoBehaviour
                 }
                 await UniTask.NextFrame(cancellationToken: cancellationToken);
             }
+
+            while(RestaurantManager.tutorialKeys.Contains(5000))
+            {
+                await UniTask.NextFrame(cancellationToken:cancellationToken);
+            }
+          
             RestaurantManager.spawnerNum += 1;
             GameInstance.GameIns.restaurantManager.CalculateSpawnTimer();
             await UniTask.Delay(3000, cancellationToken: cancellationToken);
             while (true)
             {
+                if(AnimalManager.animalStructs.Count <= 1)
+                {
+                    Debug.Log("No Animal");
+
+                    await UniTask.Delay(500, cancellationToken: cancellationToken);
+
+                    continue;
+                }
                 // Debug.Log(GameInstance.GameIns.restaurantManager.GetRestaurantValue());
                 WorkSpaceManager workSpaceManager = gameInstance.workSpaceManager;
 
@@ -311,5 +325,58 @@ public class AnimalSpawner : MonoBehaviour
             if (rand == 1 || rand == 2) foodB = true;
 
         }
+    }
+
+    public async UniTask TutorialSpawnAnimal()
+    {
+        Animal animal = await TutorialCustomerSpawning(App.GlobalToken);
+        GameInstance.GameIns.inputManager.FollowTarget(animal);
+    }
+
+
+    async UniTask<Animal> TutorialCustomerSpawning(CancellationToken cancellationToken)
+    {
+        WorkSpaceManager workSpaceManager = GameInstance.GameIns.workSpaceManager;
+        //    if (!workSpaceManager.unlockCounter[(int)CounterType.FastFood - 1] || !workSpaceManager.unlockTable) break;
+        bool burger = workSpaceManager.unlockFoods[(int)MachineType.BurgerMachine - 1]; //false;
+        bool coke = workSpaceManager.unlockFoods[(int)MachineType.CokeMachine - 1];//false;
+
+        //  GetFoodUnlock(out burger, out coke, 0);
+
+        if (burger || coke)
+        {
+            FoodsAnimalsWant foodsAnimalsWant = new FoodsAnimalsWant();
+            foodsAnimalsWant.burger = burger;
+            foodsAnimalsWant.coke = coke;
+            foodsAnimalsWant.spawnerType = SpawnerType.FastFood;
+            Customer ac = animalManager.SpawnCustomer(foodsAnimalsWant);
+
+            ac.animalSpawner = this;
+            ac.animalPersonality = (AnimalPersonality)Random.Range(0, 7);
+
+            int selectedIndex = Random.Range(0, 2);
+
+            ac.trans.position = spawnPoints[selectedIndex].transform.position;
+            ac.endPoint = spawnPoints[selectedIndex].gameObject;
+
+            // ac.trans.position = //transform.position;
+            if (!waitingCustomers.ContainsKey(ac.customerIndex)) waitingCustomers[ac.customerIndex] = ac;
+            await UniTask.Delay(100, cancellationToken: cancellationToken);
+            GameInstance.GameIns.animalManager.AttachCustomerTask(ac);
+
+            float value = GameInstance.GameIns.restaurantManager.GetRestaurantValue();
+            float timerValue = 1650 / value + 2;
+
+
+            // await UniTask.Delay(2000, cancellationToken: cancellationToken);
+            float timer = RestaurantManager.spawnTimer / 1000f;
+            await Utility.CustomUniTaskDelay(timer, cancellationToken);
+            //   await UniTask.Delay(RestaurantManager.spawnTimer, cancellationToken: cancellationToken);
+            //yield return new WaitForSeconds(timerValue);
+
+            return ac.GetComponent<Animal>();
+        }
+
+        return null;
     }
 }

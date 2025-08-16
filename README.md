@@ -85,4 +85,5 @@ Animal Restaurant Tycoon Game
 08/09 Added BGM toggle, haptic feedback for in-game actions, and saving of game settings data
 08/10 Adjusted employee experience values and recruitment costs, and fixed an issue where fish in the river below the fishing spot were not visible
 08/13 Added game guide script and guide character image
+08/17 Added tutorial steps 1 through 7
 

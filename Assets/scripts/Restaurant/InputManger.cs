@@ -500,4 +500,37 @@ public class InputManger : MonoBehaviour
  
     public Vector3 lastLoc;
 
+    public void FollowTarget(Animal animal)
+    {
+        InputDisAble = true;
+    }
+
+    IEnumerator FollowingTarget(Animal animal)
+    {
+        Vector3 temp = cameraTrans.position;
+        Vector3 t;
+        //타겟으로 이동
+        float f = 0;
+        while(true)
+        {
+            t = Vector3.Lerp(cameraTrans.position, animal.trans.position, f);
+
+            f += Time.unscaledDeltaTime / 2f;
+
+            if(f >= 1)
+            {
+                cameraTrans.position = temp;
+                break;
+            }
+            yield return null;
+        }
+
+
+
+
+
+        //원래 위치로 이동
+
+        InputDisAble = false;
+    }
 }

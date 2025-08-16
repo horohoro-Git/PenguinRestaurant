@@ -6,6 +6,7 @@ using UnityEngine;
 public class LanguageText : MonoBehaviour
 {
     public int id;
+    public bool noUpdateWhenStarting;
     TMP_Text text;
     Language language;
     private void Awake()
@@ -16,12 +17,12 @@ public class LanguageText : MonoBehaviour
 
     private void Start()
     {
-        text.text = App.languages[id].text;
+        if(App.languages.ContainsKey(id) && !noUpdateWhenStarting) text.text = App.languages[id].text;
 
     }
 
     public void ChangeText()
     {
-        text.text = App.languages[id].text;
+        if (App.languages.ContainsKey(id)) text.text = App.languages[id].text;
     }
 }

@@ -202,14 +202,8 @@ public class PlaceController : MonoBehaviour
             }
             GameInstance.GameIns.gridManager.RemoveSelect();
 
-            storeGoods.PlaceGoods(rotateOffsets[level], level, currentFurniture);
-            if (!purchasedObject)
-            {
-                storeGoods.Purchase();
-#if UNITY_ANDROID || UNITY_IOS
-                if(App.gameSettings.hapticFeedback) Handheld.Vibrate();
-#endif
-            }
+            storeGoods.PlaceGoods(rotateOffsets[level], level, currentFurniture, storeGoods, purchasedObject);
+          
             storeGoods.RemoveGoodsPreview();
 
             GameInstance.GameIns.gridManager.VisibleGrid(false);

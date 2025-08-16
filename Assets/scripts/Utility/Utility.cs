@@ -239,6 +239,7 @@ public struct TutorialStruct
     public int id;
     public int image_id;
     public int text_id;
+    public int event_id;
 }
 
 public struct PlayerStruct

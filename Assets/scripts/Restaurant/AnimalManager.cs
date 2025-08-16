@@ -55,8 +55,6 @@ public class AnimalManager : MonoBehaviour
     public List<Animal> animals = new List<Animal>();
     //public List<Animal> newAnimals = new List<Animal>();
     Dictionary<int, AllAnimals> allAnimals = new Dictionary<int, AllAnimals>();
-    //  List<AllAnimals> newAllAnimals = new List<AllAnimals>();
-    // [SerializeField] List<Shadow> shadows = new List<Shadow>();
     public Shadow shadow;
     public SliderController levelSlider;// = SliderController();
 
@@ -214,7 +212,6 @@ public class AnimalManager : MonoBehaviour
         MoveCalculator.CheckArea(GameInstance.GameIns.calculatorScale, true);
 
         animalStructs = SaveLoadSystem.LoadAnimalsData();
-      //  gatchaTiers = SaveLoadSystem.LoadTier();
         for (int i = 0; i < 10; i++)
         {
             Employee controller = Instantiate(employeeController, animalParent.transform).GetComponentInChildren<Employee>();

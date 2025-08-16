@@ -20,7 +20,7 @@ public class Store : MonoBehaviour
     Animator autoAnimator;
     Dictionary<int, GoodsStruct> goodsStructs = new Dictionary<int, GoodsStruct>();
     // Dictionary<WorkSpaceType, StoreGoods> goodsDic = new Dictionary<WorkSpaceType, StoreGoods>();
-    Dictionary<int, StoreGoods> goodsList = new Dictionary<int, StoreGoods>();
+    public Dictionary<int, StoreGoods> goodsList = new Dictionary<int, StoreGoods>();
 
     public Dictionary<int, PlaceController> goodsPreviewDic = new Dictionary<int, PlaceController>();
     public Dictionary<int, Queue<GameObject>> goodsDic = new Dictionary<int, Queue<GameObject>>();
@@ -50,7 +50,7 @@ public class Store : MonoBehaviour
         {
             if (v.Value.type != WorkSpaceType.None)
             {
-                goodsDic[v.Key] = new Queue<GameObject>();
+                goodsDic[v.Key] = new();
                 for (int i = 0; i < v.Value.num; i++)
                 {
                     GameObject g = Instantiate(loadedAssets[itemAssetKeys[v.Key].ID], storeObjects.transform);
@@ -175,7 +175,16 @@ public class Store : MonoBehaviour
             {
                 if(g.Value.goods.require == 0 || require.Contains(g.Value.goods.require))
                 {
-                    g.Value.gameObject.SetActive(true);
+                    bool visible = true;
+                    foreach (var id in RestaurantManager.tutorialKeys)
+                    {
+                        if (g.Value.goods.id == id)
+                        {
+                            visible = false;
+                            break;
+                        }
+                    } 
+                    g.Value.gameObject.SetActive(visible);
                 }
                 else
                 {

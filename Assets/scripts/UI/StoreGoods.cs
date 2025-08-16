@@ -87,7 +87,9 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IEndDragHandler, IPointer
     public void OnPointerDown(PointerEventData eventData)
     {
         if (goods.Price_Value > GameIns.restaurantManager.restaurantCurrency.Money) return;
-
+       // var vb = ((Func<int, bool>)EventManager.Publish(90101, true))?.Invoke((int)goods.ID);
+       // if (vb.HasValue && !vb.Value) return;
+        
         if (GameIns.store.Auto)
         {
             if (GameIns.store.currentPreview != null)
@@ -274,7 +276,7 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IEndDragHandler, IPointer
         currnet = null;
     }
 
-    public void PlaceGoods(Vector3 offset, int level, Furniture currentFurniture)
+    public void PlaceGoods(Vector3 offset, int level, Furniture currentFurniture, StoreGoods goodss, bool purchased)
     {
         if(currnet)
         {
@@ -310,7 +312,7 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IEndDragHandler, IPointer
                     fm.Set(false);
                 }
             }
-            GameIns.restaurantManager.ApplyPlaced(f);
+            GameIns.restaurantManager.ApplyPlaced(f, goodss, purchased);
           //  SaveLoadSystem.SaveRestaurantBuildingData();
             RestaurantParam restaurantParam = new RestaurantParam(f.id, f.spaceType, level, target, f.transform.position, f.transform.rotation);
             GameIns.restaurantManager.restaurantparams.Add(restaurantParam);

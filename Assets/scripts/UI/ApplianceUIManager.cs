@@ -678,7 +678,7 @@ public class ApplianceUIManager : MonoBehaviour
         {
             RestaurantManager restaurantManager = GameInstance.GameIns.restaurantManager;
             int num = restaurantManager.employees.num;
-            if (num < 8 && restaurantManager.employeeHire[num] <= restaurantManager.GetRestaurantValue())
+            if (num < 8 && restaurantManager.employeeHire[num] <= restaurantManager.GetRestaurantValue() && !RestaurantManager.tutorialKeys.Contains(1000))
             {
                 //Debug.Log(num + " " + restaurantManager.employeeHire[num] + " " + restaurantManager.GetRestaurantValue());
                 viewHireBtn = true;
