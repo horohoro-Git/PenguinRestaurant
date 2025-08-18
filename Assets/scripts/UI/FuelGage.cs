@@ -83,6 +83,12 @@ public class FuelGage : MonoBehaviour
             exclamation.enabled = true;
             animator.enabled = true;
             animator.SetInteger(AnimationKeys.state, 1);
+            if (RestaurantManager.tutorialKeys.Contains(7000))
+            {
+                Tutorials tuto = GameInstance.GameIns.restaurantManager.tutorials;
+                GameInstance.GameIns.uiManager.TutorialStart(tuto.id, tuto.count, GameInstance.GameIns.restaurantManager.tutorialStructs[tuto.id].Count);
+                tuto.count++;
+            }
         }
         else
         {

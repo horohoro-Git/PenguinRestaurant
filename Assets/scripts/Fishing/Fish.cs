@@ -179,11 +179,17 @@ public class Fish : Animal
         GameInstance.GameIns.restaurantManager.miniGame.fishing.fishNum--;
         GameInstance.GameIns.restaurantManager.miniGame.changed = true;
         if (GameInstance.GameIns.restaurantManager.miniGame.fishing.fishNum == 0)
-        {
+        {  
+            //모두 잡음
             GameInstance.GameIns.fishingManager.setup = false;
             GameInstance.GameIns.restaurantManager.miniGame.activate = false;
             GameInstance.GameIns.restaurantManager.miniGame.type = MiniGameType.None;
             GameInstance.GameIns.restaurantManager.miniGame.fishing = null;
+            
+            if(RestaurantManager.tutorialKeys.Contains(10000))
+            {
+                ((Action<int>)EventManager.Publish(-1, true))?.Invoke(10000);
+            }
         }
         GameInstance.GameIns.fishingManager.CaughtFish(body.transform.position);
         GameInstance.GameIns.fishingManager.RemoveFish(this);

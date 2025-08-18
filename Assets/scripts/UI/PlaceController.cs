@@ -207,6 +207,9 @@ public class PlaceController : MonoBehaviour
             storeGoods.RemoveGoodsPreview();
 
             GameInstance.GameIns.gridManager.VisibleGrid(false);
+
+            isDragging = false;
+            GameInstance.GameIns.inputManager.InputDisAble = false;
         }
     }
 

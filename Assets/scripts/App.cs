@@ -63,12 +63,12 @@ public class App : MonoBehaviour
         GameInstance.GameIns.app = this;
         DontDestroyOnLoad(this);
        
-        //ì„¤ì • ì •ë³´ ê°€ì ¸ì˜¤ê¸°
+        //?¤ì • ?•ë³´ ê°€?¸ì˜¤ê¸?
         gameSettings = SaveLoadSystem.LoadGameSettings();
         bundleCheck = SaveLoadSystem.LoadDownloadedData();
         cachedData = SaveLoadSystem.LoadCachedDownloadedData();
         
-        //ì–¸ì–´ ì„¤ì •
+        //?¸ì–´ ?¤ì •
         TextAsset lang = null;
         if (gameSettings.language == Language.KOR) lang = Resources.Load<TextAsset>("language_kor");
         else lang = Resources.Load<TextAsset>("language_eng");
@@ -217,7 +217,7 @@ public class App : MonoBehaviour
 
             if (GameInstance.GameIns.assetLoader)
             {
-                loading.ChangeText(gameSettings.language == Language.KOR ? "ì—ì…‹ ë¡œë”© ì¤‘" : "Loading assets");
+                loading.ChangeText(gameSettings.language == Language.KOR ? "¿¡¼Â ·Îµù Áß" : "Loading assets");
                 await GameInstance.GameIns.assetLoader.DownloadAssetBundle(cancellationToken);
                 await UniTask.Delay(500);
                 await LoadAssetWithBundle(cancellationToken);
@@ -225,7 +225,7 @@ public class App : MonoBehaviour
                    {
                        await GameInstance.GameIns.assetLoader.DownloadAssetBundle();
                    });
-                   loading.ChangeText("ì—ì…‹ ë¡œë”© ì¤‘");
+                   loading.ChangeText("?ì…‹ ë¡œë”© ì¤?);
                    Invoke("LoadAssetWithBundle", 0.5f);
        */
             }
@@ -263,7 +263,7 @@ public class App : MonoBehaviour
             cancellationToken.ThrowIfCancellationRequested();
             if (GameInstance.GameIns.assetLoader.assetLoadSuccessful)
             {
-                loading.ChangeText(gameSettings.language == Language.KOR ? "ë§µ ë¡œë”© ì¤‘" : "Loading map");
+                loading.ChangeText(gameSettings.language == Language.KOR ? "¸Ê ·Îµù Áß" : "Loading map");
                 await GameInstance.GameIns.assetLoader.DownloadAsset_SceneBundle(cancellationToken);
                 await UniTask.Delay(500, cancellationToken: cancellationToken);
                 await LoadSceneWithBundle(cancellationToken);
@@ -291,7 +291,7 @@ public class App : MonoBehaviour
             await LoadScene(AssetLoader.loadedMap[GameInstance.GameIns.assetLoader.gameRegulation.map_name + "_fishing"], cancellationToken);
 
             currentScene = SceneState.Restaurant;
-            loading.ChangeText(gameSettings.language == Language.KOR ? "ì‹ë‹¹ì„ ë¶ˆëŸ¬ì˜¤ëŠ” ì¤‘" : "Preparing the restaurant");
+            loading.ChangeText(gameSettings.language == Language.KOR ? "½Ä´çÀ» ºÒ·¯¿À´Â Áß" : "Preparing the restaurant");
             await UniTask.WhenAll(LoadFont(cancellationToken), LoadRestaurant(cancellationToken));
        
             loadedAllAssets = true;
@@ -307,7 +307,7 @@ public class App : MonoBehaviour
     {
         try
         {
-           // loading.ChangeText("ê¸€ê¼´ ì¤€ë¹„ì¤‘");
+           // loading.ChangeText("ê¸€ê¼?ì¤€ë¹„ì¤‘");
 
             while (loadedScenesRootUI.Count > 0)
             {
@@ -355,7 +355,7 @@ public class App : MonoBehaviour
     {
         try
         {
-           // l/oading.ChangeText("ê²Œìž„ ì •ë³´ ë¡œë“œ ì¤‘");
+           // l/oading.ChangeText("ê²Œìž„ ?•ë³´ ë¡œë“œ ì¤?);
             await GameInstance.GameIns.restaurantManager.LoadRestaurant(cancellationToken);
 
 
@@ -447,6 +447,7 @@ public class App : MonoBehaviour
         Time.timeScale = 1;
         Time.fixedDeltaTime = 0.02f;
         ((Action<int>)EventManager.Publish(-1, true)).Invoke(4000);
+        ((Action<int>)EventManager.Publish(-1, true)).Invoke(11000);
         //        InputManger.cachingCamera.enabled = false;
         GameInstance.GameIns.playerCamera.brain.enabled = false;
         
@@ -515,7 +516,8 @@ public class App : MonoBehaviour
         if(currentScene == SceneState.Fishing) return;
         if(currentScene == SceneState.Restaurant) pos = GameInstance.GameIns.inputManager.cameraTrans.position;
         currentScene = SceneState.Fishing;
-
+        Debug.Log("AA");
+        ((Action<int>)EventManager.Publish(-1, true))?.Invoke(8000);
         GameInstance.GameIns.gatcharManager.autoPlaying = false;
         GameInstance.GameIns.bgMSoundManager.BGMChange(900010, 0.2f);
         GameInstance.GameIns.inputManager.InputDisAble = true;
@@ -657,7 +659,7 @@ public class App : MonoBehaviour
     IEnumerator EscapeTab()
     {
 #if UNITY_ANDROID && !UNITY_EDITOR
-        AndroidToast.Show(gameSettings.language == Language.KOR ? "ë‹¤ì‹œ íƒ­í•˜ì—¬ ë‚˜ê°€ê¸°" : "Tap again to exit");
+        AndroidToast.Show(gameSettings.language == Language.KOR ? "´Ù½Ã ÅÇÇÏ¿© ³ª°¡±â" : "Tap again to exit");
 #endif
         yield return new WaitForSecondsRealtime(1f);
         escapeTabCount--;

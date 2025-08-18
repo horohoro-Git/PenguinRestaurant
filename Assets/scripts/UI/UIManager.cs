@@ -1,5 +1,6 @@
 
 using Cysharp.Threading.Tasks;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
@@ -194,6 +195,7 @@ public class UIManager : MonoBehaviour
         fishingStartButton.onClick.AddListener(() =>
         {
             UIClick();
+           
             GameIns.fishingManager.StartFishing();
             fishingStartButton.gameObject.SetActive(false);
         });

@@ -344,6 +344,7 @@ public class FishingManager : MonoBehaviour
                 fish.Value[i].bDead = true;
             }
         }
+        if (RestaurantManager.tutorialKeys.Contains(9000)) ((Action<int>)EventManager.Publish(-1, true))?.Invoke(9000);
     }
 
     public void CaughtFish(Vector3 pos)
