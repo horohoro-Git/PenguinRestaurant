@@ -327,10 +327,11 @@ public class AnimalSpawner : MonoBehaviour
         }
     }
 
-    public async UniTask TutorialSpawnAnimal()
+    public async UniTask TutorialSpawnAnimal(CancellationToken cancellationToken)
     {
-        Animal animal = await TutorialCustomerSpawning(App.GlobalToken);
-        GameInstance.GameIns.inputManager.FollowTarget(animal);
+        Animal animal = await TutorialCustomerSpawning(cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
+      //  GameInstance.GameIns.inputManager.FollowTarget(animal);
     }
 
 

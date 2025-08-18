@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
+using static UnityEditor.PlayerSettings;
 
 public class Tutorials
 {
@@ -262,7 +263,15 @@ public class Tutorials
         }
         GameInstance.GameIns.uiManager.TutorialStart(tuto.id, tuto.count, GameInstance.GameIns.restaurantManager.tutorialStructs[tuto.id].Count);
         tuto.count++;
+        AnimalSpawner[] spawners = AnimalSpawner.FindObjectsOfType<AnimalSpawner>();
 
+        foreach (var v in spawners)
+        {
+            if (v.type == AnimalSpawner.SpawnerType.FastFood)
+            {
+                v.TutorialSpawnAnimal(App.GlobalToken).Forget();
+            }
+        }
     }
     public static void Event_901080(int id)
     {
@@ -271,12 +280,12 @@ public class Tutorials
         GameInstance.GameIns.uiManager.drawBtn.gameObject.SetActive(true);
         GameInstance.GameIns.uiManager.changeScene.gameObject.SetActive(true);
         Dictionary<int, StoreGoods> goods = GameInstance.GameIns.store.goodsList;
+
         AddStoreGoodsKey(goods[1001], 1001, true);
         AddStoreGoodsKey(goods[1002], 1002, true);
         AddStoreGoodsKey(goods[1007], 1007, true);
         AddStoreGoodsKey(goods[1003], 1003, true);
         RestaurantManager.tutorialKeys.Remove(3000);
-        if (RestaurantManager.tutorialKeys.Contains(5000)) RestaurantManager.tutorialKeys.Remove(5000);
         GameInstance.GameIns.store.Refresh();
     }
 
@@ -284,7 +293,7 @@ public class Tutorials
     public static void Event_90109(int id)
     {
         if (id != 6000) return;
-
+        if (RestaurantManager.tutorialKeys.Contains(6000)) RestaurantManager.tutorialKeys.Remove(6000);
         GameInstance.GameIns.uiManager.tutoText2.text = "";
         GameInstance.GameIns.uiManager.tutoText2.gameObject.SetActive(false);
         Tutorials tuto = GameInstance.GameIns.restaurantManager.tutorials;
@@ -294,14 +303,15 @@ public class Tutorials
         if (1 == GameInstance.GameIns.restaurantManager.tutorialStructs[GameInstance.GameIns.restaurantManager.tutorials.id].Count)
         {
             tuto.worked = false;
-            Setup(tuto);
         }
         else
         {
             tuto.worked = true;
         }
-        GameInstance.GameIns.uiManager.TutorialStart(tuto.id, tuto.count, GameInstance.GameIns.restaurantManager.tutorialStructs[tuto.id].Count);
-        tuto.count++;
+        Setup(tuto);
+        GameInstance.GameIns.uiManager.TutorialEnd(true);
+        //   GameInstance.GameIns.uiManager.TutorialStart(tuto.id, tuto.count, GameInstance.GameIns.restaurantManager.tutorialStructs[tuto.id].Count);
+        //   tuto.count++;
 
     }
     public static void Event_901090(int id)
@@ -316,36 +326,43 @@ public class Tutorials
         AddStoreGoodsKey(goods[1007], 1007, true);
         AddStoreGoodsKey(goods[1003], 1003, true);
         if(RestaurantManager.tutorialKeys.Contains(3000)) RestaurantManager.tutorialKeys.Remove(3000);
-        if(RestaurantManager.tutorialKeys.Contains(5000)) RestaurantManager.tutorialKeys.Remove(5000);
         if(RestaurantManager.tutorialKeys.Contains(1000)) RestaurantManager.tutorialKeys.Remove(1000);
         RestaurantManager.tutorialKeys.Add(6000);
         GameInstance.GameIns.applianceUIManager.UnlockHire(true);
         
         GameInstance.GameIns.store.Refresh();
+
+        
     }
 
     //생선 충전하기
     public static void Event_90111(int id)
     {
         if (id != 7000) return;
-
-        GameInstance.GameIns.uiManager.tutoText2.text = "";
-        GameInstance.GameIns.uiManager.tutoText2.gameObject.SetActive(false);
+        if (RestaurantManager.tutorialKeys.Contains(7000)) RestaurantManager.tutorialKeys.Remove(7000);
+   
         Tutorials tuto = GameInstance.GameIns.restaurantManager.tutorials;
         tuto.id = 8;
         tuto.count = 0;
 
+        List<TutorialStruct> list = GameInstance.GameIns.restaurantManager.tutorialStructs[GameInstance.GameIns.restaurantManager.tutorials.id];
+        GameInstance.GameIns.uiManager.tutoText2.text = App.languages[list[0].event_id].text;
+        //  GameInstance.GameIns.uiManager.tutoText2.text = "";
+        GameInstance.GameIns.uiManager.tutoText2.gameObject.SetActive(false);
+
         if (1 == GameInstance.GameIns.restaurantManager.tutorialStructs[GameInstance.GameIns.restaurantManager.tutorials.id].Count)
         {
             tuto.worked = false;
-            Setup(tuto);
+            
         }
         else
         {
             tuto.worked = true;
         }
-        GameInstance.GameIns.uiManager.TutorialStart(tuto.id, tuto.count, GameInstance.GameIns.restaurantManager.tutorialStructs[tuto.id].Count);
-        tuto.count++;
+        Setup(tuto);
+        GameInstance.GameIns.uiManager.TutorialEnd(true);
+        //  GameInstance.GameIns.uiManager.TutorialStart(tuto.id, tuto.count, GameInstance.GameIns.restaurantManager.tutorialStructs[tuto.id].Count);
+        //  tuto.count++;
     }
     public static void Event_901110(int id)
     {
@@ -359,7 +376,6 @@ public class Tutorials
         AddStoreGoodsKey(goods[1007], 1007, true);
         AddStoreGoodsKey(goods[1003], 1003, true);
         if (RestaurantManager.tutorialKeys.Contains(3000)) RestaurantManager.tutorialKeys.Remove(3000);
-        if (RestaurantManager.tutorialKeys.Contains(5000)) RestaurantManager.tutorialKeys.Remove(5000);
         if (RestaurantManager.tutorialKeys.Contains(1000)) RestaurantManager.tutorialKeys.Remove(1000);
         RestaurantManager.tutorialKeys.Add(7000);//물고기 충전
         GameInstance.GameIns.applianceUIManager.UnlockHire(true);
@@ -369,8 +385,9 @@ public class Tutorials
     //낚시 이동
     public static void Event_90112(int id)
     {
-        if (id != 7000) return;
-
+        if (id != 8000) return;
+        Debug.Log("AAA");
+        if (RestaurantManager.tutorialKeys.Contains(8000)) RestaurantManager.tutorialKeys.Remove(8000);
         GameInstance.GameIns.uiManager.tutoText2.text = "";
         GameInstance.GameIns.uiManager.tutoText2.gameObject.SetActive(false);
         Tutorials tuto = GameInstance.GameIns.restaurantManager.tutorials;
@@ -385,6 +402,7 @@ public class Tutorials
         else
         {
             tuto.worked = true;
+            Setup(tuto);
         }
         GameInstance.GameIns.uiManager.TutorialStart(tuto.id, tuto.count, GameInstance.GameIns.restaurantManager.tutorialStructs[tuto.id].Count);
         tuto.count++;
@@ -401,11 +419,139 @@ public class Tutorials
         AddStoreGoodsKey(goods[1007], 1007, true);
         AddStoreGoodsKey(goods[1003], 1003, true);
         if (RestaurantManager.tutorialKeys.Contains(3000)) RestaurantManager.tutorialKeys.Remove(3000);
-        if (RestaurantManager.tutorialKeys.Contains(5000)) RestaurantManager.tutorialKeys.Remove(5000);
         if (RestaurantManager.tutorialKeys.Contains(1000)) RestaurantManager.tutorialKeys.Remove(1000);
-        RestaurantManager.tutorialKeys.Add(6000);//물고기 충전
-        GameInstance.GameIns.applianceUIManager.UnlockHire(true);
+       // RestaurantManager.tutorialKeys.Add(6000);//물고기 충전
+        RestaurantManager.tutorialKeys.Add(8000);
+       
+        GameInstance.GameIns.store.Refresh();
+    }
 
+    //낚시 시작
+    public static void Event_90113(int id)
+    {
+        if (id != 9000) return;
+        if (RestaurantManager.tutorialKeys.Contains(9000)) RestaurantManager.tutorialKeys.Remove(9000);
+        List<TutorialStruct> list = GameInstance.GameIns.restaurantManager.tutorialStructs[GameInstance.GameIns.restaurantManager.tutorials.id];
+        GameInstance.GameIns.uiManager.tutoText2.text = App.languages[list[0].event_id].text;
+        //  GameInstance.GameIns.uiManager.tutoText2.text = "";
+        GameInstance.GameIns.uiManager.tutoText2.gameObject.SetActive(false);
+        Tutorials tuto = GameInstance.GameIns.restaurantManager.tutorials;
+        tuto.id = 10;
+        tuto.count = 0;
+
+        if (1 == GameInstance.GameIns.restaurantManager.tutorialStructs[GameInstance.GameIns.restaurantManager.tutorials.id].Count)
+        {
+            tuto.worked = false;
+            Setup(tuto);
+        }
+        else
+        {
+            tuto.worked = true;
+            Setup(tuto);
+        }
+        GameInstance.GameIns.uiManager.TutorialStart(tuto.id, tuto.count, GameInstance.GameIns.restaurantManager.tutorialStructs[tuto.id].Count);
+        tuto.count++;
+    }
+
+    public static void Event_901130(int id)
+    {
+        GameInstance.GameIns.uiManager.tutoText2.gameObject.SetActive(false);
+        GameInstance.GameIns.uiManager.tutoText2.text = App.languages[id].text;
+        //  GameInstance.GameIns.uiManager.drawBtn.gameObject.SetActive(true);
+        GameInstance.GameIns.uiManager.changeScene.gameObject.SetActive(true);
+        Dictionary<int, StoreGoods> goods = GameInstance.GameIns.store.goodsList;
+        AddStoreGoodsKey(goods[1001], 1001, true);
+        AddStoreGoodsKey(goods[1002], 1002, true);
+        AddStoreGoodsKey(goods[1007], 1007, true);
+        AddStoreGoodsKey(goods[1003], 1003, true);
+        if (RestaurantManager.tutorialKeys.Contains(3000)) RestaurantManager.tutorialKeys.Remove(3000);
+        if (RestaurantManager.tutorialKeys.Contains(1000)) RestaurantManager.tutorialKeys.Remove(1000);
+        RestaurantManager.tutorialKeys.Add(9000);
+      
+        GameInstance.GameIns.store.Refresh();
+        Debug.Log("L");
+    }
+
+    //낚시 완료
+    public static void Event_90114(int id)
+    {
+        if (id != 10000) return;
+        if (RestaurantManager.tutorialKeys.Contains(10000)) RestaurantManager.tutorialKeys.Remove(10000);
+
+        GameInstance.GameIns.uiManager.tutoText2.text = "";
+        GameInstance.GameIns.uiManager.tutoText2.gameObject.SetActive(false);
+        Tutorials tuto = GameInstance.GameIns.restaurantManager.tutorials;
+     
+        tuto.id = 11;
+        tuto.count = 0;
+
+        if (1 == GameInstance.GameIns.restaurantManager.tutorialStructs[GameInstance.GameIns.restaurantManager.tutorials.id].Count)
+        {
+            tuto.worked = false;
+            Setup(tuto);
+        }
+        else
+        {
+            tuto.worked = true;
+        }
+        GameInstance.GameIns.uiManager.TutorialStart(tuto.id, tuto.count, GameInstance.GameIns.restaurantManager.tutorialStructs[tuto.id].Count);
+        tuto.count++;
+    }
+    public static void Event_901140(int id)
+    {
+        GameInstance.GameIns.uiManager.tutoText2.gameObject.SetActive(false);
+        GameInstance.GameIns.uiManager.tutoText2.text = App.languages[id].text;
+        //  GameInstance.GameIns.uiManager.drawBtn.gameObject.SetActive(true);
+        GameInstance.GameIns.uiManager.changeScene.gameObject.SetActive(true);
+        Dictionary<int, StoreGoods> goods = GameInstance.GameIns.store.goodsList;
+        AddStoreGoodsKey(goods[1001], 1001, true);
+        AddStoreGoodsKey(goods[1002], 1002, true);
+        AddStoreGoodsKey(goods[1007], 1007, true);
+        AddStoreGoodsKey(goods[1003], 1003, true);
+        if (RestaurantManager.tutorialKeys.Contains(3000)) RestaurantManager.tutorialKeys.Remove(3000);
+        if (RestaurantManager.tutorialKeys.Contains(1000)) RestaurantManager.tutorialKeys.Remove(1000);
+        RestaurantManager.tutorialKeys.Add(10000);
+        GameInstance.GameIns.store.Refresh();
+    }
+    //가게로 귀환
+    public static void Event_90115(int id)
+    {
+        if (id != 11000) return;
+        if (RestaurantManager.tutorialKeys.Contains(11000)) RestaurantManager.tutorialKeys.Remove(11000);
+
+        GameInstance.GameIns.uiManager.tutoText2.text = "";
+        GameInstance.GameIns.uiManager.tutoText2.gameObject.SetActive(false);
+        Tutorials tuto = GameInstance.GameIns.restaurantManager.tutorials;
+
+        tuto.id = 12;
+        tuto.count = 0;
+
+        if (1 == GameInstance.GameIns.restaurantManager.tutorialStructs[GameInstance.GameIns.restaurantManager.tutorials.id].Count)
+        {
+            tuto.worked = false;
+            Setup(tuto);
+        }
+        else
+        {
+            tuto.worked = true;
+        }
+        GameInstance.GameIns.uiManager.TutorialStart(tuto.id, tuto.count, GameInstance.GameIns.restaurantManager.tutorialStructs[tuto.id].Count);
+        tuto.count++;
+    }
+    public static void Event_901150(int id)
+    {
+        GameInstance.GameIns.uiManager.tutoText2.gameObject.SetActive(false);
+        GameInstance.GameIns.uiManager.tutoText2.text = App.languages[id].text;
+        //  GameInstance.GameIns.uiManager.drawBtn.gameObject.SetActive(true);
+        GameInstance.GameIns.uiManager.changeScene.gameObject.SetActive(true);
+        Dictionary<int, StoreGoods> goods = GameInstance.GameIns.store.goodsList;
+        AddStoreGoodsKey(goods[1001], 1001, true);
+        AddStoreGoodsKey(goods[1002], 1002, true);
+        AddStoreGoodsKey(goods[1007], 1007, true);
+        AddStoreGoodsKey(goods[1003], 1003, true);
+        if (RestaurantManager.tutorialKeys.Contains(3000)) RestaurantManager.tutorialKeys.Remove(3000);
+        if (RestaurantManager.tutorialKeys.Contains(1000)) RestaurantManager.tutorialKeys.Remove(1000);
+        RestaurantManager.tutorialKeys.Add(11000);
         GameInstance.GameIns.store.Refresh();
     }
     public static void TutorialUpdate()

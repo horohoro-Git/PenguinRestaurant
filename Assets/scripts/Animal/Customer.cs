@@ -556,19 +556,32 @@ public class Customer : AnimalController
 
             }
 
-            if (!GameInstance.GameIns.restaurantManager.miniGame.activate)
+            
+            if(RestaurantManager.tutorialKeys.Contains(8000))
             {
-                GameInstance.GameIns.restaurantManager.restaurantCurrency.minigameStack += foodNum;
-
-                int r = Random.Range(0, GameInstance.GameIns.restaurantManager.restaurantCurrency.minigameStack);
-
-                //if(r > 0)
-                if(r > 50)
+                GameInstance.GameIns.restaurantManager.restaurantCurrency.minigameStack = 0;
+                GameInstance.GameIns.restaurantManager.miniGame.activate = true;
+                GameInstance.GameIns.restaurantManager.OpenMiniGame(MiniGameType.Fishing);
+                // ((Action<int>)EventManager.Publish(-1, true))?.Invoke(8000);
+                GameInstance.GameIns.uiManager.TutorialStart(GameInstance.GameIns.restaurantManager.tutorials.id, GameInstance.GameIns.restaurantManager.tutorials.count, GameInstance.GameIns.restaurantManager.tutorialStructs[GameInstance.GameIns.restaurantManager.tutorials.id].Count);
+                GameInstance.GameIns.restaurantManager.tutorials.count++;
+            }
+            else
+            {
+                if (!GameInstance.GameIns.restaurantManager.miniGame.activate)
                 {
-                    GameInstance.GameIns.restaurantManager.restaurantCurrency.minigameStack = 0;
-                    GameInstance.GameIns.restaurantManager.miniGame.activate = true;
-                    int minigame = Random.Range(1, 2);
-                    GameInstance.GameIns.restaurantManager.OpenMiniGame((MiniGameType)minigame);
+                    GameInstance.GameIns.restaurantManager.restaurantCurrency.minigameStack += foodNum;
+
+                    int r = Random.Range(0, GameInstance.GameIns.restaurantManager.restaurantCurrency.minigameStack);
+
+                    //if(r > 0)
+                    if (r > 50)
+                    {
+                        GameInstance.GameIns.restaurantManager.restaurantCurrency.minigameStack = 0;
+                        GameInstance.GameIns.restaurantManager.miniGame.activate = true;
+                        int minigame = Random.Range(1, 2);
+                        GameInstance.GameIns.restaurantManager.OpenMiniGame((MiniGameType)minigame);
+                    }
                 }
             }
             
