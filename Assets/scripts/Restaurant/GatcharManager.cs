@@ -232,7 +232,7 @@ public class GatcharManager : MonoBehaviour
             if (isSpawning) return;
             if (!Purchase()) return;
 
-            if (RestaurantManager.tutorialKeys.Contains(3000))
+            if (RestaurantManager.tutorialKeys.Contains((int)TutorialEventKey.DrawGatcha))
             {
                 GameInstance.GameIns.uiManager.tutoText2.gameObject.SetActive(false);
                 GameInstance.GameIns.uiManager.TutorialEnd(true);
@@ -246,7 +246,7 @@ public class GatcharManager : MonoBehaviour
     
         randomAnimalKey.Clear();
         bool success = false;
-        if (RestaurantManager.tutorialKeys.Contains(3000))
+        if (RestaurantManager.tutorialKeys.Contains((int)TutorialEventKey.DrawGatcha))
         {
             randomAnimalKey[100] = 3;
             success = CheckSuccess(100, 0);
@@ -417,11 +417,11 @@ public class GatcharManager : MonoBehaviour
             AnimalManager.animalStructs[key] = asset;
             SaveLoadSystem.SaveGatchaAnimalsData();
 
-            if (RestaurantManager.tutorialKeys.Contains(3000))
+            if (RestaurantManager.tutorialKeys.Contains((int)TutorialEventKey.DrawGatcha))
             {
-                GameInstance.GameIns.restaurantManager.tutorials.id = 5;
-                GameInstance.GameIns.restaurantManager.tutorials.count = 0;
-                GameInstance.GameIns.restaurantManager.tutorials.worked = false;
+                ((Action<TutorialEventKey>)EventManager.Publish(TutorialEventKey.DrawGatcha))?.Invoke(TutorialEventKey.DrawGatcha);
+         
+               // Tutorials.Setup(GameInstance.GameIns.restaurantManager.tutorials);
             }
             return true;
         }
@@ -573,9 +573,14 @@ public class GatcharManager : MonoBehaviour
         isSpawning = false;
 
 
-        if (RestaurantManager.tutorialKeys.Contains(3000))
+        if (RestaurantManager.tutorialKeys.Contains((int)TutorialEventKey.DrawGatcha))
         {
-            ((Action<int>)EventManager.Publish(-1, true))?.Invoke(3000);
+            RestaurantManager.tutorialKeys.Remove((int)TutorialEventKey.DrawGatcha);
+           // ((Action<int>)EventManager.Publish(-1, true))?.Invoke(3000);
+           // ((Action<TutorialEventKey>)EventManager.Publish(TutorialEventKey.DrawGatcha))?.Invoke(TutorialEventKey.DrawGatcha);
+           Tutorials tutorials = GameInstance.GameIns.restaurantManager.tutorials;
+           GameInstance.GameIns.uiManager.TutorialStart(tutorials.id, tutorials.count, GameInstance.GameIns.restaurantManager.tutorialStructs[tutorials.id].Count);
+
         }
         if (App.currentScene == SceneState.Draw && !CheckCompleteGatcha())
         {

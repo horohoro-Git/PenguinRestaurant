@@ -199,8 +199,19 @@ public class FurnitureInfo : MonoBehaviour
                 {
                     fm.fuelGage.ShowGage(true);
                     fm.machineLevelData.checkingFishes += fishesNum;
+                    GameInstance.GameIns.restaurantManager.AddFuel(fm, fishesNum);
+                    if (RestaurantManager.tutorialKeys.Contains((int)TutorialEventKey.FillFishes))
+                    {
+                        RestaurantManager.tutorialKeys.Remove((int)TutorialEventKey.FillFishes);
+                        Tutorials tutorials = GameInstance.GameIns.restaurantManager.tutorials;
+                        Tutorials.TutorialUnlockLateTime(GameInstance.GameIns.restaurantManager.tutorialStructs[tutorials.id][tutorials.count - 1]);
+                        ((Action<TutorialEventKey>)EventManager.Publish(TutorialEventKey.FillFishes))?.Invoke(TutorialEventKey.FillFishes);
+                        GameInstance.GameIns.uiManager.TutorialEnd(true);
+                        //Tutorials tuto = GameInstance.GameIns.restaurantManager.tutorials;
+                        //GameInstance.GameIns.uiManager.TutorialStart(tuto.id, tuto.count, GameInstance.GameIns.restaurantManager.tutorialStructs[tuto.id].Count);
+                    }
                 }
-                GameInstance.GameIns.restaurantManager.AddFuel(fm, fishesNum);
+               
                 UI_TypeA.increaseFishes = 0;
             }
         }

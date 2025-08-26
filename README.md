@@ -87,4 +87,5 @@ Animal Restaurant Tycoon Game
 08/13 Added game guide script and guide character image
 08/17 Added tutorial steps 1 through 7
 08/18 Added tutorial steps 8 through 12
+08/26 Add the final tutorial stage and then refactor the entire code
 

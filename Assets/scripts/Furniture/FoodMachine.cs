@@ -376,6 +376,24 @@ public class FoodMachine : Furniture
                     fishesExists = false;
                 }
                 if (fuelGage) fuelGage.ShowGage(fishesExists);
+                if (!fishesExists && RestaurantManager.tutorialEventKeys.Contains(TutorialEventKey.NoFishNoCook))
+                {
+                    while(true)
+                    {
+                        if (!RestaurantManager.tutorialEventKeys.Contains(TutorialEventKey.NoFishNoCook))
+                        {
+                            if (machineLevelData != null && machineLevelData.checkingFishes >= 1)
+                            {
+                                machineLevelData.checkingFishes--;
+                                fishesExists = true;
+                                break;
+                            }
+                        }
+                        await Utility.CustomUniTaskDelay(0.2f, cancellationToken);
+                        continue;
+
+                    }
+                }
                 //    isCooking = true;
 
                 audioSource.volume = App.gameSettings.soundEffects ? 1 : 0; //0.1f;

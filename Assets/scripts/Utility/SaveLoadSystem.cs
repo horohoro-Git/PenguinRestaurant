@@ -39,7 +39,7 @@ public class SaveLoadSystem
     public static async UniTask<string> LoadServerURL(CancellationToken cancellationToken = default)
     {
         string path = System.IO.Path.Combine(Application.streamingAssetsPath, "servercommunication.bytes");
-
+       
         UnityWebRequest www = UnityWebRequest.Get(path);
         var operation = www.SendWebRequest();
 

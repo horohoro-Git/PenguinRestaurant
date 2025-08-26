@@ -318,7 +318,7 @@ public class InputManger : MonoBehaviour
             }
             else if (go.TryGetComponent<Table>(out Table table))
             {
-                if (table.isDirty && !table.interacting)
+                if (table.isDirty && !table.interacting && !RestaurantManager.tutorialEventKeys.Contains(TutorialEventKey.NoCleaning))
                 {
                     clickedTable = table;
                     clickedTable.canTouchable = false;

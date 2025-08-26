@@ -32,6 +32,10 @@ public class DownloadManager : MonoBehaviour
     public Button retry;
     public Button exit;
     public EventSystem eventSystem;
+    public Sprite volume_on;
+    public Sprite volume_off;
+    public Image volume;
+    public Button volumeControl;
 
     bool downloadMap;
     bool downloadScene;
@@ -68,8 +72,34 @@ public class DownloadManager : MonoBehaviour
     private void Start()
     {
         CheckDownloadGameResources(App.GlobalToken).Forget();
-       
+
+        if(App.gameSettings.soundBackgrounds)
+        {
+            volume.sprite = volume_on;
+        }
+        else
+        {
+            volume.sprite = volume_off;
+        }
+        volumeControl.onClick.AddListener(() =>
+        {
+            if (App.gameSettings.soundBackgrounds)
+            {
+                volume.sprite = volume_off;
+                App.gameSettings.soundBackgrounds = false;
+                GameInstance.GameIns.bgMSoundManager.audio.volume = 0;
+                SaveLoadSystem.SaveGameSettings(App.gameSettings);
+            }
+            else
+            {
+                App.gameSettings.soundBackgrounds = true;
+                volume.sprite = volume_on;
+                GameInstance.GameIns.bgMSoundManager.audio.volume = 1;
+                SaveLoadSystem.SaveGameSettings(App.gameSettings);
+            }
+        });
     }
+
 
 
     private void OnDestroy()

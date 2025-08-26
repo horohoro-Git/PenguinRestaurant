@@ -1,23 +1,19 @@
 using Cysharp.Threading.Tasks;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Numerics;
 using System.Threading;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
-using UnityEngine.UIElements;
-using Vector3 = UnityEngine.Vector3;
 using Quaternion = UnityEngine.Quaternion;
-using Newtonsoft.Json;
-using UnityEngine.InputSystem;
-using UnityEditor;
-using UnityEngine.InputSystem.EnhancedTouch;
-using AnimationInstancing;
-using Unity.Collections.LowLevel.Unsafe;
+using Vector3 = UnityEngine.Vector3;
+//using UnityEditor;
+
 
 public enum SceneState
 {
@@ -100,20 +96,20 @@ public class App : MonoBehaviour
         playerInput.actions["EscapeTab"].started += StartEscapeTab;
 
 #if UNITY_EDITOR
-        EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+        UnityEditor.EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
 #endif
     }
     private void OnDisable()
     {
         if(playerInput != null) playerInput.actions["EscapeTab"].started -= StartEscapeTab;
 #if UNITY_EDITOR
-        EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
+        UnityEditor.EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
 #endif
     }
 #if UNITY_EDITOR
-    private void OnPlayModeStateChanged(PlayModeStateChange state)
+    private void OnPlayModeStateChanged(UnityEditor.PlayModeStateChange state)
     {
-        if (state == PlayModeStateChange.ExitingPlayMode)
+        if (state == UnityEditor.PlayModeStateChange.ExitingPlayMode)
         {
             GameExit().Forget();
         }
@@ -443,12 +439,19 @@ public class App : MonoBehaviour
         if (currentScene == SceneState.Restaurant) return;
         GameInstance.GameIns.bgMSoundManager.BGMChange(901000, 0.4f);
         currentScene = SceneState.Restaurant;
-        restaurantTimeScale = 1;
-        Time.timeScale = 1;
-        Time.fixedDeltaTime = 0.02f;
-        ((Action<int>)EventManager.Publish(-1, true)).Invoke(4000);
-        ((Action<int>)EventManager.Publish(-1, true)).Invoke(11000);
-        //        InputManger.cachingCamera.enabled = false;
+  //      ((Action<TutorialEventKey>)EventManager.Publish(TutorialEventKey.EnterRestaurant))?.Invoke(TutorialEventKey.EnterRestaurant);
+
+        if (RestaurantManager.tutorialKeys.Contains((int)TutorialEventKey.EnterRestaurant))
+        {
+            Tutorials tutorials = GameInstance.GameIns.restaurantManager.tutorials;
+            TutorialStruct tutorialStruct = GameInstance.GameIns.restaurantManager.tutorialStructs[tutorials.id][tutorials.count - 1];
+           // if (!tutorialStruct.event_start) Tutorials.TutorialUnlockLateTime(tutorialStruct);
+            ((Action<TutorialEventKey>)EventManager.Publish(TutorialEventKey.EnterRestaurant))?.Invoke(TutorialEventKey.EnterRestaurant);
+            GameInstance.GameIns.uiManager.TutorialStart(tutorials.id, tutorials.count, GameInstance.GameIns.restaurantManager.tutorialStructs[tutorials.id].Count);
+            RestaurantManager.tutorialKeys.Remove((int)TutorialEventKey.EnterRestaurant);
+        }
+
+
         GameInstance.GameIns.playerCamera.brain.enabled = false;
         
         GameInstance.GameIns.inputManager.cameraTrans.position = pos;
@@ -468,9 +471,26 @@ public class App : MonoBehaviour
         GameInstance.GameIns.gatcharManager.virtualCamera2.Priority = 0;
         GameInstance.GameIns.gatcharManager.virtualCamera3.Priority = 0;
         GameInstance.GameIns.gatcharManager.virtualCamera4.Priority = 0;
-        GameInstance.GameIns.gatcharManager.autoPlaying = false;    
+        GameInstance.GameIns.gatcharManager.autoPlaying = false;
+
+        StartCoroutine(RestaurantSceneNextFrame());
+        if(RestaurantManager.tutorialKeys.Contains(11000)) StartCoroutine(BlackConsumerTutorial());
+     
         //   Utility.CheckHirable(GameInstance.GameIns.inputManager.cameraRange.position, ref i, ref j);
         //   StartCoroutine(OrthographicNextFrame());
+    }
+    
+    IEnumerator RestaurantSceneNextFrame()
+    {
+        yield return null;
+        restaurantTimeScale = 1;
+        Time.timeScale = 1;
+        Time.fixedDeltaTime = 0.02f;
+    }
+    IEnumerator BlackConsumerTutorial()
+    {
+        yield return new WaitForSecondsRealtime(0.2f);
+        ((Action<int>)EventManager.Publish(-1, true)).Invoke(11000);
     }
    
 
@@ -479,7 +499,14 @@ public class App : MonoBehaviour
         if (currentScene == SceneState.Draw) return;
         if(currentScene == SceneState.Restaurant) pos = GameInstance.GameIns.inputManager.cameraTrans.position;
         currentScene = SceneState.Draw;
-        ((Action<int>)EventManager.Publish(-1, true)).Invoke(2000);
+        //   ((Action<int>)EventManager.Publish(-1, true)).Invoke(2000);
+        if(RestaurantManager.tutorialKeys.Contains((int)TutorialEventKey.EnterGatcha))
+        {
+            Tutorials tutorials = GameInstance.GameIns.restaurantManager.tutorials;
+            ((Action<TutorialEventKey>)EventManager.Publish(TutorialEventKey.EnterGatcha))?.Invoke(TutorialEventKey.EnterGatcha);
+            GameInstance.GameIns.uiManager.TutorialStart(tutorials.id, tutorials.count, GameInstance.GameIns.restaurantManager.tutorialStructs[tutorials.id].Count);
+            RestaurantManager.tutorialKeys.Remove((int)TutorialEventKey.EnterGatcha);
+        }
         GameInstance.GameIns.bgMSoundManager.BGMChange(900100, 0.2f);
       //  GameInstance.GameIns.inputManager.DragScreen_WindowEditor(true);
         GameInstance.GameIns.inputManager.InputDisAble = true;
@@ -516,8 +543,15 @@ public class App : MonoBehaviour
         if(currentScene == SceneState.Fishing) return;
         if(currentScene == SceneState.Restaurant) pos = GameInstance.GameIns.inputManager.cameraTrans.position;
         currentScene = SceneState.Fishing;
-        Debug.Log("AA");
-        ((Action<int>)EventManager.Publish(-1, true))?.Invoke(8000);
+        if(RestaurantManager.tutorialKeys.Contains((int)TutorialEventKey.EnterFishing))
+        {
+            RestaurantManager.tutorialKeys.Remove((int)TutorialEventKey.EnterFishing);
+            ((Action<TutorialEventKey>)EventManager.Publish(TutorialEventKey.EnterFishing))?.Invoke(TutorialEventKey.EnterFishing);
+            Tutorials tutorials = GameInstance.GameIns.restaurantManager.tutorials;
+            GameInstance.GameIns.uiManager.TutorialStart(tutorials.id, tutorials.count, GameInstance.GameIns.restaurantManager.tutorialStructs[tutorials.id].Count);
+        }
+
+      //  ((Action<int>)EventManager.Publish(-1, true))?.Invoke(8000);
         GameInstance.GameIns.gatcharManager.autoPlaying = false;
         GameInstance.GameIns.bgMSoundManager.BGMChange(900010, 0.2f);
         GameInstance.GameIns.inputManager.InputDisAble = true;

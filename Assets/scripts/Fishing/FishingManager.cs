@@ -344,7 +344,7 @@ public class FishingManager : MonoBehaviour
                 fish.Value[i].bDead = true;
             }
         }
-        if (RestaurantManager.tutorialKeys.Contains(9000)) ((Action<int>)EventManager.Publish(-1, true))?.Invoke(9000);
+      
     }
 
     public void CaughtFish(Vector3 pos)
@@ -388,6 +388,19 @@ public class FishingManager : MonoBehaviour
             yield return new WaitForSecondsRealtime(0.01f);
         }
 
+        if(GameInstance.GameIns.restaurantManager.miniGame.fishing == null)
+        {
+            if (RestaurantManager.tutorialKeys.Contains((int)TutorialEventKey.ComploeteFishing))
+            {
+                RestaurantManager.tutorialKeys.Remove((int)TutorialEventKey.ComploeteFishing);
+                ((Action<TutorialEventKey>)EventManager.Publish(TutorialEventKey.ComploeteFishing))?.Invoke(TutorialEventKey.ComploeteFishing);
+                Tutorials tutorials = GameInstance.GameIns.restaurantManager.tutorials;
+                GameInstance.GameIns.uiManager.TutorialStart(tutorials.id, tutorials.count, GameInstance.GameIns.restaurantManager.tutorialStructs[tutorials.id].Count);
+            }
+            
+        }
+
+   
     }
     IEnumerator SpreadFishes(RectTransform rect, Vector3 pos)
     {

@@ -126,6 +126,18 @@ public class Table : Furniture
             isDirty = false;
             interacting = false;
             canTouchable = true;
+
+            if(RestaurantManager.tutorialKeys.Contains((int)TutorialEventKey.Cleaning))
+            {
+                RestaurantManager.tutorialKeys.Remove((int)TutorialEventKey.Cleaning);
+                GameInstance.GameIns.restaurantManager.trashData.trashPoint = 100;
+                GameInstance.GameIns.applianceUIManager.rewardChest_Fill.ChangeHighlight(true);
+                GameInstance.GameIns.applianceUIManager.rewardChest_Fill.uiImage.fillAmount = GameInstance.GameIns.restaurantManager.trashData.trashPoint * 0.01f;
+                GameInstance.GameIns.restaurantManager.trashData.changed = true;
+                ((Action<TutorialEventKey>)EventManager.Publish(TutorialEventKey.Cleaning))?.Invoke(TutorialEventKey.Cleaning);
+                Tutorials tutorials = GameInstance.GameIns.restaurantManager.tutorials;
+                GameInstance.GameIns.uiManager.TutorialStart(tutorials.id, tutorials.count, GameInstance.GameIns.restaurantManager.tutorialStructs[tutorials.id].Count);
+            }
         }
         catch (OperationCanceledException)
         {

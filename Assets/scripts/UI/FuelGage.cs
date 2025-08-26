@@ -83,11 +83,14 @@ public class FuelGage : MonoBehaviour
             exclamation.enabled = true;
             animator.enabled = true;
             animator.SetInteger(AnimationKeys.state, 1);
-            if (RestaurantManager.tutorialKeys.Contains(7000))
+            if (RestaurantManager.tutorialKeys.Contains((int)TutorialEventKey.FillFishes))
             {
+                //   Debug.Log("Check");
+                // RestaurantManager.tutorialKeys.Remove((int)TutorialEventKey.FillFishes);
                 Tutorials tuto = GameInstance.GameIns.restaurantManager.tutorials;
+                Tutorials.TutorialUnlock(GameInstance.GameIns.restaurantManager.tutorialStructs[tuto.id][0]);
+                //((Action<TutorialEventKey>)EventManager.Publish(TutorialEventKey.FillFishes))?.Invoke(TutorialEventKey.FillFishes);
                 GameInstance.GameIns.uiManager.TutorialStart(tuto.id, tuto.count, GameInstance.GameIns.restaurantManager.tutorialStructs[tuto.id].Count);
-                tuto.count++;
             }
         }
         else
