@@ -576,6 +576,7 @@ public class BlackConsumer : AnimalController
                     Eat eat = ParticleManager.CreateParticle(ParticleType.Eating).GetComponent<Eat>();
                     eat.transform.position = transforms.position;
                     eat.PlayEating();
+                    if (RestaurantManager.tutorialEventKeys.Contains(TutorialEventKey.NoEating)) i-=10;
                 }
                 await Utility.CustomUniTaskDelay(timer / 100, cancellationToken);
                 cancellationToken.ThrowIfCancellationRequested();
@@ -738,6 +739,18 @@ public class BlackConsumer : AnimalController
 #if UNITY_ANDROID || UNITY_IOS
             if (App.gameSettings.hapticFeedback) Handheld.Vibrate();
 #endif
+           // ((Action<int>)EventManager.Publish(-1, true))?.Invoke(12000);
+            if(RestaurantManager.tutorialKeys.Contains((int)TutorialEventKey.CatchEnemy))
+            {
+                RestaurantManager.tutorialKeys.Remove((int)TutorialEventKey.CatchEnemy);
+                Tutorials tutorials = GameIns.restaurantManager.tutorials;
+                Tutorials.TutorialUnlockLateTime(GameIns.restaurantManager.tutorialStructs[tutorials.id][tutorials.count - 1]);
+                ((Action<TutorialEventKey>)EventManager.Publish(TutorialEventKey.CatchEnemy))?.Invoke(TutorialEventKey.CatchEnemy);
+                GameIns.inputManager.InputDisAble = false;
+                GameIns.playerCamera.followTarget = null;
+                GameIns.uiManager.TutorialEnd(true);
+            }
+
             particles.Play();
             hitAudio.clip = GameIns.gameSoundManager.Hit();
             hitAudio.volume = 0.2f;

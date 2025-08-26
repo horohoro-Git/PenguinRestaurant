@@ -1,4 +1,5 @@
 using Cinemachine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -31,6 +32,7 @@ public class PlayerCamera : MonoBehaviour
     int hitCount;
     Collider[] colliders = new Collider[1];
     int obstacleMask = (1 << 7) | (1 << 8) | (1 << 16) | (1 << 19);
+    [NonSerialized] public GameObject followTarget;
     private void Awake()
     {
         targetZoom = 15;
@@ -39,8 +41,17 @@ public class PlayerCamera : MonoBehaviour
     }
     void Update()
     {
+
         if (RestaurantManager.restaurantTimer > 0)
         {
+            if (followTarget != null)
+            {
+                Vector3 targetVector = followTarget.transform.position + Vector3.right * -80f + Vector3.forward * -80f;
+               
+                Vector3 v = Vector3.zero;
+                transform.position = Vector3.SmoothDamp(transform.position, targetVector, ref v, 0.02f);
+                return;
+            }
             bool hitBlock = Physics.CheckSphere(player.transform.position, 0.2f, obstacleMask);
             if (hitBlock)
             {

@@ -28,6 +28,7 @@ public class FurnitureInfo_Type : MonoBehaviour
     public RefillFishes fishPlus;
     public RefillFishes fishMinus;
     public Button fishMax;
+    public Button getFishes;
 
     public Image fishImage;
 

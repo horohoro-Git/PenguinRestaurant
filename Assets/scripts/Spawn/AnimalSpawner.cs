@@ -82,7 +82,7 @@ public class AnimalSpawner : MonoBehaviour
                 await UniTask.NextFrame(cancellationToken: cancellationToken);
             }
 
-            while(RestaurantManager.tutorialKeys.Contains(5000))
+            while(RestaurantManager.tutorialEventKeys.Contains(TutorialEventKey.NoCustomer))
             {
                 await UniTask.NextFrame(cancellationToken:cancellationToken);
             }
@@ -94,8 +94,7 @@ public class AnimalSpawner : MonoBehaviour
             {
                 if(AnimalManager.animalStructs.Count <= 1)
                 {
-                    Debug.Log("No Animal");
-
+                 
                     await UniTask.Delay(500, cancellationToken: cancellationToken);
 
                     continue;

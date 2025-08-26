@@ -72,6 +72,9 @@ public class UIManager : MonoBehaviour
     {
         if (graphicRaycaster == null) graphicRaycaster = GetComponent<GraphicRaycaster>();
         AddGraphicCaster(graphicRaycaster);
+
+//        if(RestaurantManager.tutorialKeys.Contains((int)TutorialEventKey.EnterGatcha)) changeScene.gameObject.SetActive(false);
+//  
     }
     private void OnDisable()
     {
@@ -195,7 +198,11 @@ public class UIManager : MonoBehaviour
         fishingStartButton.onClick.AddListener(() =>
         {
             UIClick();
-           
+            if(RestaurantManager.tutorialKeys.Contains((int)TutorialEventKey.StartFishing))
+            {
+                tutoText2.gameObject.SetActive(false);
+                TutorialEnd(true);
+            }
             GameIns.fishingManager.StartFishing();
             fishingStartButton.gameObject.SetActive(false);
         });
@@ -212,9 +219,9 @@ public class UIManager : MonoBehaviour
             {
                 if (GameIns.restaurantManager.tutorials.worked)
                 {
-                   
+                    TutorialStart(GameIns.restaurantManager.tutorials.id, GameIns.restaurantManager.tutorials.count, GameIns.restaurantManager.tutorialStructs[GameIns.restaurantManager.tutorials.id].Count);
 
-                    if (GameIns.restaurantManager.tutorials.count + 1 == GameIns.restaurantManager.tutorialStructs[GameIns.restaurantManager.tutorials.id].Count)
+                  /*  if (GameIns.restaurantManager.tutorials.count + 1 == GameIns.restaurantManager.tutorialStructs[GameIns.restaurantManager.tutorials.id].Count)
                     {
                         GameIns.restaurantManager.tutorials.worked = false;
                         Tutorials.Setup(GameIns.restaurantManager.tutorials);
@@ -224,8 +231,8 @@ public class UIManager : MonoBehaviour
 
                     }
                     Debug.Log(GameIns.restaurantManager.tutorials.count + " " + GameIns.restaurantManager.tutorialStructs[GameIns.restaurantManager.tutorials.id].Count);
-                    TutorialStart(GameIns.restaurantManager.tutorials.id, GameIns.restaurantManager.tutorials.count, GameIns.restaurantManager.tutorialStructs[GameIns.restaurantManager.tutorials.id].Count);
-                    GameIns.restaurantManager.tutorials.count++;
+                  
+                    GameIns.restaurantManager.tutorials.count++;*/
                 }
                 else
                 {
@@ -460,21 +467,44 @@ public class UIManager : MonoBehaviour
     Coroutine tuto;
     public void TutorialStart(int id, int c, int max)
     {
-        tutorialText.gameObject.SetActive(false);
-        tutorialText.text = "";
-        tutorialText.ForceMeshUpdate();
-        if (tuto != null) StopCoroutine(tuto);
-        if (c + 1 == max)
+        if (GameIns.restaurantManager.tutorials.count + 1 == GameIns.restaurantManager.tutorialStructs[GameIns.restaurantManager.tutorials.id].Count)
         {
-            tutoBtn_Text.text = App.languages[91002].text;
-            tutoBtn_Text.GetComponent<LanguageText>().id = 91002;
+            GameIns.restaurantManager.tutorials.worked = false;
+            /*   if(GameIns.restaurantManager.tutorials.count == 0) Tutorials.Setup(GameIns.restaurantManager.tutorials);
+               else
+               {
+                   Tutorials.TutorialUnlock(GameIns.restaurantManager.tutorialStructs[GameIns.restaurantManager.tutorials.id][GameIns.restaurantManager.tutorials.count]);
+               }*/
+            if (GameIns.restaurantManager.tutorials.count == 0 && !GameIns.restaurantManager.tutorialStructs[GameIns.restaurantManager.tutorials.id][GameIns.restaurantManager.tutorials.count].event_start) Tutorials.TutorialUnlock(GameIns.restaurantManager.tutorialStructs[GameIns.restaurantManager.tutorials.id][GameIns.restaurantManager.tutorials.count]);
+            if(GameIns.restaurantManager.tutorialStructs[GameIns.restaurantManager.tutorials.id][GameIns.restaurantManager.tutorials.count].event_start) Tutorials.TutorialUnlockLateTime(GameIns.restaurantManager.tutorialStructs[GameIns.restaurantManager.tutorials.id][GameIns.restaurantManager.tutorials.count]);
+         //   if (GameIns.restaurantManager.tutorialStructs[GameIns.restaurantManager.tutorials.id][GameIns.restaurantManager.tutorials.count].event_start) Tutorials.TutorialUnlock(GameIns.restaurantManager.tutorialStructs[GameIns.restaurantManager.tutorials.id][GameIns.restaurantManager.tutorials.count]);
         }
-        else
+        /*  else
+          {
+
+          }
+          Debug.Log(GameIns.restaurantManager.tutorials.count + " " + GameIns.restaurantManager.tutorialStructs[GameIns.restaurantManager.tutorials.id].Count);
+  */
+        if (GameIns.restaurantManager.tutorials.count < GameIns.restaurantManager.tutorialStructs[GameIns.restaurantManager.tutorials.id].Count)
         {
-            tutoBtn_Text.text = App.languages[91001].text;
-            tutoBtn_Text.GetComponent<LanguageText>().id = 91001;
+            GameIns.restaurantManager.tutorials.count++;
+
+            tutorialText.gameObject.SetActive(false);
+            tutorialText.text = "";
+            tutorialText.ForceMeshUpdate();
+            if (tuto != null) StopCoroutine(tuto);
+            if (c + 1 == max)
+            {
+                tutoBtn_Text.text = App.languages[91002].text;
+                tutoBtn_Text.GetComponent<LanguageText>().id = 91002;
+            }
+            else
+            {
+                tutoBtn_Text.text = App.languages[91001].text;
+                tutoBtn_Text.GetComponent<LanguageText>().id = 91001;
+            }
+            tuto = StartCoroutine(ShowTutorial(id, c, max));
         }
-        tuto = StartCoroutine(ShowTutorial(id, c, max));
     }
     public void TutorialEnd(bool hideText)
     {
@@ -484,7 +514,7 @@ public class UIManager : MonoBehaviour
     }
     IEnumerator ShowTutorial(int id, int c, int max)
     {
-   
+        Debug.Log(id + " " + c + " " + max);
         if (!tutorialText.gameObject.activeSelf) tutorialText.gameObject.SetActive(true);
 
         string res = App.languages[GameIns.restaurantManager.tutorialStructs[id][c].text_id].text;

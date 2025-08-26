@@ -222,6 +222,7 @@ public class ApplianceUIManager : MonoBehaviour
         int baseNum = GameInstance.GameIns.restaurantManager.restaurantCurrency.fishes;
         GameInstance.GameIns.restaurantManager.restaurantCurrency.fishes += num;
         GameInstance.GameIns.restaurantManager.restaurantCurrency.changed = true;
+        ((Action<TutorialEventKey>)EventManager.Publish(TutorialEventKey.TrashcanMinigame))?.Invoke(TutorialEventKey.TrashcanMinigame);
         yield return new WaitForSecondsRealtime(0.5f);
 
         rewardChestBtn.gameObject.SetActive(true);
@@ -257,6 +258,13 @@ public class ApplianceUIManager : MonoBehaviour
             yield return new WaitForSecondsRealtime(0.01f);
         }
 
+        if(RestaurantManager.tutorialKeys.Contains((int)TutorialEventKey.TrashcanMinigame))
+        {
+            RestaurantManager.tutorialKeys.Remove((int)TutorialEventKey.TrashcanMinigame);
+            Tutorials tuto = GameInstance.GameIns.restaurantManager.tutorials;
+            GameInstance.GameIns.uiManager.TutorialStart(tuto.id, tuto.count, GameInstance.GameIns.restaurantManager.tutorialStructs[tuto.id].Count);
+        }
+       // if(RestaurantManager.tutorialKeys.Contains(15000)) Ac
         //  GameInstance.GameIns.uiManager.fishText.text = GameInstance.GameIns.restaurantManager.restaurantCurrency.fishes.ToString();
     }
     IEnumerator SpreadFishes(RectTransform rect)
@@ -678,7 +686,7 @@ public class ApplianceUIManager : MonoBehaviour
         {
             RestaurantManager restaurantManager = GameInstance.GameIns.restaurantManager;
             int num = restaurantManager.employees.num;
-            if (num < 8 && restaurantManager.employeeHire[num] <= restaurantManager.GetRestaurantValue() && !RestaurantManager.tutorialKeys.Contains(1000))
+            if (num < 8 && restaurantManager.employeeHire[num] <= restaurantManager.GetRestaurantValue() && !RestaurantManager.tutorialEventKeys.Contains(TutorialEventKey.NoEmployee))
             {
                 //Debug.Log(num + " " + restaurantManager.employeeHire[num] + " " + restaurantManager.GetRestaurantValue());
                 viewHireBtn = true;

@@ -18,6 +18,7 @@ using UnityEngine.UIElements;
 using static GameInstance;
 using Random = UnityEngine.Random;
 using static MoveCalculator;
+using System.Threading.Tasks;
 public class Employee : AnimalController
 {
     enum EmployeeActions
@@ -866,7 +867,7 @@ public class Employee : AnimalController
 
                 //테이블을 청소
 
-                if (workSpaceManager.trashCans.Count > 0)
+                if (workSpaceManager.trashCans.Count > 0 && !RestaurantManager.tutorialEventKeys.Contains(TutorialEventKey.NoEmloyeeCleaning))
                 {
                     for (int i = 0; i < tableList.Count; i++)
                     {
@@ -1267,16 +1268,18 @@ public class Employee : AnimalController
                 float size = GameIns.calculatorScale.distanceSize;
                 float speed = Random.Range(employeeLevelData.speed, employeeLevelData.speed * 2);
                 System.Random random = new System.Random();
-                Vector3 result = await UniTask.RunOnThreadPool(() =>
+                Vector3 result = await UniTask.RunOnThreadPool(async () =>
                 {
                     Vector3 res = Vector3.zero;
-                    while (true)
+                //    while (true)
                     {
 
-                        int x = random.Next(-1 * (int)speed, (int)speed + 1);
-                        int y = random.Next(-1 * (int)speed, (int)speed + 1);
+                        int x = random.Next(-1, 2); 
+                       // int x = random.Next(-1 * (int)speed, (int)speed + 1);
+                        int y = random.Next(-1, 2);
+                     //   int y = random.Next(-1 * (int)speed, (int)speed + 1);
 
-                        if (x == 0 && y == 0) continue;
+                    //    if (x == 0 && y == 0) continue;
                         Vector3 v3 = new Vector3(x, 0, y);
                         float mag = v3.magnitude;
                         if (mag > 0)
@@ -1287,13 +1290,24 @@ public class Employee : AnimalController
 
                         int xx = Mathf.FloorToInt((res.x - minX) / size);
                         int yy = Mathf.FloorToInt((res.z - minY) / size);
-                        if (!GetBlockEmployee[GetIndex(xx, yy)])
+                        if (GetBlockEmployee[GetIndex(xx, yy)])
                         {
-                            break;
+                            res = current;
                         }
+                   
+                        await Task.Delay(100);
                     }
                     return res;
                 });
+
+                if(result == trans.position)
+                {
+                    reCalculate = false;
+                    busy = false;
+                    await UniTask.Delay(500, cancellationToken: cancellationToken);
+                    employeeCallback?.Invoke(this);
+                    return;
+                }
 
                 await UniTask.NextFrame(cancellationToken: cancellationToken);  
                 Stack<Vector3> moveTargets = await CalculateNodes_Async(result, true, cancellationToken);

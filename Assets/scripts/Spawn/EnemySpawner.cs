@@ -29,6 +29,12 @@ public class EnemySpawner : MonoBehaviour
         {
             while (true)
             {
+                if(RestaurantManager.tutorialKeys.Contains(200))
+                {
+                    await UniTask.Delay(500, true, cancellationToken: cancellationToken);
+                    continue;
+                }
+
                 List<Table> tables = workSpace.tables;
                 bool canSpawn = false;
                 for (int i = 0; i < tables.Count; i++)
@@ -71,5 +77,28 @@ public class EnemySpawner : MonoBehaviour
         {
 
         }
+    }
+
+
+    public GameObject SpawnEnemyTutorial()
+    {
+        if (!bSpawned)
+        {
+            bSpawned = true;
+            currentBlackConsumer = GameInstance.GameIns.animalManager.blackConsumer;
+            currentBlackConsumer.bDead = false;
+            currentBlackConsumer.enemySpawner = this;
+            currentBlackConsumer.spawnerTrans = transform;
+            currentBlackConsumer.trans.position = transform.position;
+            currentBlackConsumer.animalStruct = AssetLoader.animals[201];
+            currentBlackConsumer.gameObject.SetActive(true);
+            GameInstance.GameIns.lodManager.AddLODGroup(currentBlackConsumer.ID, currentBlackConsumer.lodGroup);
+            currentBlackConsumer.state = BlackConsumerState.Spawn;
+            currentBlackConsumer.consumerCallback?.Invoke(currentBlackConsumer);
+
+            return currentBlackConsumer.gameObject;
+        }
+
+        return null;
     }
 }

@@ -153,11 +153,10 @@ public class Customer : AnimalController
             FoodStack foodStack = FoodStackManager.FM.GetFoodStack();
             // ClearPlate(foodStack);
             foodStack.needFoodNum = UnityEngine.Random.Range(animalStruct.min_order, maxNum);
+            if (RestaurantManager.tutorialKeys.Contains(5000)) foodStack.needFoodNum = 2;
             foodStack.type = MachineType.BurgerMachine;
             foodStacks.Add(foodStack);
-
-
-     
+                
         }
 
         if (foodsAnimalsWant.coke)
@@ -557,14 +556,13 @@ public class Customer : AnimalController
             }
 
             
-            if(RestaurantManager.tutorialKeys.Contains(8000))
+            if(RestaurantManager.tutorialKeys.Contains((int)TutorialEventKey.EnterFishing))
             {
                 GameInstance.GameIns.restaurantManager.restaurantCurrency.minigameStack = 0;
                 GameInstance.GameIns.restaurantManager.miniGame.activate = true;
                 GameInstance.GameIns.restaurantManager.OpenMiniGame(MiniGameType.Fishing);
-                // ((Action<int>)EventManager.Publish(-1, true))?.Invoke(8000);
-                GameInstance.GameIns.uiManager.TutorialStart(GameInstance.GameIns.restaurantManager.tutorials.id, GameInstance.GameIns.restaurantManager.tutorials.count, GameInstance.GameIns.restaurantManager.tutorialStructs[GameInstance.GameIns.restaurantManager.tutorials.id].Count);
-                GameInstance.GameIns.restaurantManager.tutorials.count++;
+                Tutorials tutorials = GameInstance.GameIns.restaurantManager.tutorials;
+                GameInstance.GameIns.uiManager.TutorialStart(tutorials.id, tutorials.count, GameInstance.GameIns.restaurantManager.tutorialStructs[tutorials.id].Count);
             }
             else
             {
@@ -1087,7 +1085,42 @@ public class Customer : AnimalController
                     }
                     else if (table.placedFoods[seatIndex] == null)
                     {
-                        // 음식을 다 먹음
+                        //쓰레기 통 튜토리얼
+                        if(RestaurantManager.tutorialKeys.Contains((int)TutorialEventKey.BuyTrashcan))
+                        {
+                            // ((Action<TutorialEventKey>)EventManager.Publish(TutorialEventKey.BuyTrashcan))?.Invoke(TutorialEventKey.BuyTrashcan);
+                            //RestaurantManager.tutorialKeys.Remove((int)TutorialEventKey.BuyTrashcan);
+                            Tutorials tuto = GameInstance.GameIns.restaurantManager.tutorials;
+                            GameInstance.GameIns.uiManager.TutorialStart(tuto.id, tuto.count, GameInstance.GameIns.restaurantManager.tutorialStructs[tuto.id].Count);
+                        }
+                        else if (RestaurantManager.tutorialKeys.Contains((int)TutorialEventKey.Cleaning))  //쓰레기 버리기 튜토리얼
+                        {
+                            Tutorials tuto = GameInstance.GameIns.restaurantManager.tutorials;
+                            TutorialStruct tutorialStruct = GameInstance.GameIns.restaurantManager.tutorialStructs[tuto.id][tuto.count];
+                            Tutorials.TutorialUnlockLateTime(tutorialStruct);
+                            GameInstance.GameIns.uiManager.TutorialStart(tuto.id, tuto.count, GameInstance.GameIns.restaurantManager.tutorialStructs[tuto.id].Count);
+                        }
+                  
+
+                        //쓰레기 생성
+                        if (table.foodStacks[0].foodStack.Count == 0 && table.numberOfFoods == 0)
+                        {
+                            table.numberOfGarbage = table.numberOfGarbage > 10 ? 10 : table.numberOfGarbage;
+                            table.isDirty = true;
+
+                            for (int i = 0; i < table.numberOfGarbage; i++)
+                            {
+                                Garbage go = GarbageManager.CreateGarbage();
+                                go.transforms.SetParent(table.trashPlate.transforms);
+                                table.garbageList.Add(go);
+
+                                float x = Random.Range(-1f, 1f);
+                                float z = Random.Range(-1f, 1f);
+                                go.transforms.position = table.up.position + new Vector3(x, 0, z);
+                            }
+                        }
+
+
                         int reputation = Random.Range(0, 10);
                         int targetRep = animalPersonality == AnimalPersonality.Loyal ? 10 : (animalPersonality == AnimalPersonality.HardToPlease ? 5 : 8);
 
@@ -1211,13 +1244,12 @@ public class Customer : AnimalController
                             Eat eat = ParticleManager.CreateParticle(ParticleType.Eating).GetComponent<Eat>();
                             eat.transform.position = table.placedFoods[seatIndex].transform.position;
                             eat.PlayEating();
+                            if (RestaurantManager.tutorialEventKeys.Contains(TutorialEventKey.NoEating)) i-=10;
                         }
-
                         await Utility.CustomUniTaskDelay(timer / 100, cancellationToken);
                     }
 
                     //먹음
-
                     FoodManager.EatFood(table.placedFoods[seatIndex].GetComponent<Food>());
                     table.placedFoods[seatIndex] = null;
 
@@ -1225,23 +1257,8 @@ public class Customer : AnimalController
                     table.numberOfFoods = table.numberOfFoods < 0 ? 0 : table.numberOfFoods;
                     table.numberOfGarbage++;
 
-                    //쓰레기 생성
-                    if (table.foodStacks[0].foodStack.Count == 0 && table.numberOfFoods == 0)
-                    {
-                        table.numberOfGarbage = table.numberOfGarbage > 10 ? 10 : table.numberOfGarbage;
-                        table.isDirty = true;
-
-                        for (int i = 0; i < table.numberOfGarbage; i++)
-                        {
-                            Garbage go = GarbageManager.CreateGarbage();
-                            go.transforms.SetParent(table.trashPlate.transforms);
-                            table.garbageList.Add(go);
-
-                            float x = Random.Range(-1f, 1f);
-                            float z = Random.Range(-1f, 1f);
-                            go.transforms.position = table.up.position + new Vector3(x, 0, z);
-                        }
-                    }
+                
+                    
                  
                     await UniTask.Delay(200, cancellationToken: cancellationToken);
                 }

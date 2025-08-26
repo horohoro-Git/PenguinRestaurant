@@ -176,9 +176,9 @@ public class Store : MonoBehaviour
                 if(g.Value.goods.require == 0 || require.Contains(g.Value.goods.require))
                 {
                     bool visible = true;
-                    foreach (var id in RestaurantManager.tutorialKeys)
+                    foreach (var id in RestaurantManager.tutorialEventKeys)
                     {
-                        if (g.Value.goods.id == id)
+                        if (g.Value.goods.id == (int)id)
                         {
                             visible = false;
                             break;

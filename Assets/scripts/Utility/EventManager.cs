@@ -6,17 +6,27 @@ using Unity.VisualScripting;
 public class EventManager
 {
     public static Dictionary<int, Delegate> touchEvents = new Dictionary<int, Delegate>();
-    public static Delegate tutorialEvent;
+    public static Dictionary<TutorialEventKey, Delegate> tutorialEvents = new();
 
     public static void AddTouchEvent(int id, Delegate action)
     {
         if(!touchEvents.ContainsKey(id)) touchEvents[id] = action;
 
     }
-    public static void AddTutorialEvent(int id, Delegate action)
+    public static void AddTutorialEvent(TutorialEventKey id, Delegate action)
     {
-        tutorialEvent = action;
+        if(!tutorialEvents.ContainsKey(id)) tutorialEvents[id] = action;
        // if (!tutorialEvents.ContainsKey(id)) tutorialEvents[id] = action;
+    }
+    public static void RemoveTutorialEvent(TutorialEventKey id)
+    {
+        if (tutorialEvents.ContainsKey(id)) tutorialEvents.Remove(id);
+        // if (!tutorialEvents.ContainsKey(id)) tutorialEvents[id] = action;
+    }
+    public static Delegate Publish(TutorialEventKey tutorialEventKey)
+    {
+        if(tutorialEvents.ContainsKey(tutorialEventKey)) return tutorialEvents[tutorialEventKey];
+        return null;
     }
     public static Delegate Publish(int id, bool tutorial = false)
     {
@@ -26,7 +36,7 @@ public class EventManager
         }
         else
         {
-            return tutorialEvent;
+         //   return tutorialEvent;
             //tutorialEvent = action;
         }
         return null;

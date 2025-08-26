@@ -65,8 +65,13 @@ public class WaterQuality : MonoBehaviour
         GameInstance.GameIns.restaurantManager.miniGame.fishing.isDirty = true;
         GameInstance.GameIns.restaurantManager.miniGame.changed = true;
         GameInstance.GameIns.fishingManager.KillAllFishes();
-
-       // yield return StartCoroutine(ChangeCleanQuality());
+        if (RestaurantManager.tutorialKeys.Contains(9000))
+        {
+            Tutorials t = new Tutorials(10, true);
+       //     SaveLoadSystem.SaveTutorialData(t);
+           
+        }
+        // yield return StartCoroutine(ChangeCleanQuality());
     }
     IEnumerator ChangeCleanQuality()
     {

@@ -239,7 +239,19 @@ public struct TutorialStruct
     public int id;
     public int image_id;
     public int text_id;
-    public int event_id;
+    public int event_text;
+    //  public int event_id;
+    public TutorialEventKey event_id;
+    public TutorialType event_type;
+    public TutorialEventKey start_unlock_key1;
+    public TutorialEventKey start_unlock_key2;
+    public TutorialEventKey late_unlock_key1;
+    public TutorialEventKey late_unlock_key2;
+    public TutorialEventKey start_lock_key1;
+    public TutorialEventKey start_lock_key2;
+    public TutorialEventKey late_lock_key1;
+    public TutorialEventKey late_lock_key2;
+    public bool event_start;
 }
 
 public struct PlayerStruct
