@@ -13,6 +13,7 @@ using UnityEngine.SceneManagement;
 using Quaternion = UnityEngine.Quaternion;
 using Vector3 = UnityEngine.Vector3;
 //using UnityEditor;
+using UnityEngine.InputSystem.EnhancedTouch;
 
 
 public enum SceneState
@@ -24,12 +25,20 @@ public enum SceneState
     Fishing
 }
 
+public enum Stage
+{
+    Town_01,
+    Forest_01
+}
+
 public class App : MonoBehaviour
 {
     private static CancellationTokenSource globalCts = new();
     public static CancellationToken GlobalToken => globalCts.Token;
 
     public static SceneState currentScene;
+    public static Stage currentStage;
+
     public static float restaurantTimeScale = 1f;
     //public static Language language;
     public static Queue<LanguageText> languageTexts = new();

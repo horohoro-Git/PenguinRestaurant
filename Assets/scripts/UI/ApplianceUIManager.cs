@@ -261,8 +261,14 @@ public class ApplianceUIManager : MonoBehaviour
         if(RestaurantManager.tutorialKeys.Contains((int)TutorialEventKey.TrashcanMinigame))
         {
             RestaurantManager.tutorialKeys.Remove((int)TutorialEventKey.TrashcanMinigame);
+
+
             Tutorials tuto = GameInstance.GameIns.restaurantManager.tutorials;
+            TutorialStruct tutorialStruct = GameInstance.GameIns.restaurantManager.tutorialStructs[tuto.id][0];
+            Tutorials.TutorialUnlock(tutorialStruct);
             GameInstance.GameIns.uiManager.TutorialStart(tuto.id, tuto.count, GameInstance.GameIns.restaurantManager.tutorialStructs[tuto.id].Count);
+            
+
         }
        // if(RestaurantManager.tutorialKeys.Contains(15000)) Ac
         //  GameInstance.GameIns.uiManager.fishText.text = GameInstance.GameIns.restaurantManager.restaurantCurrency.fishes.ToString();

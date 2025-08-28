@@ -46,6 +46,8 @@ public class UIManager : MonoBehaviour
     public Button tutoBtn;
     public TMP_Text tutoBtn_Text;
     public TMP_Text tutoText2;
+    public GameObject targetGO;
+    public TMP_Text targetText;
 
     public GraphicRaycaster graphicRaycaster;
 

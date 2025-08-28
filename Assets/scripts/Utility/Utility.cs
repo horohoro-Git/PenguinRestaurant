@@ -808,12 +808,14 @@ public class GameRegulation
     public int id;
     public string map_name;
     // 옵션 설정들 추가
+    public int target_num;
 
     //
-    public GameRegulation(int id, string map_name)
+    public GameRegulation(int id, string map_name, int target_num)
     {
         this.id = id;
         this.map_name = map_name;
+        this.target_num = target_num;
     }
 }
 
@@ -840,24 +842,34 @@ public class RestaurantCurrency
 {
     public string money;
     public int fishes;
-    public int affinity;
-    public int reputation;
+   // public int affinity;
+  //  public int reputation;
     public int leftover;
-    public int sale_num;
-    public int minigameStack;
+  //  public int sale_num;
+   // public int minigameStack;
     public bool changed;
 
     BigInteger? m;
     public BigInteger Money { get { if (!m.HasValue) m = BigInteger.Parse(money); return m.Value; } set { m = value; changed = true; } }
 
-    public RestaurantCurrency(string money, int fishes, int affinity, int reputation, int leftover, int sale_num, int minigameStack)
+    public RestaurantCurrency(string money, int fishes, int leftover)
     {
         this.money = money;
         this.fishes = fishes;
-        this.affinity = affinity;
-        this.reputation = reputation;
         this.leftover = leftover;
-        this.sale_num = sale_num;
+     //   this.reputation = reputation;
+     //   this.minigameStack = minigameStack;
+    }
+}
+
+public class RestaurantOthers
+{
+    public int reputation;
+    public int minigameStack;
+    public bool changed;
+    public RestaurantOthers(int reputation, int minigameStack)
+    {
+        this.reputation = reputation;
         this.minigameStack = minigameStack;
     }
 }
