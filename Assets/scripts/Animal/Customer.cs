@@ -558,7 +558,8 @@ public class Customer : AnimalController
             
             if(RestaurantManager.tutorialKeys.Contains((int)TutorialEventKey.EnterFishing))
             {
-                GameInstance.GameIns.restaurantManager.restaurantCurrency.minigameStack = 0;
+                GameInstance.GameIns.restaurantManager.restaurantOthers.minigameStack = 0;
+                GameInstance.GameIns.restaurantManager.restaurantOthers.changed = true;
                 GameInstance.GameIns.restaurantManager.miniGame.activate = true;
                 GameInstance.GameIns.restaurantManager.OpenMiniGame(MiniGameType.Fishing);
                 Tutorials tutorials = GameInstance.GameIns.restaurantManager.tutorials;
@@ -568,14 +569,15 @@ public class Customer : AnimalController
             {
                 if (!GameInstance.GameIns.restaurantManager.miniGame.activate)
                 {
-                    GameInstance.GameIns.restaurantManager.restaurantCurrency.minigameStack += foodNum;
+                    GameInstance.GameIns.restaurantManager.restaurantOthers.minigameStack += foodNum;
+                    GameInstance.GameIns.restaurantManager.restaurantOthers.changed = true;
 
-                    int r = Random.Range(0, GameInstance.GameIns.restaurantManager.restaurantCurrency.minigameStack);
+                    int r = Random.Range(0, GameInstance.GameIns.restaurantManager.restaurantOthers.minigameStack);
 
                     //if(r > 0)
                     if (r > 50)
                     {
-                        GameInstance.GameIns.restaurantManager.restaurantCurrency.minigameStack = 0;
+                        GameInstance.GameIns.restaurantManager.restaurantOthers.minigameStack = 0;
                         GameInstance.GameIns.restaurantManager.miniGame.activate = true;
                         int minigame = Random.Range(1, 2);
                         GameInstance.GameIns.restaurantManager.OpenMiniGame((MiniGameType)minigame);
@@ -1033,11 +1035,11 @@ public class Customer : AnimalController
                     EmoteTimer(0, AnimationKeys.Trauma, true, cancellationTokenSource.Token).Forget();
 
                     FloatingEmote(4003);
-                    if (GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation > 0)
+                    if (GameInstance.GameIns.restaurantManager.restaurantOthers.reputation > 0)
                     {
-                        GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation--;
-                        GameInstance.GameIns.uiManager.reputation.text = GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation.ToString();
-                        GameInstance.GameIns.restaurantManager.restaurantCurrency.changed = true;
+                        GameInstance.GameIns.restaurantManager.restaurantOthers.reputation--;
+                        GameInstance.GameIns.uiManager.reputation.text = GameInstance.GameIns.restaurantManager.restaurantOthers.reputation.ToString();
+                        GameInstance.GameIns.restaurantManager.restaurantOthers.changed = true;
                         GameInstance.GameIns.restaurantManager.CalculateSpawnTimer();
                     }
                     await Utility.CustomUniTaskDelay(3f, cancellationToken);
@@ -1191,14 +1193,14 @@ public class Customer : AnimalController
                             }
 
                             SoundManager.Instance.PlayAudio3D(GameInstance.GameIns.gameSoundManager.Happy(), 0.1f, 100, 5, trans.position);
-                            if (GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation < 100)
+                            if (GameInstance.GameIns.restaurantManager.restaurantOthers.reputation < 100)
                             {
                                 int random = Random.Range(1, 6);
-                                if (GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation + random > 100) GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation = 100;
-                                else GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation += random;
-                                GameInstance.GameIns.uiManager.reputation.text = GameInstance.GameIns.restaurantManager.restaurantCurrency.reputation.ToString();
+                                if (GameInstance.GameIns.restaurantManager.restaurantOthers.reputation + random > 100) GameInstance.GameIns.restaurantManager.restaurantOthers.reputation = 100;
+                                else GameInstance.GameIns.restaurantManager.restaurantOthers.reputation += random;
+                                GameInstance.GameIns.uiManager.reputation.text = GameInstance.GameIns.restaurantManager.restaurantOthers.reputation.ToString();
                                 GameInstance.GameIns.restaurantManager.CalculateSpawnTimer();
-                                GameInstance.GameIns.restaurantManager.restaurantCurrency.changed = true;
+                                GameInstance.GameIns.restaurantManager.restaurantOthers.changed = true;
                             }
                             FloatingEmote(4000);
                             if (cancellationTokenSource != null) cancellationTokenSource.Cancel();

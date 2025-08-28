@@ -11,6 +11,7 @@ using UnityEngine.U2D;
 using Unity.Collections.LowLevel.Unsafe;
 using TMPro;
 using Newtonsoft.Json;
+using System.Data;
 public class AssetLoader : MonoBehaviour
 {
     [NonSerialized]
@@ -43,6 +44,7 @@ public class AssetLoader : MonoBehaviour
     public static Dictionary<int, AnimalPersnality> animalPersonalities = new();
     public static List<MapContent> maps = new();
     public static List<RestaurantParam> restaurantParams = new();
+    public static List<GameRegulation> rules = new();
 
     public static TMP_FontAsset font;
     public static Material font_mat;
@@ -89,14 +91,7 @@ public class AssetLoader : MonoBehaviour
         string target = Path.Combine(serverUrl, "map");
         //  Hash128 bundleHash = SaveLoadSystem.ComputeHash128(System.Text.Encoding.UTF8.GetBytes(target));
         Hash128 bundleHash = App.bundleCheck[1].hash;
-    /*    if (Caching.IsVersionCached(target, bundleHash))
-        {
-            Debug.Log("Asset Found");
-        }
-        else
-        {
-            Debug.Log("Asset Not Found");
-        }*/
+  
         cancellationToken.ThrowIfCancellationRequested();
         UnityWebRequest www = UnityWebRequestAssetBundle.GetAssetBundle(target, bundleHash, 0);
         await www.SendWebRequest().ToUniTask(cancellationToken: cancellationToken);
@@ -104,10 +99,7 @@ public class AssetLoader : MonoBehaviour
         if (www.result == UnityWebRequest.Result.Success)
         {
             b_reg = DownloadHandlerAssetBundle.GetContent(www);
-            //if (Caching.IsVersionCached(target, bundleHash))
-            {
-           //     Debug.Log("AssetBundle Cached Successfully");
-            }
+           
             cancellationToken.ThrowIfCancellationRequested();
             AssetBundleRequest assetRequest = b_reg.LoadAssetAsync<TextAsset>("maps");
             await assetRequest.ToUniTask(cancellationToken: cancellationToken);
@@ -115,9 +107,16 @@ public class AssetLoader : MonoBehaviour
             {
                 mapContents = assetRequest.asset.ToString();
                 maps = SaveLoadSystem.GetListData<MapContent>(mapContents);
-
+            }
+            AssetBundleRequest ruleRequest = b_reg.LoadAssetAsync<TextAsset>("rules");
+            await ruleRequest.ToUniTask(cancellationToken: cancellationToken);
+            if (ruleRequest != null)
+            {
+                string ruleText = ruleRequest.asset.ToString();
+                rules = SaveLoadSystem.GetListData<GameRegulation>(ruleText);
                 gameRegulation = SaveLoadSystem.LoadGameRegulation();
             }
+
             cancellationToken.ThrowIfCancellationRequested();
             AssetBundleRequest soundsRequest = b_reg.LoadAssetAsync<TextAsset>("sounds");
             await soundsRequest.ToUniTask(cancellationToken: cancellationToken);

@@ -54,6 +54,7 @@ public class RestaurantManager : MonoBehaviour
     public Door door;
     public DoorController doorPreview;
     public RestaurantCurrency restaurantCurrency;
+    public RestaurantOthers restaurantOthers;
     public RestaurantData restaurantData;
     public Employees employees;
 
@@ -184,13 +185,14 @@ public class RestaurantManager : MonoBehaviour
         }
         restaurantData = SaveLoadSystem.LoadRestaurantData();
         restaurantCurrency = SaveLoadSystem.LoadRestaurantCurrency();
+        restaurantOthers = SaveLoadSystem.LoadRestaurantOthers();
         restaurantparams = SaveLoadSystem.LoadRestaurantBuildingData();
         vendingData = SaveLoadSystem.LoadVendingMachineData();
         employees = SaveLoadSystem.LoadEmployees();
         miniGame = SaveLoadSystem.LoadMiniGameStatus();
         trashData = SaveLoadSystem.LoadTrashData();
         tutorials = SaveLoadSystem.LoadTutorialData();
-        Tutorials.TutorialUpdate();
+        Tutorials.TutorialUpdate(tutorials.id);
         //  Tutorials.Setup(tutorials);
         // restaurantCurrency.fishes += 100;
         restaurantCurrency.Money += BigInteger.Parse("316000");// 10000;
@@ -261,6 +263,11 @@ public class RestaurantManager : MonoBehaviour
             {
                 trashData.changed = false;
                 SaveLoadSystem.SaveTrashData(trashData);
+            }
+            if(restaurantOthers.changed)
+            {
+                restaurantOthers.changed = false;
+                SaveLoadSystem.SaveRestaurantOthers(restaurantOthers);
             }
         }
     }
@@ -512,11 +519,8 @@ public class RestaurantManager : MonoBehaviour
         yield return null;
         if (!purchased)
         {
-            // Debug.Log("BB");
-            //    ((Action<int>)EventManager.Publish(-1, true)).Invoke(goods.goods.ID);
             if (tutorialKeys.Contains(goods.goods.ID))
             {
-                Debug.Log((TutorialEventKey)goods.goods.ID);
                 ((Action<TutorialEventKey>)EventManager.Publish((TutorialEventKey)goods.goods.ID))?.Invoke((TutorialEventKey)goods.goods.ID);
                 if (tutorialStructs[tutorials.id][0].event_start)
                 {
@@ -524,11 +528,8 @@ public class RestaurantManager : MonoBehaviour
                 }
                 else
                 {
-                    //TutorialEventKey tutorialEventKey = tutorialStructs[tutorials.id][0].event_id;
                     Tutorials.TutorialUnlock(tutorialStructs[tutorials.id][0]);
                     GameIns.uiManager.TutorialEnd(true);
-                   // ((Action<TutorialEventKey>)EventManager.Publish((TutorialEventKey)goods.goods.ID))?.Invoke((TutorialEventKey)goods.goods.ID);
-                //    if(tutorialKeys.Contains(goods.goods.ID)) tutorialKeys.Remove(goods.goods.ID);
                 }
                 tutorialKeys.Remove(goods.goods.ID);
             }
@@ -796,8 +797,13 @@ public class RestaurantManager : MonoBehaviour
                 }
             }
 
-            GameIns.uiManager.reputation.text = restaurantCurrency.reputation.ToString();
-
+            GameIns.uiManager.reputation.text = restaurantOthers.reputation.ToString();
+            int sum = 0;
+            foreach(var v in AnimalManager.gatchaTiers)
+            {
+                sum += v.Value.Item1;
+            }
+            GameIns.uiManager.targetText.text = $"{sum} / {AssetLoader.rules[GameIns.assetLoader.gameRegulation.id].target_num}";
             GameIns.applianceUIManager.rewardChest_Fill.uiImage.fillAmount = trashData.trashPoint * 0.01f;
             if (trashData.trashPoint == 100)
             {
@@ -1311,6 +1317,7 @@ public class RestaurantManager : MonoBehaviour
         {
             if (trashData.changed) SaveLoadSystem.SaveTrashData(trashData);
         }
+        if(restaurantOthers.changed) SaveLoadSystem.SaveRestaurantOthers(restaurantOthers);
     }
 
     private void OnApplicationPause(bool pauseStatus)
@@ -1350,6 +1357,12 @@ public class RestaurantManager : MonoBehaviour
                     trashData.changed = false;
                     SaveLoadSystem.SaveTrashData(trashData);
                 }
+            }
+
+            if(restaurantOthers.changed)
+            {
+                restaurantOthers.changed = false;
+                SaveLoadSystem.SaveRestaurantOthers(restaurantOthers);
             }
         }
     }
@@ -1532,13 +1545,13 @@ public class RestaurantManager : MonoBehaviour
 
     public void CalculateSpawnTimer()
     {
-        if (restaurantCurrency.reputation == 0)
+        if (restaurantOthers.reputation == 0)
         {
             spawnTimer = 20000 + (int)(20000 * (spawnerNum - 1) * 0.5f);
         }
         else
         {
-            float f = restaurantCurrency.reputation / 100f;
+            float f = restaurantOthers.reputation / 100f;
 
             int timer = (int)Mathf.Lerp(20000, 4000, f);
             timer = timer + (int)(timer * (spawnerNum - 1) * 0.5f);

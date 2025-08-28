@@ -134,8 +134,13 @@ public class Table : Furniture
                 GameInstance.GameIns.applianceUIManager.rewardChest_Fill.ChangeHighlight(true);
                 GameInstance.GameIns.applianceUIManager.rewardChest_Fill.uiImage.fillAmount = GameInstance.GameIns.restaurantManager.trashData.trashPoint * 0.01f;
                 GameInstance.GameIns.restaurantManager.trashData.changed = true;
-                ((Action<TutorialEventKey>)EventManager.Publish(TutorialEventKey.Cleaning))?.Invoke(TutorialEventKey.Cleaning);
+
                 Tutorials tutorials = GameInstance.GameIns.restaurantManager.tutorials;
+
+                TutorialStruct tutorialStruct = GameInstance.GameIns.restaurantManager.tutorialStructs[tutorials.id][0];
+                Tutorials.TutorialUnlockLateTime(tutorialStruct);
+
+                ((Action<TutorialEventKey>)EventManager.Publish(TutorialEventKey.Cleaning))?.Invoke(TutorialEventKey.Cleaning);
                 GameInstance.GameIns.uiManager.TutorialStart(tutorials.id, tutorials.count, GameInstance.GameIns.restaurantManager.tutorialStructs[tutorials.id].Count);
             }
         }

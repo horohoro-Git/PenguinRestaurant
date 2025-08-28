@@ -351,15 +351,15 @@ public class SaveLoadSystem
                 {
                     int id = reader.ReadInt32();
                     string map_name = reader.ReadString();
-
-                    regulation = new GameRegulation(id, map_name);
+                    int target_num = reader.ReadInt32();
+                    regulation = new GameRegulation(id, map_name, target_num);
 
                 }
             }
         }
         else
         {
-            regulation = new GameRegulation(0, "town_01");
+            regulation = new GameRegulation(0, "town_01", 20);
             SaveGameRegulation(regulation);
         }
         return regulation;
@@ -368,13 +368,13 @@ public class SaveLoadSystem
     //레스토랑 저장
     public static void SaveRestaurantData(RestaurantData restaurantData)
     {
-        string dir = Path.Combine(path, "Save");
+        string dir = Path.Combine(path, $"Save/{App.currentStage}");
         if (!Directory.Exists(dir))
         {
             Directory.CreateDirectory(dir);
         }
 
-        string p = Path.Combine(path, "Save/Restaurant.dat");
+        string p = Path.Combine(path, $"Save/{App.currentStage}/Restaurant.dat");
         using (MemoryStream ms = new MemoryStream())
         {
             using (BinaryWriter writer = new BinaryWriter(ms))
@@ -394,7 +394,7 @@ public class SaveLoadSystem
     public static RestaurantData LoadRestaurantData()
     {
         RestaurantData restaurant = null;
-        string p = Path.Combine(path, "Save/Restaurant.dat");
+        string p = Path.Combine(path, $"Save/{App.currentStage}Restaurant.dat");
         byte[] data;
         if (File.Exists(p))
         {
@@ -547,7 +547,7 @@ public class SaveLoadSystem
     //레스토랑 건물 로드
     public static List<RestaurantParam> LoadRestaurantBuildingData()
     {
-        string p = Path.Combine(path, "Save/RestaurantBuilding.dat");
+        string p = Path.Combine(path, $"Save/{App.currentStage}/RestaurantBuilding.dat");
         byte[] data;
         List<RestaurantParam> restaurantParams = new List<RestaurantParam>();
        // restaurantParams.AddRange(AssetLoader.restaurantParams.Select(stat => new RestaurantParam(stat)));
@@ -661,12 +661,12 @@ public class SaveLoadSystem
     public static void SaveRestaurantBuildingData()
     {
         WorkSpaceManager workSpaceManager = GameInstance.GameIns.workSpaceManager;
-        string dir = Path.Combine(path, "Save");
+        string dir = Path.Combine(path, $"Save/{App.currentStage}");
         if (!Directory.Exists(dir))
         {
             Directory.CreateDirectory(dir);
         }
-        string p = Path.Combine(path, "Save/RestaurantBuilding.dat");
+        string p = Path.Combine(path, $"Save/{App.currentStage}/RestaurantBuilding.dat");
         using (MemoryStream ms = new MemoryStream())
         {
             using (BinaryWriter writer = new BinaryWriter(ms))
@@ -773,7 +773,7 @@ public class SaveLoadSystem
     }
     public static Dictionary<MachineType, MachineLevelData> LoadFoodMachineStats()
     {
-        string p = Path.Combine(path, "Save/RestaurantMachines.dat");
+        string p = Path.Combine(path, $"Save/{App.currentStage}/RestaurantMachines.dat");
         byte[] data;
         Dictionary<MachineType, MachineLevelData> machineStats = new Dictionary<MachineType, MachineLevelData>();
         // restaurantParams.AddRange(AssetLoader.restaurantParams.Select(stat => new RestaurantParam(stat)));
@@ -807,12 +807,12 @@ public class SaveLoadSystem
     }
     public static void SaveFoodMachineStats(Dictionary<MachineType, MachineLevelData> machines)
     {
-        string dir = Path.Combine(path, "Save");
+        string dir = Path.Combine(path, $"Save/{App.currentStage}");
         if (!Directory.Exists(dir))
         {
             Directory.CreateDirectory(dir);
         }
-        string p = Path.Combine(path, "Save/RestaurantMachines.dat");
+        string p = Path.Combine(path, $"Save/{App.currentStage}/RestaurantMachines.dat");
         using (MemoryStream ms = new MemoryStream())
         {
             using (BinaryWriter writer = new BinaryWriter(ms))
@@ -924,18 +924,16 @@ public class SaveLoadSystem
             {
                 writer.Write(currency.Money.ToString());
                 writer.Write(currency.fishes);
-                writer.Write(currency.affinity);
-                writer.Write(currency.reputation);
+              //  writer.Write(currency.affinity);
+           //     writer.Write(currency.reputation);
                 writer.Write(currency.leftover);
-                writer.Write(currency.sale_num);
-                writer.Write(currency.minigameStack);
+           //     writer.Write(currency.sale_num);
+             //   writer.Write(currency.minigameStack);
             }
 
             File.WriteAllBytes(p, ms.ToArray());
         }
     }
-
-
 
     public static RestaurantCurrency LoadRestaurantCurrency()
     {
@@ -954,30 +952,82 @@ public class SaveLoadSystem
                     //BigInteger money = BigInteger.Parse(reader.ReadString());
                     string money = reader.ReadString();
                     int fishes = reader.ReadInt32();
-                    int affinity = reader.ReadInt32();
-                    int reputation = reader.ReadInt32();
+                  //  int affinity = reader.ReadInt32();
+                 //   int reputation = reader.ReadInt32();
                     int leftover = reader.ReadInt32();
-                    int sale_num = reader.ReadInt32();
-                    int minigameStack = reader.ReadInt32(); 
-                    currency = new RestaurantCurrency(money, fishes, affinity, reputation, leftover, sale_num, minigameStack);
+                 //   int sale_num = reader.ReadInt32();
+                //    int minigameStack = reader.ReadInt32(); 
+                    currency = new RestaurantCurrency(money, fishes, leftover);
                 }
             }
         }
         else
         {
-            currency = new RestaurantCurrency("500", 200, 0, 0, 0, 0, 0);
+            currency = new RestaurantCurrency("500", 200, 0);
             SaveRestaurantCurrency(currency);
         }
         return currency;
     }
-    public static void SaveVendingMachineData(VendingMachineData vendingData)
+
+
+    public static void SaveRestaurantOthers(RestaurantOthers others)
     {
-        string dir = Path.Combine(path, "Save");
+        string dir = Path.Combine(path, $"Save/{App.currentStage}");
         if (!Directory.Exists(dir))
         {
             Directory.CreateDirectory(dir);
         }
-        string p = Path.Combine(path, "Save/VendingData.dat");
+        string p = Path.Combine(path, $"Save/{App.currentStage}/RestaurantOthers.dat");
+        using (MemoryStream ms = new MemoryStream())
+        {
+            using (BinaryWriter writer = new BinaryWriter(ms))
+            {
+                writer.Write(others.reputation);
+                writer.Write(others.minigameStack);
+            
+            }
+
+            File.WriteAllBytes(p, ms.ToArray());
+        }
+    }
+
+
+    public static RestaurantOthers LoadRestaurantOthers()
+    {
+        RestaurantOthers others = null;
+        string p = Path.Combine(path, $"Save/{App.currentStage}/RestaurantOthers.dat");
+        byte[] data;
+        if (File.Exists(p))
+        {
+            using (FileStream fs = new FileStream(p, FileMode.Open))
+            {
+                data = new byte[fs.Length];
+                fs.Read(data, 0, data.Length);
+
+                using (BinaryReader reader = new BinaryReader(new MemoryStream(data)))
+                {
+                    int reputation = reader.ReadInt32();
+                    int minigameStack = reader.ReadInt32();
+                    others = new RestaurantOthers(reputation, minigameStack);
+                }
+            }
+        }
+        else
+        {
+            others =  new RestaurantOthers(0, 0);
+            SaveRestaurantOthers(others);
+        }
+        return others;
+    }
+
+    public static void SaveVendingMachineData(VendingMachineData vendingData)
+    {
+        string dir = Path.Combine(path, $"Save/{App.currentStage}");
+        if (!Directory.Exists(dir))
+        {
+            Directory.CreateDirectory(dir);
+        }
+        string p = Path.Combine(path, $"Save/{App.currentStage}/VendingData.dat");
         using (MemoryStream ms = new MemoryStream())
         {
             using (BinaryWriter writer = new BinaryWriter(ms))
@@ -994,7 +1044,7 @@ public class SaveLoadSystem
     public static VendingMachineData LoadVendingMachineData()
     {
         VendingMachineData vending = null;
-        string p = Path.Combine(path, "Save/VendingData.dat");
+        string p = Path.Combine(path, $"Save/{App.currentStage}/VendingData.dat");
         byte[] data;
         if (File.Exists(p))
         {
@@ -1020,7 +1070,7 @@ public class SaveLoadSystem
     public static Employees LoadEmployees()
     {
         Employees employees = null;
-        string p = Path.Combine(path, "Save/Employees.dat");
+        string p = Path.Combine(path, $"Save/{App.currentStage}/Employees.dat");
         byte[] data;
         if (File.Exists(p))
         {
@@ -1054,12 +1104,12 @@ public class SaveLoadSystem
 
     public static void SaveEmployees(Employees employees)
     {
-        string dir = Path.Combine(path, "Save");
+        string dir = Path.Combine(path, $"Save/{App.currentStage}");
         if (!Directory.Exists(dir))
         {
             Directory.CreateDirectory(dir);
         }
-        string p = Path.Combine(path, "Save/Employees.dat");
+        string p = Path.Combine(path, $"Save/{App.currentStage}/Employees.dat");
         using (MemoryStream ms = new MemoryStream())
         {
             using (BinaryWriter writer = new BinaryWriter(ms))
@@ -1083,7 +1133,7 @@ public class SaveLoadSystem
 
     public static Dictionary<int, LevelData> LoadLevelData()
     {
-        string p = Path.Combine(path, "Save/Level.dat");
+        string p = Path.Combine(path, $"Save/{App.currentStage}/Level.dat");
         byte[] data;
         Dictionary<int, LevelData> levelDatas = new Dictionary<int, LevelData>();
 
@@ -1113,12 +1163,12 @@ public class SaveLoadSystem
 
     public static void SaveTrashData(TrashData trashData)
     {
-        string dir = Path.Combine(path, "Save");
+        string dir = Path.Combine(path, $"Save/{App.currentStage}");
         if (!Directory.Exists(dir))
         {
             Directory.CreateDirectory(dir);
         }
-        string p = Path.Combine(path, "Save/trash.dat");
+        string p = Path.Combine(path, $"Save/{App.currentStage}/trash.dat");
         using (MemoryStream ms = new MemoryStream())
         {
             using (BinaryWriter writer = new BinaryWriter(ms))
@@ -1134,7 +1184,7 @@ public class SaveLoadSystem
 
     public static TrashData LoadTrashData()
     {
-        string p = Path.Combine(path, "Save/trash.dat");
+        string p = Path.Combine(path, $"Save/{App.currentStage}/trash.dat");
         byte[] data;
 
         TrashData trashData = null;
@@ -1166,12 +1216,12 @@ public class SaveLoadSystem
     
     public static void SaveMiniGameStatus(MiniGame miniGame)
     {
-        string dir = Path.Combine(path, "Save");
+        string dir = Path.Combine(path, $"Save/{App.currentStage}");
         if (!Directory.Exists(dir))
         {
             Directory.CreateDirectory(dir);
         }
-        string p = Path.Combine(path, "Save/m_Games.dat");
+        string p = Path.Combine(path, $"Save/{App.currentStage}/m_Games.dat");
         using (MemoryStream ms = new MemoryStream())
         {
             using (BinaryWriter writer = new BinaryWriter(ms))
@@ -1203,7 +1253,7 @@ public class SaveLoadSystem
 
     public static MiniGame LoadMiniGameStatus()
     {
-        string p = Path.Combine(path, "Save/m_Games.dat");
+        string p = Path.Combine(path, $"Save/{App.currentStage}/m_Games.dat");
         byte[] data;
        
         MiniGame miniGame = null;
@@ -1346,7 +1396,7 @@ public class SaveLoadSystem
         }
     }
 
-    //레스토랑 로드
+    //레스토랑 튜토리얼 로드
     public static Tutorials LoadTutorialData()
     {
         Tutorials tuto = null;

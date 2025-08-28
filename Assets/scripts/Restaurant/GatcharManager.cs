@@ -387,6 +387,13 @@ public class GatcharManager : MonoBehaviour
                 else r = randomKey;
                 tmp.Item2[r] = 1;
                 AnimalManager.gatchaTiers[key] = tmp;
+
+                int sum = 0;
+                foreach (var v in AnimalManager.gatchaTiers)
+                {
+                    sum += v.Value.Item1;
+                }
+                GameInstance.GameIns.uiManager.targetText.text = $"{sum} / {AssetLoader.rules[GameInstance.GameIns.assetLoader.gameRegulation.id].target_num}";
                 SaveLoadSystem.SaveGatchaAnimalsData();
                 return true;
             }
@@ -415,6 +422,13 @@ public class GatcharManager : MonoBehaviour
             AnimalManager.gatchaTiers[key] = (tier, personality);
             AnimalStruct asset = AssetLoader.animals[key];
             AnimalManager.animalStructs[key] = asset;
+
+            int sum = 0;
+            foreach (var v in AnimalManager.gatchaTiers)
+            {
+                sum += v.Value.Item1;
+            }
+            GameInstance.GameIns.uiManager.targetText.text = $"{sum} / {AssetLoader.rules[GameInstance.GameIns.assetLoader.gameRegulation.id].target_num}";
             SaveLoadSystem.SaveGatchaAnimalsData();
 
             if (RestaurantManager.tutorialKeys.Contains((int)TutorialEventKey.DrawGatcha))
