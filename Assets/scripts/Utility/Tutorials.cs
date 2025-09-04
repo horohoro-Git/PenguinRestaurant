@@ -208,7 +208,7 @@ public class Tutorials
 
     }
 
-    async static UniTask EnemyFollowing(GameObject target, CancellationToken cancellationToken)
+    public async static UniTask EnemyFollowing(GameObject target, CancellationToken cancellationToken)
     {
         await UniTask.Delay(1000, true, cancellationToken: cancellationToken);
       
@@ -1053,7 +1053,99 @@ public class Tutorials
         {
             Unlock(i);
         }
+        TutorialStruct tutorialStruct = GameInstance.GameIns.restaurantManager.tutorialStructs[saveID][0];
+        if(tutorialStruct.event_id == TutorialEventKey.EnterRestaurant)
+        {
+           // Setup(GameInstance.GameIns.restaurantManager.tutorials);
+          /*  if(saveID > 0)
+            {
+                TutorialStruct prevTutorialStruct = GameInstance.GameIns.restaurantManager.tutorialStructs[saveID - 1][0];
+                switch (prevTutorialStruct.event_type)
+                {
+                    case TutorialType.SpawnEnemy:
+                        EnemySpawner enemySpawner = GameInstance.GameIns.restaurantManager.door.GetComponentInChildren<EnemySpawner>();
+                        GameObject target = enemySpawner.SpawnEnemyTutorial();
+                        EnemyFollowing(target, App.GlobalToken).Forget();
 
+                        break;
+                    case TutorialType.SpawnCustomer:
+                        AnimalSpawner[] spawners = AnimalSpawner.FindObjectsOfType<AnimalSpawner>();
+
+                        foreach (var v in spawners)
+                        {
+                            if (v.type == AnimalSpawner.SpawnerType.FastFood)
+                            {
+                                v.TutorialSpawnAnimal(App.GlobalToken).Forget();
+                            }
+                        }
+                        break;
+                }
+            }
+
+            switch (tutorialStruct.event_type)
+            {
+                case TutorialType.SpawnEnemy:
+                    EnemySpawner enemySpawner = GameInstance.GameIns.restaurantManager.door.GetComponentInChildren<EnemySpawner>();
+                    GameObject target = enemySpawner.SpawnEnemyTutorial();
+                    EnemyFollowing(target, App.GlobalToken).Forget();
+
+                    break;
+                case TutorialType.SpawnCustomer:
+                    AnimalSpawner[] spawners = AnimalSpawner.FindObjectsOfType<AnimalSpawner>();
+
+                    foreach (var v in spawners)
+                    {
+                        if (v.type == AnimalSpawner.SpawnerType.FastFood)
+                        {
+                            v.TutorialSpawnAnimal(App.GlobalToken).Forget();
+                        }
+                    }
+                    break;
+
+            }
+            for (int i = 1; i <= 2; i++)
+            {
+                string keyName = late_unlock + i.ToString();
+                FieldInfo field = typeof(TutorialStruct).GetField(keyName, BindingFlags.Public | BindingFlags.Instance);
+                TutorialEventKey value = (TutorialEventKey)field.GetValue(tutorialStruct);
+
+                StoreGoods storeGoods = goods.ContainsKey((int)value) ? goods[(int)value] : null;
+                AddStoreGoodsKey(storeGoods, (int)value, true); //상점 제한 및 기능 제한 키 해제
+            }
+
+            for (int i = 1; i <= 2; i++)
+            {
+                string keyName = late_lock + i.ToString();
+                FieldInfo field = typeof(TutorialStruct).GetField(keyName, BindingFlags.Public | BindingFlags.Instance);
+                TutorialEventKey value = (TutorialEventKey)field.GetValue(tutorialStruct);
+
+                StoreGoods storeGoods = goods.ContainsKey((int)value) ? goods[(int)value] : null;
+                AddStoreGoodsKey(storeGoods, (int)value); //상점 제한 및 기능 제한 
+            }
+            for (int i = 1; i <= 2; i++)
+            {
+                string keyName = start_unlock + i.ToString();
+                FieldInfo field = typeof(TutorialStruct).GetField(keyName, BindingFlags.Public | BindingFlags.Instance);
+                TutorialEventKey value = (TutorialEventKey)field.GetValue(tutorialStruct);
+
+                StoreGoods storeGoods = goods.ContainsKey((int)value) ? goods[(int)value] : null;
+                AddStoreGoodsKey(storeGoods, (int)value, true); //상점 제한 및 기능 제한 키 해제
+            }
+
+            for (int i = 1; i <= 2; i++)
+            {
+                string keyName = start_lock + i.ToString();
+                FieldInfo field = typeof(TutorialStruct).GetField(keyName, BindingFlags.Public | BindingFlags.Instance);
+                TutorialEventKey value = (TutorialEventKey)field.GetValue(tutorialStruct);
+
+                StoreGoods storeGoods = goods.ContainsKey((int)value) ? goods[(int)value] : null;
+                AddStoreGoodsKey(storeGoods, (int)value); //상점 제한 및 기능 제한 키 해제
+            }
+
+*/
+
+           // GameInstance.GameIns.restaurantManager.tutorials.id++;
+        }
     }
 
 
@@ -1114,9 +1206,7 @@ public class Tutorials
                 GameInstance.GameIns.applianceUIManager.furnitureUI.UI_TypeA.fishMax.gameObject.SetActive(true);
                 GameInstance.GameIns.applianceUIManager.furnitureUI.UI_TypeA.getFishes.gameObject.SetActive(true);
                 break;
-            case TutorialEventKey.EnterFishing:
-                GameInstance.GameIns.uiManager.fishingBtn.gameObject.SetActive(true);
-                break;
+     
             case TutorialEventKey.TutorialComplete:
                 GameInstance.GameIns.uiManager.targetGO.SetActive(true);
                 break;

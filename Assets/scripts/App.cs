@@ -508,7 +508,6 @@ public class App : MonoBehaviour
         if (currentScene == SceneState.Draw) return;
         if(currentScene == SceneState.Restaurant) pos = GameInstance.GameIns.inputManager.cameraTrans.position;
         currentScene = SceneState.Draw;
-        //   ((Action<int>)EventManager.Publish(-1, true)).Invoke(2000);
         if(RestaurantManager.tutorialKeys.Contains((int)TutorialEventKey.EnterGatcha))
         {
             Tutorials tutorials = GameInstance.GameIns.restaurantManager.tutorials;
@@ -517,13 +516,11 @@ public class App : MonoBehaviour
             RestaurantManager.tutorialKeys.Remove((int)TutorialEventKey.EnterGatcha);
         }
         GameInstance.GameIns.bgMSoundManager.BGMChange(900100, 0.2f);
-      //  GameInstance.GameIns.inputManager.DragScreen_WindowEditor(true);
         GameInstance.GameIns.inputManager.InputDisAble = true;
        
         Time.timeScale = 0;
         Time.fixedDeltaTime = 0f;
         restaurantTimeScale = 0f;
-     //   InputManger.cachingCamera.orthographicSize = 15;
         InputManger.cachingCamera.orthographic = false;
         GameInstance.GameIns.playerCamera.brain.enabled = true;
         GameInstance.GameIns.gatcharManager.virtualCamera1.Priority = 1;
@@ -560,7 +557,6 @@ public class App : MonoBehaviour
             GameInstance.GameIns.uiManager.TutorialStart(tutorials.id, tutorials.count, GameInstance.GameIns.restaurantManager.tutorialStructs[tutorials.id].Count);
         }
 
-      //  ((Action<int>)EventManager.Publish(-1, true))?.Invoke(8000);
         GameInstance.GameIns.gatcharManager.autoPlaying = false;
         GameInstance.GameIns.bgMSoundManager.BGMChange(900010, 0.2f);
         GameInstance.GameIns.inputManager.InputDisAble = true;
@@ -568,12 +564,10 @@ public class App : MonoBehaviour
         Time.fixedDeltaTime = 0.02f;
        
         restaurantTimeScale = 0f;
-       // InputManger.cachingCamera.enabled = false;
         InputManger.cachingCamera.fieldOfView = 60f;
         InputManger.cachingCamera.nearClipPlane = 0.1f;
         InputManger.cachingCamera.farClipPlane = 1000f;
         InputManger.cachingCamera.orthographic = false;
-      //  InputManger.cachingCamera.enabled = true;
         GameInstance.GameIns.inputManager.cameraTrans.position = new Vector3(988, 30, 57);
         GameInstance.GameIns.inputManager.cameraTrans.rotation = Quaternion.Euler(0, 0, 0);
         InputManger.cachingCamera.transform.localPosition = new Vector3(0, 0, 0);
@@ -581,7 +575,6 @@ public class App : MonoBehaviour
 
         if(!GameInstance.GameIns.fishingManager.working) GameInstance.GameIns.uiManager.fishingStartButton.gameObject.SetActive(true);
         SoundManager.Instance.RestaurantSoundsOnoff(false);
-        //     GameInstance.GameIns.fishingManager.StartFishing();
     }
 
     public static void UnloadAsync(string name)
@@ -686,7 +679,6 @@ public class App : MonoBehaviour
 
     public void StartEscapeTab(InputAction.CallbackContext callbackContext)
     {
-        Debug.LogWarning("Good");
         escapeTabCount++;
         if(escapeTabCount > 1)
         {

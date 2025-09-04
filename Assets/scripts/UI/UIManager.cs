@@ -477,7 +477,7 @@ public class UIManager : MonoBehaviour
                {
                    Tutorials.TutorialUnlock(GameIns.restaurantManager.tutorialStructs[GameIns.restaurantManager.tutorials.id][GameIns.restaurantManager.tutorials.count]);
                }*/
-            if (GameIns.restaurantManager.tutorials.count == 0 && !GameIns.restaurantManager.tutorialStructs[GameIns.restaurantManager.tutorials.id][GameIns.restaurantManager.tutorials.count].event_start) Tutorials.TutorialUnlock(GameIns.restaurantManager.tutorialStructs[GameIns.restaurantManager.tutorials.id][GameIns.restaurantManager.tutorials.count]);
+            if (!GameIns.restaurantManager.tutorialStructs[GameIns.restaurantManager.tutorials.id][GameIns.restaurantManager.tutorials.count].event_start) Tutorials.TutorialUnlock(GameIns.restaurantManager.tutorialStructs[GameIns.restaurantManager.tutorials.id][GameIns.restaurantManager.tutorials.count]);
             if(GameIns.restaurantManager.tutorialStructs[GameIns.restaurantManager.tutorials.id][GameIns.restaurantManager.tutorials.count].event_start) Tutorials.TutorialUnlockLateTime(GameIns.restaurantManager.tutorialStructs[GameIns.restaurantManager.tutorials.id][GameIns.restaurantManager.tutorials.count]);
          //   if (GameIns.restaurantManager.tutorialStructs[GameIns.restaurantManager.tutorials.id][GameIns.restaurantManager.tutorials.count].event_start) Tutorials.TutorialUnlock(GameIns.restaurantManager.tutorialStructs[GameIns.restaurantManager.tutorials.id][GameIns.restaurantManager.tutorials.count]);
         }

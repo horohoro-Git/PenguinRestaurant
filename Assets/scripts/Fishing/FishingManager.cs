@@ -393,11 +393,10 @@ public class FishingManager : MonoBehaviour
             if (RestaurantManager.tutorialKeys.Contains((int)TutorialEventKey.ComploeteFishing))
             {
                 RestaurantManager.tutorialKeys.Remove((int)TutorialEventKey.ComploeteFishing);
-                ((Action<TutorialEventKey>)EventManager.Publish(TutorialEventKey.ComploeteFishing))?.Invoke(TutorialEventKey.ComploeteFishing);
+             //   ((Action<TutorialEventKey>)EventManager.Publish(TutorialEventKey.ComploeteFishing))?.Invoke(TutorialEventKey.ComploeteFishing);
                 Tutorials tutorials = GameInstance.GameIns.restaurantManager.tutorials;
                 GameInstance.GameIns.uiManager.TutorialStart(tutorials.id, tutorials.count, GameInstance.GameIns.restaurantManager.tutorialStructs[tutorials.id].Count);
-            }
-            
+            }            
         }
 
    
