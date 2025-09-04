@@ -89,4 +89,5 @@ Animal Restaurant Tycoon Game
 08/18 Added tutorial steps 8 through 12
 08/26 Add the final tutorial stage and then refactor the entire code
 08/28 Save tutorial progress and add an icon to display goal completion
+09/04 Add character image and character voice to the tutorial
 

@@ -96,6 +96,7 @@ public class SoundManager : MonoBehaviour
 
     async UniTask PlayAudioAsync(AudioClip clip, float volume, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         AudioSource audio;
         if (audioSources.Count > 0)
         {

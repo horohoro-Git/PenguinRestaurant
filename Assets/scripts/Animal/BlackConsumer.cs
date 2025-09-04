@@ -258,12 +258,13 @@ public class BlackConsumer : AnimalController
                 {
                     await UniTask.NextFrame(cancellationToken: cancellationToken);
                     Stack<Vector3> moveTargets = await CalculateNodes_Async(target, true, cancellationToken);
-                    await UniTask.SwitchToMainThread(cancellationToken: cancellationToken);
+                  //  await UniTask.SwitchToMainThread(cancellationToken: cancellationToken);
                     if (moveTargets != null && moveTargets.Count > 0)
                     {
                         Vector3 test = moveTargets.Peek();
                         if (test.x == 100 && test.z == 100)
                         {
+                            cancellationToken.ThrowIfCancellationRequested();
                             animator.SetInteger("state", 0);
                             Wait();
                             return;
@@ -286,6 +287,7 @@ public class BlackConsumer : AnimalController
                     }
                     else
                     {
+                        cancellationToken.ThrowIfCancellationRequested();
                         animator.SetInteger("state", 0);
                         Wait();
                         return;
@@ -701,6 +703,7 @@ public class BlackConsumer : AnimalController
             }
             Vector3 newLoc = loc;
             newLoc.y = 0;
+            cancellationToken.ThrowIfCancellationRequested();
             while (true)
             {
                 if (reCalculate)
@@ -715,6 +718,7 @@ public class BlackConsumer : AnimalController
                 modelTrans.rotation = Quaternion.AngleAxis(angle, Vector3.up);
                 await UniTask.NextFrame(cancellationToken: cancellationToken);
             }
+            cancellationToken.ThrowIfCancellationRequested();
             animator.SetInteger("state", 0);
 
         }

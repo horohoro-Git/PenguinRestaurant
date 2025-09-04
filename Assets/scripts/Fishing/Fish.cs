@@ -120,7 +120,7 @@ public class Fish : Animal
         if(RestaurantManager.tutorialKeys.Contains((int)TutorialEventKey.StartFishing))
         {
             RestaurantManager.tutorialKeys.Remove((int)TutorialEventKey.StartFishing);
-            ((Action<TutorialEventKey>)EventManager.Publish(TutorialEventKey.StartFishing))?.Invoke(TutorialEventKey.StartFishing);
+         //   ((Action<TutorialEventKey>)EventManager.Publish(TutorialEventKey.StartFishing))?.Invoke(TutorialEventKey.StartFishing);
             Tutorials tutorials = GameInstance.GameIns.restaurantManager.tutorials;
             GameInstance.GameIns.uiManager.TutorialStart(tutorials.id, tutorials.count, GameInstance.GameIns.restaurantManager.tutorialStructs[tutorials.id].Count);
         }
@@ -193,38 +193,10 @@ public class Fish : Animal
             GameInstance.GameIns.restaurantManager.miniGame.activate = false;
             GameInstance.GameIns.restaurantManager.miniGame.type = MiniGameType.None;
             GameInstance.GameIns.restaurantManager.miniGame.fishing = null;
-            
-            if(RestaurantManager.tutorialKeys.Contains(10000))
-            {
-                Tutorials t = new Tutorials(11, true);
-                //     SaveLoadSystem.SaveTutorialData(t);
-               // Tutorials tuto = GameInstance.GameIns.restaurantManager.tutorials;
-              //  GameInstance.GameIns.uiManager.TutorialEnd(true);
-                /* Tutorials tuto = GameInstance.GameIns.restaurantManager.tutorials;
 
-                 tuto.id = 11;
-                 tuto.count = 0;
-                 if (1 == GameInstance.GameIns.restaurantManager.tutorialStructs[GameInstance.GameIns.restaurantManager.tutorials.id].Count)
-                 {
-                     tuto.worked = false;
-                     Tutorials.Setup(tuto);
-                 }
-                 else
-                 {
-                     tuto.worked = true;
-                 }*/
-            }
+            ((Action<TutorialEventKey>)EventManager.Publish(TutorialEventKey.ComploeteFishing))?.Invoke(TutorialEventKey.ComploeteFishing);
         }
-        else if (RestaurantManager.tutorialKeys.Contains(10000))
-        {
-            Tutorials tuto = GameInstance.GameIns.restaurantManager.tutorials;
-            if (tuto.count != 0)
-            {
-                tuto.count--;
-
-                GameInstance.GameIns.uiManager.TutorialEnd(false);
-            }
-        }
+       
         GameInstance.GameIns.fishingManager.CaughtFish(body.transform.position);
         GameInstance.GameIns.fishingManager.RemoveFish(this);
     }

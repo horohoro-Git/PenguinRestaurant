@@ -923,10 +923,71 @@ public class RestaurantManager : MonoBehaviour
         {
             tutorials.worked = true;
         }
-        if (tutorialStructs[tutorials.id][0].event_start) GameIns.uiManager.TutorialStart(tutorials.id, tutorials.count, tutorialStructs[tutorials.id].Count);
-        else tutorialKeys.Add((int)tutorialStructs[tutorials.id][0].event_id);
+      
+        TutorialStruct tuto = tutorialStructs[tutorials.id][0];
+        if(tuto.event_id == TutorialEventKey.EnterRestaurant)
+        {
+          
+            switch (tuto.event_type)
+            {
+                
+                case TutorialType.SpawnEnemy:
+                    EnemySpawner enemySpawner = GameInstance.GameIns.restaurantManager.door.GetComponentInChildren<EnemySpawner>();
+                    GameObject target = enemySpawner.SpawnEnemyTutorial();
+                    Tutorials.EnemyFollowing(target, App.GlobalToken).Forget();
+                    break;
+            }
+            tutorials.id++;
+            if (1 == tutorialStructs[tutorials.id].Count) tutorials.worked = false;
+            else tutorials.worked = true;
+         
+        }
+
+        if(tuto.event_id == TutorialEventKey.EnterFishing || tuto.event_id == TutorialEventKey.StartFishing || tuto.event_id == TutorialEventKey.ComploeteFishing)
+        {
+             GameIns.uiManager.fishingBtn.gameObject.SetActive(true);
+        }
+
+        if(tuto.event_id == TutorialEventKey.EnterRestaurant || tuto.event_id == TutorialEventKey.FillFishes || tuto.event_id == TutorialEventKey.EnterFishing || tuto.event_id == TutorialEventKey.StartFishing || tuto.event_id == TutorialEventKey.ComploeteFishing || tuto.event_id == TutorialEventKey.CatchEnemy || tuto.event_id == TutorialEventKey.BuyTrashcan || tuto.event_id == TutorialEventKey.Cleaning)
+        {
+            AnimalSpawner[] spawners = AnimalSpawner.FindObjectsOfType<AnimalSpawner>();
+
+            foreach (var v in spawners)
+            {
+                if (v.type == AnimalSpawner.SpawnerType.FastFood)
+                {
+                    v.TutorialSpawnAnimal(App.GlobalToken).Forget();
+                }
+            }
+        }
+
+        if(tuto.event_id == TutorialEventKey.TrashcanMinigame)
+        {
+            trashData.trashPoint = 100;
+            GameIns.applianceUIManager.rewardChest_Fill.ChangeHighlight(true);
+            GameIns.applianceUIManager.rewardChest_Fill.uiImage.fillAmount = trashData.trashPoint * 0.01f;
+            trashData.changed = true;
+        }
+
         Tutorials.Setup(tutorials);
-        //  tutorials.count++;
+
+        if (tuto.event_id != TutorialEventKey.TutorialComplete)
+        {
+            if (tuto.event_start) GameIns.uiManager.TutorialStart(tutorials.id, tutorials.count, tutorialStructs[tutorials.id].Count);
+            else if(tuto.event_type == TutorialType.SpawnEnemy) GameIns.uiManager.TutorialStart(tutorials.id, tutorials.count, tutorialStructs[tutorials.id].Count);
+        }
+        else
+        {
+            Tutorials.Unlock(tutorials.id);
+        }
+
+        /* else
+         {
+
+             GameIns.uiManager.TutorialStart(tutorials.id, tutorials.count, tutorialStructs[tutorials.id].Count);
+         }*/
+        ///   if (tutorialStructs[tutorials.id][0].event_start) GameIns.uiManager.TutorialStart(tutorials.id, tutorials.count, tutorialStructs[tutorials.id].Count);
+        //   else tutorialKeys.Add((int)tutorialStructs[tutorials.id][0].event_id);
 
     }
 

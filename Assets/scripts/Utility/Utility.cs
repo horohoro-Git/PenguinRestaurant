@@ -243,6 +243,7 @@ public struct TutorialStruct
     //  public int event_id;
     public TutorialEventKey event_id;
     public TutorialType event_type;
+    public int event_sound;
     public TutorialEventKey start_unlock_key1;
     public TutorialEventKey start_unlock_key2;
     public TutorialEventKey late_unlock_key1;
