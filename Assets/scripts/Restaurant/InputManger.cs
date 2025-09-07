@@ -240,6 +240,8 @@ public class InputManger : MonoBehaviour
 
         ((Action<Vector3>)EventManager.Publish(2))?.Invoke(currentPoint);
         ((Action)EventManager.Publish(4))?.Invoke();
+
+        if (GameIns.uiManager.tutorialPlaying) return;
         StartClickIngameObject(currentPoint);
     }
     void EndClick(InputAction.CallbackContext callbackContext)
@@ -272,6 +274,7 @@ public class InputManger : MonoBehaviour
 
         if (CheckClickedUI(uiMask) || GameIns.store.scrolling.isWorking) return;
 
+        if (GameIns.uiManager.tutorialPlaying) return;
 
         EndClickIngameObject(currentPoint);
 

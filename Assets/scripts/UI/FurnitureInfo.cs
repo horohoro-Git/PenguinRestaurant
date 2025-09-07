@@ -121,7 +121,7 @@ public class FurnitureInfo : MonoBehaviour
                     {
                         v.Highlight(false);
                     }
-                    GameInstance.GameIns.restaurantManager.doorPreview.Cancel();
+                    GameInstance.GameIns.restaurantManager.doorPreview.CancelDoor();
                  /*   GameObject wallObject = GameInstance.GameIns.restaurantManager.doorPreview.currentWallObject;
                     if (wallObject != null)
                     {

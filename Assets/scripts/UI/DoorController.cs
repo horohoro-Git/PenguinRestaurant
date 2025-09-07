@@ -188,12 +188,17 @@ public class DoorController : MonoBehaviour
     public void Cancel()
     {
         SoundManager.Instance.PlayAudio(GameInstance.GameIns.uISoundManager.UIClick(), 0.2f);
+        CancelDoor();
+    }
+
+    public void CancelDoor()
+    {
         if (currentWallObject != null)
         {
             MeshRenderer[] mr = currentWallObject.GetComponentsInChildren<MeshRenderer>();
             for (int i = 0; i < mr.Length; i++) mr[i].enabled = true;
         }
-        currentWallObject = null;   
+        currentWallObject = null;
         Door door = GameInstance.GameIns.restaurantManager.door;
         door.interactCollide.gameObject.layer = 13;
         MeshRenderer meshRenderer = door.GetComponentInChildren<MeshRenderer>();
@@ -204,10 +209,9 @@ public class DoorController : MonoBehaviour
         }
         meshRenderer.materials = materials;
         foreach (var v in GameInstance.GameIns.restaurantManager.changableWalls) v.Highlight(false);
-     
+
         gameObject.SetActive(false);
     }
-
     private void HandleInputDown(Vector2 inputPosition)
     {
       

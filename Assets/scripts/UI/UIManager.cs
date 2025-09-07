@@ -50,12 +50,14 @@ public class UIManager : MonoBehaviour
     public TMP_Text targetText;
 
     public GraphicRaycaster graphicRaycaster;
+    public GraphicRaycaster graphicRaycaster2;
 
     public GameObject checkMark;
 
     bool bGuideOn = false;
     public bool gameGuide = false;
     private float cameraSize;
+    [NonSerialized] public bool tutorialPlaying;
 
   //  public AudioSource audioSource;
 
@@ -74,7 +76,7 @@ public class UIManager : MonoBehaviour
     {
         if (graphicRaycaster == null) graphicRaycaster = GetComponent<GraphicRaycaster>();
         AddGraphicCaster(graphicRaycaster);
-
+        //AddGraphicCaster(graphicRaycaster2);
 //        if(RestaurantManager.tutorialKeys.Contains((int)TutorialEventKey.EnterGatcha)) changeScene.gameObject.SetActive(false);
 //  
     }
@@ -82,6 +84,7 @@ public class UIManager : MonoBehaviour
     {
         if (graphicRaycaster == null) graphicRaycaster = GetComponent<GraphicRaycaster>();
         RemoveGraphicCaster(graphicRaycaster);
+       // RemoveGraphicCaster(graphicRaycaster2);
         
     }
     void Start()
@@ -293,15 +296,7 @@ public class UIManager : MonoBehaviour
         }
         f = 0;
         ShowUI(t);
-        /* if (t == 1)
-         {
-             Camera.main.orthographicSize = cameraSize;
-         }
-         else if (t == 2)
-         {
-             Camera.main.orthographicSize = 15;
-         }
- */
+  
         float timer = 0;
         while (timer < 0.1f)
         {
@@ -468,7 +463,7 @@ public class UIManager : MonoBehaviour
 
     Coroutine tuto;
     public void TutorialStart(int id, int c, int max)
-    {
+    { 
         if (GameIns.restaurantManager.tutorials.count + 1 == GameIns.restaurantManager.tutorialStructs[GameIns.restaurantManager.tutorials.id].Count)
         {
             GameIns.restaurantManager.tutorials.worked = false;
@@ -511,18 +506,23 @@ public class UIManager : MonoBehaviour
     public void TutorialEnd(bool hideText)
     {
         if (tuto != null) StopCoroutine(tuto);
-
-        tuto = StartCoroutine(HideTutorial(hideText));
+        HideTutorial(hideText);
+       // tuto = StartCoroutine(HideTutorial(hideText));
     }
     IEnumerator ShowTutorial(int id, int c, int max)
     {
-        Debug.Log(id + " " + c + " " + max);
+        GameIns.store.RemovePreview();
+        GameIns.restaurantManager.doorPreview.CancelDoor();
+        //   GameIns.restaurantManager.d
+        GameIns.applianceUIManager.canvasGroup.alpha = 0;
+        tutorialPlaying = true;
+        tutorialImage.gameObject.SetActive(true);
         if (!tutorialText.gameObject.activeSelf) tutorialText.gameObject.SetActive(true);
 
         string res = App.languages[GameIns.restaurantManager.tutorialStructs[id][c].text_id].text;
         tutorialText.GetComponent<LanguageText>().id = GameIns.restaurantManager.tutorialStructs[id][c].text_id;
         tutorialText.text = res;
-
+       // SoundManager
      //   yield return null;
         tutorialText.ForceMeshUpdate();
         TMP_TextInfo info = tutorialText.textInfo;
@@ -539,24 +539,27 @@ public class UIManager : MonoBehaviour
         Vector2 rectPos = new(0, -120);
         Vector2 rectPos2 = new(0, -300);
         Vector2 rectScale = new(600, 400);
+
+        float rect1Range = ((b - 3) > 4 ? (90 + 30 * (b - 7)) : ((2.5f * MathF.Pow((b - 3), 2) + (b - 3) * 12.5f)));
+ 
+        float rect2Range = ((b - 3) > 4 ? (260 + 50 * (b - 7)) : (-10 * (b-3) + 90));
+        float rect1 = -120 - rect1Range; 
+        float rect2 = -290 - (b - 3) * 55f;
+        float rect3 = 400 + rect2Range;
         if(b > 3)
         {
-            float t = (b - 3) / 6f;
-            float y = Mathf.Lerp(-120, -220, t);
-            rectPos.y = y;
-            float y2 = Mathf.Lerp(-300, -400, t);
-            rectPos2.y = y2;
+            rectPos.y = rect1;
+            rectPos2.y = rect2;
 
-            float ys = Mathf.Lerp(400, 600, t);
-            rectScale.y = ys;
+            rectScale.y = rect3;
         }
-        tutorialImageRect.anchoredPosition = rectPos;
-        tutorialImageRect.sizeDelta = rectScale;
-        tutoBtn.GetComponent<RectTransform>().anchoredPosition = rectPos2;
+     //   tutorialImageRect.anchoredPosition = rectPos;
+       // tutorialImageRect.sizeDelta = rectScale;
+      //  tutoBtn.GetComponent<RectTransform>().anchoredPosition = rectPos2;
 
         Vector2 targetPos = new(-280, 1300);
         Vector2 startPos = new(280, 1300);
-        if (tutorialBorder.anchoredPosition != targetPos)
+    /*    if (tutorialBorder.anchoredPosition != targetPos)
         {
             float f = 0;
             while (f <= 1)
@@ -567,12 +570,19 @@ public class UIManager : MonoBehaviour
                 yield return null;
             }
         }
-        tutorialBorder.anchoredPosition = targetPos;
+        tutorialBorder.anchoredPosition = targetPos;*/
 
-        yield return new WaitForSecondsRealtime(0.2f);
 
         tutorialChatImage.gameObject.SetActive(true);
         tutoBtn.gameObject.SetActive(true);
+        yield return new WaitForSecondsRealtime(0.2f);
+
+        if (c == 0)
+        {
+            TutorialStruct tutorialStruct = GameIns.restaurantManager.tutorialStructs[id][0];
+
+            SoundManager.Instance.PlayAudio(AssetLoader.loadedSounds[sounds[tutorialStruct.event_sound].Name], 1);
+        }
 
         for (int i = 0; i < total; i++)
         {
@@ -581,19 +591,22 @@ public class UIManager : MonoBehaviour
         }
      
     }
-    IEnumerator HideTutorial(bool hideText)
+    void HideTutorial(bool hideText)
     {
-       // tutoText2.gameObject.SetActive(true);
-    //    tutoText2.text = App.languages[id].text;
+        // tutoText2.gameObject.SetActive(true);
+        //    tutoText2.text = App.languages[id].text;
+        GameIns.applianceUIManager.canvasGroup.alpha = 1;
+        tutorialPlaying = false;
 
         tutorialText.text = "";
+        tutorialImage.gameObject.SetActive(false);
         tutoBtn.gameObject.SetActive(false);
         tutorialChatImage.gameObject.SetActive(false);
         tutorialText.gameObject.SetActive(false);
         Vector2 startPos = new(-280, 1300);
         Vector2 targetPos = new(280, 1300);
 
-        if (tutorialBorder.anchoredPosition != targetPos)
+     /*   if (tutorialBorder.anchoredPosition != targetPos)
         {
             float f = 0;
             while (f <= 1)
@@ -604,7 +617,7 @@ public class UIManager : MonoBehaviour
                 yield return null;
             }
         }
-        tutorialBorder.anchoredPosition = targetPos;
+        tutorialBorder.anchoredPosition = targetPos;*/
 
 
         tutoText2.gameObject.SetActive(!hideText);

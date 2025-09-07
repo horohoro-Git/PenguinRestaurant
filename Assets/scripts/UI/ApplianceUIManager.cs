@@ -55,6 +55,7 @@ public class ApplianceUIManager : MonoBehaviour
 
     public GameObject AnimalShadowUI;
     public GameObject EmployeeStatusUI;
+    [NonSerialized] public CanvasGroup canvasGroup;
     [SerializeField] Shadow shadow;
     [SerializeField] PenguinLevel levelUI;
 
@@ -65,6 +66,7 @@ public class ApplianceUIManager : MonoBehaviour
     //  bool activeUpgrade;
     private void Awake()
     {
+        canvasGroup = GetComponent<CanvasGroup>();
         EventManager.AddTouchEvent(2, (Action<Vector3>)(DropFishes));
         EventManager.AddTouchEvent(3, (Action)(StopFishes));
         EventManager.AddTouchEvent(4, (Action)(StopInfo));
