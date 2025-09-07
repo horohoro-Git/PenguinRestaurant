@@ -99,7 +99,7 @@ public class Store : MonoBehaviour
     {
         if (currentPreview != null)
         {
-            currentPreview.Cancel();
+            currentPreview.CancelController();
             if (currentPreview.storeGoods.currnet)
             {
                 if (currentPreview.storeGoods.currnet.purchasedObject)

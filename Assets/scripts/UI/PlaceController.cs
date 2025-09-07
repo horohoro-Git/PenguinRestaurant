@@ -216,6 +216,11 @@ public class PlaceController : MonoBehaviour
     public void Cancel()
     {
         SoundManager.Instance.PlayAudio(GameInstance.GameIns.uISoundManager.UIClick(), 0.2f);
+        CancelController();
+    }
+
+    public void CancelController()
+    {
         if (purchasedObject)
         {
             GameInstance.GameIns.gridManager.Revert(this);
@@ -224,7 +229,7 @@ public class PlaceController : MonoBehaviour
         GameInstance.GameIns.gridManager.RemoveCell();
         GameInstance.GameIns.gridManager.RemoveSelect();
         storeGoods.RemoveGoodsPreview();
-        GameInstance.GameIns.gridManager.VisibleGrid(false); 
+        GameInstance.GameIns.gridManager.VisibleGrid(false);
     }
 
     public Vector3 GetLocation()

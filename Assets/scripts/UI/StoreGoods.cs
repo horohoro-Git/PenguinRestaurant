@@ -94,12 +94,12 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IEndDragHandler, IPointer
         {
             if (GameIns.store.currentPreview != null)
             {
-                GameIns.store.currentPreview.Cancel();
+                GameIns.store.currentPreview.CancelController();
                 GameIns.gridManager.VisibleGrid(false);
             }
             if (GameIns.restaurantManager.doorPreview.gameObject.activeSelf)
             {
-                GameIns.restaurantManager.doorPreview.Cancel();
+                GameIns.restaurantManager.doorPreview.CancelDoor();
             }
             if(!goods.soldout)
             {
@@ -151,12 +151,12 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IEndDragHandler, IPointer
      
         if(GameIns.store.currentPreview != null)
         {
-            GameIns.store.currentPreview.Cancel();
+            GameIns.store.currentPreview.CancelController();
             GameIns.gridManager.VisibleGrid(false);
         }
         if (GameIns.restaurantManager.doorPreview.gameObject.activeSelf)
         {
-            GameIns.restaurantManager.doorPreview.Cancel();
+            GameIns.restaurantManager.doorPreview.CancelDoor();
         }
       //if(!goods.soldout) InputManger.cachingCamera.GetComponent<OrthographicCamera>().ZoomOut();
     }
