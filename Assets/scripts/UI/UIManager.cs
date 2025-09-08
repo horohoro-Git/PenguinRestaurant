@@ -48,6 +48,7 @@ public class UIManager : MonoBehaviour
     public TMP_Text tutoText2;
     public GameObject targetGO;
     public TMP_Text targetText;
+    public GameObject worldMap;
 
     public GraphicRaycaster graphicRaycaster;
     public GraphicRaycaster graphicRaycaster2;
@@ -215,6 +216,9 @@ public class UIManager : MonoBehaviour
         worldBtn.onClick.AddListener(() =>
         {
             UIClick();
+            GameIns.inputManager.InputDisAble = true;
+            StartCoroutine(ChangeWorldMap());
+            //worldMap.SetActive(true);
         });
 
 
@@ -460,6 +464,19 @@ public class UIManager : MonoBehaviour
         SoundManager.Instance.PlayAudio(GameIns.uISoundManager.UIClick(), 0.1f);
     }
 
+    IEnumerator ChangeWorldMap()
+    {
+        Image[] images = worldMap.GetComponentsInChildren<Image>();
+        foreach (Image image in images)
+        {
+            image.raycastTarget = true;
+        }
+        Animator animator = worldMap.GetComponent<Animator>();
+        animator.SetInteger("state", 1);
+        yield return new WaitForSecondsRealtime(1);
+        worldMap.GetComponent<WorldUI>().worldScene.SetActive(true);
+        animator.SetInteger("state", 2);
+    }
 
     Coroutine tuto;
     public void TutorialStart(int id, int c, int max)

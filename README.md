@@ -91,4 +91,5 @@ Animal Restaurant Tycoon Game
 08/28 Save tutorial progress and add an icon to display goal completion
 09/04 Add character image and character voice to the tutorial
 09/07 Move the character dialogue window to the bottom and adjust the overall volume of in-game sounds
+09/08 Add a world map with stage selection and smooth UI transition animations
 
