@@ -85,6 +85,8 @@ public class Loading : MonoBehaviour
 
         App.GlobalToken.ThrowIfCancellationRequested();
         if (App.currentScene == SceneState.Restaurant) GameInstance.GameIns.bgMSoundManager.BGMChange(901000, 0.4f);
+
+        GameInstance.GameIns.restaurantManager.Tutorial();
         App.UnloadAsync("LoadingScene");
     }
 }

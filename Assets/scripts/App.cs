@@ -27,6 +27,7 @@ public enum SceneState
 
 public enum Stage
 {
+    None = -1,
     Town_01,
     Forest_01
 }
@@ -65,6 +66,7 @@ public class App : MonoBehaviour
         QualitySettings.vSyncCount = 1;
         Application.targetFrameRate = 60;
         currentScene = SceneState.Restaurant;
+       // currentStage = 
         GameInstance.GameIns.app = this;
         DontDestroyOnLoad(this);
        
@@ -72,7 +74,7 @@ public class App : MonoBehaviour
         gameSettings = SaveLoadSystem.LoadGameSettings();
         bundleCheck = SaveLoadSystem.LoadDownloadedData();
         cachedData = SaveLoadSystem.LoadCachedDownloadedData();
-        
+        currentStage = (Stage)gameSettings.clearStage;
         //?¸ì–´ ?¤ì •
         TextAsset lang = null;
         if (gameSettings.language == Language.KOR) lang = Resources.Load<TextAsset>("language_kor");

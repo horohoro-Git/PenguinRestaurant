@@ -92,4 +92,5 @@ Animal Restaurant Tycoon Game
 09/04 Add character image and character voice to the tutorial
 09/07 Move the character dialogue window to the bottom and adjust the overall volume of in-game sounds
 09/08 Add a world map with stage selection and smooth UI transition animations
+09/14 Add background music to the world map, implement scroll snap to select the nearest stage UI, and change the background to the image related to the selected stage
 

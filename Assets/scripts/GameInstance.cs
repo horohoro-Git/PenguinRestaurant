@@ -32,6 +32,7 @@ public class GameInstance
     public GatchaSoundManager gatchaSoundManager;
     public FishingManager fishingManager;
     public FishingSoundManager fishingSoundManager;
+    public WorldUI worldUI;
     public AnimationInstancingMgr animationInstancingManager;
     public static GameInstance GameIns { get { return gameInstance; }  }
     private static Queue<Vector3> pool = new Queue<Vector3>();

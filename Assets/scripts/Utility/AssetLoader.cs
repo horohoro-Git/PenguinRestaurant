@@ -107,6 +107,7 @@ public class AssetLoader : MonoBehaviour
             {
                 mapContents = assetRequest.asset.ToString();
                 maps = SaveLoadSystem.GetListData<MapContent>(mapContents);
+           
             }
             AssetBundleRequest ruleRequest = b_reg.LoadAssetAsync<TextAsset>("rules");
             await ruleRequest.ToUniTask(cancellationToken: cancellationToken);

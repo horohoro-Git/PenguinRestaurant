@@ -18,7 +18,7 @@ using Random = UnityEngine.Random;
 public class GatcharManager : MonoBehaviour
 {
 
-    public MapType mapType;
+    public Stage mapType;
     public GameObject[] gameObjects;
     public GameObject popup;
     public GameObject popup_NewCustomer;
@@ -112,9 +112,9 @@ public class GatcharManager : MonoBehaviour
         GameInstance.GameIns.animalManager.NewGatchaAnimals();
         playerAnimalDataManager = GameInstance.GameIns.playerAnimalDataManager;
 
-        if (mapType == MapType.town) mapInt = 0;
-        else if (mapType == MapType.forest) mapInt = 6;
-        else if (mapType == MapType.winter) mapInt = 12;
+        if (mapType == Stage.Town_01) mapInt = 0;
+        else if (mapType == Stage.Forest_01) mapInt = 6;
+      //  else if (mapType == MapType.winter) mapInt = 12;
 
         AnimalManager.gatchaTiers = SaveLoadSystem.LoadGatchaAnimals();
         CheckGameClear();
@@ -139,7 +139,7 @@ public class GatcharManager : MonoBehaviour
     {
         switch (mapType)
         {
-            case MapType.town:
+            case Stage.Town_01:
                 {
                     for (int i = 100; i <= 106; i++)
                     {
@@ -255,7 +255,7 @@ public class GatcharManager : MonoBehaviour
         {
             switch (mapType)
             {
-                case MapType.town:
+                case Stage.Town_01:
                     for (int i = 0; i < 3; i++)
                     {
                         int r = UnityEngine.Random.Range(100, 106);
@@ -810,7 +810,7 @@ public class GatcharManager : MonoBehaviour
 
     void SpawnRolling(int type)
     {
-        Rolling rolling = GameInstance.GameIns.animalManager.GetGatchaAnimal(MapType.town, type);
+        Rolling rolling = GameInstance.GameIns.animalManager.GetGatchaAnimal(Stage.Town_01, type);
         AnimalStruct animalStruct = AssetLoader.animals[rolling.type];
         Shadow s = GetShadow();
         s.model = rolling.transform;
@@ -1084,7 +1084,7 @@ public class GatcharManager : MonoBehaviour
         bool result = false;
         switch(mapType)
         {
-            case MapType.town:
+            case Stage.Town_01:
                 int point = 0;
                 for(int i = 100; i<=105; i++)
                 {
