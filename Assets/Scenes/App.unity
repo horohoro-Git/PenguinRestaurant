@@ -341,7 +341,7 @@ MonoBehaviour:
   currentPlayingAudioSouces: []
   min: 5
   max: 5
-  bgmSoundKey: b0e20d0088bf0d0004bc0d00aabb0d00
+  bgmSoundKey: b0e20d0088bf0d0004bc0d00aabb0d00a1bb0d00
 --- !u!82 &2143204393
 AudioSource:
   m_ObjectHideFlags: 0

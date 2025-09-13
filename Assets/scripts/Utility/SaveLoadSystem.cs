@@ -1318,7 +1318,8 @@ public class SaveLoadSystem
                         bool soundEffects = reader.ReadBoolean();
                         bool soundBackgrounds = reader.ReadBoolean();
                         bool hapticFeedback = reader.ReadBoolean();
-                        settings = new GameSettings(language, graphics, soundEffects, soundBackgrounds, hapticFeedback);
+                        int clearStage = reader.ReadInt32();
+                        settings = new GameSettings(language, graphics, soundEffects, soundBackgrounds, hapticFeedback, clearStage);
                     }
                 }
             }
@@ -1336,7 +1337,7 @@ public class SaveLoadSystem
                 language = Language.ENG;
             }
 
-            settings = new GameSettings(language, GraphicsLevel.MEDIUM, true, true, false);
+            settings = new GameSettings(language, GraphicsLevel.MEDIUM, true, true, false, 0);
 
             SaveGameSettings(settings);
         }
@@ -1362,11 +1363,13 @@ public class SaveLoadSystem
                 bool soundEffects = gameSettings.soundEffects;
                 bool soundBackgrounds = gameSettings.soundBackgrounds;
                 bool hapticFeedback = gameSettings.hapticFeedback;
+                int clearStage = gameSettings.clearStage;
                 writer.Write(language);
                 writer.Write(graphics);
                 writer.Write(soundEffects);
                 writer.Write(soundBackgrounds);
                 writer.Write(hapticFeedback);
+                writer.Write(clearStage);
             }
 
             File.WriteAllBytes(p, ms.ToArray());

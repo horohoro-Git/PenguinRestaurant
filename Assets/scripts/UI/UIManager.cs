@@ -48,8 +48,8 @@ public class UIManager : MonoBehaviour
     public TMP_Text tutoText2;
     public GameObject targetGO;
     public TMP_Text targetText;
-    public GameObject worldMap;
-
+    public WorldUI worldMap;
+    public RectTransform cloudsUI;
     public GraphicRaycaster graphicRaycaster;
     public GraphicRaycaster graphicRaycaster2;
 
@@ -464,18 +464,51 @@ public class UIManager : MonoBehaviour
         SoundManager.Instance.PlayAudio(GameIns.uISoundManager.UIClick(), 0.1f);
     }
 
+    public void ChangeRestaurant()
+    {
+        StartCoroutine(ChangeRestaurantCoroutine());
+    }
+    IEnumerator ChangeRestaurantCoroutine()
+    {
+        Animator animator = cloudsUI.GetComponent<Animator>();
+        animator.SetInteger("state", 1);
+        RestaurantManager.restaurantTimer = 0;
+        Time.timeScale = 0;
+        SoundManager.Instance.PlayAudio(loadedSounds["CloudClose"], 1);
+        yield return new WaitForSecondsRealtime(1);
+        WorldUI worldUI = GameIns.worldUI.GetComponent<WorldUI>();
+        worldUI.worldScene.SetActive(false);
+        worldUI.bg.SetActive(false);
+        SoundManager.Instance.PlayAudio(loadedSounds["CloudOpen"], 1);
+        animator.SetInteger("state", 2);
+        yield return new WaitForSecondsRealtime(0.5f);
+        GameIns.inputManager.InputDisAble = false;
+        RestaurantManager.restaurantTimer = 1;
+        Time.timeScale = 1;
+        App.restaurantTimeScale = 1;
+        Time.fixedDeltaTime = 0.02f;
+        GameIns.bgMSoundManager.BGMChange(901000, 1);
+    }
+
     IEnumerator ChangeWorldMap()
     {
-        Image[] images = worldMap.GetComponentsInChildren<Image>();
-        foreach (Image image in images)
-        {
-            image.raycastTarget = true;
-        }
-        Animator animator = worldMap.GetComponent<Animator>();
+    
+        Animator animator = cloudsUI.GetComponent<Animator>();
         animator.SetInteger("state", 1);
+        RestaurantManager.restaurantTimer = 0;
+        App.restaurantTimeScale = 0;
+        Time.timeScale = 0;
+        SoundManager.Instance.PlayAudio(loadedSounds["CloudClose"], 1);
         yield return new WaitForSecondsRealtime(1);
-        worldMap.GetComponent<WorldUI>().worldScene.SetActive(true);
+     //   worldMap.worldScene.gameObject.SetActive(true);
+        WorldUI worldUI = worldMap.GetComponent<WorldUI>();
+        worldUI.worldScene.SetActive(true);
+        worldUI.bg.SetActive(true);
+        worldUI.scrollSnap.Setup((int)App.currentStage);
+        SoundManager.Instance.PlayAudio(loadedSounds["CloudOpen"], 1);
         animator.SetInteger("state", 2);
+        yield return new WaitForSecondsRealtime(0.5f);
+        GameIns.bgMSoundManager.BGMChange(900001,1);
     }
 
     Coroutine tuto;
@@ -484,11 +517,6 @@ public class UIManager : MonoBehaviour
         if (GameIns.restaurantManager.tutorials.count + 1 == GameIns.restaurantManager.tutorialStructs[GameIns.restaurantManager.tutorials.id].Count)
         {
             GameIns.restaurantManager.tutorials.worked = false;
-            /*   if(GameIns.restaurantManager.tutorials.count == 0) Tutorials.Setup(GameIns.restaurantManager.tutorials);
-               else
-               {
-                   Tutorials.TutorialUnlock(GameIns.restaurantManager.tutorialStructs[GameIns.restaurantManager.tutorials.id][GameIns.restaurantManager.tutorials.count]);
-               }*/
             if (!GameIns.restaurantManager.tutorialStructs[GameIns.restaurantManager.tutorials.id][GameIns.restaurantManager.tutorials.count].event_start) Tutorials.TutorialUnlock(GameIns.restaurantManager.tutorialStructs[GameIns.restaurantManager.tutorials.id][GameIns.restaurantManager.tutorials.count]);
             if(GameIns.restaurantManager.tutorialStructs[GameIns.restaurantManager.tutorials.id][GameIns.restaurantManager.tutorials.count].event_start) Tutorials.TutorialUnlockLateTime(GameIns.restaurantManager.tutorialStructs[GameIns.restaurantManager.tutorials.id][GameIns.restaurantManager.tutorials.count]);
          //   if (GameIns.restaurantManager.tutorialStructs[GameIns.restaurantManager.tutorials.id][GameIns.restaurantManager.tutorials.count].event_start) Tutorials.TutorialUnlock(GameIns.restaurantManager.tutorialStructs[GameIns.restaurantManager.tutorials.id][GameIns.restaurantManager.tutorials.count]);

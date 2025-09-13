@@ -669,12 +669,12 @@ public class AnimalManager : MonoBehaviour
         }
         
     }
-    public Rolling GetGatchaAnimal(MapType type, int rands)
+    public Rolling GetGatchaAnimal(Stage type, int rands)
     {
    //     int rands = 0;
         switch (type)
         {
-            case MapType.town:
+            case Stage.Town_01:
                 {
            //         rands = UnityEngine.Random.Range(100, 106);
                     break;

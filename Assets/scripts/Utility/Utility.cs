@@ -58,12 +58,6 @@ public enum MachineType
     DonutMachine,
     PackingTable
 }
-public enum MapType 
-{
-    town,
-    forest,
-    winter
-}
 
 public enum LOD_Type
 {
@@ -232,6 +226,9 @@ public struct MapContent
 {
     public int id;
     public string map_name;
+    public int target_num;
+    public int stage_id;
+    public string sprite_key;
 }
 
 public struct TutorialStruct
@@ -1001,14 +998,16 @@ public class GameSettings
     public bool soundEffects;
     public bool soundBackgrounds;
     public bool hapticFeedback;
+    public int clearStage;
   //  public 
-    public GameSettings(Language language, GraphicsLevel graphics, bool soundEffects, bool soundBackgrounds, bool hapticFeedback)
+    public GameSettings(Language language, GraphicsLevel graphics, bool soundEffects, bool soundBackgrounds, bool hapticFeedback, int clearStage)
     {
         this.language = language;
         this.graphics = graphics;
         this.soundEffects = soundEffects;
         this.soundBackgrounds = soundBackgrounds;
         this.hapticFeedback = hapticFeedback;
+        this.clearStage = clearStage;
     }
 }
 

@@ -1,15 +1,15 @@
 ## Credits
 
 "Impact noise - Plastic box with hands mic inside 6" by nicjonesaudio on Freesound.org
-Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 
+Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
 Source: https://freesound.org/people/nicjonesaudio/sounds/557055/
 
 "Impact noise - Plastic box with phone mic inside 1" by nicjonesaudio on Freesound.org Licensed
-Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 
+Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
 Source: https://freesound.org/people/nicjonesaudio/sounds/557059/
 
 "Impact noise - Plastic box with phone mic inside 10" by nicjonesaudio on Freesound.org Licensed
-Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 
+Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
 Source: https://freesound.org/people/nicjonesaudio/sounds/557058/
 
 "Hit wood 1" by meaxx on Freesound.org  
@@ -24,15 +24,15 @@ Source: https://freesound.org/people/meaxx/sounds/199853/
 Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)  
 Source: https://freesound.org/people/meaxx/sounds/199840/
 
-"bite_1" by bboz87 on Freesound.org
+"bite\_1" by bboz87 on Freesound.org
 Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)  
 Source: https://freesound.org/people/bboz87/sounds/788240/
 
-"bite_2" by bboz87 on Freesound.org
+"bite\_2" by bboz87 on Freesound.org
 Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)  
 Source: https://freesound.org/people/bboz87/sounds/788241/
 
-"bite_3" by bboz87 on Freesound.org
+"bite\_3" by bboz87 on Freesound.org
 Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)  
 Source: https://freesound.org/people/bboz87/sounds/788242/
 
@@ -58,9 +58,6 @@ https://soundcloud.com/kilua-boy/sleep-talking
 
 "Footsteps water light 004" by duckduckpony on Freesound.org
 Licensed under CC BY 4.0
-<<<<<<< HEAD
-Source: https://freesound.org/people/duckduckpony/sounds/204017/
-=======
 Source: https://freesound.org/people/duckduckpony/sounds/204017/
 
 "Footsteps water light 006" by duckduckpony on Freesound.org
@@ -70,9 +67,6 @@ Source: https://freesound.org/people/duckduckpony/sounds/204033/
 "Footsteps water light 008" by duckduckpony on Freesound.org
 Licensed under CC BY 4.0
 Source: https://freesound.org/people/duckduckpony/sounds/204035/
-<<<<<<< HEAD
->>>>>>> develop
-=======
 
 "Appliance microwave door close 05" by dwoboyle on Freesound.org
 Licensed under CC BY 4.0
@@ -86,19 +80,22 @@ Source: https://freesound.org/people/dwoboyle/sounds/144231/
 Licensed under CC BY 4.0
 Source: https://freesound.org/people/dwoboyle/sounds/144224/
 
-"Treasure_chest" by fullstacksound on Freesound.org
+"Treasure\_chest" by fullstacksound on Freesound.org
 Licensed under CC BY 4.0
 Source: https://freesound.org/people/fullstacksound/sounds/662458/
 
-"TF_one_inspired_megatron_heavy_panel_sound_transformation_04252025" by ArtNinja on Freesound.org
+"TF\_one\_inspired\_megatron\_heavy\_panel\_sound\_transformation\_04252025" by ArtNinja on Freesound.org
 Licensed under CC BY 4.0
 Source: https://freesound.org/people/ArtNinja/sounds/801936/
 
-"TF_cyberverse_heavy_robot_footstep_recreation_02232025" by ArtNinja on Freesound.org
+"TF\_cyberverse\_heavy\_robot\_footstep\_recreation\_02232025" by ArtNinja on Freesound.org
 Licensed under CC BY 4.0
 Source: https://freesound.org/people/ArtNinja/sounds/789755/
 
-"scifi_door_impact_sounds_733499" by ArtNinja on Freesound.org
+"scifi\_door\_impact\_sounds\_733499" by ArtNinja on Freesound.org
 Licensed under CC BY 4.0
 Source: https://freesound.org/people/ArtNinja/sounds/733499/
->>>>>>> develop
+
+"cloud-poof" by qubodup on Freesound.org
+Licensed under CC BY 4.0
+Source: https://freesound.org/people/qubodup/sounds/714258/
