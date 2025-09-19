@@ -13,18 +13,6 @@ public class ScaleUp : MonoBehaviour
 
     private SaveLoadManager saveLoadManager;
 
-    /*private void OnEnable()
-    {
-        if (GetComponent<Table>() != null)
-        {
-            isTable = true;
-        }
-        // 초기값 설정
-        initialScale = transform.localScale; // 현재 스케일을 초기 스케일로 설정
-       // saveLoadManager = GameObject.Find("SaveLoadManager").GetComponent<SaveLoadManager>();
-
-        Bounce();
-    }*/
     public void ObjectEnabled(bool load)
     {
         if (GetComponent<Table>() != null)
@@ -40,11 +28,7 @@ public class ScaleUp : MonoBehaviour
 
     public void Bounce()
     {
-     //   if(saveLoadManager.isLoading == true)
-        {
-    //        return;
-        }
-      //  else
+   
         {
             if (isTable)
             {
@@ -86,7 +70,7 @@ public class ScaleUp : MonoBehaviour
                     initialScale.z * scaleChange.z
                 );
 
-                yield return null; // 한 프레임 대기
+                yield return null; 
             }
 
             // Bounce가 끝날 때 진동 강도 감소
@@ -94,7 +78,6 @@ public class ScaleUp : MonoBehaviour
             currentBounce++;
         }
 
-        // 모든 반복이 끝나면 원래 크기로 복원
         transform.localScale = initialScale;
     }
 
@@ -126,7 +109,7 @@ public class ScaleUp : MonoBehaviour
                     initialScale.z * scaleChange.z
                 );
 
-                yield return null; // 한 프레임 대기
+                yield return null; 
             }
 
             // Bounce가 끝날 때 진동 강도 감소
@@ -134,7 +117,6 @@ public class ScaleUp : MonoBehaviour
             currentBounce++;
         }
 
-        // 모든 반복이 끝나면 원래 크기로 복원
         transform.localScale = initialScale;
     }
 }

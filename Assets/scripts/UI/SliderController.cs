@@ -7,14 +7,14 @@ using UnityEngine.U2D;
 
 public class SliderController : MonoBehaviour
 {
-    public Slider slider; // ***** Slider UI 연결 변수 *****
-    public float incrementAmount = 10f; // ***** 증가량 *****
-    public float duration = 0.3f; // ***** 부드럽게 증가하는 시간 (초) *****
-    public TMP_Text levelText; // ***** TextMeshPro 연결 변수 ***** 
+    public Slider slider; 
+    public float incrementAmount = 10f; 
+    public float duration = 0.3f;
+    public TMP_Text levelText;
 
-    private float targetValue; // ***** 최종 목표값 *****
-    private Coroutine currentCoroutine; // ***** 현재 실행 중인 Coroutine *****
-    private int level = 1; // ***** 현재 레벨 *****
+    private float targetValue;
+    private Coroutine currentCoroutine; 
+    private int level = 1; 
 
     public Transform model;
     public Employee targetEmployee;
@@ -27,10 +27,7 @@ public class SliderController : MonoBehaviour
     public Image sliderBG;
     public Image sliderBorder;
     public Image sliderBar;
-    int targetEXP = 100;
     int currentEXP = 0;
-    int testexp = 0;
-    int exp;
     int progress;
     Vector2 size = new Vector2(0,150);
     bool isEXPCoroutineRunning;
@@ -38,22 +35,7 @@ public class SliderController : MonoBehaviour
 
     public int GetEXP { get { if (targetEmployee == null) return 0; else return targetEmployee.EXP; } }
     public int TargetEXP { get { if (targetEmployee == null) return 0; else return targetEmployee.employeeLevelData.targetEXP; } }
-    // Start is called before the first frame update
-    void Start()
-    {
-  
-     /*   UpdateLevelText();
-        Vector2 size = new Vector2(0,150);
-        size.x = 0;
-        Bar.sizeDelta = size;
-        double x = -0.01026 * (100 - 0);
-        double z = 0.01026 * (100 - 0);
-        Vector3 pos = new Vector3((float)x, 0, (float)z);
-        Bar.position = pos;
-        isEXPCoroutineRunning = true;
-        StartCoroutine(IncreaseEXP());*/
-    }
-
+    
     IEnumerator t()
     {
         int i = 0;

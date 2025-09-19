@@ -13,7 +13,6 @@ public class BurgerMachine : FoodMachine
     Food tempBurger;
     Food createdBurger;
     Coroutine bake;
-    int coroutineStep = 0;
 
     public override void Start()
     {
@@ -101,7 +100,6 @@ public class BurgerMachine : FoodMachine
         foodStack.foodStack.Push(food);
 
         food.transform.DOJump(foodTransform.position + Vector3.up * (foodStack.foodStack.Count - 1) * height, 2,1, 0.4f);
-        coroutineStep = 0;
     }
 
 

@@ -9,7 +9,7 @@ public class Furniture : MonoBehaviour
     public int id { get; set; }
 
     [field: SerializeField]
-    public WorkSpaceType spaceType { get; set; }
+    public WorkSpaceType SpaceType { get; set; }
 
     public GameObject model;
     public bool spawned;
@@ -23,10 +23,8 @@ public class Furniture : MonoBehaviour
     {
         if(!spawned)
         {
-         //   SaveLoadSystem.SaveRestaurantBuildingData();
-        //    GameInstance.GameIns.restaurantManager.restaurantparams = SaveLoadSystem.LoadRestaurantBuildingData();
             spawned = true;
-            if(spaceType != WorkSpaceType.Door)  StartCoroutine(ScaleAnimation());
+            if(SpaceType != WorkSpaceType.Door)  StartCoroutine(ScaleAnimation());
         }
     }
     IEnumerator ScaleAnimation()

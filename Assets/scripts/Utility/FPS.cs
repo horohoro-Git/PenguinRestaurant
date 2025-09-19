@@ -59,8 +59,6 @@ public class FPS : MonoBehaviour
         this.style.fontSize = this.height * 4 / 100;
         this.style.normal.textColor = Color.yellow;
 
-
-        float m = Profiler.GetTotalAllocatedMemoryLong() / (1024f * 1024f);
         // 텍스트 생성
         string text = string.Format("{0:0.0} ms ({1:0.} fps)", msec, fps);
         string memoryText = string.Format(
@@ -71,27 +69,7 @@ public class FPS : MonoBehaviour
         // 텍스트 표시
         GUI.Label(rect, text, style);
         GUI.Label(rect2, memoryText, style);
-        /*   Rect rect = new Rect(400, 0, this.width, this.height * 2 / 100);
-           this.style.alignment = TextAnchor.UpperLeft;
-           this.style.fontSize = this.height * 4 / 100;
-           this.style.normal.textColor = Color.yellow;
-           float msec = this.deltaTime * 1000.0f;
-           float fps = 1.0f / this.deltaTime;
-           if (lowFPS == 0 || lowFPS > fps)
-           {
-               lowFPS = fps;
-           }
-
-           // stringBuilder.Clear();  // 이전 내용 초기화
-           //  stringBuilder.AppendFormat("{0:0.0} ms ({1:0.} fps)", msec, fps);
-           string text = string.Format("{0:0.0} ms ({1:0.} fps)", msec, fps);
-           GUI.Label(rect, text, this.style);*/
-        //  Rect rect2 = new Rect(400, 500, this.width, this.height * 2 / 100);
-        //this.style.alignment = TextAnchor.UpperLeft;
-        //  this.style.fontSize = this.height * 4 / 100;
-        //  this.style.normal.textColor = Color.yellow;
-        //  string text2 = string.Format("LowFPS {0:0.0}", lowFPS);
-        //  GUI.Label(rect2, text2, this.style);
+    
     }
  
     private void ShowReservedMemory()
@@ -139,13 +117,6 @@ public class FPS : MonoBehaviour
        
         this.ShowFPS();
  
-    /*    this.ShowReservedMemory();
- 
-        this.ShowAllocMemory();
- 
-        this.ShowUnusedReservedMemory();
-
-        this.ShowCameraOrthoritySize();*//**/
     }
  
     private double ConvertBytesToMegabytes(long bytes)

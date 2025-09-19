@@ -76,9 +76,7 @@ public class AnimalManager : MonoBehaviour
    // GameObject shadowParent;
     public static GameObject SubUIParent;
 
-    [NonSerialized]
     public Queue<Employee> employeeTasks = new Queue<Employee>();
-    [NonSerialized]
     public Queue<Customer> customerTasks = new Queue<Customer>();
 
     public Coroutine animalActionCoroutine;
@@ -115,93 +113,6 @@ public class AnimalManager : MonoBehaviour
         SubUIParent = new GameObject();
         SubUIParent.AddComponent<Canvas>();
         SubUIParent.name = "subui";
-
-
-        /* for (int i = 0; i < 8; i++)
-         {
-             AllAnimals aa = new AllAnimals();
-             aa.activateAnimals = new List<Animal>();
-             aa.deactivateAnimals = new Queue<Animal>();
-             allAnimals.Add(aa);
-         }*/
-        /*  Vector3 localScale = new Vector3(1.5f, 1.5f, 1.5f);
-          for (int j = 0; j < 10; j++)
-          {
-              Animal newAnimal = Instantiate(AssetLoader.loadedAssets["NewPenguin"], animalParent.transform).GetComponent<Animal>();
-              newAnimal.transform.localScale = localScale;//new Vector3(1.5f, 1.5f, 1.5f);
-              newAnimal.GetAnimationInstancing();
-              if(allAnimals.ContainsKey(10))
-              {
-                  allAnimals[10].deactivateAnimals.Enqueue(newAnimal);
-              }
-              else
-              {
-                  allAnimals[10] = new AllAnimals();
-                  allAnimals[10].activateAnimals = new List<Animal>();
-                  allAnimals[10].deactivateAnimals = new Queue<Animal>();
-                  allAnimals[10].deactivateAnimals.Enqueue(newAnimal);
-              }
-
-          }
-          for (int j = 100; j < 106; j++)
-          {
-              for(int i=0; i<10; i++)
-              {
-                  Animal newAnimal = Instantiate(AssetLoader.loadedAssets[AssetLoader.itemAssetKeys[j].Name], animalParent.transform).GetComponent<Animal>();
-                  newAnimal.transform.localScale = localScale;//new Vector3(1.5f, 1.5f, 1.5f);
-                  newAnimal.GetAnimationInstancing();
-                  if (allAnimals.ContainsKey(j))
-                  {
-                      allAnimals[j].deactivateAnimals.Enqueue(newAnimal);
-                  }
-                  else
-                  {
-                      allAnimals[j] = new AllAnimals();
-                      allAnimals[j].activateAnimals = new List<Animal>();
-                      allAnimals[j].deactivateAnimals = new Queue<Animal>();
-                      allAnimals[j].deactivateAnimals.Enqueue(newAnimal);
-                  }
-              }
-          }*/
-
-        //foreach (var animal in animals) // *** List 기반으로 초기화
-        //{
-        //    AllAnimals aa = new AllAnimals();
-        //    for (int j = 0; j < 100; j++)
-        //    {
-        //        Animal newAnimal = Instantiate(animal, animalParent.transform);
-        //        newAnimal.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
-        //        newAnimal.GetAnimationInstancing();
-        //        // AnimationInstancing()
-        //        // newAnimal.gameObject.SetActive(false);                
-        //        aa.deactivateAnimals.Enqueue(newAnimal);
-
-        //    }
-        //    allAnimals.Add(aa); // *** 새로 생성된 AllAnimals를 추가
-        //}
-
-
-        //동물 그림자 생성
-     /*   foreach (var shadow in shadows)
-        {
-            for (int i = 0; i < 50; i++)
-            {
-                Shadow instancedShadow = Instantiate(shadow, shadowParent.transform);
-
-                instancedShadow.gameObject.SetActive(false);
-                deactivateShadows.Enqueue(instancedShadow);
-            }
-        }
-
-        //레벨 슬라이더 생성
-        for (int i = 0; i < 10; i++)
-        {
-            SliderController instancedSlider = Instantiate(slider, sliderParent.transform);
-
-            instancedSlider.gameObject.SetActive(false);
-            deactivateSliders.Enqueue(instancedSlider);
-        }*/
-
     }
 
 
@@ -282,37 +193,6 @@ public class AnimalManager : MonoBehaviour
 
     }
 
-   /* float tim = 0;
-    float timD = 2f;
-    private void Update()
-    {
-        if (tim + timD < Time.time)
-        {
-            tim = Time.time;
-            for (int i = 0; i < customerControllers.Count; i++)
-            {
-                customerControllers[i].reCalculate = true;
-
-            }
-            for(int i = 0; i < employeeControllers.Count; i++)
-            {
-                employeeControllers[i].reCalculate = true;
-            }
-        }
-    }*/
-    //float timer = 0f;
-    /* private void Update()
-     {
-         timer += Time.deltaTime;
-
-         if(timer > 0.5f)
-         {
-             if (employeeTasks.TryDequeue(out Employee employeeTask)) employeeTask.FindEmployeeWorks();
-             if (customerTasks.TryDequeue(out Customer customerTask)) customerTask.FindCustomerActions();
-             timer = 0f;
-            // AnimalRoutine_Update();
-         }
-     }*/
     void AnimalRoutine_Update()
     {
         //  Debug.Log("AnimalRoutineStart");
@@ -365,11 +245,7 @@ public class AnimalManager : MonoBehaviour
             employee.animalStruct = animalStructs[10];
             Animal animal = SpawnAnimal(employee, type);
             employee.id = employeeControllers.Count;
-          //  employee.ui =  //animal.GetComponentInChildren<SliderController>();
-            //employee.headPoint = animal.GetComponentInChildren<Head>().gameObject.transform;
             employee.mousePoint = animal.GetComponentInChildren<ModelMouse>().gameObject.transform;
-
-            //employee.animator = animal.GetComponentInChildren<Animator>();
 
             SliderController slider = deactivateSliders.Dequeue();
             activateSliders.Add(slider);
@@ -411,10 +287,9 @@ public class AnimalManager : MonoBehaviour
             customer.gameObject.SetActive(true);
             customer.SetDefault();
             customer.animalStruct = animalStructs[res];
-            //  Customer customer = new GameObject().AddComponent<Customer>();
             if (!onlyOrder)
             {
-                Animal animal = SpawnAnimal(customer, res); //SpawnAnimal(customer, res);
+                Animal animal = SpawnAnimal(customer, res); 
                 
                 customer.mousePoint = animal.GetComponentInChildren<ModelMouse>().gameObject.transform;
 
@@ -433,7 +308,6 @@ public class AnimalManager : MonoBehaviour
                 customer.busy = true;
                 
             }
-           // else AttacCustomerTask(customer);
             return customer;
         }
         return null;
@@ -444,8 +318,8 @@ public class AnimalManager : MonoBehaviour
         Animal animal = null;
         if (allAnimals.ContainsKey(type))
         {
-            animal = allAnimals[type].deactivateAnimals.Dequeue();
             if (allAnimals[type].deactivateAnimals.Count == 0) Debug.Log("Fail SpawnAnimal (Reason : No DeActivatedAnimals)");
+            animal = allAnimals[type].deactivateAnimals.Dequeue();
         }
         else
         {
@@ -460,7 +334,6 @@ public class AnimalManager : MonoBehaviour
         if (controller.trans == null) controller.trans = animal.trans;
         else
         {
-            Debug.Log("컨트롤러가 이미 값을 갖고 있음" + controller.trans);
             controller.animal = null;
             controller.trans = null;
             controller.trans = animal.trans;

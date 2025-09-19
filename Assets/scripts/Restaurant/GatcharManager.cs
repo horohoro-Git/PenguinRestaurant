@@ -52,9 +52,6 @@ public class GatcharManager : MonoBehaviour
     private int x = 5;
     public List<Vector3> customerPositions = new List<Vector3>();
     public List<Vector3> customerRotations = new List<Vector3>();
-    //5 : -96.5, -100, -1104, 20, -110, 0
-    //0 : -99.5, -100, -1102, 20, -180, 0
-    //-5: -102.5, -100, -1104, 20, -250, 0
     private List<GameObject> spawnedAnimals = new List<GameObject>();
     private List<int> spawnedAnimalTypes = new List<int>();
 
@@ -87,7 +84,6 @@ public class GatcharManager : MonoBehaviour
         {
             Shadow instancedShadow = Instantiate(shadow, shadowUI.transform);
             instancedShadow.Setup();
-            //    instancedShadow.Set
             instancedShadow.transform.position = new Vector3(100, 100, 100);
             instancedShadow.gameObject.SetActive(false);
             deactivateShadows.Enqueue(instancedShadow);
@@ -114,8 +110,6 @@ public class GatcharManager : MonoBehaviour
 
         if (mapType == Stage.Town_01) mapInt = 0;
         else if (mapType == Stage.Forest_01) mapInt = 6;
-      //  else if (mapType == MapType.winter) mapInt = 12;
-
         AnimalManager.gatchaTiers = SaveLoadSystem.LoadGatchaAnimals();
         CheckGameClear();
         LoadAnimals();
@@ -180,7 +174,6 @@ public class GatcharManager : MonoBehaviour
 
         GetAnimator.SetInteger(AnimationKeys.state, 0);
         GetAnimator.SetInteger(AnimationKeys.emotion, 0);
-
     }
     void LoadAnimals()
     {
@@ -211,8 +204,7 @@ public class GatcharManager : MonoBehaviour
     }
 
     public void StartGatcha()
-    {
-       
+    {      
        
         if (isFast)
         {
@@ -242,8 +234,7 @@ public class GatcharManager : MonoBehaviour
     }
 
     bool PlayingGatcha()
-    {
-    
+    {    
         randomAnimalKey.Clear();
         bool success = false;
         if (RestaurantManager.tutorialKeys.Contains((int)TutorialEventKey.DrawGatcha))
@@ -1104,6 +1095,13 @@ public class GatcharManager : MonoBehaviour
 
         if(result)
         {
+            if (RestaurantManager.tutorialKeys.Contains((int)TutorialEventKey.TutorialComplete))
+            {
+                ((Action<TutorialEventKey>)EventManager.Publish(TutorialEventKey.TutorialComplete))?.Invoke(TutorialEventKey.TutorialComplete);
+                Tutorials tuto = GameInstance.GameIns.restaurantManager.tutorials;
+                GameInstance.GameIns.uiManager.TutorialStart(tuto.id, tuto.count, GameInstance.GameIns.restaurantManager.tutorialStructs[tuto.id].Count);
+                RestaurantManager.tutorialKeys.Remove((int)TutorialEventKey.TutorialComplete);
+            }
             GameInstance.GameIns.uiManager.worldBtn.gameObject.SetActive(true);
             GameInstance.GameIns.uiManager.GetComponent<Animator>().SetTrigger("world_highlight");
             if (!GameInstance.GameIns.uiManager.panel.spread)

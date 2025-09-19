@@ -87,14 +87,14 @@ public class DownloadManager : MonoBehaviour
             {
                 volume.sprite = volume_off;
                 App.gameSettings.soundBackgrounds = false;
-                GameInstance.GameIns.bgMSoundManager.audio.volume = 0;
+                GameInstance.GameIns.bgMSoundManager.Audios.volume = 0;
                 SaveLoadSystem.SaveGameSettings(App.gameSettings);
             }
             else
             {
                 App.gameSettings.soundBackgrounds = true;
                 volume.sprite = volume_on;
-                GameInstance.GameIns.bgMSoundManager.audio.volume = 1;
+                GameInstance.GameIns.bgMSoundManager.Audios.volume = 1;
                 SaveLoadSystem.SaveGameSettings(App.gameSettings);
             }
         });

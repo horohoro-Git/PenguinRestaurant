@@ -9,29 +9,23 @@ public class SoundSettings : MonoBehaviour
     public Button bgmBtn;
     public GameObject effectChecked;
     public GameObject bgmChecked;
-    bool bgmSound;
-    bool effectSound;
-
+   
     private void Awake()
     {
         if (App.gameSettings.soundEffects)
         {
-            effectSound = true;
             effectChecked.gameObject.SetActive(true);
         }
         else
         {
-            effectSound = false;
             effectChecked.gameObject.SetActive(false);
         }
         if (App.gameSettings.soundBackgrounds)
         {
-            bgmSound = true;
             bgmChecked.gameObject.SetActive(true);
         }
         else
         {
-            bgmSound = false;
             bgmChecked.gameObject.SetActive(false);
         }
     }
@@ -64,14 +58,14 @@ public class SoundSettings : MonoBehaviour
             {
                 bgmChecked.SetActive(false);
                 App.gameSettings.soundBackgrounds = false;
-                GameInstance.GameIns.bgMSoundManager.audio.volume = 0;
+                GameInstance.GameIns.bgMSoundManager.Audios.volume = 0;
                 SaveLoadSystem.SaveGameSettings(App.gameSettings);
             }
             else
             {
                 bgmChecked.SetActive(true);
                 App.gameSettings.soundBackgrounds = true;
-                GameInstance.GameIns.bgMSoundManager.audio.volume = 1;
+                GameInstance.GameIns.bgMSoundManager.Audios.volume = 1;
                 SaveLoadSystem.SaveGameSettings(App.gameSettings);
             }
         });

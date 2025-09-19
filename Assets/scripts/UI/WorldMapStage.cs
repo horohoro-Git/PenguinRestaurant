@@ -25,13 +25,12 @@ public class WorldMapStage : MonoBehaviour
             if (App.currentStage == id)
             {
                 //이미 로드된 스테이지
-                Debug.Log("Already Loaded");
-                GameInstance.GameIns.uiManager.ChangeRestaurant();
+                GameInstance.GameIns.uiManager.ChangeRestaurant(id);
             }
             else
             {
                 //새로운 스테이지 로드
-                Debug.Log("New Stage");
+                GameInstance.GameIns.uiManager.ChangeRestaurant(id);
             }
         });
     }

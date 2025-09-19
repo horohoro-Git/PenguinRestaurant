@@ -96,6 +96,19 @@ public class RestaurantManager : MonoBehaviour
 
     public ChangableWall[] changableWalls;
 
+    public Transform start;
+    public Transform end;
+    //곡선 크기
+    [Range(1f, 100f)]
+    public float duration;
+   // [Range(1f, 100f)]
+    public float Height { get { if (InputManger.cachingCamera.orthographic) return InputManger.cachingCamera.orthographicSize * 2; else return 30; } }
+    [Range(1f, 4f)]
+    public float weight;
+    [Range(1f, 4f)]
+    public float weight2;
+
+
     public Tutorials tutorials;
     public Dictionary<int, List<TutorialStruct>> tutorialStructs = new();
     public static HashSet<int> tutorialKeys = new HashSet<int>();                                   //튜토리얼 이벤트 키
@@ -192,7 +205,7 @@ public class RestaurantManager : MonoBehaviour
         miniGame = SaveLoadSystem.LoadMiniGameStatus();
         trashData = SaveLoadSystem.LoadTrashData();
         tutorials = SaveLoadSystem.LoadTutorialData();
-        Tutorials.TutorialUpdate(tutorials.id);
+      
         //  Tutorials.Setup(tutorials);
         // restaurantCurrency.fishes += 100;
         restaurantCurrency.Money += BigInteger.Parse("316000");// 10000;
@@ -352,139 +365,6 @@ public class RestaurantManager : MonoBehaviour
         Utility.CheckHirable(GameIns.inputManager.cameraRange.position, ref testX, ref testY, false, true);
     }
 
-    public void LevelUp(bool load = false, bool checkArea = true)
-    {
-        //   if (saveLoadManager.isLoading == false)
-        {
-            if (!load)
-            {
-                if (restaurantCurrency.Money >= levelGuides[level].money)
-                {
-                    restaurantCurrency.Money -= levelGuides[level].money;
-                }
-                else return;
-                // GameInstance.GameIns.uiManager.UpdateMoneyText(restaurantCurrency.money);
-                // purchase.Play();
-            }
-        }
-
-        //    restaurantparams[level].unlock = true;
-        // combineDatas.playData[level].unlock = true;
-        WorkSpaceManager workSpaceManager = GameInstance.GameIns.workSpaceManager;
-        if (levelGuides[level].type == MachineType.BurgerMachine && workSpaceManager.unlocks[0] == 0) workSpaceManager.unlocks[0]++;
-        if (levelGuides[level].type == MachineType.CokeMachine && workSpaceManager.unlocks[0] == 1) workSpaceManager.unlocks[0]++;
-        if (levelGuides[level].type == MachineType.CoffeeMachine && workSpaceManager.unlocks[1] == 0) workSpaceManager.unlocks[1]++;
-        if (levelGuides[level].type == MachineType.DonutMachine && workSpaceManager.unlocks[1] == 1) workSpaceManager.unlocks[1]++;
-
-
-        switch (levelGuides[level].workSpaceType)
-        {
-            case WorkSpaceType.Counter:
-                {
-                    workSpaceManager.counters.Add(levels[level].gameObject.GetComponent<Counter>());
-                    break;
-                }
-            case WorkSpaceType.Table:
-                {
-                    workSpaceManager.tables.Add(levels[level].gameObject.GetComponent<Table>());
-                    break;
-                }
-            case WorkSpaceType.FoodMachine:
-                {
-                    if (levels[level].gameObject.TryGetComponent<FoodMachine>(out FoodMachine foodMachine))
-                    {
-                        SetMachineLayer(foodMachine.modelTrans.gameObject, App.GlobalToken).Forget();
-                        workSpaceManager.foodMachines.Add(foodMachine);
-                        foodMachine.restaurantParam = restaurantparams[level];
-                        //   foodMachine.Set(level);
-
-
-                        /*     for (int i = 0; i < levelData.Count; i++)
-                             {
-                                 if (levelData[i].id == restaurantparams[level].id)
-                                 {
-                                     foodMachine.level = levelData[i].level;
-
-                                     List<MachineData> md = upgradeMachineDic[foodMachine.machineType];
-                                     foodMachine.machineData = md[foodMachine.level - 1];
-                                     //     UpgradeMachine(foodMachine);
-                                     break;
-                                 }
-                             }*/
-                    }
-                    break;
-                }
-        }
-
-        levelGuides[level++].gameObject.SetActive(false);
-
-        //    Debug.Log(level);
-        GameObject expandObject = levels[level - 1];
-        expandObject.SetActive(true);
-
-        if (expandObject.TryGetComponent<PackingTable>(out PackingTable packingTable))
-            workSpaceManager.packingTables.Add(packingTable);
-
-        if (expandObject.TryGetComponent<ScaleUp>(out ScaleUp scaleUp)) scaleUp.ObjectEnabled(load);
-        if (expandObject.TryGetComponent<TableScaleUp>(out TableScaleUp tableScaleUp))
-        {
-            tableScaleUp.ObjectEnabled(load);
-        }
-        if (levelGuides.Length > level) levelGuides[level].gameObject.SetActive(true);
-        if (checkArea)
-        {
-            MoveCalculator.CheckArea(GameInstance.GameIns.calculatorScale, true);
-
-            for (int i = 0; i < GameInstance.GameIns.animalManager.employeeControllers.Count; i++)
-            {
-                Employee e = GameInstance.GameIns.animalManager.employeeControllers[i];
-                e.reCalculate = true;
-                int posX = Mathf.FloorToInt((e.trans.position.x - GameIns.calculatorScale.minX) / GameIns.calculatorScale.distanceSize);
-                int posZ = Mathf.FloorToInt((e.trans.position.z - GameIns.calculatorScale.minY) / GameIns.calculatorScale.distanceSize);
-                if (!e.falling && Utility.ValidCheck(posZ, posX) && MoveCalculator.GetBlocks[MoveCalculator.GetIndex(posX, posZ)]) AnimalCollision(e, posX, posZ, App.GlobalToken).Forget();
-
-            }
-            for (int i = 0; i < GameInstance.GameIns.animalManager.customerControllers.Count; i++)
-            {
-                Customer c = GameIns.animalManager.customerControllers[i];
-                if (c.trans)
-                {
-                    c.reCalculate = true;
-                    int posX = Mathf.FloorToInt((c.trans.position.x - GameIns.calculatorScale.minX) / GameIns.calculatorScale.distanceSize);
-                    int posZ = Mathf.FloorToInt((c.trans.position.z - GameIns.calculatorScale.minY) / GameIns.calculatorScale.distanceSize);
-                    if (Utility.ValidCheck(posZ, posX) && MoveCalculator.GetBlocks[MoveCalculator.GetIndex(posX, posZ)]) AnimalCollision(c, posX, posZ, App.GlobalToken).Forget();
-                }
-
-            }
-        }
-        if (!load)
-        {
-            // level++;
-            if ((employees.num < 8 && employeeHire[employees.num] <= GetRestaurantValue()))
-            {
-                GameInstance.GameIns.applianceUIManager.UnlockHire(true);
-            }
-            //  SaveLoadSystem.SaveRestaurantData(restaurantparams);
-            //      SaveLoadManager.Save(SaveLoadManager.SaveState.ONLY_SAVE_PLAYERDATA);
-            //     SaveLoadManager.Save(SaveLoadManager.SaveState.ONLY_SAVE_UPGRADE);
-
-            //for (int i = 0; i < GameInstance.GameIns.animalManager.employeeControllers.Count; i++)
-            //{
-            //    if (GameInstance.GameIns.animalManager.employeeControllers[i].restartCoroutine != null)
-            //    {
-            //        GameInstance.GameIns.animalManager.employeeControllers[i].RestartAction();
-            //    }
-            //}
-            //for (int i = 0; i < GameInstance.GameIns.animalManager.customerControllers.Count; i++)
-            //{
-            //    if (GameInstance.GameIns.animalManager.customerControllers[i].restartCoroutine != null)
-            //    {
-            //        GameInstance.GameIns.animalManager.customerControllers[i].RestartAction();
-            //    }
-            //}
-        }
-    }
-
     public void ApplyPlaced(Furniture furniture, StoreGoods goods, bool purchased)
     {
         StartCoroutine(ApplyPlacedNextFrame(furniture, goods, purchased));
@@ -494,6 +374,7 @@ public class RestaurantManager : MonoBehaviour
     {
         foreach (var v in machineLevelData)
         {
+       //     Debug.Log(111);
             int level = v.Value.level;
             int id = v.Value.id;
             int index = id + (level >= 41 ? 41 : level >= 31 ? 31 : 1);
@@ -541,7 +422,7 @@ public class RestaurantManager : MonoBehaviour
 
         SaveLoadSystem.SaveRestaurantBuildingData();
 
-        if (furniture.spaceType == WorkSpaceType.Table)
+        if (furniture.SpaceType == WorkSpaceType.Table)
         {
             for (int i = 0; i < GameIns.workSpaceManager.tables.Count; i++)
             {
@@ -554,7 +435,7 @@ public class RestaurantManager : MonoBehaviour
             table = GameIns.workSpaceManager.tables;
             TableUpdate(table);
         }
-        else if (furniture.spaceType == WorkSpaceType.Door)
+        else if (furniture.SpaceType == WorkSpaceType.Door)
         {
             MoveCalculator.CheckArea(GameInstance.GameIns.calculatorScale, true);
         }
@@ -722,6 +603,7 @@ public class RestaurantManager : MonoBehaviour
             }
 
             List<Table> tables = new List<Table>();
+        //    Debug.Log(restaurantparams.Count + " num");
             for (int i = 0; i < restaurantparams.Count; i++)
             {
                 PlaceController placeController = GameIns.store.goodsPreviewDic[restaurantparams[i].id + 1000];
@@ -736,7 +618,7 @@ public class RestaurantManager : MonoBehaviour
                 furniture.id = restaurantparams[i].id;
                 furniture.transform.position = pos;
                 furniture.originPos = pos;
-                switch (furniture.spaceType)
+                switch (furniture.SpaceType)
                 {
                     case WorkSpaceType.Counter:
                         Transform counterOffset = furniture.GetComponent<Counter>().offset;
@@ -766,7 +648,7 @@ public class RestaurantManager : MonoBehaviour
                 placeController.offset.transform.rotation = Quaternion.Euler(0, placeController.rotates[restaurantparams[i].level], 0);
                 placeController.offset.transform.localPosition = placeController.rotateOffsets[restaurantparams[i].level];
                 GameInstance.GameIns.gridManager.CheckObject(placeController, placeController.storeGoods.goods.type);
-                GameInstance.GameIns.gridManager.ApplyGird(placeController, placeController.offset.transform.position, furniture.spaceType);
+                GameInstance.GameIns.gridManager.ApplyGird(placeController, placeController.offset.transform.position, furniture.SpaceType);
 
                 GameIns.store.require.Add(restaurantparams[i].id);
                 await UniTask.NextFrame(cancellationToken: cancellationToken);
@@ -896,7 +778,40 @@ public class RestaurantManager : MonoBehaviour
                       await UniTask.NextFrame(cancellationToken: cancellationToken);
                   }
       */
-            GameInstance.GameIns.applianceUIManager.UnlockHire(true);
+            // GameInstance.GameIns.applianceUIManager.UnlockHire(true);
+
+            Tutorials.TutorialUpdate(tutorials.id);
+            /*
+            Tutorials tutorial = GameInstance.GameIns.restaurantManager.tutorials;
+
+            Dictionary<int, List<TutorialStruct>> tutorialStructs = GameInstance.GameIns.restaurantManager.tutorialStructs;
+
+            List<TutorialStruct> lastTutorialStruct = new();
+            foreach (var v in tutorialStructs) lastTutorialStruct = v.Value;
+
+            if (tutorial.id <= lastTutorialStruct[0].id)
+            {
+                tutorial.id = lastTutorialStruct[0].id + 1;
+             //   tutorial.id = 16;
+                tutorial.worked = true;
+                int checkTier = 0;
+                foreach (var v in AnimalManager.gatchaTiers)
+                {
+                    (int, List<int>) f = v.Value;
+                    checkTier += f.Item1;
+                }
+
+                if (checkTier == 0)
+                {
+                    //못 받은 고양이 손님 추가
+                    GameInstance.GameIns.gatcharManager.CheckSuccess(100, 0);
+                }
+
+                SaveLoadSystem.SaveTutorialData(tutorial);
+                Tutorials.TutorialUpdate(tutorial.id);
+                GameInstance.GameIns.uiManager.TutorialEnd(true);
+            }
+            */
 
         }
         catch (Exception ex)
@@ -906,6 +821,11 @@ public class RestaurantManager : MonoBehaviour
     }
     public void Tutorial()
     {
+        if(!tutorialStructs.ContainsKey(tutorials.id))
+        {
+            Tutorials.TutorialUpdate(tutorials.id);
+            return;
+        }
         if (tutorials.worked)
         {
             if (1 == tutorialStructs[tutorials.id].Count)
@@ -1103,28 +1023,15 @@ public class RestaurantManager : MonoBehaviour
         }
     }
 
-    public void UpgradeMachine(FoodMachine foodMachine)
-    {
-        if (foodMachine.machineData.upgrade_cost <= restaurantCurrency.Money)
-        {
-            restaurantCurrency.Money -= foodMachine.machineData.upgrade_cost;
-            List<MachineData> machineUpgrades = upgradeMachineDic[foodMachine.machineType];
-            foodMachine.machineData = machineUpgrades[foodMachine.level - 1];
-
-            GameInstance.GameIns.applianceUIManager.UnlockHire(true);
-            //   SaveLoadManager.Save(SaveState.)
-        }
-    }
     public void HireEmployee()
     {
         if (employees.num < 8 && employeeHire[employees.num] <= GetRestaurantValue() && GameIns.inputManager.CheckHire())
         {
+       //     GameIns.inputManager.CheckHire();
             employees.num++;
             EmployeeNum();
         }
     }
-
-    private bool isFishUpdating = false;
 
     public void GetReward()
     {
@@ -1181,133 +1088,6 @@ public class RestaurantManager : MonoBehaviour
 
             SaveLoadSystem.SaveEmployees(employees);
         }
-    }
-
-
-    public void UseFish()
-    {
-        restaurantCurrency.fishes--;
-        GameInstance.GameIns.uiManager.fishText.text = restaurantCurrency.fishes.ToString();
-    }
-
-
-    public Transform start;
-    public Transform end;
-    [Range(1f, 100f)]
-    public float duration;
-    [Range(1f, 40f)]
-    public float height;
-    [Range(1f, 4f)]
-    public float weight;
-    [Range(1f, 4f)]
-    public float weight2;
-    public void testCode()
-    {
-        float x = 0;
-        float z = 0;
-        float length = 0;
-        for (int i = 0; i < 100; i++)
-        {
-            x = UnityEngine.Random.Range(-Camera.main.orthographicSize / 2.5f, Camera.main.orthographicSize / 2.5f);
-            z = UnityEngine.Random.Range(-Camera.main.orthographicSize / 2.5f, Camera.main.orthographicSize / 2.5f);
-            length = UnityEngine.Random.Range(-Camera.main.orthographicSize / 2.5f, Camera.main.orthographicSize / 2.5f);
-            Vector3 test = new Vector3(GameInstance.GameIns.inputManager.cameraRange.position.x, 0, GameInstance.GameIns.inputManager.cameraRange.position.z);
-            Vector3 n = new Vector3(x, 0, z).normalized;
-            Vector3 ta = test + n * length;
-
-            if (Physics.Raycast(ta + Vector3.up * 5, Vector3.down, 10))
-            {
-                Debug.DrawLine(ta + Vector3.up * 10, ta + Vector3.down * 100f, Color.red, 100);
-
-
-            }
-
-        }
-    }
-
-    IEnumerator movePenguin(AnimalController animal)
-    {
-        //  testCode();
-        animal.animator.SetInteger("state", 3);
-        Vector3 startPoint = animal.trans.position; //start.position;
-
-        float x = 0;
-        float z = 0;
-        float length = 0;
-        while (true)
-        {
-            x = UnityEngine.Random.Range(-Camera.main.orthographicSize / 2.5f, Camera.main.orthographicSize / 2.5f);
-            z = UnityEngine.Random.Range(-Camera.main.orthographicSize / 2.5f, Camera.main.orthographicSize / 2.5f);
-            length = UnityEngine.Random.Range(-Camera.main.orthographicSize / 2.5f, Camera.main.orthographicSize / 2.5f);
-            //  length = Random.Range(-10,10);
-            Vector3 test = new Vector3(GameInstance.GameIns.inputManager.cameraRange.position.x, 0, GameInstance.GameIns.inputManager.cameraRange.position.z);
-            Vector3 n = new Vector3(x, 0, z).normalized;
-            Vector3 ta = test + n * length;
-
-            if (Physics.Raycast(ta + Vector3.up * 5, Vector3.down, 5))
-            {
-                Debug.DrawLine(ta + Vector3.up * 10, test + Vector3.down * 100f, Color.red, 100);
-
-                if (Physics.CheckBox(ta, new Vector3(0.5f, 0.5f, 0.5f), Quaternion.identity, 1 << 6 | 1 << 7 | 1 << 8))
-                {
-
-                }
-                else break;
-            }
-            yield return null;
-        }
-
-
-        Vector3 endPoint = new Vector3(GameInstance.GameIns.inputManager.cameraRange.position.x, 0, GameInstance.GameIns.inputManager.cameraRange.position.z);
-        Vector3 dir2 = new Vector3(x, 0, z).normalized;
-
-        endPoint += dir2 * length;
-        bool bstart = true;
-        Vector3 controlVector = (startPoint + endPoint) / weight + Vector3.up * height;
-
-        float elapsedTime = 0f;
-
-        while (bstart)
-        {
-
-            elapsedTime += Time.deltaTime;
-            float t = Mathf.Clamp01(elapsedTime / duration);
-
-            Vector3 origin = animal.trans.position;
-            // Vector3 targetLoc = Vector3.Lerp(startPoint, endPoint, t);// CalculateBezierPoint(t, startPoint, controlVector, endPoint);
-            Vector3 targetLoc = CalculateBezierPoint(t, startPoint, controlVector, endPoint);
-
-            Vector3 dir = targetLoc - origin;
-            float angle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
-            animal.modelTrans.rotation = Quaternion.AngleAxis(angle, Vector3.up);
-            Debug.DrawLine(animal.trans.position, targetLoc, Color.red, 5f);
-            animal.trans.position = targetLoc;
-
-
-            if (t >= 1.0f)
-            {
-                animal.trans.position = endPoint;
-                bstart = false;
-            }
-
-            yield return null;
-        }
-
-        animal.animator.SetInteger("state", 0);
-        animal.busy = false;
-
-    }
-    private Vector3 CalculateBezierPoint(float t, Vector3 p0, Vector3 p1, Vector3 p2)
-    {
-        float u = 1 - t;
-        float tt = t * t;
-        float uu = u * u;
-
-        Vector3 point = uu * p0; // 시작점
-        point += 2 * u * t * p1; // 제어점
-        point += tt * p2; // 끝점
-
-        return point;
     }
 
     public void UpgradePenguin(int level, bool isLoad, Employee animalController)
@@ -1393,36 +1173,28 @@ public class RestaurantManager : MonoBehaviour
     {
         WorkSpaceManager workSpaceManager = GameInstance.GameIns.workSpaceManager;
         float val = 0;
-
+        if (restaurantData == null) Debug.Log("EE");
         val += restaurantData.extension_level * 600;
         for (int i = 0; i < restaurantparams.Count; i++)
         {
-
             val += 100;
 
         }
         for (int i = 0; i < workSpaceManager.foodMachines.Count; i++)
         {
             MachineType machineType = workSpaceManager.foodMachines[i].machineType;
+            if(workSpaceManager.foodMachines[i].machineLevelData == null) Debug.Log("EEE");
             int l = workSpaceManager.foodMachines[i].machineLevelData.level;
-
+            
             val += 20 * (l - 1);
         }
 
         for (int i = 0; i < GameInstance.GameIns.animalManager.employeeControllers.Count; i++)
         {
             Employee newAnimalController = GameInstance.GameIns.animalManager.employeeControllers[i];
-
             val += 50 * (newAnimalController.employeeLevelData.level - 1);
         }
         return val;
-    }
-
-    private void OnApplicationQuit()
-    {
-        // SaveLoadManager.Save(SaveState.ALL_SAVES);
-        ///if (restaurantCurrency == null) Debug.Log("LL");
-
     }
 
     public void GameSave()
@@ -1501,12 +1273,6 @@ public class RestaurantManager : MonoBehaviour
         GameObject tray = trays.Count > 0 ? trays.Dequeue() : Instantiate(AssetLoader.loadedAssets[AssetLoader.itemAssetKeys[1000].ID], trayObjects.transform);
         tray.SetActive(true);
         return tray;
-    }
-
-    public void TrayPool(GameObject tray)
-    {
-        tray.SetActive(false);
-        trays.Enqueue(tray);
     }
 
     public FuelGage GetGage()

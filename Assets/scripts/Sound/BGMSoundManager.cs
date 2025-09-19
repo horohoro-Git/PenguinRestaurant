@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class BGMSoundManager : SoundManager
 {
-    [NonSerialized] public AudioSource audio;
+    public AudioSource Audios { get; set; }
     public List<int> bgmSoundKey = new List<int>();
     public Dictionary<int, AudioClip> bgmClips = new Dictionary<int, AudioClip>();
     Coroutine bgmCoroutine;
@@ -14,13 +14,13 @@ public class BGMSoundManager : SoundManager
     {
         
         DontDestroyOnLoad(this);
-        audio = GetComponent<AudioSource>();
+        Audios = GetComponent<AudioSource>();
         GameInstance.GameIns.bgMSoundManager = this;
     }
 
     private void Start()
     {
-        audio.volume = App.gameSettings.soundBackgrounds == true ? 1 : 0;
+        Audios.volume = App.gameSettings.soundBackgrounds == true ? 1 : 0;
     }
     public void Setup()
     {
@@ -38,26 +38,26 @@ public class BGMSoundManager : SoundManager
     IEnumerator Changing(int index, float vol)
     {
         float f = 0;
-        float volume = audio.volume;
+        float volume = Audios.volume;
         while (f <= 0.2f)
         {
             int volumeMultiply = App.gameSettings.soundBackgrounds ? 1 : 0;
-            audio.volume = volume * (0.2f - f) * 5 * volumeMultiply;
+            Audios.volume = volume * (0.2f - f) * 5 * volumeMultiply;
             f += Time.unscaledDeltaTime;
             yield return null;
         }
 
 
         f = 0;
-        audio.clip = bgmClips[index];
-        audio.Play();
+        Audios.clip = bgmClips[index];
+        Audios.Play();
         while (f <= 0.1f)
         {
             int volumeMultiply = App.gameSettings.soundBackgrounds ? 1 : 0;
-            audio.volume = vol * (f) * 10f * volumeMultiply;
+            Audios.volume = vol * (f) * 10f * volumeMultiply;
             f += Time.unscaledDeltaTime;
             yield return null;
         }
-        audio.volume = App.gameSettings.soundBackgrounds ? 1 : 0;
+        Audios.volume = App.gameSettings.soundBackgrounds ? 1 : 0;
     }
 }

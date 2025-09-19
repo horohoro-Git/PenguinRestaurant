@@ -13,6 +13,10 @@ public class EventManager
         if(!touchEvents.ContainsKey(id)) touchEvents[id] = action;
 
     }
+    public static void RemoveTouchEvent(int id)
+    {
+        if(touchEvents.ContainsKey(id)) touchEvents.Remove(id);
+    }
     public static void AddTutorialEvent(TutorialEventKey id, Delegate action)
     {
         if(!tutorialEvents.ContainsKey(id)) tutorialEvents[id] = action;

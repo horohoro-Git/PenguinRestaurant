@@ -1,7 +1,9 @@
+using Cysharp.Threading.Tasks;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -18,11 +20,14 @@ public class WorldUI : MonoBehaviour
     [NonSerialized] public WorldMapStage selectedStage;
 
     public ScrollSnap scrollSnap;
-    int backgroundImageID;
     IEnumerator bgCoroutine;
     IEnumerator bgOriginCoroutine;
     IEnumerator borderCoroutine;
-    int currentIndex = -1;
+    [NonSerialized] public int currentIndex = -1;
+    
+
+    CancellationTokenSource tokenBG;
+    CancellationTokenSource tokenBGOrigin;
     private void Awake()
     {
         GameInstance.GameIns.worldUI = this;
@@ -68,7 +73,13 @@ public class WorldUI : MonoBehaviour
             }
             stages.Add(worldMapStage);
         }
-
+        {
+            WorldMapStage worldMapStage = worldMapStages.Dequeue();
+            worldMapStage.gameObject.SetActive(true);
+            worldMapStage.id = Stage.Forest_01;
+            scrollSnap.panelList.Add(worldMapStage.GetComponent<RectTransform>());
+            stages.Add(worldMapStage);
+        }
         //test
         for (int i = 0; i <= 3; i++)
         {
@@ -82,41 +93,39 @@ public class WorldUI : MonoBehaviour
       //  scrollSnap.Setup((int)App.currentStage);
     }
 
-    public void BeginDrag()
+    private void OnDestroy()
     {
-        if (bgCoroutine != null)
-        {
-            StopCoroutine(bgCoroutine);
-          
-        }
-        if(bgOriginCoroutine != null) StopCoroutine(bgOriginCoroutine);
-        bgOriginCoroutine = ChangingNormal(bg.GetComponent<Image>(), false);
-        StartCoroutine(bgOriginCoroutine);
-
-        if (borderCoroutine != null) StopCoroutine(borderCoroutine);
-        borderCoroutine = ChangingNormal(worldScene.GetComponent<Image>(), true);
-        StartCoroutine(borderCoroutine);
+        if(tokenBG != null) tokenBG.Cancel();
+        if(tokenBGOrigin != null) tokenBGOrigin.Cancel();
     }
-    public void EndDrag()
+    
+    public void EndToken()
     {
-        if (bgOriginCoroutine != null) StopCoroutine(bgOriginCoroutine);
-        if (borderCoroutine != null) StopCoroutine(borderCoroutine);
+        if (tokenBG != null) tokenBG.Cancel();
+        if (tokenBGOrigin != null) tokenBGOrigin.Cancel();
     }
     public void SnapToTarget(RectTransform selectTranform, int index)
     {
     
         if(stages[index].locked)
         {
+            int preIndex = currentIndex;
             currentIndex = index;
             selectTranform.anchoredPosition = new Vector2(0, 50);
             selectTranform.sizeDelta = new Vector2(500, 600);
-            if (bgCoroutine != null) StopCoroutine(bgCoroutine);
-            if (bgOriginCoroutine != null) StopCoroutine(bgOriginCoroutine);
-            bgOriginCoroutine = ChangingNormal(bg.GetComponent<Image>(), false);
-            StartCoroutine(bgOriginCoroutine);
-            if (borderCoroutine != null) StopCoroutine(borderCoroutine);
-            borderCoroutine = ChangingNormal(worldScene.GetComponent<Image>(), true);
-            StartCoroutine(borderCoroutine);
+     //       if (bgCoroutine != null) StopCoroutine(bgCoroutine);
+        //    if (bgOriginCoroutine != null) StopCoroutine(bgOriginCoroutine);
+            //bgOriginCoroutine = ChangingNormal(bg.GetComponent<RawImage>(), false);
+      //      StartCoroutine(bgOriginCoroutine);
+       //     if (borderCoroutine != null) StopCoroutine(borderCoroutine);
+      // //     borderCoroutine = ChangingNormal(worldScene.GetComponent<Image>(), true);
+                //StartCoroutine(borderCoroutine);
+
+            if (tokenBG != null) tokenBG.Cancel();
+            if (tokenBGOrigin != null) tokenBGOrigin.Cancel();
+            tokenBGOrigin = new();
+            ChangingNormal(bg.GetComponent<RawImage>(), false, true, tokenBGOrigin.Token).Forget();
+            ChangingNormal(worldScene.GetComponent<Image>(), true, false, tokenBGOrigin.Token).Forget();
         }
         else
         {
@@ -126,108 +135,146 @@ public class WorldUI : MonoBehaviour
 
             float posY = Mathf.Lerp(-100, -25, 900f / (rectTransform.sizeDelta.y + 220f + 100f));
 
+       
             if (currentIndex != index)
             {
                 currentIndex = index;
                 int[] ints;
                 string key = maps[index].sprite_key;
-                ints = key.Split(',').Select(int.Parse).ToArray();
-                backgroundImageID = 0;
-                if (ints.Length > 0)
+                if (key != null && key.Length > 0)
                 {
-                    if (bgCoroutine != null)
+                    ints = key.Split(',').Select(int.Parse).ToArray();
+                    if (ints.Length > 0)
                     {
-                        StopCoroutine(bgCoroutine);
 
+                        //maps[index].map_name
+                        if (tokenBG != null) tokenBG.Cancel();
+                        tokenBG = new();
+                        ChangingBG(ints, tokenBG.Token).Forget();
+                      /*  if (bgCoroutine != null)
+                        {
+                            StopCoroutine(bgCoroutine);
+
+                        }*/
+                        //     bgCoroutine = ChangingBG(ints);
+                        //   StartCoroutine(bgCoroutine);
                     }
-                    bgCoroutine = ChangingBG(ints);
-                    StartCoroutine(bgCoroutine);
                 }
                 else
                 {
-                    if (bgCoroutine != null) StopCoroutine(bgCoroutine);
-                    if (bgOriginCoroutine != null) StopCoroutine(bgOriginCoroutine);
-                    bgOriginCoroutine = ChangingNormal(bg.GetComponent<Image>(), false);
-                    StartCoroutine(bgOriginCoroutine);
-                    if (borderCoroutine != null) StopCoroutine(borderCoroutine);
-                    borderCoroutine = ChangingNormal(worldScene.GetComponent<Image>(), true);
-                    StartCoroutine(borderCoroutine);
+                    if (tokenBG != null) tokenBG.Cancel();
+                    if (tokenBGOrigin != null) tokenBGOrigin.Cancel();
+                    tokenBGOrigin = new();
+                    ChangingNormal(bg.GetComponent<RawImage>(), false, true, tokenBGOrigin.Token).Forget();
+                    ChangingNormal(worldScene.GetComponent<Image>(), true, false, tokenBGOrigin.Token).Forget();
+                    /*  if (bgCoroutine != null) StopCoroutine(bgCoroutine);
+                      if (bgOriginCoroutine != null) StopCoroutine(bgOriginCoroutine);
+                      bgOriginCoroutine = ChangingNormal(bg.GetComponent<RawImage>(), false);
+                      StartCoroutine(bgOriginCoroutine);
+                      if (borderCoroutine != null) StopCoroutine(borderCoroutine);
+                      borderCoroutine = ChangingNormal(worldScene.GetComponent<Image>(), true);
+                      StartCoroutine(borderCoroutine);*/
                 }
             }
         }
     }
 
-    IEnumerator ChangingBG(int[] keys)
+    async UniTask ChangingBG(int[] keys, CancellationToken cancellationToken = default)
     {
-
-
-        Image borderImage = worldScene.GetComponent<Image>();
-        Image image = bg.GetComponent<Image>();
-
-        if (bgOriginCoroutine != null) StopCoroutine(bgOriginCoroutine);
-        bgOriginCoroutine = ChangingNormal(bg.GetComponent<Image>(), false);
-        StartCoroutine(bgOriginCoroutine);
-        if (borderCoroutine != null) StopCoroutine(borderCoroutine);
-        borderCoroutine = ChangingNormal(worldScene.GetComponent<Image>(), true);
-        StartCoroutine(borderCoroutine);
-
-        yield return bgOriginCoroutine;
-        yield return borderCoroutine;
-        int num = keys.Length;
-        while(true)
+        try
         {
-            int rand = UnityEngine.Random.Range(0, num);
-            if(backgroundImageID == rand)
-            {
-                yield return null;
-                continue;
-            }
-            backgroundImageID = rand;
-            image.sprite = loadedSprites[spriteAssetKeys[keys[rand]].ID];
-            float f = 0;
-            Color color = new Color(1, 1, 1, 0);
-            while (f < 1)
-            {
-                color.a = Mathf.Lerp(0, 1, f);
-                image.color = color;
-                f += Time.unscaledDeltaTime / 2f;
-                yield return null;
-            }
-            color = Color.white;
-            image.color = Color.white;
-            borderImage.color = Color.black;
-            yield return new WaitForSecondsRealtime(5f);
-            f = 0;
-            while (f < 1)
-            {
-                color.a = Mathf.Lerp(1, 0, f);
-                image.color = color;
-                f += Time.unscaledDeltaTime / 2f;
-                yield return null;
-            }
-            color.a = 0;
-            image.color = color;
-        }
+            int index = currentIndex;
 
+            Image borderImage = worldScene.GetComponent<Image>();
+            RawImage image = bg.GetComponent<RawImage>();
+
+            if (tokenBGOrigin != null) tokenBGOrigin.Cancel();
+            tokenBGOrigin = new();
+            await UniTask.WhenAll(ChangingNormal(bg.GetComponent<RawImage>(), false, false, tokenBGOrigin.Token), ChangingNormal(borderImage.GetComponent<Image>(), true, false, tokenBGOrigin.Token));
+            await App.UnloadAsync(App.previewStageName);
+            string targetName = maps[index].map_name + "_stage";
+            await App.LoadScene(targetName, "", App.GlobalToken);
+            App.previewStageName = targetName;
+            int num = keys.Length;
+            
+            while (true)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                GameInstance.GameIns.stagePreviewController.SpawnCharacter(keys);
+                float f = 0;
+                Color color = new Color(1, 1, 1, 0);
+                while (f < 1)
+                {
+                    color.a = Mathf.Lerp(0, 1, f);
+                    image.color = color;
+                    f += Time.unscaledDeltaTime / 2f;
+                    await UniTask.NextFrame(cancellationToken: cancellationToken);
+                }
+                color = Color.white;
+                image.color = Color.white;
+                borderImage.color = Color.black;
+                await UniTask.Delay(5000, true, cancellationToken: cancellationToken);
+                //   yield return new WaitForSecondsRealtime(5f);
+                f = 0;
+                while (f < 1)
+                {
+                    color.a = Mathf.Lerp(1, 0, f);
+                    image.color = color;
+                    f += Time.unscaledDeltaTime / 2f;
+                    await UniTask.NextFrame(cancellationToken: cancellationToken);
+                }
+                cancellationToken.ThrowIfCancellationRequested();
+                color.a = 0;
+                image.color = color;
+                GameInstance.GameIns.stagePreviewController.RemoveCharacter();
+            }
+        }
+        catch (Exception ex)
+        {
+      //      Debug.LogException(ex);
+        }
     }
 
-    IEnumerator ChangingNormal(Image image, bool isWhite)
+    async UniTask ChangingNormal<T>(T image, bool isWhite, bool unload, CancellationToken cancellationToken = default)
     {
-     //   Image image = bg.GetComponent<Image>();
-
         float f = 0;
-        Color color = new Color(1, 1, 1, image.color.a);
-        float offset = isWhite ? -color.a : 1 - color.a;
-      
-        while (f < (isWhite ? (1 + offset) : (1 - offset)))
+       
+        if(image is Image uiImage)
         {
-            color.a = isWhite ? Mathf.Lerp(0, 1, f - offset) : Mathf.Lerp(1, 0, f + offset);
-            image.color = color;
-            f += Time.unscaledDeltaTime / 2;
-            yield return null;
+            Color color = new Color(1, 1, 1, uiImage.color.a);
+            float offset = isWhite ? -color.a : 1 - color.a;
+
+            while (f < (isWhite ? (1 + offset) : (1 - offset)))
+            {
+                color.a = isWhite ? Mathf.Lerp(0, 1, f - offset) : Mathf.Lerp(1, 0, f + offset);
+                uiImage.color = color;
+                f += Time.unscaledDeltaTime / 2;
+                await UniTask.NextFrame(cancellationToken: cancellationToken);
+            }
+            color.a = isWhite ? 1 : 0;
+            uiImage.color = color;
         }
-        color.a = isWhite ? 1 : 0;
-        image.color = color;
+        else if(image is RawImage rawImage)
+        {
+            Color color = new Color(1, 1, 1, rawImage.color.a);
+            float offset = isWhite ? -color.a : 1 - color.a;
+
+            while (f < (isWhite ? (1 + offset) : (1 - offset)))
+            {
+                color.a = isWhite ? Mathf.Lerp(0, 1, f - offset) : Mathf.Lerp(1, 0, f + offset);
+                rawImage.color = color;
+                f += Time.unscaledDeltaTime / 2;
+                await UniTask.NextFrame(cancellationToken: cancellationToken);
+            }
+            color.a = isWhite ? 1 : 0;
+            rawImage.color = color;
+        }
+        int index = currentIndex;
+
+        if(unload)
+        {
+            await App.UnloadAsync(App.previewStageName);
+        }
     }
  
 }

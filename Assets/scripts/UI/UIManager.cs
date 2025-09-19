@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Threading;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -215,6 +216,14 @@ public class UIManager : MonoBehaviour
 
         worldBtn.onClick.AddListener(() =>
         {
+            if (RestaurantManager.tutorialKeys.Contains((int)TutorialEventKey.NextMap))
+            {
+                ((Action<TutorialEventKey>)EventManager.Publish(TutorialEventKey.NextMap))?.Invoke(TutorialEventKey.NextMap);
+                GameInstance.GameIns.uiManager.TutorialEnd(true);
+               // Tutorials tuto = GameInstance.GameIns.restaurantManager.tutorials;
+               //   GameInstance.GameIns.uiManager.TutorialStart(tuto.id, tuto.count, GameInstance.GameIns.restaurantManager.tutorialStructs[tuto.id].Count);
+               RestaurantManager.tutorialKeys.Remove((int)TutorialEventKey.NextMap);
+            }
             UIClick();
             GameIns.inputManager.InputDisAble = true;
             StartCoroutine(ChangeWorldMap());
@@ -464,24 +473,44 @@ public class UIManager : MonoBehaviour
         SoundManager.Instance.PlayAudio(GameIns.uISoundManager.UIClick(), 0.1f);
     }
 
-    public void ChangeRestaurant()
+    public void ChangeRestaurant(Stage stage)
     {
-        StartCoroutine(ChangeRestaurantCoroutine());
+        ChangeRestaurantCoroutine(stage, App.GlobalToken).Forget();
     }
-    IEnumerator ChangeRestaurantCoroutine()
+    async UniTask ChangeRestaurantCoroutine(Stage stage, CancellationToken cancellationToken = default)
     {
         Animator animator = cloudsUI.GetComponent<Animator>();
         animator.SetInteger("state", 1);
         RestaurantManager.restaurantTimer = 0;
         Time.timeScale = 0;
         SoundManager.Instance.PlayAudio(loadedSounds["CloudClose"], 1);
-        yield return new WaitForSecondsRealtime(1);
+        await UniTask.Delay(1000, true, cancellationToken:  cancellationToken); 
+      //  yield return new WaitForSecondsRealtime(1);
         WorldUI worldUI = GameIns.worldUI.GetComponent<WorldUI>();
         worldUI.worldScene.SetActive(false);
         worldUI.bg.SetActive(false);
+
+        await App.UnloadAsync(App.previewStageName);
+        worldUI.currentIndex = -1;
+        worldUI.EndToken();
+        cancellationToken.ThrowIfCancellationRequested();
+        if(stage != App.currentStage)
+        {
+            FoodMachine.isQuitting = true;
+            await App.GameExit(true); //현재 열려있는 스테이지 종료
+
+            FoodMachine.isQuitting = false;
+            MapContent mapContent = maps[(int)stage];
+            GameIns.assetLoader.gameRegulation = new GameRegulation(mapContent.id, mapContent.map_name, mapContent.target_num);
+            App.currentStage = (Stage)mapContent.id;
+            SaveLoadSystem.SaveGameRegulation(GameIns.assetLoader.gameRegulation);
+            await App.GameLoaded(false, App.GlobalToken);
+        }
+
         SoundManager.Instance.PlayAudio(loadedSounds["CloudOpen"], 1);
         animator.SetInteger("state", 2);
-        yield return new WaitForSecondsRealtime(0.5f);
+        await UniTask.Delay(500, true, cancellationToken:  cancellationToken); 
+       // yield return new WaitForSecondsRealtime(0.5f);
         GameIns.inputManager.InputDisAble = false;
         RestaurantManager.restaurantTimer = 1;
         Time.timeScale = 1;

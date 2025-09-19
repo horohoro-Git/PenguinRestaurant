@@ -9,8 +9,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
 using Random = UnityEngine.Random;
-using Image = UnityEngine.UI.Image;
-using static UnityEngine.Rendering.DebugUI;
 
 public class Table : Furniture
 {
@@ -36,7 +34,17 @@ public class Table : Furniture
     public int seatNum;
 
     public float weight;
-    public float height;
+    public float Height { get { 
+            if(InputManger.cachingCamera.orthographic)
+            {
+                float size = InputManger.cachingCamera.orthographicSize / 15f;
+                return 40f * size;   
+            }
+            else
+            {
+                return 40f;
+            }
+        } }
     [NonSerialized] public bool hasProblem;
     [NonSerialized] public bool stealing;
     [NonSerialized] public bool stolen;
@@ -53,7 +61,7 @@ public class Table : Furniture
     public override void Start()
     {
         weight = 2;
-        height = 40;
+      //  height = 40;
         plateLoc = trashPlate.transforms;
         foodStacks.Add(new FoodStack());
 
@@ -61,19 +69,19 @@ public class Table : Furniture
         GameInstance.GameIns.workSpaceManager.tables.Add(this);
         base.Start();
         //test
-        /* numberOfGarbage = 8;
-         for (int i = 0; i < numberOfGarbage; i++)
-         {
-             Garbage go = GarbageManager.CreateGarbage();
-             go.transforms.SetParent(trashPlate.transforms);
-             garbageList.Add(go);
+       /* numberOfGarbage = 8;
+        for (int i = 0; i < numberOfGarbage; i++)
+        {
+            Garbage go = GarbageManager.CreateGarbage();
+            go.transforms.SetParent(trashPlate.transforms);
+            garbageList.Add(go);
 
-             float x = UnityEngine.Random.Range(-1f, 1f);
-             float z = UnityEngine.Random.Range(-1f, 1f);
-             go.transforms.position = up.position + GameInstance.GetVector3(x, 0, z);
-         }
-         interacting = false;
-         isDirty = true;*/
+            float x = UnityEngine.Random.Range(-1f, 1f);
+            float z = UnityEngine.Random.Range(-1f, 1f);
+            go.transforms.position = up.position + new Vector3(x, 0, z);
+        }
+        interacting = false;
+        isDirty = true;*/
     }
 
     private void OnMouseEnter()
@@ -172,12 +180,12 @@ public class Table : Furniture
 
            // Vector3 endPoint = InputManger.cachingCamera.ScreenToWorldPoint(GameInstance.GameIns.applianceUIManager.rewardChest.transform.position);
             Vector3 endPoint = InputManger.cachingCamera.ScreenToWorldPoint(screenTarget);
-            Vector3 controlVector = (startPoint + endPoint) / weight + Vector3.up * height;
+            Vector3 controlVector = (startPoint + endPoint) / weight + Vector3.up * Height;
 
             while (bstart)
             {
                 endPoint = InputManger.cachingCamera.ScreenToWorldPoint(GameInstance.GameIns.applianceUIManager.rewardChest.transform.position);
-                controlVector = (startPoint + endPoint) / weight + Vector3.up * height;
+                controlVector = (startPoint + endPoint) / weight + Vector3.up * Height;
                 elapsedTime += Time.deltaTime;
                 float t = Mathf.Clamp01(elapsedTime / 0.5f);
 

@@ -28,23 +28,24 @@ public class WorkSpaceManager : MonoBehaviour
 
     private void Awake()
     {
-       // food = loadedAssets[itemAssetKeys[1000].Name].GetComponent<Food>();
+     
+    }
+    private void Start()
+    {
         FoodManager.NewFood(food, 200);
-    //    FoodManager.NewFood(food, 100, true);
-     //   FoodManager.NewPackageBox(box, 30);
+        //    FoodManager.NewFood(food, 100, true);
+        //   FoodManager.NewPackageBox(box, 30);
         GarbageManager.NewGarbage(garbage, 50);
         for (int i = 0; i < particle.Length; i++)
         {
             ParticleManager.NewParticle(particle[i], 100, (ParticleType)i);
         }
-
     }
-
 
     public void AddWorkSpace(Furniture newWork)
     {
         newWork.spawned = true;
-        switch(newWork.spaceType)
+        switch(newWork.SpaceType)
         {
             case WorkSpaceType.None:
                 break;
