@@ -331,6 +331,7 @@ public class SaveLoadSystem
             {
                 writer.Write(gameRegulation.id);
                 writer.Write(gameRegulation.map_name);
+                writer.Write(gameRegulation.target_num);
             }
         }
     }
@@ -676,7 +677,7 @@ public class SaveLoadSystem
                 for (int i = 0; i < counterNum; i++)
                 {
                     writer.Write(workSpaceManager.counters[i].id);
-                    writer.Write((int)workSpaceManager.counters[i].spaceType);
+                    writer.Write((int)workSpaceManager.counters[i].SpaceType);
                     writer.Write((int)workSpaceManager.counters[i].rotateLevel);
                     writer.Write(workSpaceManager.counters[i].transforms.position.x);
                     writer.Write(workSpaceManager.counters[i].transforms.position.y);
@@ -696,7 +697,7 @@ public class SaveLoadSystem
                 for (int i = 0; i < foodMachineNum; i++)
                 {
                     writer.Write(workSpaceManager.foodMachines[i].id);
-                    writer.Write((int)workSpaceManager.foodMachines[i].spaceType);
+                    writer.Write((int)workSpaceManager.foodMachines[i].SpaceType);
                     writer.Write((int)workSpaceManager.foodMachines[i].rotateLevel);
                     writer.Write(workSpaceManager.foodMachines[i].transforms.position.x);
                     writer.Write(workSpaceManager.foodMachines[i].transforms.position.y);
@@ -711,7 +712,7 @@ public class SaveLoadSystem
                 for (int i = 0; i < tableNum; i++)
                 {
                     writer.Write(workSpaceManager.tables[i].id);
-                    writer.Write((int)workSpaceManager.tables[i].spaceType);
+                    writer.Write((int)workSpaceManager.tables[i].SpaceType);
                     writer.Write((int)workSpaceManager.tables[i].rotateLevel);
                     writer.Write(workSpaceManager.tables[i].transforms.position.x);
                     writer.Write(workSpaceManager.tables[i].transforms.position.y);
@@ -726,7 +727,7 @@ public class SaveLoadSystem
                 for (int i = 0; i < trashcanNum; i++)
                 {
                     writer.Write(workSpaceManager.trashCans[i].id);
-                    writer.Write((int)workSpaceManager.trashCans[i].spaceType);
+                    writer.Write((int)workSpaceManager.trashCans[i].SpaceType);
                     writer.Write((int)workSpaceManager.trashCans[i].rotateLevel);
                     writer.Write(workSpaceManager.trashCans[i].transforms.position.x);
                     writer.Write(workSpaceManager.trashCans[i].transforms.position.y);
@@ -742,7 +743,6 @@ public class SaveLoadSystem
 
                 if(GameInstance.GameIns.restaurantManager.door != null)
                 {
-                  
                     Door door = GameInstance.GameIns.restaurantManager.door;
                     if(door.setup)
                     {

@@ -68,7 +68,7 @@ public class FurnitureInfo : MonoBehaviour
             Queue<int> placedArea = MoveCalculator.GetCheckAreaWithBounds(GameInstance.GameIns.calculatorScale, currentFurniture.GetComponentInChildren<Collider>());
             currentFurniture.placed = false;
 
-            switch (currentFurniture.spaceType)
+            switch (currentFurniture.SpaceType)
             {
                 case WorkSpaceType.None:
                     break;
@@ -113,7 +113,7 @@ public class FurnitureInfo : MonoBehaviour
              
             }
            
-            if (currentFurniture.spaceType != WorkSpaceType.Door)
+            if (currentFurniture.SpaceType != WorkSpaceType.Door)
             {
                 if(GameInstance.GameIns.restaurantManager.doorPreview.gameObject.activeSelf)
                 {

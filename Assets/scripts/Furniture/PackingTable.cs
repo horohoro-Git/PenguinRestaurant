@@ -23,8 +23,9 @@ public class PackingTable : Counter
     public AnimalController employeeAssistant;
 
     // Start is called before the first frame update
-    void Start()
+    public override void Start()
     {
+        base.Start();
         if (counterType != CounterType.Delivery)
         {
             f1 = new FoodStack();

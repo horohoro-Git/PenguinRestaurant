@@ -25,6 +25,7 @@ public class DonutMachine : FoodMachine
     }
     public override void OnEnable()
     {
+        if(!placed) return;
         base.OnEnable();
         frieds = new bool[3, 2];
         while (friedQueue.Count > 0)
@@ -34,6 +35,7 @@ public class DonutMachine : FoodMachine
             (f, a) = friedQueue.Dequeue();
             FoodManager.EatFood(f);
         }
+        
         StartCoroutine(AddDonuts());
       
     }

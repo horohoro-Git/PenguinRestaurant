@@ -16,7 +16,6 @@ public class ScrollSnap : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDr
     public ContentSizeFitter fitter;
     bool setup = false;
     public List<RectTransform> panelList = new();
-    int panelIndex = 0;
     bool isSnapping;
     bool isDragging;
     int selectedPanel = 0;

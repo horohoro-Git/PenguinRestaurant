@@ -23,16 +23,17 @@ public class PlayerCamera : MonoBehaviour
     public float minZoom = 10f;
     public float maxZoom = 30f;
     private float targetZoom;
-    private float previousDistance = 0f;
     float smoothTime = 0.02f;
 
     float zoomVelocity;
-    bool isZooming;
-    float initialDistance;
     int hitCount;
     Collider[] colliders = new Collider[1];
     int obstacleMask = (1 << 7) | (1 << 8) | (1 << 16) | (1 << 19);
     [NonSerialized] public GameObject followTarget;
+
+
+    bool isZooming;
+    float initialDistance;
     private void Awake()
     {
         targetZoom = 15;

@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -87,6 +88,6 @@ public class Loading : MonoBehaviour
         if (App.currentScene == SceneState.Restaurant) GameInstance.GameIns.bgMSoundManager.BGMChange(901000, 0.4f);
 
         GameInstance.GameIns.restaurantManager.Tutorial();
-        App.UnloadAsync("LoadingScene");
+        App.UnloadAsync("LoadingScene").Forget();
     }
 }

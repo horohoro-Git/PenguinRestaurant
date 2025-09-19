@@ -314,7 +314,7 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IEndDragHandler, IPointer
             }
             GameIns.restaurantManager.ApplyPlaced(f, goodss, purchased);
           //  SaveLoadSystem.SaveRestaurantBuildingData();
-            RestaurantParam restaurantParam = new RestaurantParam(f.id, f.spaceType, level, target, f.transform.position, f.transform.rotation);
+            RestaurantParam restaurantParam = new RestaurantParam(f.id, f.SpaceType, level, target, f.transform.position, f.transform.rotation);
             GameIns.restaurantManager.restaurantparams.Add(restaurantParam);
             if (GameIns.store.goodsDic[goods.ID].Count == 0)
             {

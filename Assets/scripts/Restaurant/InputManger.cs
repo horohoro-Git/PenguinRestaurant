@@ -36,39 +36,19 @@ public class InputManger : MonoBehaviour
     public float minCameraLocZ; // 카메라의 최소 Z 위치
     public float cameraSpeed; // 카메라 이동 속도
     //float money; // 현재 돈
-    AnimalManager animalManager; // 동물 관리
-    RestaurantManager restaurantManager; // 레스토랑 관리
     public UIManager UIManager; // UI 관리
-    Vector2 cameraLoc = new Vector2(0, 0); // 카메라 위치
-    //public float Money { get { return money; } set { money = value; UIManager.UpdateMoneyText(Money); } } // 돈 속성
-    private Vector3 nowPos, prePos;
-    private Vector3 movePos;
     public GameObject go;
 
     public GameObject testTrash;
 
     public bool InputDisAble { get; set; }
-    public bool bCleaningMode; //탁자를 치울 수 있는가
-                               //   public bool a;
-                               //    Vector3 lastPoint = new Vector3();
+    public bool bCleaningMode; 
+                             
     public float dragSpeed = 2.0f;
     public Transform centerObject;       // 화면 중앙 기준 오브젝트 (레이를 쏘는 기준)
     public LayerMask navigationLayer;    // 이동 가능한 영역의 레이어
 
-    private Vector3 dragOrigin;          // 드래그 시작 위치의 월드 좌표
     private bool isDragging = false;
-    float diff;
-    Vector3 lastDir;
-    float dragTimer;
-    RaycastHit deltaResult;
-    Vector3 dir;
-    float reduceSpeed;
-    Vector3 targetVector;
-    RaycastHit hits;
-    Vector3 target;
-    //   bool entireStart;
-    float doubleClickTimer = 0.2f;
-    float lastClick = -1f;
     public Vector3 preLoc;
     public Vector3 curLoc;
 
@@ -81,9 +61,6 @@ public class InputManger : MonoBehaviour
 //    public AudioSource audioSource;
     public bool inOtherAction;
     public ParticleSystem particleSystems;
-    float zOffset;
-    Vector3 lastMousePosition;
-    RaycastHit hit;
     public bool manyFingers;
 
     public Table clickedTable;
@@ -100,7 +77,6 @@ public class InputManger : MonoBehaviour
     Vector3 deltaPosition;
     Vector3 followPosition;
     Vector3 realPosition;
-    Vector3 dummyChar;
     bool bClick;
     List<RaycastResult> results = new List<RaycastResult>();
     Vector3 camVelocity;
@@ -130,17 +106,13 @@ public class InputManger : MonoBehaviour
 
     void Start()
     {
-        restaurantManager = GetComponent<RestaurantManager>();
-        animalManager = GetComponent<AnimalManager>();
-        zOffset = cameraTrans.position.z - Camera.main.transform.position.z;
-     //   originSize = Camera.main.orthographicSize;
         cachingCamera = Camera.main;    
     }
 
-    void Update()
+  /*  void Update()
     {
-      //  Utility.CheckHirable(cameraRange.transform.position, ref refX, ref refY, true, true, false);
-    }
+        Utility.CheckHirable(cameraRange.transform.position, ref refX, ref refY, true, true, false);
+    }*/
 
 
     private void OnEnable()

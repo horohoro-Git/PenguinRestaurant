@@ -149,7 +149,6 @@ public class UnlockableBuyer : MonoBehaviour
         if (fillAmount >= 1f && unlock == false)
         {
             unlock = true;
-            PurchaseItem();
            /* BoxCollider bc = GameInstance.GameIns.restaurantManager.levels[GameInstance.GameIns.restaurantManager.level].GetComponent<BoxCollider>();
             if (bc != null)
             {
@@ -255,13 +254,6 @@ public class UnlockableBuyer : MonoBehaviour
     {
         Gizmos.color = Color.yellow;
      //   Gizmos.DrawWireCube(transform.position, new Vector3(6.5f, 6, 4f));
-    }
-
-    void PurchaseItem()
-    {
-        GameInstance.GameIns.inputManager.inOtherAction = false;
-        GameInstance.GameIns.inputManager.manyFingers = true;
-        restaurantManager.LevelUp();
     }
 
     void UpdatePriceLabel()

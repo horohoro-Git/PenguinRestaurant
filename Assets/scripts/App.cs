@@ -56,13 +56,14 @@ public class App : MonoBehaviour
     public static Dictionary<int, BundleCheck> bundleCheck = new();
     public static Dictionary<int, BundleCheck> currentHashes = new();
     public static Dictionary<int, List<BundleCheck>> cachedData = new();
-
+    public static string previewStageName = "";
     [SerializeField]
     PlayerInput playerInput;
     int escapeTabCount = 0;
   
     private void Awake()
     {
+     //   Screen.SetResolution(540, 960, false);
         QualitySettings.vSyncCount = 1;
         Application.targetFrameRate = 60;
         currentScene = SceneState.Restaurant;
@@ -137,7 +138,7 @@ public class App : MonoBehaviour
         try
         {
             cancellationToken.ThrowIfCancellationRequested();
-            await LoadScene("DownloadScene", cancellationToken);
+            await LoadScene("DownloadScene", "DownloadScene", cancellationToken);
          
         }
         catch (OperationCanceledException)
@@ -149,7 +150,7 @@ public class App : MonoBehaviour
     public static async UniTask GameLoad(CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        await LoadScene("LoadingScene", cancellationToken);
+        await LoadScene("LoadingScene", "LoadingScene", cancellationToken);
 
         cancellationToken.ThrowIfCancellationRequested();
         await LoadRegulation(cancellationToken);
@@ -250,7 +251,7 @@ public class App : MonoBehaviour
 
             if (GameInstance.GameIns.assetLoader.sceneLoaded)
             {
-                await GameLoaded(GlobalToken);
+                await GameLoaded(true, GlobalToken);
             }
             else
             {
@@ -287,22 +288,31 @@ public class App : MonoBehaviour
         }
     }
 
-    static async UniTask GameLoaded(CancellationToken cancellationToken = default)
+    public static async UniTask GameLoaded(bool firstLoading, CancellationToken cancellationToken = default)
     {
         try
         {
             cancellationToken.ThrowIfCancellationRequested();
-            await LoadScene(AssetLoader.loadedMap["InteractionScene"], cancellationToken);
-            await LoadScene(AssetLoader.loadedMap[GameInstance.GameIns.assetLoader.gameRegulation.map_name], cancellationToken);
-            await LoadScene(AssetLoader.loadedMap[GameInstance.GameIns.assetLoader.gameRegulation.map_name + "_gatcha"], cancellationToken);
-            await LoadScene(AssetLoader.loadedMap[GameInstance.GameIns.assetLoader.gameRegulation.map_name + "_fishing"], cancellationToken);
+            if(!scenes.ContainsKey("InteractionScene")) await LoadScene("InteractionScene", AssetLoader.loadedMap["InteractionScene"], cancellationToken);
+            await LoadScene(GameInstance.GameIns.assetLoader.gameRegulation.map_name, AssetLoader.loadedMap[GameInstance.GameIns.assetLoader.gameRegulation.map_name], cancellationToken);
+            await LoadScene(GameInstance.GameIns.assetLoader.gameRegulation.map_name + "_gatcha", AssetLoader.loadedMap[GameInstance.GameIns.assetLoader.gameRegulation.map_name + "_gatcha"], cancellationToken);
+            await LoadScene(GameInstance.GameIns.assetLoader.gameRegulation.map_name + "_fishing", AssetLoader.loadedMap[GameInstance.GameIns.assetLoader.gameRegulation.map_name + "_fishing"], cancellationToken);
 
             currentScene = SceneState.Restaurant;
-            loading.ChangeText(gameSettings.language == Language.KOR ? "식당을 불러오는 중" : "Preparing the restaurant");
-            await UniTask.WhenAll(LoadFont(cancellationToken), LoadRestaurant(cancellationToken));
-       
-            loadedAllAssets = true;
-            loading.LoadingComplete();
+
+            if(firstLoading)
+            {
+                loading.ChangeText(gameSettings.language == Language.KOR ? "식당을 불러오는 중" : "Preparing the restaurant");
+                await UniTask.WhenAll(LoadFont(cancellationToken), LoadRestaurant(cancellationToken));
+
+                loadedAllAssets = true;
+                loading.LoadingComplete();
+            }
+            else
+            {
+                await UniTask.WhenAll(LoadFont(cancellationToken), LoadRestaurant(cancellationToken));
+            }
+          
         }
         catch (OperationCanceledException)
         {
@@ -408,15 +418,15 @@ public class App : MonoBehaviour
         }*/
     }
 
-    public static async UniTask LoadScene(string name, CancellationToken cancellationToken = default)
+    public static async UniTask LoadScene(string name, string path, CancellationToken cancellationToken = default)
     {
         try
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            AsyncOperation asyncUnLoad = SceneManager.LoadSceneAsync(name, LoadSceneMode.Additive);
+            AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(name, LoadSceneMode.Additive);
 
-            await asyncUnLoad.ToUniTask(cancellationToken: cancellationToken);
+            await asyncLoad.ToUniTask(cancellationToken: cancellationToken);
 
             scenes[name] = SceneManager.GetSceneByName(name);
         }
@@ -579,12 +589,20 @@ public class App : MonoBehaviour
         SoundManager.Instance.RestaurantSoundsOnoff(false);
     }
 
-    public static void UnloadAsync(string name)
+    public static async UniTask UnloadAsync(string name)
     {
         if(scenes.ContainsKey(name))
         {
-            SceneManager.UnloadSceneAsync(scenes[name]);
+            scenes.TryGetValue(name, out Scene scene);
+            await SceneManager.UnloadSceneAsync(scenes[name]);
             scenes.Remove(name);
+        }
+        else
+        {
+            foreach(var s in scenes)
+            {
+                Debug.Log(s.Key + " Exist");
+            }
         }
     }
 
@@ -598,21 +616,11 @@ public class App : MonoBehaviour
     }
 
 
-    public static async UniTask GameExit()
+    public static async UniTask GameExit(bool onlyRestaurant = false)
     {
-        if (Camera.main != null)
-        {
-            Camera cam = Camera.main;
-            cam.clearFlags = CameraClearFlags.SolidColor;
-            cam.backgroundColor = Color.black;
-            cam.cullingMask = 0;
-        }
-        UIManager uIManager = GameInstance.GameIns.uiManager;
-        if (uIManager != null) uIManager.fadeImage.color = Color.black;
         RestaurantManager restaurantManager = GameInstance.GameIns.restaurantManager;
         AnimalManager animalManager = GameInstance.GameIns.animalManager;
-      //  AnimationInstancingMgr animationInstancingMgr = GameInstance.GameIns.animationInstancingManager;
-     //   if(animationInstancingMgr != null) animationInstancingMgr.gameObject.SetActive(false);
+        AnimalPreviewManager previewManager = GameInstance.GameIns.animalPreviewManager;
         if (restaurantManager != null)
         {
             restaurantManager.GameSave();
@@ -641,6 +649,49 @@ public class App : MonoBehaviour
             }
         }
 
+        if (onlyRestaurant)
+        {
+            List<FoodMachine> foodMachines = GameInstance.GameIns.workSpaceManager.foodMachines;
+            Debug.Log(foodMachines.Count);
+            for(int i = foodMachines.Count - 1;i >= 0;i--)
+            {
+               
+                Destroy(foodMachines[i].gameObject);
+            }
+            List<Counter> counters = GameInstance.GameIns.workSpaceManager.counters;
+            Debug.Log(counters.Count);
+            for(int i= counters.Count - 1;i >= 0;i--) { Destroy(counters[i].gameObject); }
+            List<Table> tables = GameInstance.GameIns.workSpaceManager.tables;
+            Debug.Log(tables.Count);
+            for(int i= tables.Count - 1; i>=0; i--) { Destroy(tables[i].gameObject); }
+            await UnloadAsync(GameInstance.GameIns.assetLoader.gameRegulation.map_name);
+            await UnloadAsync(GameInstance.GameIns.assetLoader.gameRegulation.map_name + "_gatcha");
+            await UnloadAsync(GameInstance.GameIns.assetLoader.gameRegulation.map_name + "_fishing");
+            return;
+        }
+        else
+        {
+            if (previewManager != null)
+            {
+                foreach (var v in previewManager.previews)
+                {
+                    while (v.Value.Count > 0)
+                    {
+                        AnimalStagePreview preview = v.Value.Dequeue();
+                        Destroy(preview.gameObject);
+                    }
+                }
+            }
+        }
+        if (Camera.main != null)
+        {
+            Camera cam = Camera.main;
+            cam.clearFlags = CameraClearFlags.SolidColor;
+            cam.backgroundColor = Color.black;
+            cam.cullingMask = 0;
+        }
+        UIManager uIManager = GameInstance.GameIns.uiManager;
+        if (uIManager != null) uIManager.fadeImage.color = Color.black;
         if (GameInstance.GameIns != null)
         {
             GameInstance.GameIns.Clear();
@@ -671,6 +722,7 @@ public class App : MonoBehaviour
         await UniTask.Yield();
         if (globalCts != null) globalCts.Dispose();
         globalCts = null;
+
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else

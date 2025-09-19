@@ -34,6 +34,8 @@ public class GameInstance
     public FishingSoundManager fishingSoundManager;
     public WorldUI worldUI;
     public AnimationInstancingMgr animationInstancingManager;
+    public AnimalPreviewManager animalPreviewManager;
+    public StagePreviewController stagePreviewController;
     public static GameInstance GameIns { get { return gameInstance; }  }
     private static Queue<Vector3> pool = new Queue<Vector3>();
     public static List<GraphicRaycaster> graphicRaycasters = new List<GraphicRaycaster>();

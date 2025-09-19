@@ -273,8 +273,7 @@ public class FoodMachine : Furniture
 
         if (levelDatas.ContainsKey(machineType))
         {
-            this.machineLevelData = levelDatas[machineType];
-           
+            this.machineLevelData = levelDatas[machineType];           
         }
         else
         {

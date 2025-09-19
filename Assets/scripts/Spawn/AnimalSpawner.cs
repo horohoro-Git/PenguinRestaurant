@@ -64,6 +64,7 @@ public class AnimalSpawner : MonoBehaviour
     {
         try
         {
+            await UniTask.Delay(200, true, cancellationToken: cancellationToken);
             bool checkSpawner = false;
             while (!checkSpawner)
             {

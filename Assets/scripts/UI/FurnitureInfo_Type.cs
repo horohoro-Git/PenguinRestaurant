@@ -349,7 +349,7 @@ public class FurnitureInfo_Type : MonoBehaviour
 
         }
         // }\n생산 속도 : { fm.machineLevelData.calculatedCookingTimer}/ s-> < color =#00FF00>{nextCookingTimer}/s</color>\n최대 생산량: {fm.machineLevelData.calculatedHeight} -> <color=#00FF00>{maxHeight}</color>")
-        if (furniture.spaceType == WorkSpaceType.Table || furniture.spaceType == WorkSpaceType.Trashcan || furniture.spaceType == WorkSpaceType.Counter)
+        if (furniture.SpaceType == WorkSpaceType.Table || furniture.SpaceType == WorkSpaceType.Trashcan || furniture.SpaceType == WorkSpaceType.Counter)
         {
             int max = goods[furniture.id].num;
             int n = GameInstance.GameIns.store.goodsDic[furniture.id].Count;
@@ -358,11 +358,11 @@ public class FurnitureInfo_Type : MonoBehaviour
             placedText.text = App.gameSettings.language == Language.KOR ? "재배치" : "Replace";
             furnitureName.text = App.gameSettings.language == Language.KOR ? goods[furniture.id].name_kor : goods[furniture.id].name_eng;
         }
-        else if (furniture.spaceType == WorkSpaceType.Vending)
+        else if (furniture.SpaceType == WorkSpaceType.Vending)
         {
             furnitureName.text = App.gameSettings.language == Language.KOR ? "자판기" : "Vending Machine";
         }
-        else if (furniture.spaceType == WorkSpaceType.Door)
+        else if (furniture.SpaceType == WorkSpaceType.Door)
         {
             placedNum.text = "";
             furnitureName.text = App.gameSettings.language == Language.KOR ? "문" : "Door";

@@ -60,7 +60,6 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
             }
         } }
     Vector2 latestVector = Vector3.zero;
-    bool isSpread = false;
     Coroutine scrollCoroutine;
     bool isDown = true;
 
@@ -161,7 +160,6 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
             yield return null;
         }
         SetParentVector = targetPos;
-        isSpread = false;
         isWorking = false;
    //     animator.SetTrigger("gathering");
     }
@@ -181,7 +179,6 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
             yield return null;
         }
         SetParentVector = targetPos;
-        isSpread = true;
         isWorking = false;
       //  animator.SetTrigger("spread");
     }
@@ -257,7 +254,6 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
         SoundManager.Instance.PlayAudio(GameInstance.GameIns.uISoundManager.Fold(), 0.2f);
         animator.enabled = true;
         animator.SetInteger(AnimationKeys.scrolling, 2);
-        isSpread = false;
         isDown = true;
         storeText.fontSize = 40f;
     }
