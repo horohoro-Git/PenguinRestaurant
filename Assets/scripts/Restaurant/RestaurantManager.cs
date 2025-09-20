@@ -206,7 +206,7 @@ public class RestaurantManager : MonoBehaviour
         trashData = SaveLoadSystem.LoadTrashData();
         tutorials = SaveLoadSystem.LoadTutorialData();
       
-        //  Tutorials.Setup(tutorials);
+        Tutorials.TutorialUpdate(0);
         // restaurantCurrency.fishes += 100;
         restaurantCurrency.Money += BigInteger.Parse("316000");// 10000;
 
@@ -665,20 +665,25 @@ public class RestaurantManager : MonoBehaviour
 
             GameIns.store.StoreUpdate();
 
-            if (miniGame.activate)
+            Tutorials.TutorialUpdate(tutorials.id);
+
+            if (!tutorialEventKeys.Contains(TutorialEventKey.NoFishing))
             {
-                switch (miniGame.type)
+                Debug.Log("KK");
+                if (miniGame.activate)
                 {
-                    case MiniGameType.None:
-                        break;
-                    case MiniGameType.Fishing:
-                        GameIns.fishingManager.LoadStatus(miniGame.fishing);
-                        GameIns.uiManager.fishingBtn.gameObject.SetActive(true);
-                        //OpenMiniGame(MiniGameType.Fishing);
-                        break;
+                    switch (miniGame.type)
+                    {
+                        case MiniGameType.None:
+                            break;
+                        case MiniGameType.Fishing:
+                            GameIns.fishingManager.LoadStatus(miniGame.fishing);
+                            GameIns.uiManager.fishingBtn.gameObject.SetActive(true);
+                            //OpenMiniGame(MiniGameType.Fishing);
+                            break;
+                    }
                 }
             }
-
             GameIns.uiManager.reputation.text = restaurantOthers.reputation.ToString();
             int sum = 0;
             foreach(var v in AnimalManager.gatchaTiers)
@@ -780,7 +785,7 @@ public class RestaurantManager : MonoBehaviour
       */
             // GameInstance.GameIns.applianceUIManager.UnlockHire(true);
 
-            Tutorials.TutorialUpdate(tutorials.id);
+           
             /*
             Tutorials tutorial = GameInstance.GameIns.restaurantManager.tutorials;
 
@@ -855,11 +860,11 @@ public class RestaurantManager : MonoBehaviour
                 else tutorials.worked = true;
 
             }
-
+/*
             if (tuto.event_id == TutorialEventKey.EnterFishing || tuto.event_id == TutorialEventKey.StartFishing || tuto.event_id == TutorialEventKey.ComploeteFishing)
             {
                 GameIns.uiManager.fishingBtn.gameObject.SetActive(true);
-            }
+            }*/
 
             if (tuto.event_id == TutorialEventKey.EnterRestaurant || tuto.event_id == TutorialEventKey.FillFishes || tuto.event_id == TutorialEventKey.EnterFishing || tuto.event_id == TutorialEventKey.StartFishing || tuto.event_id == TutorialEventKey.ComploeteFishing || tuto.event_id == TutorialEventKey.CatchEnemy || tuto.event_id == TutorialEventKey.BuyTrashcan || tuto.event_id == TutorialEventKey.Cleaning)
             {

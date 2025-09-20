@@ -53,25 +53,9 @@ public class GridManager : MonoBehaviour
     {
         CreateCells();
         CreateLines();
-       // Debug.Log(worldPoint);
-      /*  int x = Mathf.FloorToInt((-3 - GameIns.calculatorScale.minX) / GameIns.calculatorScale.distanceSize);
-        int y = Mathf.FloorToInt((-10 - GameIns.calculatorScale.minY) / GameIns.calculatorScale.distanceSize);
-        int gridCellX = Mathf.FloorToInt((x - 0.7f + 2.5f * 0.5f));
-        int gridCellY = Mathf.FloorToInt((y - 1.2f + 2.5f * 0.5f));
-        Debug.Log(x + " " + y + " " + gridCellX + " " + gridCellY);*/
+   
     }
 
-   /* private void Update()
-    {
-        if (InputManger.cachingCamera)
-        {
-            Ray ray = InputManger.cachingCamera.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out RaycastHit hit, float.MaxValue, 1))
-            {
-          //      SelectLine(hit.point);
-            }
-        }
-    }*/
 
     void CreateLines()
     {

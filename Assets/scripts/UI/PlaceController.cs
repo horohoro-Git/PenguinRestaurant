@@ -130,9 +130,9 @@ public class PlaceController : MonoBehaviour
             if (currentMouse.leftButton.wasPressedThisFrame)
             {
                 Ray ray = InputManger.cachingCamera.ScreenPointToRay(currentMouse.position.ReadValue());
-                if (Physics.Raycast(ray, out RaycastHit hit, float.MaxValue, 1 << 17))
+                if (Physics.Raycast(ray, out RaycastHit hit, float.MaxValue, 1 << 25))
                 {
-                    if (hit.collider.gameObject.GetComponentInParent<PlaceController>() == this)
+                  //  if (hit.collider.gameObject.GetComponentInParent<PlaceController>() == this)
                     {
                         GameInstance.GameIns.inputManager.InputDisAble = true;
                         isDragging = true;
@@ -250,9 +250,9 @@ public class PlaceController : MonoBehaviour
     private void HandleInputDown(Vector2 inputPosition)
     {
         Ray ray = InputManger.cachingCamera.ScreenPointToRay(inputPosition);
-        if (Physics.Raycast(ray, out RaycastHit hit, float.MaxValue, 1 << 17))
+        if (Physics.Raycast(ray, out RaycastHit hit, float.MaxValue, 1 << 25))
         {
-            if (hit.collider.gameObject.GetComponentInParent<PlaceController>() == this)
+           // if (hit.collider.gameObject.GetComponentInParent<PlaceController>() == this)
             {
                 GameInstance.GameIns.inputManager.InputDisAble = true;
                 isDragging = true;
