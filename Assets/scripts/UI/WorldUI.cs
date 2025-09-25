@@ -80,7 +80,7 @@ public class WorldUI : MonoBehaviour
             scrollSnap.panelList.Add(worldMapStage.GetComponent<RectTransform>());
             stages.Add(worldMapStage);
         }
-        //test
+ /*       //test
         for (int i = 0; i <= 3; i++)
         {
             WorldMapStage worldMapStage = worldMapStages.Dequeue();
@@ -88,7 +88,7 @@ public class WorldUI : MonoBehaviour
             worldMapStage.locked = true;
             scrollSnap.panelList.Add(worldMapStage.GetComponent<RectTransform>());
             stages.Add(worldMapStage);
-        }
+        }*/
 
       //  scrollSnap.Setup((int)App.currentStage);
     }
@@ -167,13 +167,7 @@ public class WorldUI : MonoBehaviour
                     tokenBGOrigin = new();
                     ChangingNormal(bg.GetComponent<RawImage>(), false, true, tokenBGOrigin.Token).Forget();
                     ChangingNormal(worldScene.GetComponent<Image>(), true, false, tokenBGOrigin.Token).Forget();
-                    /*  if (bgCoroutine != null) StopCoroutine(bgCoroutine);
-                      if (bgOriginCoroutine != null) StopCoroutine(bgOriginCoroutine);
-                      bgOriginCoroutine = ChangingNormal(bg.GetComponent<RawImage>(), false);
-                      StartCoroutine(bgOriginCoroutine);
-                      if (borderCoroutine != null) StopCoroutine(borderCoroutine);
-                      borderCoroutine = ChangingNormal(worldScene.GetComponent<Image>(), true);
-                      StartCoroutine(borderCoroutine);*/
+            
                 }
             }
         }

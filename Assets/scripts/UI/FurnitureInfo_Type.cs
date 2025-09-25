@@ -9,7 +9,7 @@ using UnityEngine.UI;
 using static AssetLoader;
 public class FurnitureInfo_Type : MonoBehaviour
 {
-    FurnitureInfo furnitureInfo;
+    [NonSerialized] public FurnitureInfo furnitureInfo;
     public Image gageBar;
     public Image furnitureImage;
     public TMP_Text furnitureName;
@@ -41,7 +41,9 @@ public class FurnitureInfo_Type : MonoBehaviour
     BigInteger rewardAmount;
     [NonSerialized] public int increaseFishes;
     [NonSerialized] public bool holding;
+    [NonSerialized] public bool upgradeHolding;
     public Coroutine refill;
+    public Coroutine machineUpgrading;
     bool gageCheck;
     bool currentGageState;
 
@@ -262,6 +264,30 @@ public class FurnitureInfo_Type : MonoBehaviour
         }
     }
 
+    public IEnumerator Upgrading()
+    {
+        float timer = 0.2f;
+        while (upgradeHolding)
+        {
+            if (timer > 0)
+            {
+                yield return new WaitForSeconds(timer);
+                timer -= 0.05f;
+            }
+            else
+            {
+                yield return new WaitForSeconds(0.05f);
+            }
+
+            if(upgradeHolding)
+            {
+                furnitureInfo.Upgrade();
+            }
+
+        }
+    }
+
+
     IEnumerator InsufficientFish()
     {
 
@@ -317,11 +343,11 @@ public class FurnitureInfo_Type : MonoBehaviour
             ///currentFoodMachine.machineLevelData.calculatedPrice = moneyString.ToString();
             BigInteger salePrice = Utility.StringToBigInteger(currentFoodMachine.machineLevelData.sale_proceed);
             if (offset.sale_div == 0) salePrice += Mathf.FloorToInt(Mathf.Pow((level - 1), offset.sale_pow) * offset.sale_mul);
-            else salePrice += Mathf.FloorToInt(Mathf.Pow((level - 1), offset.sale_pow) * offset.sale_mul) / Mathf.FloorToInt((level - 1) * 0.07f);
+            else salePrice += Mathf.FloorToInt((Mathf.Pow((level - 1), offset.sale_pow) * offset.sale_mul) / ((level - 1) * 0.07f));
             float nextCookingTimer = currentFoodMachine.machineLevelData.cooking_time - (level - 1) * offset.reduce_timer;
             if (nextCookingTimer < 3f) nextCookingTimer = 3f;
             int maxHeight = currentFoodMachine.machineLevelData.max_height + Mathf.FloorToInt((level - 1) * offset.increase_height);
-
+            if(maxHeight > 10) maxHeight = 10;
             upgradablesStatus.text = App.gameSettings.language == Language.KOR ? ($"레벨 : {fm.machineLevelData.level} -> <color=#00FF00>{fm.machineLevelData.level + 1}</color> \n음식 판매가격 : {fm.machineLevelData.calculatedSales} -> <color=#00FF00>{salePrice}</color>")
                                                                                 : ($"Level : {fm.machineLevelData.level} -> <color=#00FF00>{fm.machineLevelData.level + 1}</color> \nSale Price : {fm.machineLevelData.calculatedSales} -> <color=#00FF00>{salePrice}</color>");
 

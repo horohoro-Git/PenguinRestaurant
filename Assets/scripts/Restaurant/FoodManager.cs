@@ -27,19 +27,13 @@ public static class FoodManager
     static Food foodCaching;
     static PackageFood packageFoodCaching;
     // Start is called before the first frame update
-    public  static GameObject foodCollects;
+  
     public static void NewFood(Food food,int count, bool rewards = false)
     {
-        if (foodCollects == null)
-        {
-            foodCollects = new GameObject(); 
-            foodCollects.name = "foodCollects";
-            foodCollects.transform.position = Vector3.zero;
-        }
         for (int i = 0; i < count; i++)
         {
             if (foodCaching == null) foodCaching = food;
-            Food f = GameObject.Instantiate(food, foodCollects.transform);
+            Food f = GameObject.Instantiate(food, WorkSpaceManager.foodCollects.transform);
             f.name = rewards ? "RewardFood" : "Food";
             f.foodIndex = i;
             f.gameObject.SetActive(false);
@@ -65,7 +59,7 @@ public static class FoodManager
         {
             for(int i=0;i<10; i++)
             {
-                Food newFood = GameObject.Instantiate(foodCaching, foodCollects.transform);
+                Food newFood = GameObject.Instantiate(foodCaching, WorkSpaceManager.foodCollects.transform);
                 newFood.name = "NewFood";
                 newFood.gameObject.SetActive(false);
                 targetPool.Enqueue(newFood);
@@ -85,7 +79,7 @@ public static class FoodManager
         food.Resets();
         Queue<Food> targetPool = rewards ? rewardsPooling : foodsPooling;
         food.gameObject.SetActive(false);
-        if (food.transforms.parent != foodCollects) food.transforms.SetParent(foodCollects.transform);
+        if (food.transforms.parent != WorkSpaceManager.foodCollects) food.transforms.SetParent(WorkSpaceManager.foodCollects.transform);
         targetPool.Enqueue(food);
     }
 
@@ -94,7 +88,7 @@ public static class FoodManager
         for (int i = 0; i < num; i++)
         {
             if (packageFoodCaching == null) packageFoodCaching = box;
-            PackageFood f = GameObject.Instantiate(box, foodCollects.transform);
+            PackageFood f = GameObject.Instantiate(box, WorkSpaceManager.foodCollects.transform);
             f.foodIndex = i;
             f.gameObject.SetActive(false);
            // deActivatedPackageFoods.Enqueue(f);
@@ -114,7 +108,7 @@ public static class FoodManager
         }
         else
         {
-            PackageFood packageFood = GameObject.Instantiate(packageFoodCaching, foodCollects.transform);
+            PackageFood packageFood = GameObject.Instantiate(packageFoodCaching, WorkSpaceManager.foodCollects.transform);
 
             return packageFood;
         }
@@ -132,7 +126,7 @@ public static class FoodManager
         while (temps.Count > 0)
         {
             Food food = temps.Pop();
-            food.transform.SetParent(foodCollects.transform);
+            food.transform.SetParent(WorkSpaceManager.foodCollects.transform);
             food.transform.position = Vector3.zero;
             EatFood(food);
         }
@@ -154,7 +148,7 @@ public static class FoodManager
       
         for (int i = 0; i < count; i++)
         {
-            RewardsBox r = GameObject.Instantiate(rewardsBox, foodCollects.transform);
+            RewardsBox r = GameObject.Instantiate(rewardsBox, WorkSpaceManager.foodCollects.transform);
             r.boxIndex = i;
             r.transform.localScale = new Vector3(2.5f, 2.5f, 2.5f);
             r.transform.position = Vector3.zero;

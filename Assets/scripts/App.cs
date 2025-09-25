@@ -46,7 +46,7 @@ public class App : MonoBehaviour
     public static Dictionary<int, LanguageScript> languages = new();
     public static GameSettings gameSettings;
     Vector3 vector;
-    public Vector3 pos { get { return vector; } set { vector = value; Debug.Log(value); } }
+    public Vector3 pos { get { return vector; } set { vector = value; } }
     public static Dictionary<string, Scene> scenes = new();
     static Loading loading;
     public static bool loadedAllAssets;
@@ -71,12 +71,10 @@ public class App : MonoBehaviour
         GameInstance.GameIns.app = this;
         DontDestroyOnLoad(this);
        
-        //?¤ì • ?•ë³´ ê°€?¸ì˜¤ê¸?
         gameSettings = SaveLoadSystem.LoadGameSettings();
         bundleCheck = SaveLoadSystem.LoadDownloadedData();
         cachedData = SaveLoadSystem.LoadCachedDownloadedData();
         currentStage = (Stage)gameSettings.clearStage;
-        //?¸ì–´ ?¤ì •
         TextAsset lang = null;
         if (gameSettings.language == Language.KOR) lang = Resources.Load<TextAsset>("language_kor");
         else lang = Resources.Load<TextAsset>("language_eng");
@@ -85,7 +83,6 @@ public class App : MonoBehaviour
         languages.Clear();
         for (int i = 0; i < l.Count; i++) languages[l[i].id] = l[i];
 
-        //ë¡œë”©
         if (!scenes.ContainsKey("LoadingScene")) LoadLoadingScene(GlobalToken).Forget();
     }
 
@@ -651,22 +648,21 @@ public class App : MonoBehaviour
 
         if (onlyRestaurant)
         {
+            globalCts.Cancel();
             List<FoodMachine> foodMachines = GameInstance.GameIns.workSpaceManager.foodMachines;
-            Debug.Log(foodMachines.Count);
             for(int i = foodMachines.Count - 1;i >= 0;i--)
             {
                
                 Destroy(foodMachines[i].gameObject);
             }
             List<Counter> counters = GameInstance.GameIns.workSpaceManager.counters;
-            Debug.Log(counters.Count);
             for(int i= counters.Count - 1;i >= 0;i--) { Destroy(counters[i].gameObject); }
             List<Table> tables = GameInstance.GameIns.workSpaceManager.tables;
-            Debug.Log(tables.Count);
             for(int i= tables.Count - 1; i>=0; i--) { Destroy(tables[i].gameObject); }
             await UnloadAsync(GameInstance.GameIns.assetLoader.gameRegulation.map_name);
             await UnloadAsync(GameInstance.GameIns.assetLoader.gameRegulation.map_name + "_gatcha");
             await UnloadAsync(GameInstance.GameIns.assetLoader.gameRegulation.map_name + "_fishing");
+            globalCts = new();
             return;
         }
         else

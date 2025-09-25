@@ -41,7 +41,7 @@ public class BurgerMachine : FoodMachine
     public void GetPatty(float t)
     {
         createdBurger = null;
-        currentFood = Instantiate(testPatty);
+        currentFood = Instantiate(testPatty, WorkSpaceManager.machineFoodCollects.transform);
         currentFood.transform.position = pattyTrans.position;
         bake = StartCoroutine(BakePatty(t));
     }

@@ -95,4 +95,9 @@ Animal Restaurant Tycoon Game
 09/14 Add background music to the world map, implement scroll snap to select the nearest stage UI, and change the background to the image related to the selected stage
 09/19 Fixed tutorial bug and updated stage so that characters now appear together with the selected stage UI and its background
 09/21 Fixed an issue with game restart during the tutorial and updated object dragging to use the selection highlight point as the reference during placement
+09/25 
+Added tutorial icons for quick progression
+Fixed counter clipping when repositioned to ordering customers
+Fixed incorrect currency calculation with trailing digits
+Fixed revenue decrease at certain cooking equipment upgrade levels
 

@@ -21,10 +21,14 @@ public enum TutorialEventKey
     NoCustomer = 7,
     NoEmployee = 8,
     NoFishing = 9,
+    OrderLimit = 10,
+    NoFishTutorial = 11,
     BuyCounter = 1001,
     BuyMachine = 1003,
     BuyTable = 1007,
     BuyTrashcan = 1008,
+    ExpansionA = 1101,
+    ExpansionB = 1102,
     EnterGatcha = 2001,
     DrawGatcha = 2002,
     EnterRestaurant = 2003,
@@ -254,6 +258,7 @@ public class Tutorials
         AddStoreGoodsKey(null, (int)TutorialEventKey.NoCleaning);
         AddStoreGoodsKey(null, (int)TutorialEventKey.NoCustomer);
         AddStoreGoodsKey(null, (int)TutorialEventKey.NoFishing);
+        AddStoreGoodsKey(null, (int)TutorialEventKey.OrderLimit);
         GameInstance.GameIns.applianceUIManager.furnitureUI.UI_TypeA.fishPlus.gameObject.SetActive(false);
         GameInstance.GameIns.applianceUIManager.furnitureUI.UI_TypeA.fishMinus.gameObject.SetActive(false);
         GameInstance.GameIns.applianceUIManager.furnitureUI.UI_TypeA.fishMax.gameObject.SetActive(false);

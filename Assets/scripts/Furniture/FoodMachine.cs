@@ -379,6 +379,18 @@ public class FoodMachine : Furniture
                 {
                     while(true)
                     {
+                        if (RestaurantManager.tutorialEventKeys.Contains(TutorialEventKey.NoFishTutorial))
+                        {
+                          //  RestaurantManager.tutorialEventKeys.Remove(TutorialEventKey.NoFishTutorial);
+                            if (RestaurantManager.tutorialKeys.Contains((int)TutorialEventKey.FillFishes))
+                            {
+
+                                Tutorials tuto = GameInstance.GameIns.restaurantManager.tutorials;
+                                Tutorials.TutorialUnlock(GameInstance.GameIns.restaurantManager.tutorialStructs[tuto.id][0]);
+                                //((Action<TutorialEventKey>)EventManager.Publish(TutorialEventKey.FillFishes))?.Invoke(TutorialEventKey.FillFishes);
+                                GameInstance.GameIns.uiManager.TutorialStart(tuto.id, tuto.count, GameInstance.GameIns.restaurantManager.tutorialStructs[tuto.id].Count);
+                            }
+                        }
                         if (!RestaurantManager.tutorialEventKeys.Contains(TutorialEventKey.NoFishNoCook))
                         {
                             if (machineLevelData != null && machineLevelData.checkingFishes >= 1)

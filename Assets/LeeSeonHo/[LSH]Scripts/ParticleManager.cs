@@ -9,21 +9,15 @@ public static class ParticleManager
     static Dictionary<ParticleType, Queue<GameObject>> deActivatedParticles = new Dictionary<ParticleType, Queue<GameObject>>();
     static Dictionary<ParticleType, List<GameObject>> activatedParticles = new Dictionary<ParticleType, List<GameObject>>();
 
-    static GameObject particleCollects;
+  
     public static void NewParticle(GameObject particle, int count, ParticleType particleType)
     {
         activatedParticles[particleType] = new List<GameObject>();
         deActivatedParticles[particleType] = new Queue<GameObject>();
 
-        if (particleCollects == null)
-        {
-            particleCollects = new GameObject();
-            particleCollects.name = "ParticleCollects";
-            particleCollects.transform.position = Vector3.zero;
-        }
         for (int i = 0; i < count; i++)
         {
-            GameObject p = GameObject.Instantiate(particle, particleCollects.transform);
+            GameObject p = GameObject.Instantiate(particle, WorkSpaceManager.particleCollects.transform);
 
             p.SetActive(false);
             deActivatedParticles[particleType].Enqueue(p);

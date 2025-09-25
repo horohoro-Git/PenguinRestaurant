@@ -2360,7 +2360,7 @@ public class Employee : AnimalController
                 await UniTask.NextFrame(cancellationToken: cancellationToken);
             }
 
-
+            cancellationToken.ThrowIfCancellationRequested();
             if (animal.PlayAnimation(AnimationKeys.Idle))
             {
                 animator.SetInteger("state", 0);

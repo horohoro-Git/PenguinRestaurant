@@ -39,7 +39,7 @@ public class Food : MonoBehaviour
     public void Release()
     {
         targetCharacter = null;
-        transforms.SetParent(FoodManager.foodCollects.transform);
+        transforms.SetParent(WorkSpaceManager.foodCollects.transform);
     }
 
     public void Resets()

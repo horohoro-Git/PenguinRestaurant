@@ -24,7 +24,7 @@ public class CoffeeMachine : FoodMachine
         }
         if(createdFood)
         {
-            createdFood.transform.position = foodTransform.position + Vector3.up * (foodStack.foodStack.Count - 1) * height;
+            createdFood.transform.position = foodTransform.position + (foodStack.foodStack.Count - 1) * height * Vector3.up;
             createdFood = null;
         }
         audioSource.Stop();
@@ -106,7 +106,7 @@ public class CoffeeMachine : FoodMachine
 
     public IEnumerator CreateCoffeeDone()
     {
-        food.transform.SetParent(FoodManager.foodCollects.transform);
+        food.transform.SetParent(WorkSpaceManager.foodCollects.transform);
         //  yield return CoroutneManager.waitForzerothree;
         yield return StartCoroutine(Utility.CustomCoroutineDelay(0.3f));
 
@@ -116,6 +116,6 @@ public class CoffeeMachine : FoodMachine
 
         foodStack.foodStack.Push(createdFood);
 
-        createdFood.transform.DOJump(foodTransform.position + Vector3.up * (foodStack.foodStack.Count - 1) * height, 2, 1, 0.4f);
+        createdFood.transform.DOJump(foodTransform.position + (foodStack.foodStack.Count - 1) * height * Vector3.up, 2, 1, 0.4f);
     }
 }

@@ -208,7 +208,7 @@ public class RestaurantManager : MonoBehaviour
       
         Tutorials.TutorialUpdate(0);
         // restaurantCurrency.fishes += 100;
-        restaurantCurrency.Money += BigInteger.Parse("316000");// 10000;
+        restaurantCurrency.Money += BigInteger.Parse("10000000000");// 10000;
 
         moneyString = Utility.GetFormattedMoney(restaurantCurrency.Money, moneyString);
         GameInstance.GameIns.uiManager.moneyText.text = moneyString.ToString();
@@ -398,7 +398,7 @@ public class RestaurantManager : MonoBehaviour
     IEnumerator ApplyPlacedNextFrame(Furniture furniture, StoreGoods goods, bool purchased)
     {
         yield return null;
-        if (!purchased)
+        if (!purchased && goods != null)
         {
             if (tutorialKeys.Contains(goods.goods.ID))
             {
@@ -421,7 +421,7 @@ public class RestaurantManager : MonoBehaviour
         }
 
         SaveLoadSystem.SaveRestaurantBuildingData();
-
+        yield return null;
         if (furniture.SpaceType == WorkSpaceType.Table)
         {
             for (int i = 0; i < GameIns.workSpaceManager.tables.Count; i++)
@@ -443,37 +443,73 @@ public class RestaurantManager : MonoBehaviour
         {
             MoveCalculator.CheckAreaWithBounds(GameInstance.GameIns.calculatorScale, furniture.GetComponentInChildren<Collider>(), true);
         }
+
+        yield return null;
+
+        int[] collisionDirectionX = { 0, 1, 1, 0, -1, -1, -1, 0, 1 };
+        int[] collisionDirectionY = { 0, 0, -1, -1, -1, 0, 1, 1, 1 };
         //  MoveCalculator.CheckArea(GameInstance.GameIns.calculatorScale);
         for (int i = 0; i < GameInstance.GameIns.animalManager.employeeControllers.Count; i++)
         {
             Employee e = GameInstance.GameIns.animalManager.employeeControllers[i];
-            e.reCalculate = true;
-            int posX = Mathf.FloorToInt((e.trans.position.x - GameIns.calculatorScale.minX) / GameIns.calculatorScale.distanceSize);
-            int posZ = Mathf.FloorToInt((e.trans.position.z - GameIns.calculatorScale.minY) / GameIns.calculatorScale.distanceSize);
-            if (!e.falling && Utility.ValidCheck(posZ, posX) && MoveCalculator.GetBlocks[MoveCalculator.GetIndex(posX, posZ)]) AnimalCollision(e, posX, posZ, App.GlobalToken).Forget();
+            int collides = 0;
+            for (int j = 0; j < 9; j++)
+            {
+                int posX = Mathf.FloorToInt((e.trans.position.x + collisionDirectionX[j] * 0.4f - GameIns.calculatorScale.minX) / GameIns.calculatorScale.distanceSize);
+                int posZ = Mathf.FloorToInt((e.trans.position.z + collisionDirectionY[j] * 0.4f - GameIns.calculatorScale.minY) / GameIns.calculatorScale.distanceSize);
+                if (!e.falling && Utility.ValidCheck(posZ, posX) && MoveCalculator.GetBlocks[MoveCalculator.GetIndex(posX, posZ)])
+                {
+                    collides++;
+                    AnimalCollision(e, posX, posZ, App.GlobalToken).Forget();
+                    break;
+                }
+            }
 
+            if(collides == 0) e.reCalculate = true;
+            //     e.reCalculate = true;
         }
+
+     
+
         for (int i = 0; i < GameInstance.GameIns.animalManager.customerControllers.Count; i++)
         {
             Customer c = GameIns.animalManager.customerControllers[i];
+            int collides = 0;
             if (c.trans)
             {
-                c.reCalculate = true;
-                int posX = Mathf.FloorToInt((c.trans.position.x - GameIns.calculatorScale.minX) / GameIns.calculatorScale.distanceSize);
-                int posZ = Mathf.FloorToInt((c.trans.position.z - GameIns.calculatorScale.minY) / GameIns.calculatorScale.distanceSize);
-                if (Utility.ValidCheck(posZ, posX) && MoveCalculator.GetBlocks[MoveCalculator.GetIndex(posX, posZ)]) AnimalCollision(c, posX, posZ, App.GlobalToken).Forget();
+                for(int j = 0; j < 9; j++)
+                {
+                    int posX = Mathf.FloorToInt((c.trans.position.x + collisionDirectionX[j] * 0.4f - GameIns.calculatorScale.minX) / GameIns.calculatorScale.distanceSize);
+                    int posZ = Mathf.FloorToInt((c.trans.position.z + collisionDirectionY[j] * 0.4f - GameIns.calculatorScale.minY) / GameIns.calculatorScale.distanceSize);
+                    if (Utility.ValidCheck(posZ, posX) && MoveCalculator.GetBlocks[MoveCalculator.GetIndex(posX, posZ)])
+                    {
+                        collides++;
+                        AnimalCollision(c, posX, posZ, App.GlobalToken).Forget();
+                        break;
+                    }
+                }
+
             }
+            if(collides == 0) c.reCalculate = true;
         }
 
 
         BlackConsumer b = GameIns.animalManager.blackConsumer;
         if (b != null)
         {
-
-            b.reCalculate = true;
-            int posX = Mathf.FloorToInt((b.trans.position.x - GameIns.calculatorScale.minX) / GameIns.calculatorScale.distanceSize);
-            int posZ = Mathf.FloorToInt((b.trans.position.z - GameIns.calculatorScale.minY) / GameIns.calculatorScale.distanceSize);
-            if (Utility.ValidCheck(posZ, posX) && MoveCalculator.GetBlocks[MoveCalculator.GetIndex(posX, posZ)]) AnimalCollision(b, posX, posZ, App.GlobalToken).Forget();
+            int collides = 0;
+            for (int j = 0; j < 9; j++)
+            {
+                int posX = Mathf.FloorToInt((b.trans.position.x + collisionDirectionX[j] * 0.4f - GameIns.calculatorScale.minX) / GameIns.calculatorScale.distanceSize);
+                int posZ = Mathf.FloorToInt((b.trans.position.z + collisionDirectionY[j] * 0.4f - GameIns.calculatorScale.minY) / GameIns.calculatorScale.distanceSize);
+                if (Utility.ValidCheck(posZ, posX) && MoveCalculator.GetBlocks[MoveCalculator.GetIndex(posX, posZ)])
+                {
+                    collides++;
+                    AnimalCollision(b, posX, posZ, App.GlobalToken).Forget();
+                    break;
+                }
+            }
+            if(collides == 0) b.reCalculate = true;
         }
     }
     async UniTask AnimalCollision(AnimalController animal, int x, int z, CancellationToken cancellationToken = default)
@@ -560,6 +596,7 @@ public class RestaurantManager : MonoBehaviour
         animal.trans.position = targetPos;
 
         animal.bWait = false;
+        animal.reCalculate = true;
     }
 
     async UniTask SetMachineLayer(GameObject go, CancellationToken cancellationToken = default)
@@ -669,7 +706,6 @@ public class RestaurantManager : MonoBehaviour
 
             if (!tutorialEventKeys.Contains(TutorialEventKey.NoFishing))
             {
-                Debug.Log("KK");
                 if (miniGame.activate)
                 {
                     switch (miniGame.type)
@@ -826,7 +862,8 @@ public class RestaurantManager : MonoBehaviour
     }
     public void Tutorial()
     {
-        if(!tutorialStructs.ContainsKey(tutorials.id))
+
+        if (!tutorialStructs.ContainsKey(tutorials.id))
         {
             Tutorials.TutorialUpdate(tutorials.id);
             return;
@@ -860,13 +897,7 @@ public class RestaurantManager : MonoBehaviour
                 else tutorials.worked = true;
 
             }
-/*
-            if (tuto.event_id == TutorialEventKey.EnterFishing || tuto.event_id == TutorialEventKey.StartFishing || tuto.event_id == TutorialEventKey.ComploeteFishing)
-            {
-                GameIns.uiManager.fishingBtn.gameObject.SetActive(true);
-            }*/
-
-            if (tuto.event_id == TutorialEventKey.EnterRestaurant || tuto.event_id == TutorialEventKey.FillFishes || tuto.event_id == TutorialEventKey.EnterFishing || tuto.event_id == TutorialEventKey.StartFishing || tuto.event_id == TutorialEventKey.ComploeteFishing || tuto.event_id == TutorialEventKey.CatchEnemy || tuto.event_id == TutorialEventKey.BuyTrashcan || tuto.event_id == TutorialEventKey.Cleaning)
+            if (tuto.event_id == TutorialEventKey.EnterRestaurant || tuto.event_id == TutorialEventKey.HireEmployee || tuto.event_id == TutorialEventKey.FillFishes || tuto.event_id == TutorialEventKey.EnterFishing || tuto.event_id == TutorialEventKey.StartFishing || tuto.event_id == TutorialEventKey.ComploeteFishing || tuto.event_id == TutorialEventKey.CatchEnemy || tuto.event_id == TutorialEventKey.BuyTrashcan || tuto.event_id == TutorialEventKey.Cleaning)
             {
                 AnimalSpawner[] spawners = AnimalSpawner.FindObjectsOfType<AnimalSpawner>();
 
@@ -899,82 +930,83 @@ public class RestaurantManager : MonoBehaviour
                 Tutorials.Unlock(tutorials.id);
             }
         }
-    }
- /*   async UniTask TutorialAsync(CancellationToken cancellationToken)
-    {  
-       // await UniTask.Delay(5000, cancellationToken: cancellationToken);
-        if (1 == tutorialStructs[tutorials.id].Count)
-        {
-            tutorials.worked = false;
-        }
-        else
-        {
-            tutorials.worked = true;
-        }
-      
-        TutorialStruct tuto = tutorialStructs[tutorials.id][0];
-        if(tuto.event_id == TutorialEventKey.EnterRestaurant)
-        {
-          
-            switch (tuto.event_type)
-            {
-                
-                case TutorialType.SpawnEnemy:
-                    EnemySpawner enemySpawner = GameInstance.GameIns.restaurantManager.door.GetComponentInChildren<EnemySpawner>();
-                    GameObject target = enemySpawner.SpawnEnemyTutorial();
-                    Tutorials.EnemyFollowing(target, App.GlobalToken).Forget();
-                    break;
-            }
-            tutorials.id++;
-            if (1 == tutorialStructs[tutorials.id].Count) tutorials.worked = false;
-            else tutorials.worked = true;
-         
-        }
-
-        if(tuto.event_id == TutorialEventKey.EnterFishing || tuto.event_id == TutorialEventKey.StartFishing || tuto.event_id == TutorialEventKey.ComploeteFishing)
-        {
-             GameIns.uiManager.fishingBtn.gameObject.SetActive(true);
-        }
-
-        if(tuto.event_id == TutorialEventKey.EnterRestaurant || tuto.event_id == TutorialEventKey.FillFishes || tuto.event_id == TutorialEventKey.EnterFishing || tuto.event_id == TutorialEventKey.StartFishing || tuto.event_id == TutorialEventKey.ComploeteFishing || tuto.event_id == TutorialEventKey.CatchEnemy || tuto.event_id == TutorialEventKey.BuyTrashcan || tuto.event_id == TutorialEventKey.Cleaning)
-        {
-            AnimalSpawner[] spawners = AnimalSpawner.FindObjectsOfType<AnimalSpawner>();
-
-            foreach (var v in spawners)
-            {
-                if (v.type == AnimalSpawner.SpawnerType.FastFood)
-                {
-                    v.TutorialSpawnAnimal(App.GlobalToken).Forget();
-                }
-            }
-        }
-
-        if(tuto.event_id == TutorialEventKey.TrashcanMinigame)
-        {
-            trashData.trashPoint = 100;
-            GameIns.applianceUIManager.rewardChest_Fill.ChangeHighlight(true);
-            GameIns.applianceUIManager.rewardChest_Fill.uiImage.fillAmount = trashData.trashPoint * 0.01f;
-            trashData.changed = true;
-        }
-
-        Tutorials.Setup(tutorials);
-
-        if (tuto.event_id != TutorialEventKey.TutorialComplete)
-        {
-            if (tuto.event_start) GameIns.uiManager.TutorialStart(tutorials.id, tutorials.count, tutorialStructs[tutorials.id].Count);
-            else if(tuto.event_type == TutorialType.SpawnEnemy) GameIns.uiManager.TutorialStart(tutorials.id, tutorials.count, tutorialStructs[tutorials.id].Count);
-        }
-        else
-        {
-            Tutorials.Unlock(tutorials.id);
-        }
-
-      
-        ///   if (tutorialStructs[tutorials.id][0].event_start) GameIns.uiManager.TutorialStart(tutorials.id, tutorials.count, tutorialStructs[tutorials.id].Count);
-        //   else tutorialKeys.Add((int)tutorialStructs[tutorials.id][0].event_id);
 
     }
-*/
+    /*   async UniTask TutorialAsync(CancellationToken cancellationToken)
+       {  
+          // await UniTask.Delay(5000, cancellationToken: cancellationToken);
+           if (1 == tutorialStructs[tutorials.id].Count)
+           {
+               tutorials.worked = false;
+           }
+           else
+           {
+               tutorials.worked = true;
+           }
+
+           TutorialStruct tuto = tutorialStructs[tutorials.id][0];
+           if(tuto.event_id == TutorialEventKey.EnterRestaurant)
+           {
+
+               switch (tuto.event_type)
+               {
+
+                   case TutorialType.SpawnEnemy:
+                       EnemySpawner enemySpawner = GameInstance.GameIns.restaurantManager.door.GetComponentInChildren<EnemySpawner>();
+                       GameObject target = enemySpawner.SpawnEnemyTutorial();
+                       Tutorials.EnemyFollowing(target, App.GlobalToken).Forget();
+                       break;
+               }
+               tutorials.id++;
+               if (1 == tutorialStructs[tutorials.id].Count) tutorials.worked = false;
+               else tutorials.worked = true;
+
+           }
+
+           if(tuto.event_id == TutorialEventKey.EnterFishing || tuto.event_id == TutorialEventKey.StartFishing || tuto.event_id == TutorialEventKey.ComploeteFishing)
+           {
+                GameIns.uiManager.fishingBtn.gameObject.SetActive(true);
+           }
+
+           if(tuto.event_id == TutorialEventKey.EnterRestaurant || tuto.event_id == TutorialEventKey.FillFishes || tuto.event_id == TutorialEventKey.EnterFishing || tuto.event_id == TutorialEventKey.StartFishing || tuto.event_id == TutorialEventKey.ComploeteFishing || tuto.event_id == TutorialEventKey.CatchEnemy || tuto.event_id == TutorialEventKey.BuyTrashcan || tuto.event_id == TutorialEventKey.Cleaning)
+           {
+               AnimalSpawner[] spawners = AnimalSpawner.FindObjectsOfType<AnimalSpawner>();
+
+               foreach (var v in spawners)
+               {
+                   if (v.type == AnimalSpawner.SpawnerType.FastFood)
+                   {
+                       v.TutorialSpawnAnimal(App.GlobalToken).Forget();
+                   }
+               }
+           }
+
+           if(tuto.event_id == TutorialEventKey.TrashcanMinigame)
+           {
+               trashData.trashPoint = 100;
+               GameIns.applianceUIManager.rewardChest_Fill.ChangeHighlight(true);
+               GameIns.applianceUIManager.rewardChest_Fill.uiImage.fillAmount = trashData.trashPoint * 0.01f;
+               trashData.changed = true;
+           }
+
+           Tutorials.Setup(tutorials);
+
+           if (tuto.event_id != TutorialEventKey.TutorialComplete)
+           {
+               if (tuto.event_start) GameIns.uiManager.TutorialStart(tutorials.id, tutorials.count, tutorialStructs[tutorials.id].Count);
+               else if(tuto.event_type == TutorialType.SpawnEnemy) GameIns.uiManager.TutorialStart(tutorials.id, tutorials.count, tutorialStructs[tutorials.id].Count);
+           }
+           else
+           {
+               Tutorials.Unlock(tutorials.id);
+           }
+
+
+           ///   if (tutorialStructs[tutorials.id][0].event_start) GameIns.uiManager.TutorialStart(tutorials.id, tutorials.count, tutorialStructs[tutorials.id].Count);
+           //   else tutorialKeys.Add((int)tutorialStructs[tutorials.id][0].event_id);
+
+       }
+   */
     public void TableUpdate(List<Table> tableList)
     {
         List<Table> tables = tableList;
@@ -1032,7 +1064,7 @@ public class RestaurantManager : MonoBehaviour
     {
         if (employees.num < 8 && employeeHire[employees.num] <= GetRestaurantValue() && GameIns.inputManager.CheckHire())
         {
-       //     GameIns.inputManager.CheckHire();
+         //   GameIns.inputManager.CheckHire();
             employees.num++;
             EmployeeNum();
         }
@@ -1071,11 +1103,12 @@ public class RestaurantManager : MonoBehaviour
             SoundManager.Instance.PlayAudio(GameIns.gameSoundManager.Quack(), 0.2f);
 
             Vector3 screenPos;
-#if UNITY_ANDROID || UNITY_IOS
+/*#if UNITY_ANDROID || UNITY_IOS
                 screenPos = Touchscreen.current.touches[0].position.ReadValue();
 #else
-            screenPos = Mouse.current.position.ReadValue();
-#endif
+            screenPos = GameIns.applianceUIManager.hireBtn.GetComponent<RectTransform>().position; //Mouse.current.position.ReadValue();
+#endif*/
+            screenPos = GameIns.applianceUIManager.hireBtn.GetComponent<RectTransform>().position;
             animal.trans.position = Camera.main.ScreenToWorldPoint(screenPos);
             GameInstance.GameIns.applianceUIManager.UnlockHire(true);
 
@@ -1148,16 +1181,21 @@ public class RestaurantManager : MonoBehaviour
             foodMachine.machineLevelData.calculatedPrice = moneyString.ToString();
             BigInteger salePrice = Utility.StringToBigInteger(foodMachine.machineLevelData.sale_proceed);
             if (offset.sale_div == 0) salePrice += Mathf.FloorToInt(Mathf.Pow((level - 1), offset.sale_pow) * offset.sale_mul);
-            else salePrice += Mathf.FloorToInt(Mathf.Pow((level - 1), offset.sale_pow) * offset.sale_mul) / Mathf.FloorToInt((level - 1) * 0.07f);
+            else salePrice += Mathf.FloorToInt((Mathf.Pow((level - 1), offset.sale_pow) * offset.sale_mul) / ((level - 1) * 0.07f));
             foodMachine.machineLevelData.calculatedSales = salePrice;
 
             foodMachine.machineLevelData.calculatedCookingTimer = foodMachine.machineLevelData.cooking_time - (level - 1) * offset.reduce_timer;
             if (foodMachine.machineLevelData.calculatedCookingTimer < 3f) foodMachine.machineLevelData.calculatedCookingTimer = 3f;
-            foodMachine.machineLevelData.calculatedHeight = foodMachine.machineLevelData.max_height + Mathf.FloorToInt((level - 1) * offset.increase_height);
+            int height = foodMachine.machineLevelData.max_height + Mathf.FloorToInt((level - 1) * offset.increase_height);
+            if(height > 10) height = 10;
+            foodMachine.machineLevelData.calculatedHeight = height;
 
             info.UpdateInfo(foodMachine);
 
             GameIns.applianceUIManager.UnlockHire(true);
+
+
+           // Debug.Log("Money : " + restaurantCurrency.Money + " Price : " + foodMachine.machineLevelData.calculatedPrice + " p : " + Utility.StringToBigInteger(foodMachine.machineLevelData.calculatedPrice));
         }
     }
 

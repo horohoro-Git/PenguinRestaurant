@@ -110,7 +110,7 @@ public class CokeMachine : FoodMachine
 
     public IEnumerator CreateCokeDone()
     {
-        food.transform.SetParent(FoodManager.foodCollects.transform);
+        food.transform.SetParent(WorkSpaceManager.foodCollects.transform);
         //  yield return CoroutneManager.waitForzerothree;
         yield return StartCoroutine(Utility.CustomCoroutineDelay(0.3f));
 
