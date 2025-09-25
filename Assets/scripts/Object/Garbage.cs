@@ -27,6 +27,6 @@ public class Garbage : MonoBehaviour
     public void Release()
     {
         targetCharacter = null;
-        transforms.SetParent(GarbageManager.garbageCollects.transform);
+        transforms.SetParent(WorkSpaceManager.garbageCollects.transform);
     }
 }

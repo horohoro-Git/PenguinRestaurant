@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using static AssetLoader;
 public class WorkSpaceManager : MonoBehaviour
 {
@@ -26,15 +27,34 @@ public class WorkSpaceManager : MonoBehaviour
     public GameObject[] particle;
     public RewardsBox rewardsBox;
 
+    public static GameObject foodCollects;
+    public static GameObject garbageCollects;
+    public static GameObject particleCollects;
+    public static GameObject machineFoodCollects;
     private void Awake()
     {
      
     }
     private void Start()
     {
-        FoodManager.NewFood(food, 200);
-        //    FoodManager.NewFood(food, 100, true);
-        //   FoodManager.NewPackageBox(box, 30);
+        foodCollects = new();
+        foodCollects.name = "foodCollects";
+        garbageCollects = new GameObject();
+        garbageCollects.name = "GarbageCollects";
+        particleCollects = new GameObject();
+        particleCollects.name = "particleCollects";
+        machineFoodCollects = new GameObject();
+        machineFoodCollects.name = "machineFoodCollects";
+        Scene myScene = gameObject.scene;
+        SceneManager.MoveGameObjectToScene(foodCollects, myScene);
+        SceneManager.MoveGameObjectToScene(garbageCollects, myScene);
+        SceneManager.MoveGameObjectToScene(particleCollects, myScene);
+        SceneManager.MoveGameObjectToScene(machineFoodCollects, myScene);
+        foodCollects.transform.position = Vector3.zero;
+        garbageCollects.transform.position = Vector3.zero;
+        particleCollects.transform.position = Vector3.zero;
+        machineFoodCollects.transform.position = Vector3.zero;
+        FoodManager.NewFood(food, 200, foodCollects);
         GarbageManager.NewGarbage(garbage, 50);
         for (int i = 0; i < particle.Length; i++)
         {
@@ -42,21 +62,4 @@ public class WorkSpaceManager : MonoBehaviour
         }
     }
 
-    public void AddWorkSpace(Furniture newWork)
-    {
-        newWork.spawned = true;
-        switch(newWork.SpaceType)
-        {
-            case WorkSpaceType.None:
-                break;
-            case WorkSpaceType.Counter:
-                break;
-            case WorkSpaceType.Table:
-                break;
-            case WorkSpaceType.FoodMachine:
-           //     newWork.GetComponent<FoodMachine>().PlaceTray();
-                break;
-        }
-       // if(newWork.TryGetComponent<>)
-    }
 }

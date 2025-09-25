@@ -145,7 +145,7 @@ public class UIManager : MonoBehaviour
                 case SceneState.Restaurant:
                     
                     // GameIns.app.currentScene = SceneState.Draw;
-                    if (GameIns.applianceUIManager.currentBox != null) GameIns.applianceUIManager.currentBox.ClearFishes();
+                   // if (GameIns.applianceUIManager.currentBox != null) GameIns.applianceUIManager.currentBox.ClearFishes();
                     animalGuideImage.sprite = atlasSprites[10001];//loadedAtlases["Town"].GetSprite(spriteAssetKeys[10001].Name); //loadedSprites[spriteAssetKeys[10001].ID];
                     changeSceneImage.sprite = atlasSprites[10002];//loadedAtlases["Town"].GetSprite(spriteAssetKeys[10002].Name);
 
@@ -466,7 +466,7 @@ public class UIManager : MonoBehaviour
         {
             FoodMachine.isQuitting = true;
             await App.GameExit(true); //현재 열려있는 스테이지 종료
-
+           
             FoodMachine.isQuitting = false;
             MapContent mapContent = maps[(int)stage];
             GameIns.assetLoader.gameRegulation = new GameRegulation(mapContent.id, mapContent.map_name, mapContent.target_num);
@@ -623,7 +623,7 @@ public class UIManager : MonoBehaviour
         {
             TutorialStruct tutorialStruct = GameIns.restaurantManager.tutorialStructs[id][0];
 
-            SoundManager.Instance.PlayAudio(AssetLoader.loadedSounds[sounds[tutorialStruct.event_sound].Name], 1);
+            if(sounds.ContainsKey(tutorialStruct.event_sound)) SoundManager.Instance.PlayAudio(AssetLoader.loadedSounds[sounds[tutorialStruct.event_sound].Name], 1);
         }
 
         for (int i = 0; i < total; i++)
@@ -663,5 +663,49 @@ public class UIManager : MonoBehaviour
 
 
         tutoText2.gameObject.SetActive(!hideText);
+    }
+
+    public void ChangeScene(SceneState sceneState)
+    {
+        switch (sceneState)
+        {
+
+            case SceneState.Restaurant:
+                animalGuideImage.sprite = atlasSprites[10001];
+                changeSceneImage.sprite = atlasSprites[10003];
+                StartCoroutine(FadeInFadeOut(true, 1));
+                break;
+            case SceneState.Draw:
+             
+                animalGuideImage.sprite = atlasSprites[10001];
+                changeSceneImage.sprite = atlasSprites[10002];
+
+                cameraSize = InputManger.cachingCamera.orthographicSize;
+                drawBtn.gameObject.SetActive(false);
+                drawSpeedUpBtn.gameObject.SetActive(false);
+                StartCoroutine(FadeInFadeOut(true, 2));
+                break;
+            case SceneState.Fishing:
+                animalGuideImage.sprite = atlasSprites[10001];
+                changeSceneImage.sprite = atlasSprites[10002];
+                StartCoroutine(FadeInFadeOut(true, 3));
+                fishingBtn.gameObject.SetActive(false);
+                break;
+        
+        }
+    }
+
+    public void ChangeMap()
+    {
+        if (RestaurantManager.tutorialKeys.Contains((int)TutorialEventKey.NextMap))
+        {
+            ((Action<TutorialEventKey>)EventManager.Publish(TutorialEventKey.NextMap))?.Invoke(TutorialEventKey.NextMap);
+            GameInstance.GameIns.uiManager.TutorialEnd(true);
+            // Tutorials tuto = GameInstance.GameIns.restaurantManager.tutorials;
+            //   GameInstance.GameIns.uiManager.TutorialStart(tuto.id, tuto.count, GameInstance.GameIns.restaurantManager.tutorialStructs[tuto.id].Count);
+            RestaurantManager.tutorialKeys.Remove((int)TutorialEventKey.NextMap);
+        }
+        GameIns.inputManager.InputDisAble = true;
+        StartCoroutine(ChangeWorldMap());
     }
 }

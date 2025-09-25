@@ -208,7 +208,7 @@ public class DonutMachine : FoodMachine
         Vector2Int v;
         (current, v) = friedQueue.Dequeue();
         frieds[v.x, v.y] = false;
-        current.transform.SetParent(FoodManager.foodCollects.transform);
+        current.transform.SetParent(WorkSpaceManager.foodCollects.transform);
         //   yield return CoroutneManager.waitForzerothree;
         yield return StartCoroutine(Utility.CustomCoroutineDelay(0.3f));
 

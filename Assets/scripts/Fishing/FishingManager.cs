@@ -66,6 +66,11 @@ public class FishingManager : MonoBehaviour
         emoteObjects.name = "emotes";
         Canvas c = emoteObjects.AddComponent<Canvas>();
         c.renderMode = RenderMode.ScreenSpaceOverlay;
+        CanvasScaler scaler = emoteObjects.AddComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1080, 1920);
+        scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+        scaler.matchWidthOrHeight = 1;
     }
     private void Start()
     {

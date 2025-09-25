@@ -153,7 +153,8 @@ public class Customer : AnimalController
             FoodStack foodStack = FoodStackManager.FM.GetFoodStack();
             // ClearPlate(foodStack);
             foodStack.needFoodNum = UnityEngine.Random.Range(animalStruct.min_order, maxNum);
-            if (RestaurantManager.tutorialKeys.Contains(5000)) foodStack.needFoodNum = 2;
+         //   if (RestaurantManager.tutorialKeys.Contains(5000)) foodStack.needFoodNum = 2;
+            if(RestaurantManager.tutorialEventKeys.Contains(TutorialEventKey.OrderLimit)) foodStack.needFoodNum = 2;
             foodStack.type = MachineType.BurgerMachine;
             foodStacks.Add(foodStack);
                 
@@ -470,6 +471,12 @@ public class Customer : AnimalController
                 {
                     while (position[i].controller != null && position[i].controller != this)
                     {
+                        if (reCalculate)
+                        {
+                            reCalculate = false;
+                            await UniTask.NextFrame(cancellationToken: cancellationToken);
+                            goto MoveReturn;
+                        }
                         animator.SetInteger("state", 0);
                         animal.PlayAnimation(AnimationKeys.Idle);
 
@@ -482,6 +489,12 @@ public class Customer : AnimalController
 
                     while (true)
                     {
+                        if (reCalculate)
+                        {
+                            reCalculate = false;
+                            await UniTask.NextFrame(cancellationToken: cancellationToken);
+                            goto MoveReturn;
+                        }
                         if (Vector3.Distance(trans.position, p) < 0.001f) break;
 
                         animator.SetInteger("state", 1);
@@ -520,6 +533,13 @@ public class Customer : AnimalController
                     }
                 }
                 if (check) break;
+
+                if (reCalculate)
+                {
+                    reCalculate = false;
+                    await UniTask.NextFrame(cancellationToken: cancellationToken);
+                    goto MoveReturn;
+                }
 
                 await UniTask.Delay(200, cancellationToken: cancellationToken);
             }
@@ -860,14 +880,14 @@ public class Customer : AnimalController
 
                     if (table.placedFoods[index] != null)
                     {
-                        table.placedFoods[index].transform.SetParent(FoodManager.foodCollects.transform);
+                        table.placedFoods[index].transform.SetParent(WorkSpaceManager.foodCollects.transform);
                         VisualizingFoodStack.Add(table.placedFoods[index].GetComponent<Food>());
                     }
                     for (int i = 0; i < table.placedFoods.Length; i++)
                     {
                         if (i != index && table.placedFoods[i] != null && table.seats[i].animal == null)
                         {
-                            table.placedFoods[i].transform.SetParent(FoodManager.foodCollects.transform);
+                            table.placedFoods[i].transform.SetParent(WorkSpaceManager.foodCollects.transform);
                             VisualizingFoodStack.Add(table.placedFoods[i].GetComponent<Food>());
                         }
                     }
@@ -875,7 +895,7 @@ public class Customer : AnimalController
                     while (table.foodStacks[0].foodStack.Count > 0)
                     {
                         Food f = table.foodStacks[0].foodStack.Pop();
-                        f.transform.SetParent(FoodManager.foodCollects.transform);
+                        f.transform.SetParent(WorkSpaceManager.foodCollects.transform);
                         VisualizingFoodStack.Add(f);
                     }
 
@@ -1105,7 +1125,7 @@ public class Customer : AnimalController
                   
 
                         //쓰레기 생성
-                        if (table.foodStacks[0].foodStack.Count == 0 && table.numberOfFoods == 0)
+                        if (table.foodStacks[0].foodStack.Count == 0 && table.numberOfFoods == 0 && !table.isDirty)
                         {
                             table.numberOfGarbage = table.numberOfGarbage > 10 ? 10 : table.numberOfGarbage;
                             table.isDirty = true;

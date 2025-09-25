@@ -215,6 +215,19 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
         latestVector = pos;
     }
 
+    public void ScrollUp()
+    {
+        if (isDown)
+        {
+            SoundManager.Instance.PlayAudio(GameInstance.GameIns.uISoundManager.Spread(), 0.2f);
+            if (scrollCoroutine != null) StopCoroutine(scrollCoroutine);
+            scrollCoroutine = StartCoroutine(Up());
+            isDown = false;
+            animator.SetInteger(AnimationKeys.scrolling, 1);
+            storeText.fontSize = 60f;            
+        }
+    }
+
     public void OnPointerUp(PointerEventData eventData)
     {
       

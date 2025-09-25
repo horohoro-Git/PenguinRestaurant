@@ -584,43 +584,45 @@ public class Utility
     {
         BigInteger result;
         int num = price.Length;
-        int slicedNum = (num - 1) % 3;
+        int slicedNum = 1;
         StringBuilder sb = new StringBuilder();
-
-        sb.Append(price[0]);
-        for (int i = 1; i <= slicedNum; i++)
+        sb.Append(price[0]);    //첫 앞자리
+        for (slicedNum = 1; slicedNum < num; slicedNum++)
         {
-            if (price[i] >= '0' && price[i] <= '9') sb.Append(price[i]);
+            if (price[slicedNum] >= '0' && price[slicedNum] <= '9') sb.Append(price[slicedNum]);
             else break;
         }
         int dotCount = 0;
-        int dotCheck = num > 4 ? 4 : num;
-        for (int i = 0; i < dotCheck; i++)
+        int dotCheck = slicedNum > 4 ? 4 : slicedNum;
+        //.뒤 숫자 처리
+        if (slicedNum < num)
         {
           /*  if (price[i] >= '0' && price[i] <= '9')
             {
                 sb.Append(price[i]);
             }
 */
-            if (price[i] == '.')
+            if (price[slicedNum] == '.')
             {
                 //  sb.Append(price[i]);
+                if(slicedNum + 1 < num)
                 dotCount++;
-                sb.Append(price[i + 1]);
-                if (i + 2 < num && price[i + 2] >= '1' && price[i + 2] <= '9')
+                sb.Append(price[slicedNum + 1]);
+                if (slicedNum + 2 < num && price[slicedNum + 2] >= '1' && price[slicedNum + 2] <= '9')
                 {
                     dotCount++;
-                    sb.Append(price[i + 2]);
+                    sb.Append(price[slicedNum + 2]);
                 }
-                break;
+               // break;
             }
         }
         int nCount = 0;
         int count = 1;
         int baseUnitOffset = 27;
+
         int basicPrefixCount = format.Length;
-        //  int defaultOffet = 27;
         int sum = 0;
+        //기본 재화 단위
         for (int i = 0; i < format.Length; i++)
         {
             if (!string.IsNullOrEmpty(format[i]) && price[num - 1] == format[i][0])    
@@ -637,6 +639,8 @@ public class Utility
             }
 
         }
+
+        //A이상급
         for (int i = num - 1; i >= 0; i--)
         {
             if (price[i] >= '0' && price[i] <= '9') break;

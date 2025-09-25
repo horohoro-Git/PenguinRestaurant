@@ -757,7 +757,7 @@ public class BlackConsumer : AnimalController
 
             particles.Play();
             hitAudio.clip = GameIns.gameSoundManager.Hit();
-            hitAudio.volume = 0.2f;
+            hitAudio.volume = App.gameSettings.soundEffects ? 1f : 0;
             hitAudio.Play();
             SoundManager.Instance.PlayAudio3D(GameIns.gameSoundManager.Pain(), 0.1f, 100, 5, trans.position);
 
