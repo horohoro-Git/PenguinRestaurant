@@ -10,6 +10,7 @@ public class RewardTrashcan : MonoBehaviour
     public Button rewardBtn;
     public Animator animator;
     public Image trashcanImage;
+    public Image resultImage;
     public TMP_Text clickerText;
     RectTransform rect;
     Vector3 origin;
@@ -40,6 +41,8 @@ public class RewardTrashcan : MonoBehaviour
 
     public void StartClicker()
     {
+        trashcanImage.gameObject.SetActive(true);
+        trashcanImage.sprite = AssetLoader.loadedSprites[AssetLoader.spriteAssetKeys[5001].ID];
         clickerText.gameObject.SetActive(true);
         clickerText.text = "0";
         rect.position = origin;
@@ -110,28 +113,33 @@ public class RewardTrashcan : MonoBehaviour
         rect.sizeDelta = new Vector2(1000,1000);
 
         SoundManager.Instance.PlayAudio(GameInstance.GameIns.gameSoundManager.Chest(3 ), 0.2f);
+        trashcanImage.gameObject.SetActive(false);
         ShowResult();
 
         yield return CoroutneManager.waitForone;
 
         animator.SetTrigger(AnimationKeys.popup_close);
+
+
+        yield return CoroutneManager.waitForzerotwo;
         EndClicker();
     }
 
     void ShowResult()
     {
+        resultImage.gameObject.SetActive(true);
         if (clickNum > 30)
         {
-            trashcanImage.sprite = loadedSprites[spriteAssetKeys[5004].ID];
+            resultImage.sprite = loadedSprites[spriteAssetKeys[5004].ID];
         }
         else if (clickNum > 15)
         {
-            trashcanImage.sprite = loadedSprites[spriteAssetKeys[5003].ID];
+            resultImage.sprite = loadedSprites[spriteAssetKeys[5003].ID];
 
         }
         else
         {
-            trashcanImage.sprite = loadedSprites[spriteAssetKeys[5002].ID];
+            resultImage.sprite = loadedSprites[spriteAssetKeys[5002].ID];
 
         }
     }
@@ -141,5 +149,9 @@ public class RewardTrashcan : MonoBehaviour
        
         GameInstance.GameIns.applianceUIManager.Reward(clickNum);
         clickNum = 0;
+        resultImage.gameObject.SetActive(false);
+        trashcanImage.gameObject.SetActive(true);
+        gameObject.SetActive(false);
     }
+
 }

@@ -29,7 +29,7 @@ public class EnemySpawner : MonoBehaviour
         {
             while (true)
             {
-                if(RestaurantManager.tutorialKeys.Contains(200))
+                if(RestaurantManager.tutorialEventKeys.Contains(TutorialEventKey.NoEnemy))
                 {
                     await UniTask.Delay(500, true, cancellationToken: cancellationToken);
                     continue;

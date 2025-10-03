@@ -1563,13 +1563,10 @@ public class Employee : AnimalController
                 //Á¾·á
                 if (table.garbageList.Count == 0)
                 {
-                   
-                    table.isDirty = false;
+
                     //employeeActions = EmployeeActions.EmployeeTable;
-                    for (int i = 0; i < table.seats.Length; i++)
-                    {
-                        table.seats[i].animal = null;
-                    }
+                    table.seats[seatIndex].animal = null;
+                    table.isDirty = false;
                     table.animals.Clear();
                     table.employeeContoller = null;
                     employeeState = EmployeeState.TrashCan;

@@ -40,7 +40,10 @@ public class ApplianceUIManager : MonoBehaviour
 
     public RewardsBox currentBox;
     public List<RewardsBox> rewardsBoxes = new List<RewardsBox>();
-    GraphicRaycaster gr;
+    public CanvasGroup othersGroup;
+    public CanvasGroup storeGroup;
+    public CanvasGroup machineStatusGroup;
+  // GraphicRaycaster gr;
     EventSystem es;
     Coroutine buildCoroutine;
     public bool useDescription = false;
@@ -70,7 +73,7 @@ public class ApplianceUIManager : MonoBehaviour
         EventManager.AddTouchEvent(2, (Action<Vector3>)(DropFishes));
         EventManager.AddTouchEvent(3, (Action)(StopFishes));
         EventManager.AddTouchEvent(4, (Action)(StopInfo));
-        gr = GetComponent<GraphicRaycaster>();
+    //    gr = GetComponent<GraphicRaycaster>();
         es = GetComponent<EventSystem>();
       
         GameInstance.GameIns.applianceUIManager = this;
@@ -86,7 +89,7 @@ public class ApplianceUIManager : MonoBehaviour
 
         appliancePanel.SetActive(false);
     }
-    private void OnEnable()
+  /*  private void OnEnable()
     {
         if (gr == null) gr = GetComponent<GraphicRaycaster>();
         GameInstance.AddGraphicCaster(gr);
@@ -95,11 +98,7 @@ public class ApplianceUIManager : MonoBehaviour
     {
         if (gr == null) gr = GetComponent<GraphicRaycaster>();
         GameInstance.RemoveGraphicCaster(gr);
-    }
-    private void Start()
-    {
-     
-    }
+    }*/
 
     private void OnDestroy()
     {
@@ -146,9 +145,36 @@ public class ApplianceUIManager : MonoBehaviour
             furnitureUI.UpdateInfo(furniture);
             appliancePanel.SetActive(true);
             //UnlockHire(false);
-            otherUI.SetActive(false);
-            shopUI.gameObject.SetActive(false);
-       
+
+            othersGroup.alpha = 0;
+            storeGroup.alpha = 0;
+            othersGroup.interactable = false;
+            othersGroup.blocksRaycasts = false;
+            storeGroup.interactable = false;
+            storeGroup.blocksRaycasts = false;
+            //     otherUI.SetActive(false);
+            //     shopUI.gameObject.SetActive(false);
+
+        }
+    }
+
+    public void Replace(Furniture furniture)
+    {
+        if (scheduleCoroutine == null)
+        {
+            SoundManager.Instance.PlayAudio(GameInstance.GameIns.uISoundManager.FurnitureClick(), 0.2f);
+            furnitureUI.SetFurniture(furniture);
+            furnitureUI.Replace();
+            //     appliancePanel.SetActive(true);
+            //UnlockHire(false);
+            othersGroup.alpha = 0;
+            storeGroup.alpha = 0;
+            othersGroup.interactable = false;
+            othersGroup.blocksRaycasts = false;
+            storeGroup.interactable = false;
+            storeGroup.blocksRaycasts = false;
+         //   otherUI.SetActive(false);
+        //    shopUI.gameObject.SetActive(false);
         }
     }
 
@@ -307,8 +333,14 @@ public class ApplianceUIManager : MonoBehaviour
     public void StopInfo()
     {
         HideApplianceInfo();
-        if(!otherUI.activeSelf) otherUI.SetActive(true);
-        if(!shopUI.gameObject.activeSelf) shopUI.gameObject.SetActive(true);
+        othersGroup.alpha = 1;
+        storeGroup.alpha = 1;
+        othersGroup.interactable = true;
+        othersGroup.blocksRaycasts = true;
+        storeGroup.interactable = true;
+        storeGroup.blocksRaycasts = true;
+      //  if(!otherUI.activeSelf) otherUI.SetActive(true);
+      //  if(!shopUI.gameObject.activeSelf) shopUI.gameObject.SetActive(true);
         shopUI.scrolling.Shut();
     }
    

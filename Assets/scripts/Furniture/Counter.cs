@@ -33,7 +33,6 @@ public class Counter : Furniture, IObjectOffset
     public List<FoodStack> foodStacks = new List<FoodStack>();
     public CounterType counterType;
     public MoneyPile moneyPile;
-    public Transform transforms;
     public HashSet<Employee> employees = new HashSet<Employee>();
     public HashSet<Customer> customers = new HashSet<Customer>();
 
@@ -100,66 +99,28 @@ public class Counter : Furniture, IObjectOffset
             door.gameObject.SetActive(true);
             door.setup = true;
             door.transform.localScale = Vector3.zero;
-            if (Physics.Raycast(transforms.position + Vector3.up, offset.forward, out RaycastHit hits, float.MaxValue, 1 << 16 | 1 << 19))
-            {
-                GameObject h = hits.collider.gameObject;
-             
-                door.transform.position = h.transform.position - Vector3.up * h.transform.position.y;
-                door.transform.rotation = h.transform.rotation * Quaternion.Euler(0, -90, 0);
-              
-            //    GameInstance.GameIns.restaurantManager.doorPreview.gameObject.SetActive(true);
-                GameInstance.GameIns.restaurantManager.doorPreview.transform.position = door.transform.position;
-                GameInstance.GameIns.restaurantManager.doorPreview.rotateOffset.transform.rotation = door.transform.rotation * Quaternion.Euler(0, 90, 0);
-                if(GameInstance.GameIns.restaurantManager.doorPreview.CheckDoorPlacement())
-                {
-                    door.transform.SetParent(h.transform.parent);
-                    door.removeWall = h;
-                    MoveCalculator.CheckAreaWithBounds(GameInstance.GameIns.calculatorScale, h.GetComponentInChildren<Collider>(), false);
-                    h.SetActive(false);
-                    return;
-                }
-                
-            }
-            float angle = 30f;
-            Vector3 leftDir = Quaternion.AngleAxis(-angle, offset.up) * offset.forward;
-            if (Physics.Raycast(transforms.position + Vector3.up, leftDir, out RaycastHit hit2, float.MaxValue, 1 << 16 | 1 << 19))
-            {
 
-               
-                GameObject h = hit2.collider.gameObject;
-              
-                door.transform.position = h.transform.position - Vector3.up * h.transform.position.y;
-                door.transform.rotation = h.transform.rotation * Quaternion.Euler(0, -90, 0);
-
-                GameInstance.GameIns.restaurantManager.doorPreview.transform.position = door.transform.position;
-                GameInstance.GameIns.restaurantManager.doorPreview.rotateOffset.transform.rotation = door.transform.rotation * Quaternion.Euler(0, 90, 0);
-                if (GameInstance.GameIns.restaurantManager.doorPreview.CheckDoorPlacement())
-                {
-                    door.transform.SetParent(h.transform.parent);
-                    door.removeWall = h;
-                    MoveCalculator.CheckAreaWithBounds(GameInstance.GameIns.calculatorScale, h.GetComponentInChildren<Collider>(), false);
-                    h.SetActive(false);
-                    return;
-                }
-            }
-            Vector3 rightDir = Quaternion.AngleAxis(angle, offset.up) * offset.forward;
-            if (Physics.Raycast(transforms.position + Vector3.up, rightDir, out RaycastHit hit3, float.MaxValue, 1 << 16 | 1 << 19))
+            int[] angleRange = { 0, 15, -15, 30, -30, 45, -45, 60, -60, 75, -75, 90, -90, 120, -120, 150, -150, 180 };
+            for(int i = 0; i < angleRange.Length; i++)
             {
-               
-                GameObject h = hit3.collider.gameObject;
-              
-                door.transform.position = h.transform.position - Vector3.up * h.transform.position.y;
-                door.transform.rotation = h.transform.rotation * Quaternion.Euler(0, -90, 0);
-
-                GameInstance.GameIns.restaurantManager.doorPreview.transform.position = door.transform.position;
-                GameInstance.GameIns.restaurantManager.doorPreview.rotateOffset.transform.rotation = door.transform.rotation * Quaternion.Euler(0, 90, 0);
-                if (GameInstance.GameIns.restaurantManager.doorPreview.CheckDoorPlacement())
+                Vector3 dir = Quaternion.AngleAxis(angleRange[i], offset.up) * offset.forward;
+                if (Physics.Raycast(transforms.position + Vector3.up, dir, out RaycastHit hitWall, float.MaxValue, 1 << 16 | 1 << 19))
                 {
-                    door.transform.SetParent(h.transform.parent);
-                    door.removeWall = h;
-                    MoveCalculator.CheckAreaWithBounds(GameInstance.GameIns.calculatorScale, h.GetComponentInChildren<Collider>(), false);
-                    h.SetActive(false);
-                    return;
+                    GameObject h = hitWall.collider.gameObject;
+
+                    door.transform.position = h.transform.position - Vector3.up * h.transform.position.y;
+                    door.transform.rotation = h.transform.rotation * Quaternion.Euler(0, -90, 0);
+
+                    GameInstance.GameIns.restaurantManager.doorPreview.transform.position = door.transform.position;
+                    GameInstance.GameIns.restaurantManager.doorPreview.rotateOffset.transform.rotation = door.transform.rotation * Quaternion.Euler(0, 90, 0);
+                    if (GameInstance.GameIns.restaurantManager.doorPreview.CheckDoorPlacement())
+                    {
+                        door.transform.SetParent(h.transform.parent);
+                        door.removeWall = h;
+                        MoveCalculator.CheckAreaWithBounds(GameInstance.GameIns.calculatorScale, h.GetComponentInChildren<Collider>(), false);
+                        h.SetActive(false);
+                    }
+                    break;
                 }
             }
         }
@@ -179,8 +140,9 @@ public class Counter : Furniture, IObjectOffset
         }
     }
 
-    void OnDisable()
+    public override void OnDisable()
     {
+        base.OnDisable();
         foreach (var v in foodStacks)
         {
             foreach (var f in v.foodStack)

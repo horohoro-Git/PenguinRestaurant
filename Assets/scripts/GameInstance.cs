@@ -21,6 +21,7 @@ public class GameInstance
     public ApplianceUIManager applianceUIManager;
     public GatcharManager gatcharManager;
     public PlayerAnimalDataManager playerAnimalDataManager;
+    public PanelAnimalsController panelAnimalsController;
    // public CoroutneManager coroutneManager;
     public AssetLoader assetLoader;
     public GridManager gridManager;

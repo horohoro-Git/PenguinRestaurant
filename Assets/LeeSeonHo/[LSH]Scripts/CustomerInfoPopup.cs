@@ -60,7 +60,7 @@ public class CustomerInfoPopup : MonoBehaviour
         else if (maxOrder >= 4 && maxOrder < 5) order_text.text = gameSettings.language == Language.KOR ? "많음" : "High";
         else if (maxOrder >= 5) order_text.text = gameSettings.language == Language.KOR ? "매우 많음" : "Very High";
 
-        (int, List<int>) tier = AnimalManager.gatchaTiers[id];
+        (int, List<int>, bool) tier = AnimalManager.gatchaTiers[id];
 
         switch(tier.Item1)
         {

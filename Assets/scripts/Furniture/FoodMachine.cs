@@ -24,6 +24,7 @@ public class FoodMachine : Furniture
     public Transform workingSpot;
     public AnimalController employee;
     public FoodStack[] canBringTheFoods;
+    public MachineStatus machineStatus;
 
     Stack<Food> hiddenStack = new Stack<Food>();
 
@@ -35,7 +36,6 @@ public class FoodMachine : Furniture
     public int level=1;
     public MachineData mData;
     public MachineLevelData machineLevelData;
-    public Transform transforms;
     public Transform modelTrans;
     [NonSerialized] public bool fishesExists;
     [NonSerialized] public bool isCooking; 
@@ -56,8 +56,8 @@ public class FoodMachine : Furniture
     [NonSerialized]
     public GameObject tray;
 
-    Action<float> cookingAction;
-    Action cookingFinishAction;
+    Action<float, CancellationToken> cookingAction;
+    Action<CancellationToken> cookingFinishAction;
     public Func<UniTask> cookingFinishFunc;
 
     public float height;
@@ -65,15 +65,15 @@ public class FoodMachine : Furniture
 
     CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
-    [NonSerialized] public FuelGage fuelGage;
+  //  [NonSerialized] public FuelGage fuelGage;
     public int soundClip;
 
     StringBuilder sb = new StringBuilder();
     [NonSerialized] public bool bActivated;
-
+    bool loaded;
     private void Awake()
     {
-        transforms = transform;
+        //transforms = transform;
         audioSource = GetComponent<AudioSource>();
         audioSource.clip = GameInstance.GameIns.gameSoundManager.MachineSound(soundClip);
     }
@@ -82,11 +82,13 @@ public class FoodMachine : Furniture
     {
         if (spawned && App.GlobalToken != null)
         {
+           // if(machineStatus.gameObject.scene.name != null) machineStatus.UpdateAnimation();
+            cancellationTokenSource = new CancellationTokenSource();
             Invoke("LateStart", 0.5f);
-            if (fuelGage != null)
+         /*   if (fuelGage != null)
             {
                 fuelGage.gameObject.SetActive(true);
-            }
+            }*/
            
             /*  PlaceTray();
           //    if (canCooking)
@@ -104,17 +106,14 @@ public class FoodMachine : Furniture
         tray.transform.position = target;*/
     }
 
-    public virtual void OnDisable()
+    public override void OnDisable()
     {
+        base.OnDisable();
         if (isQuitting) return;
         if (!Application.isPlaying) return;
         cancellationTokenSource.Cancel();
-        cancellationTokenSource.Dispose();
+       // cancellationTokenSource.Dispose();
 
-        if(fuelGage != null)
-        {
-            fuelGage.gameObject.SetActive(false);
-        }
         bActivated = false;
         if (tray != null && GameInstance.GameIns.app != null && App.GlobalToken != null)
         {
@@ -124,10 +123,12 @@ public class FoodMachine : Furniture
     // Start is called before the first frame update
     public override void Start()
     {
+       
         GameInstance.GameIns.workSpaceManager.unlockFoods[(int)machineType - 1] = true;
         GameInstance.GameIns.workSpaceManager.foodMachines.Add(this);
         if (!spawned)
         {
+            cancellationTokenSource = new CancellationTokenSource();
             Invoke("LateStart", 0.5f);
         
         }
@@ -148,13 +149,17 @@ public class FoodMachine : Furniture
 
     public void PlaceTray()
     {
-        if(tray == null) tray = GameInstance.GameIns.restaurantManager.GetTray();
+        /*  if (loaded)
+          {
+              machineStatus.UpdateFishes();
+          }*/
+        if (tray == null) tray = GameInstance.GameIns.restaurantManager.GetTray();
         tray.SetActive(true);
         tray.transform.rotation = transforms.rotation;
         Vector3 target = new Vector3(transforms.position.x, 10, transforms.position.z) + transforms.forward * (3 + trayOffset);
         tray.transform.position = target;
         tray.transform.localScale = new Vector3(1, 1, 1);
-        SpawnTray(App.GlobalToken).Forget();
+        SpawnTray(cancellationTokenSource.Token).Forget();
     }
 
     async UniTask SpawnTray(CancellationToken cancellationToken = default)
@@ -223,17 +228,14 @@ public class FoodMachine : Furniture
             }
             else
             {
-                cancellationTokenSource = new CancellationTokenSource();
+              //  cancellationTokenSource = new CancellationTokenSource();
                 CookingFood(cancellationTokenSource.Token).Forget();
             }
         }
         catch (Exception ex)
         {
-            Debug.LogException(ex);
+            Debug.Log(ex);
         }
-
-       
-      
     }
     async UniTask DespawnTray(CancellationToken cancellationToken = default)
     {
@@ -306,8 +308,8 @@ public class FoodMachine : Furniture
         {
             this.machineLevelData.checkingFishes = this.machineLevelData.fishes;
         }
-   
-        if (fuelGage == null)
+        loaded = true;
+       /* if (fuelGage == null)
         {
             fuelGage = GameInstance.GameIns.restaurantManager.GetGage();
             fuelGage.gameObject.SetActive(true);
@@ -315,10 +317,14 @@ public class FoodMachine : Furniture
             fuelGage.UpdateGage(this, machineLevelData.fishes, true);
             if (machineLevelData.fishes > 0) fuelGage.ShowGage(true);
           
-        }
+        }*/
 
         GameInstance.GameIns.restaurantManager.machineLevelDataChanged = true;
-
+        if (machineStatus.gameObject.scene.name == null)
+        {
+            machineStatus = Instantiate(machineStatus, GameInstance.GameIns.restaurantManager.machineStatusCanvas);
+            machineStatus.Setup(this);
+        }
     }
 
     public void Cooking()
@@ -345,7 +351,7 @@ public class FoodMachine : Furniture
                 break;
         }
         canCooking = true;
-        cancellationTokenSource = new CancellationTokenSource();
+     //   cancellationTokenSource = new CancellationTokenSource();
         CookingFood(cancellationTokenSource.Token).Forget();
     }
 
@@ -355,15 +361,15 @@ public class FoodMachine : Furniture
         try
         {
             await Utility.CustomUniTaskDelay(0.5f, cancellationToken);  
-          
+            cancellationToken.ThrowIfCancellationRequested();
             while (true)
             {
                 if (machineLevelData == null || foodStack.foodStack.Count >= machineLevelData.calculatedHeight)
                 {
                     await Utility.CustomUniTaskDelay(0.2f, cancellationToken);
+                    cancellationToken.ThrowIfCancellationRequested();
                     continue;
                 }
-
                 if (machineLevelData != null && machineLevelData.checkingFishes >= 1 )
                 {
                     machineLevelData.checkingFishes--;
@@ -374,7 +380,8 @@ public class FoodMachine : Furniture
                     
                     fishesExists = false;
                 }
-                if (fuelGage) fuelGage.ShowGage(fishesExists);
+
+              //  if (fuelGage) fuelGage.ShowGage(fishesExists);
                 if (!fishesExists && RestaurantManager.tutorialEventKeys.Contains(TutorialEventKey.NoFishNoCook))
                 {
                     while(true)
@@ -401,6 +408,7 @@ public class FoodMachine : Furniture
                             }
                         }
                         await Utility.CustomUniTaskDelay(0.2f, cancellationToken);
+                        cancellationToken.ThrowIfCancellationRequested();
                         continue;
 
                     }
@@ -416,25 +424,26 @@ public class FoodMachine : Furniture
 
                 float cookingTimer = machineLevelData.cooking_time * (fishesExists == true ? 1 : 2);
 
-                cookingAction?.Invoke(cookingTimer);
+                cookingAction?.Invoke(cookingTimer, cancellationToken);
 
                 await Utility.CustomUniTaskDelay(cookingTimer, cancellationToken);
-                
-                cookingFinishAction?.Invoke();
+                cancellationToken.ThrowIfCancellationRequested();
+                cookingFinishAction?.Invoke(cancellationToken);
               //  isCooking = false;
                 if(fishesExists)
                 {
-                    machineLevelData.fishes -= 1;
-                    fuelGage.UpdateGage(this, -1, false);
-                    ///fuelGage.ShowGage(false);
+                    fishesExists = false;
+                    machineLevelData.Fishes -= 1;
+           
                 }
                 
                 await Utility.CustomUniTaskDelay(0.6f, cancellationToken);
-              
+                cancellationToken.ThrowIfCancellationRequested();
             }
         }
         catch (Exception ex)
         {
+            if(fishesExists) machineLevelData.Fishes += 1;
             Debug.Log(ex);
         }
     }
@@ -453,7 +462,7 @@ public class FoodMachine : Furniture
         if (cancellationTokenSource != null)
         {
        //     cancellationTokenSource.
-          //  cancellationTokenSource.Cancel();
+            cancellationTokenSource.Cancel();
            // cancellationTokenSource.Dispose();
         }
     }

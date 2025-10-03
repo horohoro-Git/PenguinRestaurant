@@ -141,13 +141,14 @@ public class FishingManager : MonoBehaviour
             barrelObject.transform.position = barrelPoint.transform.position;
         }
         GameInstance.GameIns.uiManager.fishingBtn.gameObject.SetActive(true);
+        GameInstance.GameIns.uiManager.fishingBtn.GetComponent<UIHighlightController>().Highlight(1);
         working = false;
         if(!GameInstance.GameIns.uiManager.panel.spread)
         {
             GameInstance.GameIns.uiManager.panel.Spread(false);
         }
         GameInstance.GameIns.uiManager.gameGuide = true;
-        GameInstance.GameIns.uiManager.GetComponent<Animator>().SetTrigger("highlight");
+      //  GameInstance.GameIns.uiManager.GetComponent<Animator>().SetTrigger("highlight");
      
         if(spawnCoroutine != null) StopCoroutine(spawnCoroutine);
         spawnCoroutine = StartCoroutine(SpawningFishes());

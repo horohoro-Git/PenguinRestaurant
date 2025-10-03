@@ -395,7 +395,7 @@ public class SaveLoadSystem
     public static RestaurantData LoadRestaurantData()
     {
         RestaurantData restaurant = null;
-        string p = Path.Combine(path, $"Save/{App.currentStage}Restaurant.dat");
+        string p = Path.Combine(path, $"Save/{App.currentStage}/Restaurant.dat");
         byte[] data;
         if (File.Exists(p))
         {
@@ -436,18 +436,20 @@ public class SaveLoadSystem
         {
             using (BinaryWriter writer = new BinaryWriter(ms))
             {
-                Dictionary<int, (int, List<int>)> animals = AnimalManager.gatchaTiers;
+                Dictionary<int, (int, List<int>, bool)> animals = AnimalManager.gatchaTiers;
                 foreach (var animal in animals)
                 {
                     writer.Write(animal.Key);   //동물 타입
 
-                    (int, List<int>) val = animal.Value;
+                    (int, List<int>, bool) val = animal.Value;
                     writer.Write(val.Item1); //동물 등급
 
                     for(int i=0;i<7; i++)
                     {
                         writer.Write(val.Item2[i]);
                     }
+
+                    writer.Write(val.Item3);
                 }
             }
             File.WriteAllBytes(p, ms.ToArray());
@@ -455,9 +457,9 @@ public class SaveLoadSystem
     }
 
     //뽑기 동물 데이터 로드
-    public static Dictionary<int, (int, List<int>)> LoadGatchaAnimals()
+    public static Dictionary<int, (int, List<int>, bool)> LoadGatchaAnimals()
     {
-        Dictionary<int, (int, List<int>)> animals = new Dictionary<int, (int, List<int>)>();
+        Dictionary<int, (int, List<int>, bool)> animals = new Dictionary<int, (int, List<int>, bool)>();
         string p = Path.Combine(path, "Save/GatchaAnimals.dat");
         byte[] data;
         if (File.Exists(p))
@@ -479,7 +481,9 @@ public class SaveLoadSystem
                         {
                             personalities.Add(reader.ReadInt32());
                         }
-                        animals[type] = (grade, personalities);
+
+                        bool isNew = reader.ReadBoolean();
+                        animals[type] = (grade, personalities, isNew);
                     }
                 }
             }
@@ -963,7 +967,7 @@ public class SaveLoadSystem
         }
         else
         {
-            currency = new RestaurantCurrency("500", 200, 0);
+            currency = new RestaurantCurrency("0", 200, 0);
             SaveRestaurantCurrency(currency);
         }
         return currency;

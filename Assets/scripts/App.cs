@@ -261,6 +261,7 @@ public class App : MonoBehaviour
 
         }
     }
+
     static async UniTask LoadAssetWithBundle(CancellationToken cancellationToken = default)
     {
         try
@@ -610,6 +611,10 @@ public class App : MonoBehaviour
         {
             v.ChangeText();
         }
+
+        if (GameInstance.GameIns.store != null) GameInstance.GameIns.store.UpdateLanguage();
+        if (GameInstance.GameIns.uiManager != null) GameInstance.GameIns.uiManager.UpdateTutorialLanguage();
+        if(GameInstance.GameIns.worldUI != null) GameInstance.GameIns.worldUI.UpdateLanguage();
     }
 
 

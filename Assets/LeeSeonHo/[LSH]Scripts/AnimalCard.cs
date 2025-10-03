@@ -12,7 +12,7 @@ public class AnimalCard : MonoBehaviour
     public Image backGlow;
     public Image glow;
     public Image character;
-
+    public TMP_Text newCardText;
     public int id;
     //public string name;    // 동물 이름
     public int tier;
@@ -53,5 +53,14 @@ public class AnimalCard : MonoBehaviour
         customerInfoPopup.hateFood = hateFood;
 
         customerInfoPopup.SetCustomerInfo();
+
+        var v = AnimalManager.gatchaTiers[id];
+        if (v.Item3)
+        {
+            v.Item3 = false;
+            newCardText.gameObject.SetActive(false);
+            AnimalManager.gatchaTiers[id] = v;
+            SaveLoadSystem.SaveGatchaAnimalsData();
+        }
     }
 }

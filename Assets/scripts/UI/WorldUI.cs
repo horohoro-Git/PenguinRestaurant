@@ -140,10 +140,10 @@ public class WorldUI : MonoBehaviour
             {
                 currentIndex = index;
                 int[] ints;
-                string key = maps[index].sprite_key;
+                string key = maps[index].animals_id;
                 if (key != null && key.Length > 0)
                 {
-                    ints = key.Split(',').Select(int.Parse).ToArray();
+                    ints = key.Split(',').Select(s => int.Parse(s) + 10000).ToArray();
                     if (ints.Length > 0)
                     {
 
@@ -270,5 +270,12 @@ public class WorldUI : MonoBehaviour
             await App.UnloadAsync(App.previewStageName);
         }
     }
- 
+    public void UpdateLanguage()
+    {
+        for(int i = 0; i < stages.Count; i++)
+        {
+            MapContent mapContent = maps[i];
+            stages[i].title.text = App.languages[mapContent.stage_id].text;
+        }
+    }
 }
