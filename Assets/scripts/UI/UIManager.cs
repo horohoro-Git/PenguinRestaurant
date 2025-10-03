@@ -51,12 +51,12 @@ public class UIManager : MonoBehaviour
     public TMP_Text targetText;
     public WorldUI worldMap;
     public RectTransform cloudsUI;
-    public GraphicRaycaster graphicRaycaster;
+   // public GraphicRaycaster graphicRaycaster;
     public GraphicRaycaster graphicRaycaster2;
 
     public GameObject checkMark;
 
-    bool bGuideOn = false;
+    [NonSerialized] public bool bGuideOn = false;
     public bool gameGuide = false;
     private float cameraSize;
     [NonSerialized] public bool tutorialPlaying;
@@ -70,11 +70,13 @@ public class UIManager : MonoBehaviour
     // Start is called before the first frame update
     private void Awake()
     {
-        graphicRaycaster = GetComponent<GraphicRaycaster>();
+        //graphicRaycaster = GetComponent<GraphicRaycaster>();
         panel = GetComponentInChildren<Panel>();
         GameIns.uiManager = this;
+
+       
     }
-    private void OnEnable()
+  /*  private void OnEnable()
     {
         if (graphicRaycaster == null) graphicRaycaster = GetComponent<GraphicRaycaster>();
         AddGraphicCaster(graphicRaycaster);
@@ -88,7 +90,7 @@ public class UIManager : MonoBehaviour
         RemoveGraphicCaster(graphicRaycaster);
        // RemoveGraphicCaster(graphicRaycaster2);
         
-    }
+    }*/
     void Start()
     {
    //     canvasScaler = GetComponent<CanvasScaler>();
@@ -102,7 +104,6 @@ public class UIManager : MonoBehaviour
             atlasSprites[10003] = loadedAtlases["UI"].GetSprite(spriteAssetKeys[10003].Name);
             atlasSprites[10004] = loadedAtlases["UI"].GetSprite(spriteAssetKeys[10004].Name);
         }
-       
 
         animalGuideButton.onClick.AddListener(() =>
         {
@@ -327,12 +328,18 @@ public class UIManager : MonoBehaviour
                     GameIns.applianceUIManager.UIClearAll(true);
                 }
             }
-            animalGuide.SetActive(bGuideOn);
+
+            GameIns.panelAnimalsController.bg.SetActive(bGuideOn);
+            GameIns.panelAnimalsController.scrollRoot.gameObject.SetActive(bGuideOn);
+            if (bGuideOn) GameIns.panelAnimalsController.CardUpdate(true);
+        //    animalGuide.SetActive(bGuideOn);
         }
         else if (t == 1)
         {
             // GameIns.applianceUIManager.UIClearAll(true);
-            animalGuide.SetActive(false);
+            //   animalGuide.SetActive(false);
+            GameIns.panelAnimalsController.bg.SetActive(false);
+            GameIns.panelAnimalsController.scrollRoot.gameObject.SetActive(false);
             bGuideOn = false;
             drawBtn.gameObject.SetActive(false);
             drawSpeedUpBtn.gameObject.SetActive(false);
@@ -342,13 +349,17 @@ public class UIManager : MonoBehaviour
         else if (t == 2)
         {
             GameIns.applianceUIManager.UIClearAll(false);
-            animalGuide.SetActive(false);
+            // animalGuide.SetActive(false);
+            GameIns.panelAnimalsController.bg.SetActive(false);
+            GameIns.panelAnimalsController.scrollRoot.gameObject.SetActive(false);
             bGuideOn = false;
             GameIns.app.ChangeScene_DrawScene();
         }
         else if (t == 3)
         {
-            animalGuide.SetActive(false);
+        //    animalGuide.SetActive(false);
+            GameIns.panelAnimalsController.bg.SetActive(false);
+            GameIns.panelAnimalsController.scrollRoot.gameObject.SetActive(false);
             bGuideOn = false;
             GameIns.applianceUIManager.UIClearAll(false);
             GameIns.app.ChangeScene_Fishing();
@@ -648,20 +659,6 @@ public class UIManager : MonoBehaviour
         Vector2 startPos = new(-280, 1300);
         Vector2 targetPos = new(280, 1300);
 
-     /*   if (tutorialBorder.anchoredPosition != targetPos)
-        {
-            float f = 0;
-            while (f <= 1)
-            {
-                Vector2 pos = Vector2.Lerp(startPos, targetPos, f);
-                tutorialBorder.anchoredPosition = pos;
-                f += Time.unscaledDeltaTime / 0.5f;
-                yield return null;
-            }
-        }
-        tutorialBorder.anchoredPosition = targetPos;*/
-
-
         tutoText2.gameObject.SetActive(!hideText);
     }
 
@@ -707,5 +704,14 @@ public class UIManager : MonoBehaviour
         }
         GameIns.inputManager.InputDisAble = true;
         StartCoroutine(ChangeWorldMap());
+    }
+    public void UpdateTutorialLanguage()
+    {
+        if (tutoText2.text.Length > 0)
+        {
+            Tutorials tutorials = GameInstance.GameIns.restaurantManager.tutorials;
+            TutorialStruct tutorialStruct = GameIns.restaurantManager.tutorialStructs[tutorials.id][tutorials.count - 1];
+            if(App.languages.ContainsKey(tutorialStruct.event_text)) tutoText2.text = App.languages[tutorialStruct.event_text].text;
+        }
     }
 }

@@ -14,7 +14,8 @@ using JetBrains.Annotations;
 using DG.Tweening;
 using Cysharp.Threading.Tasks;
 using System.Threading;
-
+using System;
+using Random = UnityEngine.Random;
 
 
 
@@ -228,7 +229,7 @@ public struct MapContent
     public string map_name;
     public int target_num;
     public int stage_id;
-    public string sprite_key;
+    public string animals_id;
 }
 
 public struct TutorialStruct
@@ -791,6 +792,16 @@ public class Utility
         }
     }
 
+    public static async UniTask CustomDelayTask(float delayTime, CancellationToken cancellationToken = default)
+    {
+      //  await UniTask.Delay((int)(delayTime * 1000f), cancellationToken: cancellationToken);
+        float target = RestaurantManager.restaurantTimer + delayTime;
+        while (RestaurantManager.restaurantTimer < target)
+        {
+            await UniTask.NextFrame(cancellationToken: cancellationToken);
+        }
+    }
+
     public static bool RandomSuccess(int target)
     {
         int r = Random.Range(0, 100);
@@ -945,6 +956,21 @@ public class MachineLevelData : ITableID<int>
     public int type;
 
     public int fishes;
+
+    public event Action OnFishChanged;
+    public int Fishes
+    {
+        get => fishes;
+        set
+        {
+            if (fishes != value) // 값이 변했을 때만 실행
+            {
+                fishes = value;
+                OnFishChanged?.Invoke(); // 이벤트 호출
+            }
+        }
+    }
+
     public string calculatedPrice;
     public BigInteger calculatedSales;
     public float calculatedCookingTimer;

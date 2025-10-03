@@ -53,7 +53,7 @@ public class AnimalSpawner : MonoBehaviour
         gameInstance.workSpaceManager.spwaners.Add(this);
 
        
-        if (animalManager.mode == AnimalManager.Mode.GameMode) Spawn().Forget();
+        if (animalManager.mode == AnimalManager.Mode.GameMode) Spawn(App.GlobalToken).Forget();
     }
 
     float coroutineTimer2 =0;
@@ -103,6 +103,7 @@ public class AnimalSpawner : MonoBehaviour
                 // Debug.Log(GameInstance.GameIns.restaurantManager.GetRestaurantValue());
                 WorkSpaceManager workSpaceManager = gameInstance.workSpaceManager;
 
+                cancellationToken.ThrowIfCancellationRequested();
                 if (waitingCustomers.Count < maxCustomer)
                 {
                     switch (type)
@@ -291,14 +292,14 @@ public class AnimalSpawner : MonoBehaviour
                     }
                 }
                 // coroutineTimer = 0;
-                await UniTask.NextFrame();
+                await UniTask.NextFrame(cancellationToken: cancellationToken);
                 //  yield break;
                 //  yield return new WaitForSeconds(6);
             }
         }
         catch (Exception ex)
         {
-            Debug.LogException(ex);
+            Debug.Log(ex);
         }
     }
 

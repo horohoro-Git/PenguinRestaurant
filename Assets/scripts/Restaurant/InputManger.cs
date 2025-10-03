@@ -187,21 +187,15 @@ public class InputManger : MonoBehaviour
                     }
                 }
             }
-            else
-            {
-              //  ((Action)EventManager.Publish(3))?.Invoke();
-            }
         }
     }
 
     void StartClick(InputAction.CallbackContext callbackContext)
     {
-    
         camVelocity = Vector3.zero;
 
         if (cachingCamera == null) cachingCamera = Camera.main;
         if (CheckClickedUI(uiMask)) return;
-
 
         followPosition = realPosition;
         prevPoint = currentPoint;
@@ -301,6 +295,11 @@ public class InputManger : MonoBehaviour
                     clickedTable.CleanTableManually();
                     //   targetVector = dragTouch.position;
                 }
+            }
+
+            if(Utility.TryGetComponentInParent(go, out Furniture furniture))
+            {
+                furniture.DragStart();
             }
         }
     }

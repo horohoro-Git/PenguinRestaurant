@@ -8,4 +8,9 @@ public class LoadTextFont : MonoBehaviour
     {
         if(GameInstance.GameIns.app) GameInstance.GameIns.app.GetSceneUI(gameObject);
     }
+
+    private void OnEnable()
+    {
+        if (GameInstance.GameIns.app) GameInstance.GameIns.app.GetSceneUI(gameObject);
+    }
 }

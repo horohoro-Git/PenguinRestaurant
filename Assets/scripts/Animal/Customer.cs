@@ -19,7 +19,6 @@ using Vector3 = UnityEngine.Vector3;
 using Quaternion = UnityEngine.Quaternion;
 using Random = UnityEngine.Random;
 using System.Text;
-using System.Data.SqlTypes;
 // 한글
 
 public class Customer : AnimalController
@@ -417,7 +416,6 @@ public class Customer : AnimalController
         {
             counter.customers.Add(this);
             int queueindex = -1;
-        MoveReturn:
             //await UniTask.Delay(250, cancellationToken:cancellationToken);
             await UniTask.NextFrame(cancellationToken: cancellationToken);
             reCalculate = false;
@@ -438,12 +436,14 @@ public class Customer : AnimalController
                     }
                 }
             }
-           
-            Vector3 pos = position[queueindex].transforms.position;
+            int currentPoint = queueindex;
+        MoveRecalculate:
+
+            Vector3 pos = position[currentPoint].transforms.position;
+
             if (!(trans.position == pos && queueindex == 0))
             {
-                int currentPoint = queueindex;// position.Length - 1;
-                position[queueindex].controller = this;
+                    position[currentPoint].controller = this;
 
                 Stack<Vector3> moveTargets = await CalculateNodes_Async(pos, false, cancellationToken);
                 if (moveTargets != null && moveTargets.Count > 0)
@@ -457,7 +457,7 @@ public class Customer : AnimalController
                         {
                             reCalculate = false;
                             await UniTask.NextFrame(cancellationToken: cancellationToken);
-                            goto MoveReturn;
+                            goto MoveRecalculate;
                         }
                     }
                     
@@ -467,7 +467,10 @@ public class Customer : AnimalController
                     await Customer_Move(moveTargets, pos, true, cancellationToken: cancellationToken);
                     modelTrans.rotation = position[currentPoint].transforms.rotation;
                 }
-                for (int i = queueindex; i >= 0; i--)
+                int replayCount = 0;
+            MoveRecalculate2:
+                replayCount++;
+                for (int i = currentPoint; i >= 0; i--)
                 {
                     while (position[i].controller != null && position[i].controller != this)
                     {
@@ -475,7 +478,7 @@ public class Customer : AnimalController
                         {
                             reCalculate = false;
                             await UniTask.NextFrame(cancellationToken: cancellationToken);
-                            goto MoveReturn;
+                            goto MoveRecalculate2;
                         }
                         animator.SetInteger("state", 0);
                         animal.PlayAnimation(AnimationKeys.Idle);
@@ -493,16 +496,42 @@ public class Customer : AnimalController
                         {
                             reCalculate = false;
                             await UniTask.NextFrame(cancellationToken: cancellationToken);
-                            goto MoveReturn;
+                            goto MoveRecalculate2;
                         }
-                        if (Vector3.Distance(trans.position, p) < 0.001f) break;
+
+                        Vector3 pos1 = position[currentPoint].transform.position;
+                        Stack<Vector3> moveTargets2 = await CalculateNodes_Async(pos1, false, cancellationToken);
+                        if (moveTargets2 != null && moveTargets2.Count > 0)
+                        {
+                            Vector3 test = moveTargets2.Peek();
+                            if (trans.position != pos1 || !(test.x == 100 && test.z == 100))
+                            {
+                                await Customer_Move(moveTargets2, pos1, true, cancellationToken: cancellationToken);
+                                modelTrans.rotation = position[currentPoint].transforms.rotation;
+                                if (reCalculate)
+                                {
+                                    //   reCalculate = false;
+                                    await UniTask.NextFrame(cancellationToken: cancellationToken);
+                                    continue;
+                                }
+                            }
+                            break;
+                        }
+                        await UniTask.NextFrame(cancellationToken: cancellationToken);
+                        Debug.LogWarning("Failed PathFinding");
+                  /*      if (Vector3.Distance(trans.position, p) < 0.001f) break;
 
                         animator.SetInteger("state", 1);
                         animal.PlayAnimation(AnimationKeys.Walk);
                         float subSpeed = animalPersonality == AnimalPersonality.Relaxed ? 0.8f : (animalPersonality == AnimalPersonality.Impatient ? 1.2f : 1);
                         trans.position = Vector3.MoveTowards(trans.position, p, animalStruct.speed * Time.deltaTime * subSpeed);
-                        await UniTask.NextFrame(cancellationToken: cancellationToken);
+                        Vector3 dir = (position[currentPoint].transforms.position - trans.position).normalized;
+                        float angle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
+                        if(dir != Vector3.zero && replayCount > 1 && Vector3.Distance(trans.position, position[i].transforms.position) > 0.001f) modelTrans.rotation = Quaternion.LookRotation(dir); //Quaternion.AngleAxis(angle, Vector3.up);
+                        await UniTask.NextFrame(cancellationToken: cancellationToken);*/
                     }
+               //     Debug.Log("CC");
+                    modelTrans.rotation = position[currentPoint].transforms.rotation;
                 }
 
                 animator.SetInteger("state", 0);
@@ -519,6 +548,7 @@ public class Customer : AnimalController
             }
 
             bOrder = true;
+            GettingFoods:
             //받은 음식 체크
             while (true)
             {
@@ -538,7 +568,41 @@ public class Customer : AnimalController
                 {
                     reCalculate = false;
                     await UniTask.NextFrame(cancellationToken: cancellationToken);
-                    goto MoveReturn;
+                
+                    Vector3 pos1 = position[0].transform.position;
+                    Stack<Vector3> moveTargets = await CalculateNodes_Async(pos1, false, cancellationToken);
+                    if (moveTargets != null && moveTargets.Count > 0)
+                    {
+                        Vector3 test = moveTargets.Peek();
+                        if (trans.position != pos1 || !(test.x == 100 && test.z == 100))
+                        {
+                            await Customer_Move(moveTargets, pos1, true, cancellationToken: cancellationToken);
+                            modelTrans.rotation = position[0].transforms.rotation;
+                            if (reCalculate)
+                            {
+                             //   reCalculate = false;
+                                await UniTask.NextFrame(cancellationToken: cancellationToken);
+                                continue;
+                            }
+                        }
+
+                    }
+
+                /*    while (Vector3.Distance(trans.position, position[0].transforms.position) > 0.001f)
+                    {
+                        animator.SetInteger("state", 1);
+                        animal.PlayAnimation(AnimationKeys.Walk);
+                        float subSpeed = animalPersonality == AnimalPersonality.Relaxed ? 0.8f : (animalPersonality == AnimalPersonality.Impatient ? 1.2f : 1);
+                        trans.position = Vector3.MoveTowards(trans.position, position[0].transforms.position, animalStruct.speed * Time.deltaTime * subSpeed);
+                        Vector3 dir = (position[0].transforms.position - trans.position).normalized;
+                        float angle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
+                        if (dir != Vector3.zero && Vector3.Distance(trans.position, position[0].transforms.position) > 0.001f) modelTrans.rotation = Quaternion.LookRotation(dir);
+                        await UniTask.NextFrame(cancellationToken: cancellationToken);
+                    }*/
+                    animator.SetInteger("state", 0);
+                    animal.PlayAnimation(AnimationKeys.Idle);
+                    modelTrans.rotation = position[currentPoint].transforms.rotation;
+                    goto GettingFoods;
                 }
 
                 await UniTask.Delay(200, cancellationToken: cancellationToken);
@@ -554,7 +618,7 @@ public class Customer : AnimalController
             {
                 foreach (var v in foodStacks[j].foodStack)
                 {
-                    (int, List<int>) animalTier = AnimalManager.gatchaTiers[animalStruct.id];
+                    (int, List<int>, bool) animalTier = AnimalManager.gatchaTiers[animalStruct.id];
                     animalTier.Item1 = (animalTier.Item1 - 1) * 2;
                     animalTier.Item1 = animalTier.Item1 == 0 ? 1 : animalTier.Item1;
                     BigInteger price = v.foodPrice * animalTier.Item1 * AnimalManager.gatchaValues;
@@ -609,22 +673,30 @@ public class Customer : AnimalController
 
             FloatingCost fc = GameInstance.GameIns.restaurantManager.GetFloatingCost();
 
-            fc.rectTransform.position = trans.position + Vector3.up * 4; //InputManger.cachingCamera.WorldToScreenPoint(trans.position) + Vector3.up * 50;
-            fc.text.text = stringBuilder.ToString();
+            fc.rectTransform.position = trans.position + Vector3.up * 4; 
             fc.height = 3;
-            fc.Floating();
+            fc.Floating(foodPrices.ToString(), FloatingType.Money);
 
             SoundManager.Instance.PlayAudioWithKey(GameInstance.GameIns.uISoundManager.Money(), 0.2f, GameInstance.GameIns.restaurantManager.moneyChangedSoundKey);
             GameInstance.GameIns.restaurantManager.GetMoney(foodPrices.ToString());
-
             GameInstance.GameIns.restaurantManager.GetFish(GameInstance.GameIns.restaurantManager.restaurantCurrency.fishes, tipNum);
             GameInstance.GameIns.restaurantManager.restaurantCurrency.fishes += tipNum;
             GameInstance.GameIns.restaurantManager.restaurantCurrency.changed = true;
-            //   GameInstance.GameIns.uiManager.UpdateMoneyText(GameInstance.GameIns.restaurantManager.restaurantCurrency.money);
-
             hasMoney = false;
 
-            await UniTask.Delay(500, cancellationToken: cancellationToken);
+            if (tipNum > 0)
+            {
+                await UniTask.Delay(500, cancellationToken: cancellationToken);
+                FloatingCost tip = GameInstance.GameIns.restaurantManager.GetFloatingCost();
+
+                tip.rectTransform.position = trans.position + Vector3.up * 4; //InputManger.cachingCamera.WorldToScreenPoint(trans.position) + Vector3.up * 50;
+                                                                              // fc.text.text = stringBuilder.ToString();
+                tip.height = 3;
+                tip.Floating(tipNum.ToString(), FloatingType.Fish);
+            }
+            else await UniTask.Delay(500, cancellationToken: cancellationToken);
+
+            //   GameInstance.GameIns.uiManager.UpdateMoneyText(GameInstance.GameIns.restaurantManager.restaurantCurrency.money);
 
             List<Table> tables = GameInstance.GameIns.workSpaceManager.tables.ToList();
             //foodMachine  거리 오름차순 개수 내림차순
@@ -639,12 +711,46 @@ public class Customer : AnimalController
 
             while (true)
             {
-                tables = tables
-                    .OrderBy(fm => (fm.transforms.position - trans.position).magnitude) // 음식 개수 내림차순
-                    .ToList();
-                await UniTask.Delay(500, cancellationToken: cancellationToken);
+          /*      if(reCalculate)
+                {
+                    reCalculate = false;
 
-                foreach (Table t in tables)
+                    float timer = 0.5f;
+                    while (Vector3.Distance(trans.position, position[0].transforms.position) > 0.001f)
+                    {
+                        if(timer >= 0.5f)
+                        {
+                            timer = 0;
+                            tables = tables.OrderBy(fm => (fm.transforms.position - trans.position).magnitude).ToList();
+                            bool check = TableCheck(counter, position[0], tables, foodNum);
+                            if (check) return;
+                        }
+                        timer += Time.unscaledDeltaTime;
+                        animator.SetInteger("state", 1);
+                        animal.PlayAnimation(AnimationKeys.Walk);
+                        float subSpeed = animalPersonality == AnimalPersonality.Relaxed ? 0.8f : (animalPersonality == AnimalPersonality.Impatient ? 1.2f : 1);
+                        trans.position = Vector3.MoveTowards(trans.position, position[0].transforms.position, animalStruct.speed * Time.deltaTime * subSpeed);
+                        Vector3 dir = (position[0].transforms.position - trans.position).normalized;
+                        float angle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
+                        if (dir != Vector3.zero && Vector3.Distance(trans.position, position[0].transforms.position) > 0.001f) modelTrans.rotation = Quaternion.LookRotation(dir);
+
+                        await UniTask.NextFrame(cancellationToken: cancellationToken);
+                    }
+                    animator.SetInteger("state", 0);
+                    animal.PlayAnimation(AnimationKeys.Idle);
+                    modelTrans.rotation = position[currentPoint].transforms.rotation;
+                }
+                else
+                {
+                  
+                }*/
+                await UniTask.Delay(500, cancellationToken: cancellationToken);
+                tables = tables
+            .OrderBy(fm => (fm.transforms.position - trans.position).magnitude) // 음식 개수 내림차순
+            .ToList();
+                bool tableCheck = TableCheck(counter, position[0], tables, foodNum);
+                if (tableCheck) return;
+          /*      foreach (Table t in tables)
                 {
                     if (t.isDirty == false && t.placed)
                     {
@@ -689,7 +795,7 @@ public class Customer : AnimalController
                         customerCallback?.Invoke(this);
                         return;
                     }
-                }
+                }*/
             }
         }
         catch (OperationCanceledException)
@@ -705,6 +811,56 @@ public class Customer : AnimalController
         }
     }
     
+
+    bool TableCheck(Counter counter, QueuePoint position, List<Table>tables, int foodNum)
+    {
+        foreach (Table t in tables)
+        {
+            if (t.isDirty == false && t.placed && !t.hasProblem)
+            {
+                int c = 0;
+                for (int j = 0; j < t.seats.Length; j++)
+                {
+                    if (t.seats[j].animal != null)
+                    {
+                        c++;
+                    }
+                }
+                if (c >= 2) continue;
+
+                float min = 9999;
+                Seat selectedSeat = null;
+                for (int j = 0; j < t.seats.Length; j++)
+                {
+                    if (t.seats[j].isDisEnabled == false && t.seats[j].animal == null)
+                    {
+                        float cur = Vector3.Distance(trans.position, t.seats[j].transform.position);
+                        if (min > cur)
+                        {
+                            min = cur;
+                            selectedSeat = t.seats[j];
+                        }
+                    }
+                }
+
+                if (selectedSeat != null)
+                {
+                    selectedSeat.animal = this;
+                    t.numberOfFoods += foodNum;
+                    counter.customer = null;
+                    position.controller = null;
+                }
+                else continue;
+
+                customerState = CustomerState.Counter;
+                busy = false;
+                customerCallback?.Invoke(this);
+                return true;
+            }
+        }
+        return false;
+    }
+
     async UniTask Customer_Move(Stack<Vector3> n, Vector3 loc, bool standInLine = false, QueuePoint point = null, CancellationToken cancellationToken = default)
     {
         try
@@ -750,7 +906,7 @@ public class Customer : AnimalController
 
                             trans.position = Vector3.MoveTowards(trans.position, target, speed * Time.deltaTime);
                             float angle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
-                            modelTrans.rotation = Quaternion.AngleAxis(angle, Vector3.up);
+                            modelTrans.rotation = Quaternion.LookRotation(dir); //Quaternion.AngleAxis(angle, Vector3.up);
                         }
                         await UniTask.NextFrame(cancellationToken: cancellationToken);
                     }
@@ -809,7 +965,7 @@ public class Customer : AnimalController
                     if (Vector3.Distance(trans.position, newLoc) <= 0.01f) break;
                     Vector3 dir = newLoc - trans.position;
                     float angle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
-                    modelTrans.rotation = Quaternion.AngleAxis(angle, Vector3.up);
+                    modelTrans.rotation = Quaternion.LookRotation(dir);//Quaternion.AngleAxis(angle, Vector3.up);
                 }
                 await UniTask.NextFrame(cancellationToken: cancellationToken);
             }
@@ -1057,13 +1213,19 @@ public class Customer : AnimalController
                     FloatingEmote(4003);
                     if (GameInstance.GameIns.restaurantManager.restaurantOthers.reputation > 0)
                     {
-                        GameInstance.GameIns.restaurantManager.restaurantOthers.reputation--;
+                        FloatingCost fc = GameInstance.GameIns.restaurantManager.GetFloatingCost();
+
+                        fc.rectTransform.position = trans.position + Vector3.up * 4;
+                        fc.height = 3;
+                        fc.FloatingDelay("-10", FloatingType.Reputation, 1f);
+                        int reputation = GameInstance.GameIns.restaurantManager.restaurantOthers.reputation;
+                        reputation = reputation >= 10 ? (reputation - 10) : 0;
+                        GameInstance.GameIns.restaurantManager.restaurantOthers.reputation = reputation;
                         GameInstance.GameIns.uiManager.reputation.text = GameInstance.GameIns.restaurantManager.restaurantOthers.reputation.ToString();
                         GameInstance.GameIns.restaurantManager.restaurantOthers.changed = true;
                         GameInstance.GameIns.restaurantManager.CalculateSpawnTimer();
                     }
                     await Utility.CustomUniTaskDelay(3f, cancellationToken);
-                    // await UniTask.Delay(3000, cancellationToken: cancellationToken);
                     customerState = CustomerState.Table;
                     animator.SetInteger("state", 0);
                     animal.PlayAnimation(AnimationKeys.Idle);
@@ -1122,7 +1284,7 @@ public class Customer : AnimalController
                             Tutorials.TutorialUnlockLateTime(tutorialStruct);
                             GameInstance.GameIns.uiManager.TutorialStart(tuto.id, tuto.count, GameInstance.GameIns.restaurantManager.tutorialStructs[tuto.id].Count);
                         }
-                  
+
 
                         //쓰레기 생성
                         if (table.foodStacks[0].foodStack.Count == 0 && table.numberOfFoods == 0 && !table.isDirty)
@@ -1140,9 +1302,11 @@ public class Customer : AnimalController
                                 float z = Random.Range(-1f, 1f);
                                 go.transforms.position = table.up.position + new Vector3(x, 0, z);
                             }
+                            for (int i = 0; i < table.seats.Length; i++)
+                            {
+                                table.seats[i].animal = null;
+                            }
                         }
-
-
                         int reputation = Random.Range(0, 10);
                         int targetRep = animalPersonality == AnimalPersonality.Loyal ? 10 : (animalPersonality == AnimalPersonality.HardToPlease ? 5 : 8);
 
@@ -1156,11 +1320,12 @@ public class Customer : AnimalController
                                 // if (AnimalManager.gatchaTiers[id].Item1 < 4)
                                 {
                                     int tier = AnimalManager.gatchaTiers[animalStruct.id].Item1;
-                                    (int, List<int>) tmp = AnimalManager.gatchaTiers[animalStruct.id];
+                                    (int, List<int>, bool) tmp = AnimalManager.gatchaTiers[animalStruct.id];
                                     int personality = Random.Range(0, 7);
                                     bool success = tmp.Item1 < 4 ? true : false;
                                     if (success) tmp.Item1++;
                                     tmp.Item2[personality] = 1;
+                                    tmp.Item3 = true;
                                     AnimalManager.gatchaTiers[animalStruct.id] = tmp;
 
                                     if (success)
@@ -1180,7 +1345,14 @@ public class Customer : AnimalController
                                         SaveLoadSystem.SaveGatchaAnimalsData();
 
                                         GameInstance.GameIns.gatcharManager.CheckGameClear();
-
+                                        if (!GameInstance.GameIns.uiManager.bGuideOn)
+                                        {
+                                            GameInstance.GameIns.uiManager.animalGuideButton.GetComponent<UIHighlightController>().Highlight(1);
+                                            if (!GameInstance.GameIns.uiManager.panel.spread)
+                                            {
+                                                GameInstance.GameIns.uiManager.panel.Spread(false);
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -1194,7 +1366,7 @@ public class Customer : AnimalController
                                     {
                                         GameInstance.GameIns.gatcharManager.popup.SetActive(true);
                                         SoundManager.Instance.PlayAudio(GameInstance.GameIns.gatchaSoundManager.Unlock(), 0.4f);
-                                        (int, List<int>) tmp = (1, new List<int>());
+                                        (int, List<int>, bool) tmp = (1, new List<int>(), true);
                                         int personality = Random.Range(0, 7);
                                         for (int i = 0; i < 7; i++) tmp.Item2.Add(0);
                                         tmp.Item2[personality] = 1;
@@ -1208,6 +1380,15 @@ public class Customer : AnimalController
                                         SaveLoadSystem.SaveGatchaAnimalsData();
 
                                         GameInstance.GameIns.gatcharManager.CheckGameClear();
+                                        if (!GameInstance.GameIns.uiManager.bGuideOn)
+                                        {
+                                            GameInstance.GameIns.uiManager.animalGuideButton.GetComponent<UIHighlightController>().Highlight(1);
+
+                                            if (!GameInstance.GameIns.uiManager.panel.spread)
+                                            {
+                                                GameInstance.GameIns.uiManager.panel.Spread(false);
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -1218,6 +1399,11 @@ public class Customer : AnimalController
                                 int random = Random.Range(1, 6);
                                 if (GameInstance.GameIns.restaurantManager.restaurantOthers.reputation + random > 100) GameInstance.GameIns.restaurantManager.restaurantOthers.reputation = 100;
                                 else GameInstance.GameIns.restaurantManager.restaurantOthers.reputation += random;
+
+                                FloatingCost fc = GameInstance.GameIns.restaurantManager.GetFloatingCost();
+                                fc.rectTransform.position = trans.position + Vector3.up * 4;
+                                fc.height = 3;
+                                fc.FloatingDelay(random.ToString(), FloatingType.Reputation, 1f);
                                 GameInstance.GameIns.uiManager.reputation.text = GameInstance.GameIns.restaurantManager.restaurantOthers.reputation.ToString();
                                 GameInstance.GameIns.restaurantManager.CalculateSpawnTimer();
                                 GameInstance.GameIns.restaurantManager.restaurantOthers.changed = true;
@@ -1279,9 +1465,6 @@ public class Customer : AnimalController
                     table.numberOfFoods = table.numberOfFoods < 0 ? 0 : table.numberOfFoods;
                     table.numberOfGarbage++;
 
-                
-                    
-                 
                     await UniTask.Delay(200, cancellationToken: cancellationToken);
                 }
 
@@ -1817,7 +2000,7 @@ public class Customer : AnimalController
                             continue;
                         }
                     }
-
+                    Emote(false, AnimationKeys.Normal);
                     busy = false;
                     GameInstance.GameIns.animalManager.DespawnCustomer(this);
                 }

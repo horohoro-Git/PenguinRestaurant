@@ -30,7 +30,7 @@ public class TutorialAllClearEditor : EditorWindow
             int checkTier = 0;
             foreach(var v in AnimalManager.gatchaTiers)
             {
-                (int, List<int>) f = v.Value;
+                (int, List<int>, bool) f = v.Value;
                 checkTier += f.Item1;
             }
 

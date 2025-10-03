@@ -203,6 +203,16 @@ public class Store : MonoBehaviour
         scrollRect.horizontalNormalizedPosition = 0f;
     }
 
+    public void UpdateLanguage()
+    {
+        foreach(var g in goodsList)
+        {
+            StoreGoods goods = g.Value;
+            goods.image_name.text = App.gameSettings.language == Language.ENG ? goods.goods.name_eng : goods.goods.name_kor;
+            if (goods.goods.Price_Value == 0) goods.price_text.text = App.gameSettings.language == Language.ENG ? "Free" : "¹«·á";
+        }
+    }
+
     public void Refresh()
     {
         ChangeList(spaceType);

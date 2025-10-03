@@ -18,16 +18,22 @@ public class FuelGage : MonoBehaviour
     bool show;
     private void Awake()
     {
-        animator = GetComponentInChildren<Animator>();
+  /*      animator = GetComponentInChildren<Animator>();
         rectTransform = GetComponent<RectTransform>();
         exclamation.sprite = AssetLoader.loadedAtlases["UI"].GetSprite("exclamation");
         exclamation.enabled = false;
-        animator.enabled = false;
+        animator.enabled = false;*/
     }
 
+    public void Setup()
+    {
+        animator = GetComponentInChildren<Animator>();
+        rectTransform = GetComponent<RectTransform>();
+        exclamation.sprite = AssetLoader.loadedAtlases["UI"].GetSprite("exclamation");
+    }
     private void Update()
     {
-        if (foodMachine != null)
+      /*  if (foodMachine != null)
         {
             switch (foodMachine.rotateLevel)
             {
@@ -50,11 +56,11 @@ public class FuelGage : MonoBehaviour
             
             }
 
-        }
+        }*/
     }
 
 
-    public void UpdateGage(FoodMachine machine, int energy, bool init)
+  /*  public void UpdateGage(FoodMachine machine, int energy, bool init)
     {
         if (!init)
         {
@@ -73,7 +79,7 @@ public class FuelGage : MonoBehaviour
 
         GameInstance.GameIns.restaurantManager.machineLevelDataChanged = true;
        // StartCoroutine(ChangingGage());
-    }
+    }*/
     public void ShowGage(bool hasFish)
     {
        // if (show == bShow) return;

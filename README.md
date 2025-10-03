@@ -95,9 +95,25 @@ Animal Restaurant Tycoon Game
 09/14 Add background music to the world map, implement scroll snap to select the nearest stage UI, and change the background to the image related to the selected stage
 09/19 Fixed tutorial bug and updated stage so that characters now appear together with the selected stage UI and its background
 09/21 Fixed an issue with game restart during the tutorial and updated object dragging to use the selection highlight point as the reference during placement
-09/25 
+09/25
 Added tutorial icons for quick progression
 Fixed counter clipping when repositioned to ordering customers
 Fixed incorrect currency calculation with trailing digits
 Fixed revenue decrease at certain cooking equipment upgrade levels
+10/04 
+Fixed tutorial bug
+Tutorial dialogue now wraps by words
+Fixed text desync when changing language
+Fixed animal facing issue when recalculating movement to counter
+Fixed seat timing issue during guest \& thug interactions
+Furniture can now be repositioned by holding touch
+Fish in cooking equipment can now be checked/added without opening furniture UI
+Optimized UI performance
+Fixed issues when rapidly repositioning cooking equipment
+Fixed interaction issues between shop UI and furniture status UI
+Obstacle recalculation skipped if furniture position and direction remain unchanged during repositioning
+Added new info display in guest encyclopedia
+Fixed tutorial gacha bug
+Improved counter door generation to better align with facing direction
+Fixed obstacle recognition issue in some expanded shop areas
 

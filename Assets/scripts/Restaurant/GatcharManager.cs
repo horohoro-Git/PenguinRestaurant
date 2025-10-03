@@ -96,6 +96,19 @@ public class GatcharManager : MonoBehaviour
         Vector2 sizeVector = new Vector2(animalStruct.size_width * 1.25f, animalStruct.size_height * 1.25f);
         s.SetSize(sizeVector, animalStruct.offset_x, animalStruct.offset_z);
         s.model = gatchaPenguin.transform;
+
+
+        GameInstance.GameIns.animalManager.NewGatchaAnimals();
+        
+
+        if (mapType == Stage.Town_01) mapInt = 0;
+        else if (mapType == Stage.Forest_01) mapInt = 6;
+        AnimalManager.gatchaTiers = SaveLoadSystem.LoadGatchaAnimals();
+
+        foreach(var v in  AnimalManager.gatchaTiers)
+        {
+            Debug.Log(v.Key);
+        }
     }
 
     private void OnEnable()
@@ -105,14 +118,10 @@ public class GatcharManager : MonoBehaviour
     }
     private void Start()
     {
-        GameInstance.GameIns.animalManager.NewGatchaAnimals();
         playerAnimalDataManager = GameInstance.GameIns.playerAnimalDataManager;
-
-        if (mapType == Stage.Town_01) mapInt = 0;
-        else if (mapType == Stage.Forest_01) mapInt = 6;
-        AnimalManager.gatchaTiers = SaveLoadSystem.LoadGatchaAnimals();
         CheckGameClear();
-        LoadAnimals();
+        SetPrice();
+        GameInstance.GameIns.panelAnimalsController.CardUpdate(true);
     }
 
     public void CheckMoney()
@@ -237,7 +246,7 @@ public class GatcharManager : MonoBehaviour
     {    
         randomAnimalKey.Clear();
         bool success = false;
-        if (RestaurantManager.tutorialKeys.Contains((int)TutorialEventKey.DrawGatcha))
+        if (RestaurantManager.tutorialKeys.Contains((int)TutorialEventKey.DrawGatcha) && !AnimalManager.gatchaTiers.ContainsKey(100))
         {
             randomAnimalKey[100] = 3;
             success = CheckSuccess(100, 0);
@@ -370,13 +379,14 @@ public class GatcharManager : MonoBehaviour
         {
             if (AnimalManager.gatchaTiers[key].Item1 < 4)
             {
-                (int, List<int>) tmp = AnimalManager.gatchaTiers[key];
+                (int, List<int>, bool) tmp = AnimalManager.gatchaTiers[key];
                 tmp.Item1++;
 
                 int r = 0;
                 if (randomKey == -1) r = Random.Range(0, 7);
                 else r = randomKey;
                 tmp.Item2[r] = 1;
+                tmp.Item3 = true;
                 AnimalManager.gatchaTiers[key] = tmp;
 
                 int sum = 0;
@@ -386,6 +396,7 @@ public class GatcharManager : MonoBehaviour
                 }
                 GameInstance.GameIns.uiManager.targetText.text = $"{sum} / {AssetLoader.rules[GameInstance.GameIns.assetLoader.gameRegulation.id].target_num}";
                 SaveLoadSystem.SaveGatchaAnimalsData();
+                GameInstance.GameIns.panelAnimalsController.CardUpdate(false);
                 return true;
             }
           /*  else
@@ -410,7 +421,7 @@ public class GatcharManager : MonoBehaviour
 
             int r = Random.Range(0, 7);
             personality[r] = 1;
-            AnimalManager.gatchaTiers[key] = (tier, personality);
+            AnimalManager.gatchaTiers[key] = (tier, personality, true);
             AnimalStruct asset = AssetLoader.animals[key];
             AnimalManager.animalStructs[key] = asset;
 
@@ -421,7 +432,9 @@ public class GatcharManager : MonoBehaviour
             }
             GameInstance.GameIns.uiManager.targetText.text = $"{sum} / {AssetLoader.rules[GameInstance.GameIns.assetLoader.gameRegulation.id].target_num}";
             SaveLoadSystem.SaveGatchaAnimalsData();
-
+         //   if (GameInstance.GameIns.panelAnimalsController == null)
+         //       Debug.Log("panelisnull");
+                GameInstance.GameIns.panelAnimalsController.CardUpdate(false);
             if (RestaurantManager.tutorialKeys.Contains((int)TutorialEventKey.DrawGatcha))
             {
                 ((Action<TutorialEventKey>)EventManager.Publish(TutorialEventKey.DrawGatcha))?.Invoke(TutorialEventKey.DrawGatcha);
@@ -823,8 +836,6 @@ public class GatcharManager : MonoBehaviour
             {
                 if (pair.Value == 3)
                 {
-                    //  GetAnimator.SetInteger(AnimationKeys.state, 1);
-                    //   popup.SetActive(true);
                     if (AnimalManager.gatchaTiers.ContainsKey(pair.Key))
                     {
                         if (AnimalManager.gatchaTiers[pair.Key].Item1 == 1)
@@ -836,6 +847,14 @@ public class GatcharManager : MonoBehaviour
                             string n = asset.asset_name + "_Sprite";
                             NewAnimalImage.sprite = AssetLoader.loadedSprites[n];
                             popup_NewCustomer.SetActive(true);
+                            if (!GameInstance.GameIns.uiManager.bGuideOn)
+                            {
+                                GameInstance.GameIns.uiManager.animalGuideButton.GetComponent<UIHighlightController>().Highlight(1);
+                                if (!GameInstance.GameIns.uiManager.panel.spread)
+                                {
+                                    GameInstance.GameIns.uiManager.panel.Spread(false);
+                                }
+                            }
                         }
                         else if (AnimalManager.gatchaTiers[pair.Key].Item1 <= 4)
                         {
@@ -860,15 +879,24 @@ public class GatcharManager : MonoBehaviour
                     {
                         popup.SetActive(true);
                         SoundManager.Instance.PlayAudio(GameInstance.GameIns.gatchaSoundManager.Unlock(), 0.4f);
-                        (int, List<int>) tmp = AnimalManager.gatchaTiers[pair.Key];
+                        (int, List<int>, bool) tmp = AnimalManager.gatchaTiers[pair.Key];
                         tmp.Item1 = 1;
+                        tmp.Item3 = true;
                         AnimalManager.gatchaTiers[pair.Key] = tmp;
                         AnimalStruct asset = AssetLoader.animals[pair.Key];
                         string n = asset.asset_name + "_Sprite";
                         NewAnimalImage.sprite = AssetLoader.loadedSprites[n];// this.sprites[pair.Key];
                         popup_NewCustomer.SetActive(true);
                         AnimalManager.animalStructs[pair.Key] = asset;
-                        //  GameInstance.GameIns.animalManager.AddNewAnimal(lockAnimals[keyValuePair.Key], keyValuePair.Key, animal);
+
+                        if (!GameInstance.GameIns.uiManager.bGuideOn)
+                        {
+                            GameInstance.GameIns.uiManager.animalGuideButton.GetComponent<UIHighlightController>().Highlight(1);
+                            if (!GameInstance.GameIns.uiManager.panel.spread)
+                            {
+                                GameInstance.GameIns.uiManager.panel.Spread(false);
+                            }
+                        }
                     }
 
                     if (emotionToken != null) emotionToken.Cancel();
@@ -1103,7 +1131,8 @@ public class GatcharManager : MonoBehaviour
                 RestaurantManager.tutorialKeys.Remove((int)TutorialEventKey.TutorialComplete);
             }
             GameInstance.GameIns.uiManager.worldBtn.gameObject.SetActive(true);
-            GameInstance.GameIns.uiManager.GetComponent<Animator>().SetTrigger("world_highlight");
+            GameInstance.GameIns.uiManager.worldBtn.GetComponent<UIHighlightController>().Highlight(1);
+           // GameInstance.GameIns.uiManager.GetComponent<Animator>().SetTrigger("world_highlight");
             if (!GameInstance.GameIns.uiManager.panel.spread)
             {
                 GameInstance.GameIns.uiManager.panel.Spread(false);

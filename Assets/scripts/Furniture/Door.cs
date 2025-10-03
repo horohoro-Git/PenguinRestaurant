@@ -48,26 +48,5 @@ public class Door : Furniture
         MoveCalculator.CheckArea(GameInstance.GameIns.calculatorScale, true);
     }
 
-    private void OnDisable()
-    {
-      /*  if (setup)
-        {
-            int[] ar = new int[3] { -10, 0, 10 };
-            for (int i = 0; i < 3; i++)
-            {
-                if (Physics.Raycast(transform.position + Vector3.up, transform.forward * ar[i], out RaycastHit hits, float.MaxValue, 1 << 16 | 1 << 19))
-                {
-                    Debug.DrawLine(transform.position + Vector3.up, transform.position - transform.forward * ar[i] * float.MaxValue, Color.red, 5);
-                    Debug.Log("Hit");
-                    GameObject h = hits.collider.gameObject;
-                    removeWall = h;
-                    h.SetActive(false);
-                    transform.position = h.transform.position - Vector3.up * h.transform.position.y;
-                    transform.rotation = h.transform.rotation * Quaternion.Euler(0, -90, 0);
-                    break;
-                }
-            }
-        }
-        */
-    }
+    
 }

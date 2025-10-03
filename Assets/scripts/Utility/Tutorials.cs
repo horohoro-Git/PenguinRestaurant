@@ -144,11 +144,14 @@ public class Tutorials
             case TutorialEventKey.EnterGatcha:
                 GameInstance.GameIns.uiManager.changeScene.gameObject.SetActive(true);
                 break;
+            case TutorialEventKey.DrawGatcha:
+                Debug.Log("Drae");
+                break;
             case TutorialEventKey.FillFishes:
                 GameInstance.GameIns.applianceUIManager.furnitureUI.UI_TypeA.fishPlus.gameObject.SetActive(true);
                 GameInstance.GameIns.applianceUIManager.furnitureUI.UI_TypeA.fishMinus.gameObject.SetActive(true);
-                GameInstance.GameIns.applianceUIManager.furnitureUI.UI_TypeA.fishMax.gameObject.SetActive(true);
                 GameInstance.GameIns.applianceUIManager.furnitureUI.UI_TypeA.getFishes.gameObject.SetActive(true);
+                GameInstance.GameIns.applianceUIManager.machineStatusGroup.alpha = 1;
                 break;
             case TutorialEventKey.EnterFishing:
                 GameInstance.GameIns.uiManager.fishingBtn.gameObject.SetActive(true);
@@ -232,44 +235,46 @@ public class Tutorials
         GameInstance.GameIns.applianceUIManager.UnlockHire(false);
         GameInstance.GameIns.uiManager.changeScene.gameObject.SetActive(false);
         GameInstance.GameIns.uiManager.drawSpeedUpBtn.gameObject.SetActive(false);
-       
-        //기능 제한
-        Dictionary<int, StoreGoods> goods = GameInstance.GameIns.store.goodsList;
-        if (goods.ContainsKey(1001)) AddStoreGoodsKey(goods[1001], 1001); else AddStoreGoodsKey(null, 1001);
-        if (goods.ContainsKey(1002)) AddStoreGoodsKey(goods[1002], 1002); else AddStoreGoodsKey(null, 1002);
-        if (goods.ContainsKey(1003)) AddStoreGoodsKey(goods[1003], 1003); else AddStoreGoodsKey(null, 1003);
-        if (goods.ContainsKey(1004)) AddStoreGoodsKey(goods[1004], 1004); else AddStoreGoodsKey(null, 1004);
-        if (goods.ContainsKey(1005)) AddStoreGoodsKey(goods[1005], 1005); else AddStoreGoodsKey(null, 1005);
-        if (goods.ContainsKey(1006)) AddStoreGoodsKey(goods[1006], 1006); else AddStoreGoodsKey(null, 1006);
-        if (goods.ContainsKey(1007)) AddStoreGoodsKey(goods[1007], 1007); else AddStoreGoodsKey(null, 1007);
-        if (goods.ContainsKey(1008)) AddStoreGoodsKey(goods[1008], 1008); else AddStoreGoodsKey(null, 1008);
-        if (goods.ContainsKey(1101)) AddStoreGoodsKey(goods[1101], 1101); else AddStoreGoodsKey(null, 1101);
-        if (goods.ContainsKey(1102)) AddStoreGoodsKey(goods[1102], 1102); else AddStoreGoodsKey(null, 1102);
-        RestaurantManager.tutorialKeys.Add(1000); //직원 고용 제한
-        RestaurantManager.tutorialKeys.Add(3000);
-        RestaurantManager.tutorialKeys.Add(5000);//손님 제한
-        RestaurantManager.tutorialKeys.Add(500); //음식 먹기 제한
-        RestaurantManager.tutorialKeys.Add(200); //불량배 생성 제한
-        RestaurantManager.tutorialKeys.Add(300); //직접 쓰레기 치우기 제한
-        RestaurantManager.tutorialKeys.Add(400); //생선 채우기 제한
-        AddStoreGoodsKey(null, (int)TutorialEventKey.NoEmployee);
-        AddStoreGoodsKey(null, (int)TutorialEventKey.NoFishNoCook);
-        AddStoreGoodsKey(null, (int)TutorialEventKey.NoEating);
-        AddStoreGoodsKey(null, (int)TutorialEventKey.NoCleaning);
-        AddStoreGoodsKey(null, (int)TutorialEventKey.NoCustomer);
-        AddStoreGoodsKey(null, (int)TutorialEventKey.NoFishing);
-        AddStoreGoodsKey(null, (int)TutorialEventKey.OrderLimit);
-        GameInstance.GameIns.applianceUIManager.furnitureUI.UI_TypeA.fishPlus.gameObject.SetActive(false);
-        GameInstance.GameIns.applianceUIManager.furnitureUI.UI_TypeA.fishMinus.gameObject.SetActive(false);
-        GameInstance.GameIns.applianceUIManager.furnitureUI.UI_TypeA.fishMax.gameObject.SetActive(false);
-        GameInstance.GameIns.applianceUIManager.furnitureUI.UI_TypeA.getFishes.gameObject.SetActive(false);
 
-
+        if (saveID == 0)
+        {
+            //기능 제한
+            Dictionary<int, StoreGoods> goods = GameInstance.GameIns.store.goodsList;
+            if (goods.ContainsKey(1001)) AddStoreGoodsKey(goods[1001], 1001); else AddStoreGoodsKey(null, 1001);
+            if (goods.ContainsKey(1002)) AddStoreGoodsKey(goods[1002], 1002); else AddStoreGoodsKey(null, 1002);
+            if (goods.ContainsKey(1003)) AddStoreGoodsKey(goods[1003], 1003); else AddStoreGoodsKey(null, 1003);
+            if (goods.ContainsKey(1004)) AddStoreGoodsKey(goods[1004], 1004); else AddStoreGoodsKey(null, 1004);
+            if (goods.ContainsKey(1007)) AddStoreGoodsKey(goods[1007], 1007); else AddStoreGoodsKey(null, 1007);
+            if (goods.ContainsKey(1008)) AddStoreGoodsKey(goods[1008], 1008); else AddStoreGoodsKey(null, 1008);
+            if (goods.ContainsKey(1101)) AddStoreGoodsKey(goods[1101], 1101); else AddStoreGoodsKey(null, 1101);
+            if (goods.ContainsKey(1102)) AddStoreGoodsKey(goods[1102], 1102); else AddStoreGoodsKey(null, 1102);
+            RestaurantManager.tutorialKeys.Add(1000); //직원 고용 제한
+            RestaurantManager.tutorialKeys.Add(3000);
+            RestaurantManager.tutorialKeys.Add(5000);//손님 제한
+            RestaurantManager.tutorialKeys.Add(500); //음식 먹기 제한
+            RestaurantManager.tutorialKeys.Add(300); //직접 쓰레기 치우기 제한
+            RestaurantManager.tutorialKeys.Add(400); //생선 채우기 제한
+            AddStoreGoodsKey(null, (int)TutorialEventKey.NoEnemy);
+            AddStoreGoodsKey(null, (int)TutorialEventKey.NoEmployee);
+            AddStoreGoodsKey(null, (int)TutorialEventKey.NoFishNoCook);
+            AddStoreGoodsKey(null, (int)TutorialEventKey.NoEating);
+            AddStoreGoodsKey(null, (int)TutorialEventKey.NoCleaning);
+            AddStoreGoodsKey(null, (int)TutorialEventKey.NoCustomer);
+            AddStoreGoodsKey(null, (int)TutorialEventKey.NoFishing);
+            AddStoreGoodsKey(null, (int)TutorialEventKey.OrderLimit);
+            AddStoreGoodsKey(null, (int)TutorialEventKey.NoFishTutorial);
+            GameInstance.GameIns.applianceUIManager.furnitureUI.UI_TypeA.fishPlus.gameObject.SetActive(false);
+            GameInstance.GameIns.applianceUIManager.furnitureUI.UI_TypeA.fishMinus.gameObject.SetActive(false);
+            //     GameInstance.GameIns.applianceUIManager.furnitureUI.UI_TypeA.fishMax.gameObject.SetActive(false);
+            GameInstance.GameIns.applianceUIManager.furnitureUI.UI_TypeA.getFishes.gameObject.SetActive(false);
+            GameInstance.GameIns.applianceUIManager.machineStatusGroup.alpha = 0;
+        }
         for(int i = 0; i < saveID; i++)
         {
             Unlock(i);
         }
-      
+        RestaurantManager.tutorialEventKeys.Remove(TutorialEventKey.ExpansionA);
+        RestaurantManager.tutorialEventKeys.Remove(TutorialEventKey.ExpansionB);
     }
 
 
@@ -327,8 +332,8 @@ public class Tutorials
             case TutorialEventKey.FillFishes:
                 GameInstance.GameIns.applianceUIManager.furnitureUI.UI_TypeA.fishPlus.gameObject.SetActive(true);
                 GameInstance.GameIns.applianceUIManager.furnitureUI.UI_TypeA.fishMinus.gameObject.SetActive(true);
-                GameInstance.GameIns.applianceUIManager.furnitureUI.UI_TypeA.fishMax.gameObject.SetActive(true);
                 GameInstance.GameIns.applianceUIManager.furnitureUI.UI_TypeA.getFishes.gameObject.SetActive(true);
+                GameInstance.GameIns.applianceUIManager.machineStatusGroup.alpha = 1;
                 break;
      
             case TutorialEventKey.TutorialComplete:

@@ -536,7 +536,6 @@ public class BlackConsumer : AnimalController
                             go.transforms.position = targetTable.up.position + new Vector3(x, 0, z);
                         }
                     }
-
                     await UniTask.Delay(200, cancellationToken: cancellationToken);
                 }
             }

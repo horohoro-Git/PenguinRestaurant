@@ -1,6 +1,9 @@
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 
 public class BurgerMachine : FoodMachine
@@ -38,143 +41,167 @@ public class BurgerMachine : FoodMachine
         audioSource.Stop();
     }
   
-    public void GetPatty(float t)
+    public void GetPatty(float t, CancellationToken cancellationToken)
     {
         createdBurger = null;
-        currentFood = Instantiate(testPatty, WorkSpaceManager.machineFoodCollects.transform);
-        currentFood.transform.position = pattyTrans.position;
-        bake = StartCoroutine(BakePatty(t));
+        if (gameObject.activeSelf)
+        {
+            currentFood = Instantiate(testPatty, WorkSpaceManager.machineFoodCollects.transform);
+            currentFood.transform.position = pattyTrans.position;
+            BakePatty(t, cancellationToken).Forget();
+        }
     }
 
-    public void Done()
+    public void Done(CancellationToken cancellationToken)
     {
-        StopCoroutine(bake);
+        //StopCoroutine(bake);
+
         Destroy(currentFood);
-        audioSource.Stop();
-        currentFood = null;
+        if (!cancellationToken.IsCancellationRequested)
+        {
+            audioSource.Stop();
+            currentFood = null;
 
-        Food f = FoodManager.GetFood(foodMesh, machineType);
-        //currentFood = Instantiate(testPatty);
-        f.transform.position = pattyTrans.position;
-        f.transform.localScale = Vector3.zero;
-        StartCoroutine(CreateBurger(f));
+            Food f = FoodManager.GetFood(foodMesh, machineType);
+            //currentFood = Instantiate(testPatty);
+            f.transform.position = pattyTrans.position;
+            f.transform.localScale = Vector3.zero;
+            CreateBurger(f, cancellationToken).Forget();
 
-        SoundManager.Instance.PlayAudio3D(GameInstance.GameIns.gameSoundManager.CreateFood(), 0.4f, 100, 5, f.transform.position);
+            SoundManager.Instance.PlayAudio3D(GameInstance.GameIns.gameSoundManager.CreateFood(), 0.4f, 100, 5, f.transform.position);
+        }
     }
 
 
-    public IEnumerator CreateBurger(Food food)
+    public async UniTask CreateBurger(Food food, CancellationToken cancellationToken)
     {
-        Vector3 v1 = food.transform.localScale;
-        Vector3 v2 = new Vector3(2, 2, 2);
-        Vector3 v3 = new Vector3(2.4f, 2.4f, 2.4f);
-        tempBurger = food;
-        float f = 0;
-        while (f <= 0.2f)
+        try
         {
-            if (App.restaurantTimeScale == 1)
-            {
-                food.transform.localScale = Vector3.Lerp(v1, v3, f * 5);
-                f += Time.deltaTime;
-            }
-            yield return null;
-        }
-        f = 0;
-        while (f <= 0.1f)
-        {
-            if (App.restaurantTimeScale == 1)
-            {
-                food.transform.localScale = Vector3.Lerp(v3, v2, f * 10);
-                f += Time.deltaTime;
-            }
-            yield return null;
-        }
-        food.transform.localScale = v2;
-
-        //    yield return CoroutneManager.waitForzeroone;
-
-        yield return StartCoroutine(Utility.CustomCoroutineDelay(0.1f));
-        tempBurger = null;
-        createdBurger = food;
-        CreatedFood(createdBurger);
-        foodStack.foodStack.Push(food);
-
-        food.transform.DOJump(foodTransform.position + Vector3.up * (foodStack.foodStack.Count - 1) * height, 2,1, 0.4f);
-    }
-
-
-    IEnumerator BakePatty(float t)
-    {
-        t = (t-1.5f) / 2;
-        while (true)
-        {
-            currentFood.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
-            //  yield return CoroutneManager.waitForzerofive;
-            yield return StartCoroutine(Utility.CustomCoroutineDelay(0.5f));
-            if (currentFood == null) yield break;
-            Vector3 v1 = currentFood.transform.position;
-            Vector3 t1 = currentFood.transform.position + Vector3.up * 3;
-
+            Vector3 v1 = food.transform.localScale;
+            Vector3 v2 = new Vector3(2, 2, 2);
+            Vector3 v3 = new Vector3(2.4f, 2.4f, 2.4f);
+            tempBurger = food;
             float f = 0;
-            while (f <= t * 0.2f)
+            while (f <= 0.2f)
             {
                 if (App.restaurantTimeScale == 1)
                 {
-                    if (currentFood == null) yield break;
-
-
-                    currentFood.transform.position = Vector3.Lerp(v1, t1, f * (1 / (t * t * 0.2f)) * t);
-                    f += Time.deltaTime;// * App.restaurantTimeScale;
-                }
-                yield return null;
-            }
-            f = 0;
-            Quaternion q1 = currentFood.transform.rotation;
-
-            Quaternion qt1 = Quaternion.AngleAxis(180, transforms.right) * currentFood.transform.rotation; //Quaternion.Euler(180, 0, 0) * currentFood.transform.rotation;
-            Quaternion qt2 = Quaternion.AngleAxis(360, transforms.right) * currentFood.transform.rotation;
-
-            while (f <= t * 0.2f)
-            {
-                if (App.restaurantTimeScale == 1)
-                {
-                    if (currentFood == null) yield break;
-
-                    currentFood.transform.rotation = Quaternion.Lerp(q1, qt1, f * (1 / (t * t * 0.2f)) * t);
+                    food.transform.localScale = Vector3.Lerp(v1, v3, f * 5);
                     f += Time.deltaTime;
                 }
-                yield return null;
+                await UniTask.NextFrame(cancellationToken: cancellationToken);
             }
-
             f = 0;
-            while (f <= t * 0.2f)
+            while (f <= 0.1f)
             {
                 if (App.restaurantTimeScale == 1)
                 {
-                    if (currentFood == null) yield break;
-
-                    currentFood.transform.rotation = Quaternion.Lerp(qt1, qt2, f * (1 / (t * t * 0.2f)) * t);
+                    food.transform.localScale = Vector3.Lerp(v3, v2, f * 10);
                     f += Time.deltaTime;
                 }
-                yield return null;
+                await UniTask.NextFrame(cancellationToken: cancellationToken);
             }
-          
+            food.transform.localScale = v2;
 
-            f = 0;
+            //    yield return CoroutneManager.waitForzeroone;
+
+            await Utility.CustomDelayTask(0.1f, cancellationToken: cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+            // yield return StartCoroutine(Utility.CustomCoroutineDelay(0.1f));
+            tempBurger = null;
+            createdBurger = food;
+            CreatedFood(createdBurger);
+            foodStack.foodStack.Push(food);
+
+            food.transform.DOJump(foodTransform.position + Vector3.up * (foodStack.foodStack.Count - 1) * height, 2, 1, 0.4f);
+        }
+        catch(Exception e)
+        {
+            Debug.Log("Cancel Created Burger");
+        }
+    }
 
 
-            while (f <= t * 0.4f)
+    async UniTask BakePatty(float t, CancellationToken cancellationToken)
+    {
+        try
+        {
+            t = (t - 1.5f) / 2;
+            while (true)
             {
-                if (App.restaurantTimeScale == 1)
-                {
-                    if (currentFood == null) yield break;
+                currentFood.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
+                //  yield return CoroutneManager.waitForzerofive;
+                await Utility.CustomDelayTask(0.5f, cancellationToken);
+                cancellationToken.ThrowIfCancellationRequested();
+                if (currentFood == null) return;
+                Vector3 v1 = currentFood.transform.position;
+                Vector3 t1 = currentFood.transform.position + Vector3.up * 3;
 
-                    currentFood.transform.position = Vector3.Lerp(t1, v1, f * (1 / (t * t * 0.4f)) * t);
-                    f += Time.deltaTime;
+                float f = 0;
+                while (f <= t * 0.2f)
+                {
+                    if (App.restaurantTimeScale == 1)
+                    {
+                        if (currentFood == null) return;
+
+
+                        currentFood.transform.position = Vector3.Lerp(v1, t1, f * (1 / (t * t * 0.2f)) * t);
+                        f += Time.deltaTime;// * App.restaurantTimeScale;
+                    }
+                    await UniTask.NextFrame(cancellationToken: cancellationToken);
                 }
-                yield return null;
+                f = 0;
+                Quaternion q1 = currentFood.transform.rotation;
+
+                Quaternion qt1 = Quaternion.AngleAxis(180, transforms.right) * currentFood.transform.rotation; //Quaternion.Euler(180, 0, 0) * currentFood.transform.rotation;
+                Quaternion qt2 = Quaternion.AngleAxis(360, transforms.right) * currentFood.transform.rotation;
+
+                while (f <= t * 0.2f)
+                {
+                    if (App.restaurantTimeScale == 1)
+                    {
+                        if (currentFood == null) return;
+
+                        currentFood.transform.rotation = Quaternion.Lerp(q1, qt1, f * (1 / (t * t * 0.2f)) * t);
+                        f += Time.deltaTime;
+                    }
+                    await UniTask.NextFrame(cancellationToken: cancellationToken);
+                }
+
+                f = 0;
+                while (f <= t * 0.2f)
+                {
+                    if (App.restaurantTimeScale == 1)
+                    {
+                        if (currentFood == null) return;
+
+                        currentFood.transform.rotation = Quaternion.Lerp(qt1, qt2, f * (1 / (t * t * 0.2f)) * t);
+                        f += Time.deltaTime;
+                    }
+                    await UniTask.NextFrame(cancellationToken: cancellationToken);
+                }
+
+
+                f = 0;
+
+
+                while (f <= t * 0.4f)
+                {
+                    if (App.restaurantTimeScale == 1)
+                    {
+                        if (currentFood == null) return;
+
+                        currentFood.transform.position = Vector3.Lerp(t1, v1, f * (1 / (t * t * 0.4f)) * t);
+                        f += Time.deltaTime;
+                    }
+                    await UniTask.NextFrame(cancellationToken: cancellationToken);
+                }
+                currentFood.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
             }
-            currentFood.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
+        }
+        catch(Exception e)
+        {
+            Debug.Log("Cancel Bake");
         }
     }
 }

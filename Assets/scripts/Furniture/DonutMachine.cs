@@ -1,6 +1,8 @@
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 public class DonutMachine : FoodMachine
 {
@@ -14,6 +16,7 @@ public class DonutMachine : FoodMachine
     WaitForSeconds waitForone = new WaitForSeconds(1f);*/
     Food current;
     Food createdFood;
+    CancellationTokenSource cancellationTokenSource;
     // Start is called before the first frame update
     public override void Start()
     {
@@ -35,8 +38,8 @@ public class DonutMachine : FoodMachine
             (f, a) = friedQueue.Dequeue();
             FoodManager.EatFood(f);
         }
-        
-        StartCoroutine(AddDonuts());
+        cancellationTokenSource = new CancellationTokenSource();
+        AddDonuts(cancellationTokenSource.Token).Forget();
       
     }
     public override void OnDisable()
@@ -55,8 +58,9 @@ public class DonutMachine : FoodMachine
             createdFood = null;
         }
         audioSource.Stop();
+        if(cancellationTokenSource != null) cancellationTokenSource.Cancel();
     }
-    IEnumerator AddDonuts()
+    async UniTask AddDonuts(CancellationToken cancellationToken)
     {
         List<int> ints = new List<int> { 1, 2, 3, 4, 5, 6 };
         Shuffle(ints); 
@@ -73,18 +77,25 @@ public class DonutMachine : FoodMachine
             food.transform.localScale = Vector3.zero;
             frieds[x, y] = true;
             friedQueue.Enqueue((food, new Vector2Int(x,y)));
-            StartCoroutine(DonutVitlity(food));
+            DonutVitlity(food, cancellationToken).Forget();
+          //  cancellationToken.ThrowIfCancellationRequested();
+            //   StartCoroutine(DonutVitlity(food));
             //  yield return CoroutneManager.waitForzeroone;
-            yield return StartCoroutine(Utility.CustomCoroutineDelay(0.1f));
+            //  yield return StartCoroutine(Utility.CustomCoroutineDelay(0.1f));
+            await Utility.CustomDelayTask(0.1f, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
         }
 
         while (true)
         {
             //  yield return CoroutneManager.waitFortwo;
-            yield return StartCoroutine(Utility.CustomCoroutineDelay(2f));
+            //  yield return StartCoroutine(Utility.CustomCoroutineDelay(2f));
+            await Utility.CustomDelayTask(2f, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
             if (friedQueue.Count < 6)
             {
-                if (friedQueue.Count >= 2) yield return StartCoroutine(Utility.CustomCoroutineDelay(2f)); //yield return CoroutneManager.waitFortwo;
+                if (friedQueue.Count >= 2) await Utility.CustomDelayTask(2f, cancellationToken);
+                cancellationToken.ThrowIfCancellationRequested();//yield return CoroutneManager.waitFortwo;
                 for (int i=0; i < 3; i++)
                 {
                     for (int j=0; j<2; j++)
@@ -100,7 +111,7 @@ public class DonutMachine : FoodMachine
                             food.transform.localPosition = target;
 
                             friedQueue.Enqueue((food, new Vector2Int(i, j)));
-                            StartCoroutine(DonutVitlity(food));
+                            DonutVitlity(food, cancellationToken).Forget();
                             goto Escape;
                         }
                     }
@@ -112,7 +123,7 @@ public class DonutMachine : FoodMachine
         
     }
 
-    IEnumerator DonutVitlity(Food food)
+    async UniTask DonutVitlity(Food food, CancellationToken cancellationToken)
     {
         SoundManager.Instance.PlayAudio3D(GameInstance.GameIns.gameSoundManager.CreateFood(), 0.4f, 100, 5, food.transform.position);
         Vector3 v1 = food.transform.localScale;
@@ -126,7 +137,7 @@ public class DonutMachine : FoodMachine
                 food.transform.localScale = Vector3.Lerp(v1, v3, f * 5);
                 f += Time.deltaTime;
             }
-            yield return null;
+            await UniTask.NextFrame(cancellationToken);
         }
         f = 0;
         while (f <= 0.1f)
@@ -136,7 +147,7 @@ public class DonutMachine : FoodMachine
                 food.transform.localScale = Vector3.Lerp(v3, v2, f * 10);
                 f += Time.deltaTime;
             }
-            yield return null;
+            await UniTask.NextFrame(cancellationToken);
         }
         food.transform.localScale = v2;
     }
@@ -154,17 +165,19 @@ public class DonutMachine : FoodMachine
     }
 
 
-    public void FryDonut(float timer)
+    public void FryDonut(float timer, CancellationToken cancellationToken)
     {
-        StartCoroutine(FryingDonut(timer));
+     //   StartCoroutine(FryingDonut(timer));
+        FryingDonut(timer, cancellationToken).Forget();
     }
-    public void Done()
+    public void Done(CancellationToken cancellationToken)
     {
         audioSource.Stop();
-        StartCoroutine(CreateDonutDone());
+       // StartCoroutine(CreateDonutDone());
+        CreateDonutDone(cancellationToken).Forget();
     }
 
-    IEnumerator FryingDonut(float timer)
+    async UniTask FryingDonut(float timer, CancellationToken cancellationToken)
     {
         Vector2 pos;
         (current, pos) = friedQueue.Peek();
@@ -185,7 +198,7 @@ public class DonutMachine : FoodMachine
 
                     f += Time.deltaTime;
                 }
-                yield return null;
+                await UniTask.NextFrame(cancellationToken);
             }
             f = 0;
             while (f <= timer)
@@ -196,13 +209,13 @@ public class DonutMachine : FoodMachine
 
                     f += Time.deltaTime;
                 }
-                yield return null;
+                await UniTask.NextFrame(cancellationToken);
             }
             current.transform.rotation = Quaternion.Euler(Vector3.zero);
         }
     }
 
-    IEnumerator CreateDonutDone()
+    async UniTask CreateDonutDone(CancellationToken cancellationToken)
     {
        
         Vector2Int v;
@@ -210,8 +223,9 @@ public class DonutMachine : FoodMachine
         frieds[v.x, v.y] = false;
         current.transform.SetParent(WorkSpaceManager.foodCollects.transform);
         //   yield return CoroutneManager.waitForzerothree;
-        yield return StartCoroutine(Utility.CustomCoroutineDelay(0.3f));
-
+        //yield return StartCoroutine(Utility.CustomCoroutineDelay(0.3f));
+        await Utility.CustomDelayTask(0.3f, cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
         createdFood = current;
         CreatedFood(createdFood);
         current = null;

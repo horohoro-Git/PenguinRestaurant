@@ -13,7 +13,7 @@ using Random = UnityEngine.Random;
 public class Table : Furniture
 {
     //  public Transform Transforms;
-    public Transform Transforms;
+   // public Transform Transforms;
     [NonSerialized] public bool isDirty = false;
     public AnimalController controller;
     [NonSerialized] public AnimalController employeeContoller;
@@ -101,12 +101,12 @@ public class Table : Furniture
         
        //StartCoroutine(Clean());
     }
-    public Transform transforms { 
+    /*public Transform transforms { 
         
         get {
-            if (Transforms == null) Transforms = transform;    
+            if (tr == null) Transforms = transform;    
             return Transforms; 
-        } }
+        } }*/
 
     async UniTask Clean(CancellationToken cancellationToken = default)
     {

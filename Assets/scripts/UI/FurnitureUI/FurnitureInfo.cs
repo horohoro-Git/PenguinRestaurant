@@ -17,7 +17,15 @@ public class FurnitureInfo : MonoBehaviour
 
     [NonSerialized] public int fishesNum;
     [NonSerialized] public string rewardNum;
-  
+
+    private void OnDisable()
+    {
+        if(UI_TypeA!=null) UI_TypeA.increaseFishes = 0;
+    }
+    public void SetFurniture(Furniture furniture)
+    {
+        currentFurniture = furniture;
+    }
     public void UpdateInfo(Furniture furniture)
     {
         currentFurniture = furniture;
@@ -195,23 +203,17 @@ public class FurnitureInfo : MonoBehaviour
             if (fishesNum <= GameInstance.GameIns.restaurantManager.restaurantCurrency.fishes && fishesNum > 0)
             {
                 FoodMachine fm = currentFurniture.GetComponent<FoodMachine>();
-                if (fm.fuelGage != null)
+                fm.machineLevelData.checkingFishes += fishesNum;
+                GameInstance.GameIns.restaurantManager.AddFuel(fm, fishesNum);
+                if (RestaurantManager.tutorialKeys.Contains((int)TutorialEventKey.FillFishes))
                 {
-                    fm.fuelGage.ShowGage(true);
-                    fm.machineLevelData.checkingFishes += fishesNum;
-                    GameInstance.GameIns.restaurantManager.AddFuel(fm, fishesNum);
-                    if (RestaurantManager.tutorialKeys.Contains((int)TutorialEventKey.FillFishes))
-                    {
-                        RestaurantManager.tutorialKeys.Remove((int)TutorialEventKey.FillFishes);
-                        Tutorials tutorials = GameInstance.GameIns.restaurantManager.tutorials;
-                        Tutorials.TutorialUnlockLateTime(GameInstance.GameIns.restaurantManager.tutorialStructs[tutorials.id][tutorials.count - 1]);
-                        ((Action<TutorialEventKey>)EventManager.Publish(TutorialEventKey.FillFishes))?.Invoke(TutorialEventKey.FillFishes);
-                        GameInstance.GameIns.uiManager.TutorialEnd(true);
-                        //Tutorials tuto = GameInstance.GameIns.restaurantManager.tutorials;
-                        //GameInstance.GameIns.uiManager.TutorialStart(tuto.id, tuto.count, GameInstance.GameIns.restaurantManager.tutorialStructs[tuto.id].Count);
-                    }
+                    RestaurantManager.tutorialKeys.Remove((int)TutorialEventKey.FillFishes);
+                    Tutorials tutorials = GameInstance.GameIns.restaurantManager.tutorials;
+                    Tutorials.TutorialUnlockLateTime(GameInstance.GameIns.restaurantManager.tutorialStructs[tutorials.id][tutorials.count - 1]);
+                    ((Action<TutorialEventKey>)EventManager.Publish(TutorialEventKey.FillFishes))?.Invoke(TutorialEventKey.FillFishes);
+                    GameInstance.GameIns.uiManager.TutorialEnd(true);
                 }
-               
+
                 UI_TypeA.increaseFishes = 0;
             }
         }

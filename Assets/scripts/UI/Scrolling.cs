@@ -19,6 +19,7 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
     public Image autoImage1;
     public Image autoImage2;
     public TMP_Text autoText;
+    public Image handleImage;
     [NonSerialized] public bool isWorking;
 
     Button autoBtn;
@@ -195,6 +196,8 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
             isDown = true;
             animator.SetInteger(AnimationKeys.scrolling, 2);
             storeText.fontSize = 40f;
+            handleImage.gameObject.SetActive(true);
+            storeText.gameObject.SetActive(false);
         }
         else
         {
@@ -204,6 +207,8 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
             isDown = false;
             animator.SetInteger(AnimationKeys.scrolling, 1);
             storeText.fontSize = 60f;
+            handleImage.gameObject.SetActive(false);
+            storeText.gameObject.SetActive(true);
         }
 
         Vector3 pos;// = Input.mousePosition;
@@ -225,6 +230,8 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
             isDown = false;
             animator.SetInteger(AnimationKeys.scrolling, 1);
             storeText.fontSize = 60f;            
+            handleImage.gameObject.SetActive(false);
+            storeText.gameObject.SetActive(true);
         }
     }
 
@@ -269,5 +276,7 @@ public class Scrolling : MonoBehaviour, IDragHandler, IPointerDownHandler, IPoin
         animator.SetInteger(AnimationKeys.scrolling, 2);
         isDown = true;
         storeText.fontSize = 40f;
+        handleImage.gameObject.SetActive(true);
+        storeText.gameObject.SetActive(false);
     }
 }

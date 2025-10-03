@@ -39,7 +39,7 @@ public class AnimalManager : MonoBehaviour
     public Queue<SliderController> deactivateSliders = new Queue<SliderController>();
 
     public static Dictionary<int, AnimalStruct> animalStructs = new Dictionary<int, AnimalStruct>();
-    public static Dictionary<int, (int, List<int>)> gatchaTiers = new Dictionary<int, (int, List<int>)>();
+    public static Dictionary<int, (int, List<int>, bool)> gatchaTiers = new Dictionary<int, (int, List<int>, bool)>();
     public static int gatchaValues = 0;
 
     [SerializeField]

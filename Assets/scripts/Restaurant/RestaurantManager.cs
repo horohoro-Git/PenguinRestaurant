@@ -9,6 +9,7 @@ using System.Threading;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 using static GameInstance;
 using Quaternion = UnityEngine.Quaternion;
 using Random = UnityEngine.Random;
@@ -57,6 +58,9 @@ public class RestaurantManager : MonoBehaviour
     public RestaurantOthers restaurantOthers;
     public RestaurantData restaurantData;
     public Employees employees;
+    public RectTransform machineStatusCanvas;
+
+    public List<MachineStatus> machineStatuses = new(); 
 
     CancellationTokenSource cancellationTokenSource;
 
@@ -98,6 +102,7 @@ public class RestaurantManager : MonoBehaviour
 
     public Transform start;
     public Transform end;
+
     //곡선 크기
     [Range(1f, 100f)]
     public float duration;
@@ -207,9 +212,10 @@ public class RestaurantManager : MonoBehaviour
         tutorials = SaveLoadSystem.LoadTutorialData();
       
         Tutorials.TutorialUpdate(0);
+       
         // restaurantCurrency.fishes += 100;
         restaurantCurrency.Money += BigInteger.Parse("10000000000");// 10000;
-
+        restaurantCurrency.fishes += 100;
         moneyString = Utility.GetFormattedMoney(restaurantCurrency.Money, moneyString);
         GameInstance.GameIns.uiManager.moneyText.text = moneyString.ToString();
         GameInstance.GameIns.uiManager.fishText.text = restaurantCurrency.fishes.ToString();
@@ -227,11 +233,32 @@ public class RestaurantManager : MonoBehaviour
             fishIconObject.SetActive(false);
             fishRewardIconQueue.Enqueue(fishIconObject);
         }
+
+
     }
 
     private void Update()
     {
         restaurantTimer += Time.deltaTime * App.restaurantTimeScale;
+
+        //조리기구 연료정보
+        for (int i = 0; i < machineStatuses.Count; i++)
+        {
+            FoodMachine machine = machineStatuses[i].foodMachine;
+            if (machine != null)
+            {
+                if (machine.gameObject.activeSelf)
+                {
+                    Vector3 pos = new Vector3(machineStatuses[i].foodMachine.transform.position.x - 6f, 10f, machineStatuses[i].foodMachine.transform.position.z - 6f);
+                    machineStatuses[i].rectTransform.position = pos;
+                    if(!machineStatuses[i].gameObject.activeSelf) machineStatuses[i].gameObject.SetActive(true);
+                }
+                else
+                {
+                    if (machineStatuses[i].gameObject.activeSelf) machineStatuses[i].gameObject.SetActive(false);
+                }
+            }
+        }
     }
 
     async UniTask AutoSave(CancellationToken cancellationToken = default)
@@ -307,7 +334,7 @@ public class RestaurantManager : MonoBehaviour
                 Transform doorTransform = door.transform;
                 Vector3 origin = doorTransform.position;
                 Vector3 forward = doorTransform.forward;
-                float angle = 30f;
+              /*  float angle = 30f;
                 if (Physics.Raycast(origin + Vector3.up, -forward, out var hit0, float.MaxValue, 1 << 16 | 1 << 19))
                 {
                     GameObject h = hit0.collider.gameObject;
@@ -344,11 +371,34 @@ public class RestaurantManager : MonoBehaviour
                     door.removeWall = h;
                     //   StartCoroutine(door.OpenDoor());
                     goto Escape;
+                }*/
+
+
+                int[] angleRange = { 0, 15, -15, 30, -30, 45, -45, 60, -60, 75, -75, 90, -90, 120, -120, 150, -150, 180 };
+                for (int i = 0; i < angleRange.Length; i++)
+                {
+                    Vector3 dir = Quaternion.AngleAxis(angleRange[i], doorTransform.up) * doorTransform.forward;
+                    if (Physics.Raycast(door.transform.position + Vector3.up, dir, out RaycastHit hitWall, float.MaxValue, 1 << 16 | 1 << 19))
+                    {
+                        GameObject h = hitWall.collider.gameObject;
+
+                        door.transform.position = h.transform.position - Vector3.up * h.transform.position.y;
+                        door.transform.rotation = h.transform.rotation * Quaternion.Euler(0, -90, 0);
+
+                        GameInstance.GameIns.restaurantManager.doorPreview.transform.position = door.transform.position;
+                        GameInstance.GameIns.restaurantManager.doorPreview.rotateOffset.transform.rotation = door.transform.rotation * Quaternion.Euler(0, 90, 0);
+                        if (GameInstance.GameIns.restaurantManager.doorPreview.CheckDoorPlacement())
+                        {
+                            door.transform.SetParent(h.transform.parent);
+                            door.removeWall = h;
+                            MoveCalculator.CheckAreaWithBounds(GameInstance.GameIns.calculatorScale, h.GetComponentInChildren<Collider>(), false);
+                            h.SetActive(false);
+                        }
+                        break;
+                    }
                 }
             }
         }
-    Escape:
-
         MeshRenderer meshRenderer = door.GetComponentInChildren<MeshRenderer>();
         Material[] materials = meshRenderer.materials;
         for (int i = 0; i < door.doorMat.Count; i++)
@@ -356,6 +406,7 @@ public class RestaurantManager : MonoBehaviour
             materials[i] = door.doorMat[i];
         }
         meshRenderer.materials = materials;
+        MoveCalculator.CheckArea(GameInstance.GameIns.calculatorScale, true);
         GameInstance.GameIns.restaurantManager.ApplyPlaced(door, null, false);
 
         SaveLoadSystem.SaveRestaurantBuildingData();
@@ -670,14 +721,14 @@ public class RestaurantManager : MonoBehaviour
                     case WorkSpaceType.FoodMachine:
                         FoodMachine fm = furniture.GetComponent<FoodMachine>();
                         fm.Set(true);
-                        furniture.transform.rotation = rot;
+                        fm.transform.rotation = rot;
                         break;
                     case WorkSpaceType.Table:
-                        furniture.transform.rotation = rot;
+                        furniture.transforms.rotation = rot;
                         tables.Add(furniture.GetComponent<Table>());
                         break;
                     default:
-                        furniture.transform.rotation = rot;
+                        furniture.transforms.rotation = rot;
                         break;
                 }
 
@@ -1206,10 +1257,10 @@ public class RestaurantManager : MonoBehaviour
         restaurantCurrency.fishes += -amount;
         GetFish(before, -amount);
         restaurantCurrency.changed = true;
-        foodMachine.machineLevelData.fishes += amount;
-        foodMachine.fuelGage.UpdateGage(foodMachine, amount, false);
+        foodMachine.machineLevelData.Fishes += amount;
+     //   foodMachine.fuelGage.UpdateGage(foodMachine, amount, false);
         machineLevelDataChanged = true;
-        if (tutorialKeys.Contains(7000) && amount > 0) ((Action<int>)EventManager.Publish(-1, true))?.Invoke(7000);
+    //    if (tutorialKeys.Contains(7000) && amount > 0) ((Action<int>)EventManager.Publish(-1, true))?.Invoke(7000);
     }
 
     public float GetRestaurantValue()
@@ -1318,11 +1369,11 @@ public class RestaurantManager : MonoBehaviour
         return tray;
     }
 
-    public FuelGage GetGage()
+   /* public FuelGage GetGage()
     {
         FuelGage fuel = fuelGages.Dequeue();
         return fuel;
-    }
+    }*/
 
     public void GetFish(int before, int addFish, bool animate = true)
     {
@@ -1467,6 +1518,7 @@ public class RestaurantManager : MonoBehaviour
         }
         else
         {
+            fc.text.text = "";
             fc.gameObject.SetActive(false);
             floatingCosts.Enqueue(fc);
         }

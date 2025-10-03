@@ -6,9 +6,7 @@ using UnityEngine;
 public class TrashCan : Furniture, IObjectOffset
 {
     public Transform throwPos;
-  //  public GameObject throwPlace;
-    public Transform transforms;
-
+ 
     public HashSet<Employee> employees = new HashSet<Employee>();
 
     [field: SerializeField]

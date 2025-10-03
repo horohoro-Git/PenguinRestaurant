@@ -78,6 +78,31 @@ public class PlaceController : MonoBehaviour
         GameInstance.AddGraphicCaster(raycaster);
         prevPos = transform.position;
         prevRot = transform.rotation;
+
+        if (currentFurniture != null)
+        {
+            Ray r = InputManger.cachingCamera.ScreenPointToRay(currentMouse.position.ReadValue());
+            if (Physics.Raycast(r, out RaycastHit hits, float.MaxValue, 1))
+            {
+                GameInstance.GameIns.gridManager.SelectLine(hits.point, this, canPlace, storeGoods.goods.type);
+                GameInstance.GameIns.inputManager.InputDisAble = true;
+                isDragging = true;
+            }
+
+/*            if (currentMouse.leftButton.isPressed)
+            {
+                Ray ray = InputManger.cachingCamera.ScreenPointToRay(currentMouse.position.ReadValue());
+                if (Physics.Raycast(ray, out RaycastHit hit, float.MaxValue, 1 << 25))
+                {
+                    GameInstance.GameIns.inputManager.InputDisAble = true;
+                    isDragging = true;
+                }
+            }*/
+        }
+
+
+
+
     }
     private void OnDisable()
     {
@@ -92,7 +117,7 @@ public class PlaceController : MonoBehaviour
         if (InputManger.cachingCamera != null)
         {
             if (GameInstance.GameIns.inputManager.CheckClickedUI(1 << 5 | 1 << 14 | 1 << 18)) return;
-            
+
 #if UNITY_IOS || UNITY_ANDROID
             if (Touch.activeTouches.Count == 0) return;
 
@@ -101,11 +126,12 @@ public class PlaceController : MonoBehaviour
 
             switch (touch.phase)
             {
-                case UnityEngine.InputSystem.TouchPhase.Began:
+             /*   case UnityEngine.InputSystem.TouchPhase.Began:
                     HandleInputDown(lastInputPosition);
-                    break;
+                    break;*/
 
                 case UnityEngine.InputSystem.TouchPhase.Moved:
+                    HandleInputDown(lastInputPosition);    
                     if (isDragging)
                     {
                         HandleDrag(lastInputPosition);
@@ -119,26 +145,47 @@ public class PlaceController : MonoBehaviour
             }
         
 #else
-            if (currentMouse.leftButton.isPressed && isDragging)
-            {
-                Ray r = InputManger.cachingCamera.ScreenPointToRay(currentMouse.position.ReadValue());
-                if (Physics.Raycast(r, out RaycastHit hit, float.MaxValue, 1))
-                {
-                    GameInstance.GameIns.gridManager.SelectLine(hit.point, this, canPlace, storeGoods.goods.type);
-                }
-            }
             if (currentMouse.leftButton.wasPressedThisFrame)
             {
                 Ray ray = InputManger.cachingCamera.ScreenPointToRay(currentMouse.position.ReadValue());
                 if (Physics.Raycast(ray, out RaycastHit hit, float.MaxValue, 1 << 25))
                 {
-                  //  if (hit.collider.gameObject.GetComponentInParent<PlaceController>() == this)
+                    //  if (hit.collider.gameObject.GetComponentInParent<PlaceController>() == this)
                     {
                         GameInstance.GameIns.inputManager.InputDisAble = true;
                         isDragging = true;
                     }
                 }
             }
+            if (currentMouse.leftButton.isPressed && isDragging)
+            {
+           
+                Ray r = InputManger.cachingCamera.ScreenPointToRay(currentMouse.position.ReadValue());
+                if (Physics.Raycast(r, out RaycastHit hits, float.MaxValue, 1))
+                {
+                    GameInstance.GameIns.gridManager.SelectLine(hits.point, this, canPlace, storeGoods.goods.type);
+                }
+            }
+            /*  if (currentMouse.leftButton.isPressed && isDragging)
+              {
+                  Ray r = InputManger.cachingCamera.ScreenPointToRay(currentMouse.position.ReadValue());
+                  if (Physics.Raycast(r, out RaycastHit hit, float.MaxValue, 1))
+                  {
+                      GameInstance.GameIns.gridManager.SelectLine(hit.point, this, canPlace, storeGoods.goods.type);
+                  }
+              }
+              if (currentMouse.leftButton.wasPressedThisFrame)
+              {
+                  Ray ray = InputManger.cachingCamera.ScreenPointToRay(currentMouse.position.ReadValue());
+                  if (Physics.Raycast(ray, out RaycastHit hit, float.MaxValue, 1 << 25))
+                  {
+                    //  if (hit.collider.gameObject.GetComponentInParent<PlaceController>() == this)
+                      {
+                          GameInstance.GameIns.inputManager.InputDisAble = true;
+                          isDragging = true;
+                      }
+                  }
+              }*/
 
             if (currentMouse.leftButton.wasReleasedThisFrame)
             {
@@ -191,7 +238,26 @@ public class PlaceController : MonoBehaviour
     {
         if (canPlace)
         {
+
+            if (currentFurniture != null)
+            {
+                bool checkPosition = currentFurniture.transform.position == transform.position;
+                int level = currentFurniture.rotateLevel;
+                int thisLevel = this.level;
+                bool checkRotation = thisLevel == level;
+                Debug.Log("Original P" + currentFurniture.transform.position + " R " + currentFurniture.transform.rotation);
+                Debug.Log("Now " + thisLevel + " R " + level);
+
+                if(checkPosition && checkRotation)
+                {
+                    Debug.Log("Already Applied");
+                }
+
+            }
             SoundManager.Instance.PlayAudio(GameInstance.GameIns.uISoundManager.UIClick(), 0.2f);
+
+
+
 
             GameInstance.GameIns.gridManager.ApplyGird(this, offset.transform.position, storeGoods.goods.type);
             if (purchasedObject)
@@ -217,6 +283,7 @@ public class PlaceController : MonoBehaviour
     {
         SoundManager.Instance.PlayAudio(GameInstance.GameIns.uISoundManager.UIClick(), 0.2f);
         CancelController();
+        ((Action)EventManager.Publish(4))?.Invoke();
     }
 
     public void CancelController()

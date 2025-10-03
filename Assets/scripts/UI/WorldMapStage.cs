@@ -21,28 +21,18 @@ public class WorldMapStage : MonoBehaviour
         btn.onClick.AddListener(() =>
         {
             if (id == Stage.None) return;
-
-            if (App.currentStage == id)
+            if (GameInstance.GameIns.worldUI != null)
             {
-                //이미 로드된 스테이지
-                GameInstance.GameIns.uiManager.ChangeRestaurant(id);
-            }
-            else
-            {
-                //새로운 스테이지 로드
-                GameInstance.GameIns.uiManager.ChangeRestaurant(id);
+                if (GameInstance.GameIns.worldUI.currentIndex == (int)id)
+                {
+                    GameInstance.GameIns.uiManager.ChangeRestaurant(id);
+                }
             }
         });
     }
 
     IEnumerator ChangeWorldMap()
     {
-
-      /*  Image[] images = GameInstance.GameIns.worldUI.GetComponentsInChildren<Image>();
-        foreach (Image image in images)
-        {
-            image.raycastTarget = false;
-        }*/
         Animator animator = GameInstance.GameIns.worldUI.GetComponent<Animator>();
         animator.SetInteger("state", 1);
         RestaurantManager.restaurantTimer = 0;
