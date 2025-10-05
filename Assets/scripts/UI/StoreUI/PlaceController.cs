@@ -81,7 +81,7 @@ public class PlaceController : MonoBehaviour
 
         if (currentFurniture != null)
         {
-            Ray r = InputManger.cachingCamera.ScreenPointToRay(currentMouse.position.ReadValue());
+            Ray r = InputManager.cachingCamera.ScreenPointToRay(currentMouse.position.ReadValue());
             if (Physics.Raycast(r, out RaycastHit hits, float.MaxValue, 1))
             {
                 GameInstance.GameIns.gridManager.SelectLine(hits.point, this, canPlace, storeGoods.goods.type);
@@ -114,7 +114,7 @@ public class PlaceController : MonoBehaviour
 
     private void Update()
     {
-        if (InputManger.cachingCamera != null)
+        if (InputManager.cachingCamera != null)
         {
             if (GameInstance.GameIns.inputManager.CheckClickedUI(1 << 5 | 1 << 14 | 1 << 18)) return;
 
@@ -147,7 +147,7 @@ public class PlaceController : MonoBehaviour
 #else
             if (currentMouse.leftButton.wasPressedThisFrame)
             {
-                Ray ray = InputManger.cachingCamera.ScreenPointToRay(currentMouse.position.ReadValue());
+                Ray ray = InputManager.cachingCamera.ScreenPointToRay(currentMouse.position.ReadValue());
                 if (Physics.Raycast(ray, out RaycastHit hit, float.MaxValue, 1 << 25))
                 {
                     //  if (hit.collider.gameObject.GetComponentInParent<PlaceController>() == this)
@@ -160,7 +160,7 @@ public class PlaceController : MonoBehaviour
             if (currentMouse.leftButton.isPressed && isDragging)
             {
            
-                Ray r = InputManger.cachingCamera.ScreenPointToRay(currentMouse.position.ReadValue());
+                Ray r = InputManager.cachingCamera.ScreenPointToRay(currentMouse.position.ReadValue());
                 if (Physics.Raycast(r, out RaycastHit hits, float.MaxValue, 1))
                 {
                     GameInstance.GameIns.gridManager.SelectLine(hits.point, this, canPlace, storeGoods.goods.type);
@@ -316,7 +316,7 @@ public class PlaceController : MonoBehaviour
 
     private void HandleInputDown(Vector2 inputPosition)
     {
-        Ray ray = InputManger.cachingCamera.ScreenPointToRay(inputPosition);
+        Ray ray = InputManager.cachingCamera.ScreenPointToRay(inputPosition);
         if (Physics.Raycast(ray, out RaycastHit hit, float.MaxValue, 1 << 25))
         {
            // if (hit.collider.gameObject.GetComponentInParent<PlaceController>() == this)
@@ -329,7 +329,7 @@ public class PlaceController : MonoBehaviour
 
     private void HandleDrag(Vector2 inputPosition)
     {
-        Ray r = InputManger.cachingCamera.ScreenPointToRay(inputPosition);
+        Ray r = InputManager.cachingCamera.ScreenPointToRay(inputPosition);
         if (Physics.Raycast(r, out RaycastHit hit, float.MaxValue, 1))
         {
             GameInstance.GameIns.gridManager.SelectLine(hit.point, this, canPlace, storeGoods.goods.type);

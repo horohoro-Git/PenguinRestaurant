@@ -116,7 +116,7 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IEndDragHandler, IPointer
                     int height = Screen.height / 2;
 
                     Vector3 screenPos = new Vector3(width,height);
-                    Ray r = InputManger.cachingCamera.ScreenPointToRay(screenPos);
+                    Ray r = InputManager.cachingCamera.ScreenPointToRay(screenPos);
                     if (Physics.Raycast(r, out RaycastHit hit, float.MaxValue, 1))
                     {
                         currentCheckArea = GameIns.gridManager.SelectLine(hit.point, currnet, currentCheckArea, goods.type, true);
@@ -214,7 +214,7 @@ public class StoreGoods : MonoBehaviour, IDragHandler, IEndDragHandler, IPointer
                 screenPos = Mouse.current.position.ReadValue();
 #endif
 
-                    Ray r = InputManger.cachingCamera.ScreenPointToRay(screenPos);
+                    Ray r = InputManager.cachingCamera.ScreenPointToRay(screenPos);
                     if (Physics.Raycast(r, out RaycastHit hit, float.MaxValue, 1))
                     {
                         currentCheckArea = GameIns.gridManager.SelectLine(hit.point, currnet, currentCheckArea, goods.type);

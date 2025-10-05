@@ -14,7 +14,7 @@ public class GameInstance
     public CalculatorScale calculatorScale;
     public AnimalManager animalManager;
     public WorkSpaceManager workSpaceManager;
-    public InputManger inputManager;
+    public InputManager inputManager;
     public UIManager uiManager;
     public MoneyManager moneyManager;
     public RestaurantManager restaurantManager;

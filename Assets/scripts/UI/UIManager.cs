@@ -150,7 +150,7 @@ public class UIManager : MonoBehaviour
                     animalGuideImage.sprite = atlasSprites[10001];//loadedAtlases["Town"].GetSprite(spriteAssetKeys[10001].Name); //loadedSprites[spriteAssetKeys[10001].ID];
                     changeSceneImage.sprite = atlasSprites[10002];//loadedAtlases["Town"].GetSprite(spriteAssetKeys[10002].Name);
 
-                    cameraSize = InputManger.cachingCamera.orthographicSize;
+                    cameraSize = InputManager.cachingCamera.orthographicSize;
                     drawBtn.gameObject.SetActive(false);
                     drawSpeedUpBtn.gameObject.SetActive(false);
                     StartCoroutine(FadeInFadeOut(true, 2));
@@ -677,7 +677,7 @@ public class UIManager : MonoBehaviour
                 animalGuideImage.sprite = atlasSprites[10001];
                 changeSceneImage.sprite = atlasSprites[10002];
 
-                cameraSize = InputManger.cachingCamera.orthographicSize;
+                cameraSize = InputManager.cachingCamera.orthographicSize;
                 drawBtn.gameObject.SetActive(false);
                 drawSpeedUpBtn.gameObject.SetActive(false);
                 StartCoroutine(FadeInFadeOut(true, 2));

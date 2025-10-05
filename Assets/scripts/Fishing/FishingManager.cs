@@ -362,7 +362,7 @@ public class FishingManager : MonoBehaviour
 
     IEnumerator GetCaughtFish(Vector3 pos)
     {
-        Vector3 target = InputManger.cachingCamera.WorldToScreenPoint(pos);
+        Vector3 target = InputManager.cachingCamera.WorldToScreenPoint(pos);
 
         int r = Random.Range(5, 10);
         int baseNum = GameInstance.GameIns.restaurantManager.restaurantCurrency.fishes;

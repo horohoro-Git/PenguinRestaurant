@@ -154,7 +154,7 @@ public class Employee : AnimalController
             screenPos = Mouse.current.position.ReadValue();
             //screenPos = Mouse.current.position.ReadValue();
 #endif
-            Ray ray = InputManger.cachingCamera.ScreenPointToRay(screenPos);
+            Ray ray = InputManager.cachingCamera.ScreenPointToRay(screenPos);
           
             if(Physics.Raycast(ray, out RaycastHit hit, float.MaxValue, 1 << 15))
             {
@@ -179,13 +179,13 @@ public class Employee : AnimalController
         falling = true;
         elapsedTime = 0f;
        
-        int num = InputManger.spawnDetects.Count;
+        int num = InputManager.spawnDetects.Count;
 
         if (num == 0) return false;
         else
         {
             int rand = UnityEngine.Random.Range(0, num);
-            Vector3 selectedPosition = InputManger.spawnDetects[rand];
+            Vector3 selectedPosition = InputManager.spawnDetects[rand];
             startPoint = trans.position;
             Transform t = GameInstance.GameIns.inputManager.cameraRange;
 
@@ -1248,9 +1248,10 @@ public class Employee : AnimalController
 
                             if (debuging) Debug.Log(counter.foodStacks[i].getNum);
                             SoundManager.Instance.PlayAudio3D(GameIns.gameSoundManager.ThrowSound(), 0.2f, 100, 5, trans.position);
-
-                            await UniTask.Delay(300, cancellationToken: cancellationToken);
+                            await UniTask.Delay(200, cancellationToken: cancellationToken);
                             EXP += 1;
+                            await UniTask.Delay(100, cancellationToken: cancellationToken);
+
                             if (pause) goto Escape;
                         }
                     }
@@ -1471,12 +1472,13 @@ public class Employee : AnimalController
                                         f.transforms.DOJump(pos, r, 1, 0.2f).OnComplete(() =>
                                         OnFoodStackComplete(f, pos, counter.customer.foodStacks[j], index - 1, counter.customer.headPoint));
 
-                                        SoundManager.Instance.PlayAudio3D(GameIns.gameSoundManager.ThrowSound(), 0.2f, 100, 5, trans.position);
+                                        SoundManager.Instance.PlayAudio3D(GameIns.gameSoundManager.ThrowSound(), 1f, 100, 5, trans.position);
 #endif
                                         counter.customer.VisualizingFoodStack.Add(f);
                                         index++;
-                                        await UniTask.Delay(300, cancellationToken: cancellationToken);
+                                        await UniTask.Delay(200, cancellationToken: cancellationToken);
                                         EXP += 2;
+                                        await UniTask.Delay(100, cancellationToken: cancellationToken);
                                         if (debuging) Debug.Log("Find");
                                         if (pause) goto Escape;
                                     }
@@ -1749,8 +1751,7 @@ public class Employee : AnimalController
                         GameIns.restaurantManager.trashData.trashNum++;
                         GameIns.restaurantManager.trashData.changed = true;
                         await UniTask.Delay(300, cancellationToken: cancellationToken);
-                        EXP += 2;
-                       
+
                         if (pause) goto Escape;
                     }
                     trash.employees.Remove(this);
@@ -2567,12 +2568,12 @@ public class Employee : AnimalController
 
             if (Utility.CheckHirable(t.position, ref i, ref j, false, true))
             {
-                int num = InputManger.spawnDetects.Count;
+                int num = InputManager.spawnDetects.Count;
                 int rand = UnityEngine.Random.Range(0, num);
 
                 if (num > 0)
                 {
-                    Vector3 selectedPosition = InputManger.spawnDetects[rand];
+                    Vector3 selectedPosition = InputManager.spawnDetects[rand];
                     startPoint = trans.position;
 
                     endPoint = selectedPosition;// GameInstance.GetVector3(t.position.x, 0, t.position.z);

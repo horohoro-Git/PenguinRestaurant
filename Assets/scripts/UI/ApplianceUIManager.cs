@@ -123,11 +123,11 @@ public class ApplianceUIManager : MonoBehaviour
         }
         if(hireTransform)
         {
-            if(InputManger.cachingCamera.orthographic)
+            if(InputManager.cachingCamera.orthographic)
             {
-                if(CameraSize != InputManger.cachingCamera.orthographicSize)
+                if(CameraSize != InputManager.cachingCamera.orthographicSize)
                 {
-                    CameraSize = InputManger.cachingCamera.orthographicSize;
+                    CameraSize = InputManager.cachingCamera.orthographicSize;
                 }
            
             }
@@ -327,6 +327,8 @@ public class ApplianceUIManager : MonoBehaviour
             feedingDescription.gameObject.SetActive(false);
             feeding = false;
         }
+
+        hireBtn.gameObject.SetActive(true);
     }
 
     //¿Ã∫•∆Æ 4
@@ -391,12 +393,12 @@ public class ApplianceUIManager : MonoBehaviour
         if (visible)
         {
             GetComponent<Canvas>().renderMode = RenderMode.ScreenSpaceOverlay;
-            InputManger.cachingCamera.cullingMask |= (1 << LayerMask.NameToLayer("ApplianceUI"));
+            InputManager.cachingCamera.cullingMask |= (1 << LayerMask.NameToLayer("ApplianceUI"));
         }
         else
         {
             GetComponent<Canvas>().renderMode = RenderMode.WorldSpace;
-            InputManger.cachingCamera.cullingMask &= ~(1 << LayerMask.NameToLayer("ApplianceUI"));
+            InputManager.cachingCamera.cullingMask &= ~(1 << LayerMask.NameToLayer("ApplianceUI"));
         }
     }
 }

@@ -346,18 +346,7 @@ public class App : MonoBehaviour
                     await UniTask.NextFrame(cancellationToken: cancellationToken);
                 }
             }
-            /*    TMP_Text[] texts = FindObjectsOfType<TMP_Text>(true);
-
-                foreach (TMP_Text text in texts)
-                {
-                    if (text.CompareTag("BMD"))
-                    {
-                        text.font = AssetLoader.font;
-                        text.fontSharedMaterial = AssetLoader.font_mat;
-                    }
-                    await UniTask.NextFrame(cancellationToken: cancellationToken);
-                }*/
-
+        
         }
         catch (OperationCanceledException)
         {
@@ -384,36 +373,6 @@ public class App : MonoBehaviour
     public void GetSceneUI(GameObject go)
     {
         loadedScenesRootUI.Add(go);
-    }
-    private void OnApplicationQuit()
-    {/*
-        if(GameInstance.GameIns != null)
-        {
-            GameInstance.GameIns.Clear();
-            globalCts.Cancel();
-            globalCts.Dispose();
-            globalCts = null;
-
-            Resources.UnloadUnusedAssets();
-            if (GameInstance.GameIns.assetLoader != null)
-            {
-                if(GameInstance.GameIns.assetLoader.bundle != null)
-                {
-                    GameInstance.GameIns.assetLoader.bundle.Unload(true);
-                    GameInstance.GameIns.assetLoader.bundle = null;
-                }
-                if (GameInstance.GameIns.assetLoader.bundle_scene != null)
-                {
-                    GameInstance.GameIns.assetLoader.bundle_scene.Unload(true);
-                    GameInstance.GameIns.assetLoader.bundle_scene = null;
-                }
-                if (GameInstance.GameIns.assetLoader.b_reg != null)
-                {
-                    GameInstance.GameIns.assetLoader.b_reg.Unload(true);
-                    GameInstance.GameIns.assetLoader.b_reg = null;
-                }
-            }
-        }*/
     }
 
     public static async UniTask LoadScene(string name, string path, CancellationToken cancellationToken = default)
@@ -475,11 +434,11 @@ public class App : MonoBehaviour
         
         GameInstance.GameIns.inputManager.cameraTrans.position = pos;
         GameInstance.GameIns.inputManager.cameraTrans.rotation = Quaternion.Euler(0, 45, 0);
-        InputManger.cachingCamera.transform.localPosition = new Vector3(0, 200, 0);
-        InputManger.cachingCamera.transform.localRotation = Quaternion.Euler(60, 0, 0);
+        InputManager.cachingCamera.transform.localPosition = new Vector3(0, 200, 0);
+        InputManager.cachingCamera.transform.localRotation = Quaternion.Euler(60, 0, 0);
         //  GameInstance.GameIns.inputManager.DragScreen_WindowEditor(true);
-        InputManger.cachingCamera.orthographic = true;
-        InputManger.cachingCamera.orthographicSize = 15;
+        InputManager.cachingCamera.orthographic = true;
+        InputManager.cachingCamera.orthographicSize = 15;
         GameInstance.GameIns.inputManager.InputDisAble = false;
         GameInstance.GameIns.uiManager.fishingStartButton.gameObject.SetActive(false);
         GameInstance.GameIns.applianceUIManager.UIClearAll(true);
@@ -512,7 +471,6 @@ public class App : MonoBehaviour
         ((Action<int>)EventManager.Publish(-1, true)).Invoke(11000);
     }
    
-
     public void ChangeScene_DrawScene()
     {
         if (currentScene == SceneState.Draw) return;
@@ -531,7 +489,7 @@ public class App : MonoBehaviour
         Time.timeScale = 0;
         Time.fixedDeltaTime = 0f;
         restaurantTimeScale = 0f;
-        InputManger.cachingCamera.orthographic = false;
+        InputManager.cachingCamera.orthographic = false;
         GameInstance.GameIns.playerCamera.brain.enabled = true;
         GameInstance.GameIns.gatcharManager.virtualCamera1.Priority = 1;
         GameInstance.GameIns.gatcharManager.virtualCamera2.Priority = 0;
@@ -552,7 +510,6 @@ public class App : MonoBehaviour
 
         GameInstance.GameIns.uiManager.fishingBtn.gameObject.SetActive(false);  
     }
-  
 
     public void ChangeScene_Fishing()
     {
@@ -574,14 +531,14 @@ public class App : MonoBehaviour
         Time.fixedDeltaTime = 0.02f;
        
         restaurantTimeScale = 0f;
-        InputManger.cachingCamera.fieldOfView = 60f;
-        InputManger.cachingCamera.nearClipPlane = 0.1f;
-        InputManger.cachingCamera.farClipPlane = 1000f;
-        InputManger.cachingCamera.orthographic = false;
+        InputManager.cachingCamera.fieldOfView = 60f;
+        InputManager.cachingCamera.nearClipPlane = 0.1f;
+        InputManager.cachingCamera.farClipPlane = 1000f;
+        InputManager.cachingCamera.orthographic = false;
         GameInstance.GameIns.inputManager.cameraTrans.position = new Vector3(988, 30, 57);
         GameInstance.GameIns.inputManager.cameraTrans.rotation = Quaternion.Euler(0, 0, 0);
-        InputManger.cachingCamera.transform.localPosition = new Vector3(0, 0, 0);
-        InputManger.cachingCamera.transform.localRotation = Quaternion.Euler(60, 180, 0);
+        InputManager.cachingCamera.transform.localPosition = new Vector3(0, 0, 0);
+        InputManager.cachingCamera.transform.localRotation = Quaternion.Euler(60, 180, 0);
 
         if(!GameInstance.GameIns.fishingManager.working) GameInstance.GameIns.uiManager.fishingStartButton.gameObject.SetActive(true);
         SoundManager.Instance.RestaurantSoundsOnoff(false);
@@ -611,7 +568,6 @@ public class App : MonoBehaviour
         {
             v.ChangeText();
         }
-
         if (GameInstance.GameIns.store != null) GameInstance.GameIns.store.UpdateLanguage();
         if (GameInstance.GameIns.uiManager != null) GameInstance.GameIns.uiManager.UpdateTutorialLanguage();
         if(GameInstance.GameIns.worldUI != null) GameInstance.GameIns.worldUI.UpdateLanguage();

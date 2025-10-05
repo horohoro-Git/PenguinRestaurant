@@ -273,8 +273,10 @@ public class Tutorials
         {
             Unlock(i);
         }
-        RestaurantManager.tutorialEventKeys.Remove(TutorialEventKey.ExpansionA);
-        RestaurantManager.tutorialEventKeys.Remove(TutorialEventKey.ExpansionB);
+
+        //테스트 코드
+        //RestaurantManager.tutorialEventKeys.Remove(TutorialEventKey.ExpansionA);
+        //RestaurantManager.tutorialEventKeys.Remove(TutorialEventKey.ExpansionB);
     }
 
 

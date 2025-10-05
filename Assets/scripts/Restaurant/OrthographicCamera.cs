@@ -47,7 +47,7 @@ public class OrthographicCamera : MonoBehaviour
     {
         while (true)
         {
-            if(InputManger.cachingCamera.orthographicSize >=30)
+            if(InputManager.cachingCamera.orthographicSize >=30)
             {
                 isChangingCameraZoom = false;
                 yield break;
@@ -55,17 +55,17 @@ public class OrthographicCamera : MonoBehaviour
             else
             {
                 float target = 30;
-                float current = InputManger.cachingCamera.orthographicSize;
+                float current = InputManager.cachingCamera.orthographicSize;
                 float f = 0;
                 while (f < 0.5f)
                 {
                     float t = Mathf.Lerp(current, target, f * 2);
-                    InputManger.cachingCamera.orthographicSize = t;
+                    InputManager.cachingCamera.orthographicSize = t;
 
                     f += Time.deltaTime;
                     yield return null;
                 }
-                InputManger.cachingCamera.orthographicSize = target;
+                InputManager.cachingCamera.orthographicSize = target;
             }
             yield return null;
         }
