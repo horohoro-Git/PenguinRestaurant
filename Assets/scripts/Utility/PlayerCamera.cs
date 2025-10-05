@@ -116,9 +116,9 @@ public class PlayerCamera : MonoBehaviour
     }
     private void UpdateTargetZoom(float distanceDelta)
     {
-        if (InputManger.cachingCamera.orthographic)
+        if (InputManager.cachingCamera.orthographic)
         {
-            targetZoom = InputManger.cachingCamera.orthographicSize - (distanceDelta * zoomSpeed);
+            targetZoom = InputManager.cachingCamera.orthographicSize - (distanceDelta * zoomSpeed);
         }
       
         targetZoom = Mathf.Clamp(targetZoom, minZoom, maxZoom);
@@ -127,10 +127,10 @@ public class PlayerCamera : MonoBehaviour
 
     private void ApplyZoom()
     {
-        if (InputManger.cachingCamera.orthographic)
+        if (InputManager.cachingCamera.orthographic)
         {
-            InputManger.cachingCamera.orthographicSize = Mathf.SmoothDamp(
-                InputManger.cachingCamera.orthographicSize,
+            InputManager.cachingCamera.orthographicSize = Mathf.SmoothDamp(
+                InputManager.cachingCamera.orthographicSize,
                 targetZoom,
                 ref zoomVelocity,
                 smoothTime);

@@ -58,7 +58,7 @@ public class Furniture : MonoBehaviour
             screenPos = Mouse.current.position.ReadValue();
             //screenPos = Mouse.current.position.ReadValue();
 #endif
-            Ray ray = InputManger.cachingCamera.ScreenPointToRay(screenPos);
+            Ray ray = InputManager.cachingCamera.ScreenPointToRay(screenPos);
 
             if (Physics.Raycast(ray, out RaycastHit hit, float.MaxValue, 1 << 13))
             {

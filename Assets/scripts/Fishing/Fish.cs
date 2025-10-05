@@ -94,7 +94,7 @@ public class Fish : Animal
         {
             SoundManager.Instance.PlayAudio(GameInstance.GameIns.fishingSoundManager.DeadSound(), 0.5f);
             Emote e = GameInstance.GameIns.fishingManager.GetEmote();
-            e.rectTransform.position = InputManger.cachingCamera.WorldToScreenPoint(body.transform.position) + Vector3.up * 50;
+            e.rectTransform.position = InputManager.cachingCamera.WorldToScreenPoint(body.transform.position) + Vector3.up * 50;
             e.height = 100;
             e.image.sprite = GameInstance.GameIns.restaurantManager.emoteSprites[4004];
             e.Emotion();

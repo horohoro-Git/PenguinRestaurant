@@ -13,11 +13,11 @@ public class PreviewUIScaler : MonoBehaviour
 
     private void Update()
     {
-        if(InputManger.cachingCamera != null)
+        if(InputManager.cachingCamera != null)
         {
-            if (InputManger.cachingCamera.orthographic)
+            if (InputManager.cachingCamera.orthographic)
             {
-                float size = InputManger.cachingCamera.orthographicSize;
+                float size = InputManager.cachingCamera.orthographicSize;
                 float target = size / 15f;
 
                 Vector3 scalerSize = new Vector3(target, target, target);

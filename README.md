@@ -100,7 +100,7 @@ Added tutorial icons for quick progression
 Fixed counter clipping when repositioned to ordering customers
 Fixed incorrect currency calculation with trailing digits
 Fixed revenue decrease at certain cooking equipment upgrade levels
-10/04 
+10/04
 Fixed tutorial bug
 Tutorial dialogue now wraps by words
 Fixed text desync when changing language
@@ -116,4 +116,6 @@ Added new info display in guest encyclopedia
 Fixed tutorial gacha bug
 Improved counter door generation to better align with facing direction
 Fixed obstacle recognition issue in some expanded shop areas
+10/05 
+Fix the shaking issue when the employee's EXP bar increases and the UI moves
 

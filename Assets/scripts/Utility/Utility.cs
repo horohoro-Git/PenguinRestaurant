@@ -522,13 +522,13 @@ public class Utility
         if (x == cameraPosX && y == cameraPosZ && !forcedCheck) return check;
         x = cameraPosX; y = cameraPosZ;
 
-        InputManger.spawnDetects.Clear();
+        InputManager.spawnDetects.Clear();
 
 
         float tileSize = GameIns.calculatorScale.distanceSize;
         Camera cam = null;
-        if (InputManger.cachingCamera == null) cam = Camera.main;
-        else cam = InputManger.cachingCamera;
+        if (InputManager.cachingCamera == null) cam = Camera.main;
+        else cam = InputManager.cachingCamera;
         float radiusInGrid = justLoad == false ? (cam.orthographicSize / 2.5f) / tileSize : (22  / tileSize);
         float radiusSqr = radiusInGrid * radiusInGrid;
 
@@ -555,12 +555,12 @@ public class Utility
 
                   // Color debugColor = isBlocked ? Color.red : Color.green;
                   //  Debug.DrawRay(worldPos, Vector3.up * 0.5f, debugColor, 0.1f);
-                    if (!isBlocked) InputManger.spawnDetects.Add(worldPos);
+                    if (!isBlocked) InputManager.spawnDetects.Add(worldPos);
                 }
             }
         }
 
-        if (InputManger.spawnDetects.Count > 0)
+        if (InputManager.spawnDetects.Count > 0)
         {
             return true;
            // GameIns.applianceUIManager.UnlockHire(true);

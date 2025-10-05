@@ -26,7 +26,7 @@ using static UnityEngine.InputSystem.InputAction;
 //using UnityEditor.Experimental.GraphView;
 //using static DG.Tweening.DOTweenModuleUtils;
 
-public class InputManger : MonoBehaviour
+public class InputManager : MonoBehaviour
 {
     public Transform cameraTrans; // 카메라의 Transform
     public Transform cameraRange; // 카메라 이동 범위

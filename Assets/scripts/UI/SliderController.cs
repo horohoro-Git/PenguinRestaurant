@@ -28,7 +28,7 @@ public class SliderController : MonoBehaviour
     public Image sliderBorder;
     public Image sliderBar;
     int currentEXP = 0;
-    int progress;
+    float progress;
     Vector2 size = new Vector2(0,150);
     bool isEXPCoroutineRunning;
 
@@ -62,7 +62,7 @@ public class SliderController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (model != null)
+       /* if (model != null && InputManager.cachingCamera !=null)
         {
             if (model.position.y > 5)
             {
@@ -77,19 +77,27 @@ public class SliderController : MonoBehaviour
                 if (!Border.gameObject.activeSelf) Border.gameObject.SetActive(true);
                 if (!Bar.gameObject.activeSelf) Bar.gameObject.SetActive(true);
                 if (!levelTextTrans.gameObject.activeSelf) levelTextTrans.gameObject.SetActive(true);
-                Vector3 rectPosition = new Vector3(model.position.x - 50f, model.position.y + 120, model.position.z - 50f);
-                Vector3 rectPosition2 = new Vector3(model.position.x - 50f + expX, model.position.y + 120, model.position.z - 50f + expZ);
-                BG.position = rectPosition;
-                Border.position = rectPosition;
-                Bar.position = rectPosition2;
-                Vector3 rectPosition3 = new Vector3(model.position.x - 50f, model.position.y + 120, model.position.z - 50f);
-                levelTextTrans.position = rectPosition3;
-                Bar.sizeDelta = size;
+                *//*     Vector3 rectPosition = new Vector3(model.position.x - 50f, model.position.y + 120, model.position.z - 50f);
+                     Vector3 rectPosition2 = new Vector3(model.position.x - 50f + expX, model.position.y + 120, model.position.z - 50f + expZ);
+                     BG.position = rectPosition;
+                     Border.position = rectPosition;
+                     Bar.position = rectPosition2;
+                     Vector3 rectPosition3 = new Vector3(model.position.x - 50f, model.position.y + 120, model.position.z - 50f);
+                     levelTextTrans.position = rectPosition3;*//*
+             //   BG.anchoredPosition = new Vector3(0,0,0);
+                Vector2 screenPos = InputManager.cachingCamera.WorldToScreenPoint(model.position);
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(AnimalManager.employeeStatusParent.GetComponent<RectTransform>(), screenPos, AnimalManager.employeeStatusParent.GetComponent<Canvas>().worldCamera, out Vector2 uiPos);
+                uiPos.y -= 80;
+                Vector2 fixedPos = uiPos + new Vector2(0.25f, 0);
+                Border.anchoredPosition = fixedPos;
+                Bar.anchoredPosition = fixedPos;
+                BG.anchoredPosition = uiPos;
+                levelTextTrans.anchoredPosition = fixedPos;
             }
             
           
           //  rectTransform.position = rectPosition; // new Vector3(model.position.x - 50f, model.position.y + 120, model.position.z - 50f);
-        }
+        }*/
        /* if (Input.GetMouseButtonDown(0))
         {
             exp += 50;
@@ -102,6 +110,47 @@ public class SliderController : MonoBehaviour
          //   expCoroutine = StartCoroutine(IncreaseEXP());
         }*/
     }
+
+    private void LateUpdate()
+    {
+        if (model != null && InputManager.cachingCamera != null)
+        {
+            if (model.position.y > 5)
+            {
+                if (BG.gameObject.activeSelf) BG.gameObject.SetActive(false);
+                if (Border.gameObject.activeSelf) Border.gameObject.SetActive(false);
+                if (Bar.gameObject.activeSelf) Bar.gameObject.SetActive(false);
+                if (levelTextTrans.gameObject.activeSelf) levelTextTrans.gameObject.SetActive(false);
+            }
+            else
+            {
+                if (!BG.gameObject.activeSelf) BG.gameObject.SetActive(true);
+                if (!Border.gameObject.activeSelf) Border.gameObject.SetActive(true);
+                if (!Bar.gameObject.activeSelf) Bar.gameObject.SetActive(true);
+                if (!levelTextTrans.gameObject.activeSelf) levelTextTrans.gameObject.SetActive(true);
+                /*     Vector3 rectPosition = new Vector3(model.position.x - 50f, model.position.y + 120, model.position.z - 50f);
+                     Vector3 rectPosition2 = new Vector3(model.position.x - 50f + expX, model.position.y + 120, model.position.z - 50f + expZ);
+                     BG.position = rectPosition;
+                     Border.position = rectPosition;
+                     Bar.position = rectPosition2;
+                     Vector3 rectPosition3 = new Vector3(model.position.x - 50f, model.position.y + 120, model.position.z - 50f);
+                     levelTextTrans.position = rectPosition3;*/
+                //   BG.anchoredPosition = new Vector3(0,0,0);
+                Vector2 screenPos = InputManager.cachingCamera.WorldToScreenPoint(model.position);
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(AnimalManager.employeeStatusParent.GetComponent<RectTransform>(), screenPos, AnimalManager.employeeStatusParent.GetComponent<Canvas>().worldCamera, out Vector2 uiPos);
+                uiPos.y -= 80;
+                Vector2 fixedPos = uiPos + new Vector2(0.25f, 0);
+                Border.anchoredPosition = fixedPos;
+                Bar.anchoredPosition = fixedPos;
+                BG.anchoredPosition = uiPos;
+                levelTextTrans.anchoredPosition = fixedPos;
+            }
+
+
+            //  rectTransform.position = rectPosition; // new Vector3(model.position.x - 50f, model.position.y + 120, model.position.z - 50f);
+        }
+    }
+
     public void EXPChanged()
     {
         if (!isEXPCoroutineRunning)
@@ -112,6 +161,7 @@ public class SliderController : MonoBehaviour
     }
     IEnumerator IncreaseEXP()
     {
+        bool validCheck = false;
         while (true)
         {
             if(GetEXP < TargetEXP && currentEXP == GetEXP)
@@ -121,18 +171,19 @@ public class SliderController : MonoBehaviour
             }
             if (TargetEXP > currentEXP)
             {
-                int least1 = (int)(((float)currentEXP / TargetEXP) * 100);
-                int least2 = (int)(((float)GetEXP / TargetEXP) * 100);
-                least2 = least2 > 100 ? 100 : least2;
+                float least1 = (float)currentEXP / TargetEXP;
+                float least2 = (float)GetEXP / TargetEXP;
+                least2 = least2 > 1 ? 1 : least2;
 
                 float f = 0;
                 progress = least1;
                 double s = 0;
                 currentEXP = GetEXP;
 
-                while (f < 0.4f)
+                while (f < 0.2f)
                 {
-                    progress = (int)Mathf.Lerp(least1, least2, f * 2.5f);
+                    progress = Mathf.Lerp(least1, least2, f * 5f);
+                    Bar.GetComponent<Image>().fillAmount = progress;
                     size = new Vector2(0, 150);
                     s = 7.25 * progress;
                     size.x = (float)s;
@@ -156,30 +207,25 @@ public class SliderController : MonoBehaviour
             }
             if(GetEXP >= TargetEXP)
             {
-
-              
-                
+                if(validCheck) yield break;
+                validCheck = true;
                 float f = 0;
               
                 //레벨 업
                 targetEmployee.LevelUp();
 
-
-                int least1 = progress;
-                int least2 = 0;
+                
+/*
+                float least1 = 1;
+                float least2 = 0;
                // progress = 0;
                 double s = 0;
-                while (f < 0.2)
+                while (f < 0.1f)
                 {
-                    progress = (int)Mathf.Lerp(least1, least2, f * 5);
-                    size = new Vector2(0, 150);
-                    s = 7.25 * progress;
-                    size.x = (float)s;
-                   // Bar.sizeDelta = size;
-                    double x = -0.01026 * (100 - progress);
-                    double z = 0.01026 * (100 - progress);
-                    expX = (float)x;
-                    expZ = (float)z;
+                    progress = Mathf.Lerp(least1, least2, f * 10);
+                    
+                    Debug.Log(progress);
+                    Bar.GetComponent<Image>().fillAmount = progress;
                     //   Bar.position = pos;
                     f += Time.unscaledDeltaTime;
                     // if (i == least2) break;
@@ -187,17 +233,22 @@ public class SliderController : MonoBehaviour
 
                 }
                 currentEXP = 0;
-                progress = least2;
                 size.x = (float)(7.25 * progress);
                 expX = (float)(-0.01026 * (100 - progress));
-                expZ = (float)(0.01026 * (100 - progress));
-                yield return null;
-            }
+                expZ = (float)(0.01026 * (100 - progress));*/
 
+               // yield return new WaitForSecondsRealtime(0.1f);
+                progress = 0;
+                Bar.GetComponent<Image>().fillAmount = progress;
+
+              //  yield return null;
+
+            }
+            yield return null;
 
             //isEXPCoroutineRunning = false;
             //Debug.LogWarning("Error " + GetEXP + " " + TargetEXP + " " + currentEXP);
-            yield return null;
+          //  yield return null;
         }
     }
 
@@ -206,30 +257,39 @@ public class SliderController : MonoBehaviour
         if(rectTransform == null) rectTransform = GetComponent<RectTransform>();
 
         //1회 초기화
-        BG = Instantiate(BG);
         Border = Instantiate(Border);
+  //      Border.SetSiblingIndex(0);
         Bar = Instantiate(Bar);
+    //    Bar.SetSiblingIndex(1);
+        BG = Instantiate(BG);
+   //     BG.SetSiblingIndex(2);
         levelText = Instantiate(levelText);
+  //      levelText.GetComponent<RectTransform>().SetSiblingIndex(3);
         sliderBG = BG.GetComponent<Image>();
         sliderBorder = Border.GetComponent<Image>();
         sliderBar = Bar.GetComponent<Image>();
         levelTextTrans = levelText.GetComponent<RectTransform>();
-        BG.transform.position = new Vector3(100, 100, 100);
-        Border.transform.position = new Vector3(100, 100, 100);
-        Bar.transform.position = new Vector3(100, 100, 100);
-        levelText.transform.position = new Vector3(100, 100, 100);
-       // if(levelText.fontMaterial != null) levelText.fontMaterial = null;
+        //  BG.transform.position = new Vector3(100, 100, 100);
+        //   Border.transform.position = new Vector3(100, 100, 100);
+        //    Bar.transform.position = new Vector3(100, 100, 100);
+        //   levelText.transform.position = new Vector3(100, 100, 100);
+        // if(levelText.fontMaterial != null) levelText.fontMaterial = null;
         levelText.font = AssetLoader.font;
+        levelText.fontSize = 30;
         levelText.fontSharedMaterial = AssetLoader.font_mat;
-        BG.SetParent(AnimalManager.SubUIParent.transform);
-        Border.SetParent(AnimalManager.SubUIParent.transform);
-        Bar.SetParent(AnimalManager.SubUIParent.transform);
-        levelTextTrans.SetParent(AnimalManager.SubUIParent.transform);
-
-        sliderBG.sprite = AssetLoader.loadedAtlases["UI"].GetSprite("slider_bar_color_0"); //AssetLoader.atlasSprites["slider_bar_color_0"];
-        sliderBorder.sprite = AssetLoader.loadedAtlases["UI"].GetSprite("slider_bg_0"); // AssetLoader.atlasSprites["slider_bg_0"];
-        sliderBar.sprite = AssetLoader.loadedAtlases["UI"].GetSprite("slider_bar_color_0");// AssetLoader.atlasSprites["slider_bar_color_0"];
-       // Canvas.ForceUpdateCanvases();
+        Border.SetParent(AnimalManager.employeeStatusParent.transform);
+        Bar.SetParent(AnimalManager.employeeStatusParent.transform);
+        BG.SetParent(AnimalManager.employeeStatusParent.transform);
+        levelTextTrans.SetParent(AnimalManager.employeeStatusParent.transform);
+        sliderBG.sprite = AssetLoader.loadedAtlases["UI"].GetSprite("gage_bg"); //AssetLoader.atlasSprites["slider_bar_color_0"];
+        sliderBorder.sprite = AssetLoader.loadedAtlases["UI"].GetSprite("whitebox"); // AssetLoader.atlasSprites["slider_bg_0"];
+        sliderBar.sprite = AssetLoader.loadedAtlases["UI"].GetSprite("whitebox");// AssetLoader.atlasSprites["slider_bar_color_0"];
+        Bar.GetComponent<Image>().type = Image.Type.Filled;
+        Bar.GetComponent<Image>().fillAmount = 0;
+        levelText.GetComponent<RectTransform>().sizeDelta = new Vector2(137.5f, 45);
+        BG.sizeDelta = new Vector2(150, 50);
+        Bar.sizeDelta = new Vector2(137.5f, 45);
+        Border.sizeDelta = new Vector2(137.5f, 45);
     }
 
     public void Activate(bool isActivate)

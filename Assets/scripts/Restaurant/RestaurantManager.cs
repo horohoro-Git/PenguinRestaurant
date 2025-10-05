@@ -107,7 +107,7 @@ public class RestaurantManager : MonoBehaviour
     [Range(1f, 100f)]
     public float duration;
    // [Range(1f, 100f)]
-    public float Height { get { if (InputManger.cachingCamera.orthographic) return InputManger.cachingCamera.orthographicSize * 2; else return 30; } }
+    public float Height { get { if (InputManager.cachingCamera.orthographic) return InputManager.cachingCamera.orthographicSize * 2; else return 30; } }
     [Range(1f, 4f)]
     public float weight;
     [Range(1f, 4f)]
@@ -220,7 +220,7 @@ public class RestaurantManager : MonoBehaviour
         GameInstance.GameIns.uiManager.moneyText.text = moneyString.ToString();
         GameInstance.GameIns.uiManager.fishText.text = restaurantCurrency.fishes.ToString();
 
-        customerDebug = true;
+        customerDebug = false;
 
 
         GameIns.store.NewGoods(goodsStruct);
@@ -808,9 +808,9 @@ public class RestaurantManager : MonoBehaviour
 
             for (int i = 0; i < num; i++)
             {
-                int r = Random.Range(0, InputManger.spawnDetects.Count);
+                int r = Random.Range(0, InputManager.spawnDetects.Count);
 
-                Vector3 t = InputManger.spawnDetects[r];
+                Vector3 t = InputManager.spawnDetects[r];
 
                 Employee animal = GameIns.animalManager.SpawnEmployee();
                 animal.employeeLevelData = employees.employeeLevelDatas[i];
@@ -826,7 +826,7 @@ public class RestaurantManager : MonoBehaviour
                 await UniTask.NextFrame(cancellationToken: cancellationToken);
             }
 
-            InputManger.spawnDetects = new List<Vector3>();
+            InputManager.spawnDetects = new List<Vector3>();
             /*      while (true)
                   {
                       int r = Random.Range(0, InputManger.spawnDetects.Count);
@@ -1115,7 +1115,7 @@ public class RestaurantManager : MonoBehaviour
     {
         if (employees.num < 8 && employeeHire[employees.num] <= GetRestaurantValue() && GameIns.inputManager.CheckHire())
         {
-         //   GameIns.inputManager.CheckHire();
+            //테스트 GameIns.inputManager.CheckHire();
             employees.num++;
             EmployeeNum();
         }
@@ -1140,7 +1140,7 @@ public class RestaurantManager : MonoBehaviour
 
     public void EmployeeNum()
     {
-        //   for (int i = 0; i < 8; i++)
+        //테스트   for (int i = 0; i < 8; i++)
         {
             Employee animal = GameInstance.GameIns.animalManager.SpawnEmployee();
             EmployeeLevelData levelData = new EmployeeLevelData(1, 0, 5);
@@ -1154,23 +1154,15 @@ public class RestaurantManager : MonoBehaviour
             SoundManager.Instance.PlayAudio(GameIns.gameSoundManager.Quack(), 0.2f);
 
             Vector3 screenPos;
-/*#if UNITY_ANDROID || UNITY_IOS
-                screenPos = Touchscreen.current.touches[0].position.ReadValue();
-#else
-            screenPos = GameIns.applianceUIManager.hireBtn.GetComponent<RectTransform>().position; //Mouse.current.position.ReadValue();
-#endif*/
             screenPos = GameIns.applianceUIManager.hireBtn.GetComponent<RectTransform>().position;
             animal.trans.position = Camera.main.ScreenToWorldPoint(screenPos);
             GameInstance.GameIns.applianceUIManager.UnlockHire(true);
 
             animal.StartFalling(true);
-            // if (tutorialKeys.Contains(6000)) ((Action<int>)EventManager.Publish(-1, true))?.Invoke(6000);
             if (tutorialKeys.Contains((int)TutorialEventKey.HireEmployee))
             {
                 tutorialKeys.Remove((int)TutorialEventKey.HireEmployee);
                 ((Action<TutorialEventKey>)EventManager.Publish(TutorialEventKey.HireEmployee))?.Invoke(TutorialEventKey.HireEmployee);
-                //   GameIns.uiManager.TutorialStart(tutorials.id,  tutorials.count, tutorialStructs[tutorials.id].Count);
-                //    Tutorials.Setup(tutorials);
                 GameIns.uiManager.TutorialEnd(true);
             }
 

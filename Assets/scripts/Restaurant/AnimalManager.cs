@@ -75,6 +75,7 @@ public class AnimalManager : MonoBehaviour
 
    // GameObject shadowParent;
     public static GameObject SubUIParent;
+    public static GameObject employeeStatusParent;
 
     public Queue<Employee> employeeTasks = new Queue<Employee>();
     public Queue<Customer> customerTasks = new Queue<Customer>();
@@ -113,6 +114,10 @@ public class AnimalManager : MonoBehaviour
         SubUIParent = new GameObject();
         SubUIParent.AddComponent<Canvas>();
         SubUIParent.name = "subui";
+
+        employeeStatusParent = new GameObject();
+        employeeStatusParent.AddComponent<Canvas>().renderMode = RenderMode.ScreenSpaceOverlay;
+        employeeStatusParent.name = "employeeStatus";
     }
 
 
@@ -183,9 +188,9 @@ public class AnimalManager : MonoBehaviour
         //레벨 슬라이더 생성
         for (int i = 0; i < 10; i++)
         {
-            SliderController instancedSlider = Instantiate(levelSlider, SubUIParent.transform);
+            SliderController instancedSlider = Instantiate(levelSlider, employeeStatusParent.transform);
             instancedSlider.Setup();
-            instancedSlider.transform.position = new Vector3(100, 100, 100);
+            instancedSlider.transform.position = new Vector3(0, 0, 0);
             instancedSlider.Activate(false);
             instancedSlider.gameObject.SetActive(false);
             deactivateSliders.Enqueue(instancedSlider);

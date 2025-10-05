@@ -35,9 +35,9 @@ public class Table : Furniture
 
     public float weight;
     public float Height { get { 
-            if(InputManger.cachingCamera.orthographic)
+            if(InputManager.cachingCamera.orthographic)
             {
-                float size = InputManger.cachingCamera.orthographicSize / 15f;
+                float size = InputManager.cachingCamera.orthographicSize / 15f;
                 return 40f * size;   
             }
             else
@@ -174,17 +174,17 @@ public class Table : Furniture
             float elapsedTime = 0;
             Vector3 startPoint = go.transforms.position;
             Vector3 screenTarget = RectTransformUtility.WorldToScreenPoint(
-            InputManger.cachingCamera,
+            InputManager.cachingCamera,
             GameInstance.GameIns.applianceUIManager.rewardChest.transform.position
             );
 
            // Vector3 endPoint = InputManger.cachingCamera.ScreenToWorldPoint(GameInstance.GameIns.applianceUIManager.rewardChest.transform.position);
-            Vector3 endPoint = InputManger.cachingCamera.ScreenToWorldPoint(screenTarget);
+            Vector3 endPoint = InputManager.cachingCamera.ScreenToWorldPoint(screenTarget);
             Vector3 controlVector = (startPoint + endPoint) / weight + Vector3.up * Height;
 
             while (bstart)
             {
-                endPoint = InputManger.cachingCamera.ScreenToWorldPoint(GameInstance.GameIns.applianceUIManager.rewardChest.transform.position);
+                endPoint = InputManager.cachingCamera.ScreenToWorldPoint(GameInstance.GameIns.applianceUIManager.rewardChest.transform.position);
                 controlVector = (startPoint + endPoint) / weight + Vector3.up * Height;
                 elapsedTime += Time.deltaTime;
                 float t = Mathf.Clamp01(elapsedTime / 0.5f);
